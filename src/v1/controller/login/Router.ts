@@ -9,4 +9,9 @@ export const httpLogin: Readonly<RestifyRoutes[]> = Object.freeze([
         path: "login/weChat/callback/:socketID",
         handle: httpValidation(callbackValidationRules, callback),
     }),
+    Object.freeze({
+        method: "post",
+        path: "login",
+        handle: httpValidation(loginValidationRules, login),
+    }),
 ]);
