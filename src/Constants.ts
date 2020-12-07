@@ -26,3 +26,28 @@ export const Wechat = {
     APP_SECRET: process.env.WECHAT_APP_SECRET,
 };
 
+export const RedisKeyPrefix = {
+    WX_AUTH_UUID: "weChat:auth:uuid",
+    WX_REFRESH_TOKEN: "weChat:refresh:token",
+};
+
+export enum Status {
+    NoLogin = -1,
+    Success,
+    Failed,
+    Process,
+    AuthFailed,
+}
+
+export enum WeChatSocketEvents {
+    AuthID = "WeChat/AuthID",
+    LoginStatus = "WeChat/LoginStatus",
+}
+
+export enum SocketNsp {
+    Login = "Login",
+}
+
+export enum LoginPlatform {
+    WeChat = "WeChat",
+}
