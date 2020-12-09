@@ -6,9 +6,25 @@
 
 * 微信注册、登陆
 
+### 开发
+
+可以参考 `config/.env.default` 的内容，创建以下文件:
+
+* `config/.env.development.local`
+* `config/.env.production.local`
+
+其值可参考: [搭建指南](#搭建指南)
+
+然后在其项目根目录执行:
+
+```shell
+yarn install --frozen-lockfile
+yarn run start
+```
+
 ### 搭建指南
 
-你可以 `Fork` 此项目，然后在 `https://github.com/你的用户名/flat-server/settings/secrets/actions` 中添加一些私有变量。
+你可以 <kbd>Fork</kbd> 此项目，然后在 `https://github.com/你的用户名/flat-server/settings/secrets/actions` 中添加一些私有变量。
 
 其中变量列表为:
 
