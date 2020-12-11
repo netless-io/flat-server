@@ -9,6 +9,9 @@ declare namespace NodeJS {
         WECHAT_APP_ID: string;
         WECHAT_APP_SECRET: string;
 
+        AGORA_APP_ID: string;
+        AGORA_APP_CERTIFICATE: string;
+
         REDIS_HOST: string;
         REDIS_PORT: string;
         REDIS_PASSWORD: string;
