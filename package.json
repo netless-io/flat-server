@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.12.5",
+    "agora-access-token": "^2.0.4",
     "axios": "^0.21.0",
     "dayjs": "^1.9.6",
     "ioredis": "^4.19.2",
