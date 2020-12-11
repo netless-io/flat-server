@@ -1,7 +1,6 @@
 import { Next, Request, Response } from "restify";
 import redisService from "../../../service/RedisService";
 import { socketNamespaces } from "../../../store/SocketNamespaces";
-import { HTTPValidationRules } from "../../../types/Server";
 import { RedisKeyPrefix, SocketNsp, Status, WeChatSocketEvents } from "../../../../Constants";
 import { wechatRequest } from "../../../utils/WeChatRequest";
 import { getWeChatUserID, getWeChatUserInfo, registerUser } from "../../../model/user/WeChat";
@@ -81,9 +80,26 @@ export const callback = async (req: Request, res: Response, next: Next): Promise
     next();
 };
 
-export const callbackValidationRules: HTTPValidationRules = {
-    query: ["code", "state"],
-    params: ["socketID"],
+export const callbackValidationRules = {
+    query: {
+        type: "object",
+        properties: {
+            code: {
+                type: "string",
+            },
+            state: {
+                type: "string",
+            },
+        },
+    },
+    params: {
+        type: "object",
+        properties: {
+            socketID: {
+                type: "string",
+            },
+        },
+    },
 };
 
 type CallbackQuery = {

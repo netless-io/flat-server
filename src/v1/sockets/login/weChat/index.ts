@@ -1,6 +1,6 @@
 import redisService from "../../../service/RedisService";
 import { RedisKeyPrefix, Status, WeChatSocketEvents } from "../../../../Constants";
-import { IOSocket, SocketValidationRules } from "../../../types/Server";
+import { IOSocket } from "../../../types/Server";
 
 export const weChat = async (socket: IOSocket, data: AuthID): Promise<void> => {
     const { uuid } = data;
@@ -23,4 +23,11 @@ interface AuthID {
     uuid: string;
 }
 
-export const weChatValidationRules: SocketValidationRules = ["uuid"];
+export const weChatValidationRules = {
+    type: "object",
+    properties: {
+        uuid: {
+            type: "string",
+        },
+    },
+};

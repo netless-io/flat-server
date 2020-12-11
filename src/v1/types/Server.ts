@@ -17,11 +17,3 @@ export type IORoutes = Readonly<{
 export type SocketNamespaces = {
     [key in IORoutes["nsp"]]: IONsp;
 };
-
-export type HTTPValidationRules = {
-    query?: string[];
-    params?: string[];
-    body?: string[];
-};
-
-export type SocketValidationRules = string[];
