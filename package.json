@@ -51,6 +51,7 @@
     "restify-cors-middleware2": "^2.1.1",
     "restify-errors": "^8.0.2",
     "retry-axios": "^2.4.0",
+    "schema-inspector": "^1.7.0",
     "socket.io": "^3.0.3",
     "uuid": "^8.3.1"
   }
