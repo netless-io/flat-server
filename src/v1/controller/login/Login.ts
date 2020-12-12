@@ -1,5 +1,4 @@
 import redisService from "../../service/RedisService";
-import { HTTPValidationRules } from "../../types/Server";
 import { Next, Request, Response } from "restify";
 import { getWeChatUserInfo } from "../../model/user/WeChat";
 import { LoginPlatform, RedisKeyPrefix, Status } from "../../../Constants";
@@ -81,6 +80,13 @@ type CanLoginBody = {
     userID: string;
 };
 
-export const loginValidationRules: HTTPValidationRules = {
-    body: ["userID"],
+export const loginValidationRules = {
+    body: {
+        type: "object",
+        properties: {
+            userID: {
+                type: "string",
+            },
+        },
+    },
 };
