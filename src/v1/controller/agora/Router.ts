@@ -6,11 +6,13 @@ import { generateRTM, generateRTMValidationRules } from "./token/RTM";
 export const httpAgora: Readonly<RestifyRoutes[]> = Object.freeze([
     Object.freeze({
         method: "post",
+        auth: true,
         path: "agora/token/generate/rtc",
         handle: httpValidation(generateRTCValidationRules, generateRTC),
     }),
     Object.freeze({
         method: "post",
+        auth: true,
         path: "agora/token/generate/rtm",
         handle: httpValidation(generateRTMValidationRules, generateRTM),
     }),

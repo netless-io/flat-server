@@ -2,11 +2,11 @@ import errors from "restify-errors";
 // @ts-ignore
 import inspector from "schema-inspector";
 
-import { RestifyRoutes } from "../v1/types/Server";
-import { Next, Request, Response } from "restify";
+import { PatchRequest, RestifyRoutes } from "../v1/types/Server";
+import { Next, Response } from "restify";
 
 export const httpValidation = (rules: any, handle: RestifyRoutes["handle"]) => {
-    return (req: Request, res: Response, next: Next): RestifyRoutes["handle"] | void => {
+    return (req: PatchRequest, res: Response, next: Next): RestifyRoutes["handle"] | void => {
         if (typeof rules.query !== "undefined") {
             const result = inspector.validate(rules.query, req.query);
 
