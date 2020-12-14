@@ -1075,13 +1075,6 @@
     "@types/node" "*"
     "@types/restify" "*"
 
-"@types/restify-errors@^4.3.3":
-  version "4.3.3"
-  resolved "https://registry.npmjs.org/@types/restify-errors/-/restify-errors-4.3.3.tgz#2ae7d7e3f7cbf2117267d56daa8cf37ac113ba77"
-  integrity sha512-kIjSIPHH12R4ivtqnZ0FKpMBt/5EoU2EuGpAF9AcYNGm3cXYDC2foxYlhsN89A1xU5AfnnxhKrHJVXA9Zi/NxQ==
-  dependencies:
-    "@types/verror" "*"
-
 "@types/restify@*", "@types/restify@^8.4.2":
   version "8.4.2"
   resolved "https://registry.npmjs.org/@types/restify/-/restify-8.4.2.tgz#f071d971d10ad79f6073dfbbeed7729d68760e7f"
@@ -1128,11 +1121,6 @@
   version "8.3.0"
   resolved "https://registry.npmjs.org/@types/uuid/-/uuid-8.3.0.tgz#215c231dff736d5ba92410e6d602050cce7e273f"
   integrity sha512-eQ9qFW/fhfGJF8WKHGEHZEyVWfZxrT+6CLIJGBcZPfxUh/+BnEj+UCGYMlr9qZuX/2AltsvwrGqp0LhEW8D0zQ==
-
-"@types/verror@*":
-  version "1.10.4"
-  resolved "https://registry.npmjs.org/@types/verror/-/verror-1.10.4.tgz#805c0612b3a0c124cf99f517364142946b74ba3b"
-  integrity sha512-OjJdqx6QlbyZw9LShPwRW+Kmiegeg3eWNI41MQQKaG3vjdU2L9SRElntM51HmHBY1cu7izxQJ1lMYioQh3XMBg==
 
 "@types/webpack-env@^1.16.0":
   version "1.16.0"
