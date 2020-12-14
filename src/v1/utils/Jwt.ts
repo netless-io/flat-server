@@ -1,10 +1,10 @@
-import errors from "restify-errors";
 import { Algorithm, verify } from "jsonwebtoken";
 import { Next, Request, Response } from "restify";
 import { JWT } from "../../Constants";
+import { invalidContentError, invalidCredentialsError, unauthorizedError } from "./errors";
 
 export const jwtVerify = (options: Options) => {
-    return (req: Request, _res: Response, next: Next): void => {
+    return (req: Request, res: Response, next: Next): void => {
         const routePath = req.getRoute().path;
 
         if (options.skipAuthRoute?.includes(routePath)) {
@@ -14,12 +14,14 @@ export const jwtVerify = (options: Options) => {
         const authorization = req.header("Authorization");
 
         if (authorization === undefined || authorization.trim() === "") {
-            return next(new errors.InvalidCredentialsError("No authorization token was found"));
+            invalidCredentialsError(res, "No authorization token was found");
+            return next(new Error());
         }
 
         const [scheme, credentials] = authorization.split(" ");
         if (scheme !== "Bearer" || credentials === undefined) {
-            return next(new errors.InvalidCredentialsError("Authorization format error"));
+            invalidCredentialsError(res, "Authorization format error");
+            return next(new Error());
         }
 
         if (req.method === "OPTIONS") {
@@ -34,9 +36,10 @@ export const jwtVerify = (options: Options) => {
             },
             (err, decoded) => {
                 if (err) {
-                    return err.name === "TokenExpiredError"
-                        ? next(new errors.UnauthorizedError("The token has expired"))
-                        : next(new errors.InvalidCredentialsError(err));
+                    err.name === "TokenExpiredError"
+                        ? unauthorizedError(res, "The token has expired")
+                        : invalidCredentialsError(res, err.message);
+                    return next(new Error());
                 }
 
                 if (
@@ -46,7 +49,8 @@ export const jwtVerify = (options: Options) => {
                     // @ts-ignore
                     !["WeChat"].includes(decoded.loginSource)
                 ) {
-                    return next(new errors.InvalidContentError("JWT payload content error"));
+                    invalidContentError(res, "JWT payload content error");
+                    return next(new Error());
                 }
 
                 // @ts-ignore
