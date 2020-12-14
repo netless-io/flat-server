@@ -2,8 +2,8 @@ import { Next, Request, Response } from "restify";
 
 export interface PatchRequest extends Request {
     user: {
-        id: string;
-        source: "WeChat";
+        userID: string;
+        loginSource: "WeChat";
     };
 }
 

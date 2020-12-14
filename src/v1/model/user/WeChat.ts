@@ -32,12 +32,12 @@ export const getWeChatUserID = async (openID: string): Promise<string | undefine
 };
 
 export const registerUser = async (userInfo: SetUserInfo): Promise<string> => {
-    const { name, avatarURL, openID, unionID } = userInfo;
+    const { name, avatarURL, sex, openID, unionID } = userInfo;
     const conn = await mysqlService.getConnection();
 
     const insertUser = `INSERT INTO users
-        (name, avatar_url, phone, password, created_at, updated_at, last_login_platform, user_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+        (name, avatar_url, phone, password, created_at, updated_at, last_login_platform, user_id, sex)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     const insertWeChatUser = `INSERT INTO user_wechat
         (user_id, open_id, union_id)
@@ -56,6 +56,7 @@ export const registerUser = async (userInfo: SetUserInfo): Promise<string> => {
         timestamp,
         LoginPlatform.WeChat,
         uuid,
+        sex,
     ]);
     await conn.query(insertWeChatUser, [uuid, openID, unionID]);
 
@@ -67,6 +68,7 @@ export const registerUser = async (userInfo: SetUserInfo): Promise<string> => {
 export type SetUserInfo = {
     name: string;
     avatarURL: string;
+    sex: 0 | 1 | 2;
     openID: string;
     unionID: string;
 };
