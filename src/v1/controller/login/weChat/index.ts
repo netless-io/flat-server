@@ -1,7 +1,15 @@
 import { Next, Request, Response } from "restify";
+import { sign, Algorithm } from "jsonwebtoken";
 import redisService from "../../../service/RedisService";
 import { socketNamespaces } from "../../../store/SocketNamespaces";
-import { RedisKeyPrefix, SocketNsp, Status, WeChatSocketEvents } from "../../../../Constants";
+import {
+    JWT,
+    RedisKeyPrefix,
+    Server,
+    SocketNsp,
+    Status,
+    WeChatSocketEvents,
+} from "../../../../Constants";
 import { wechatRequest } from "../../../utils/WeChatRequest";
 import { getWeChatUserID, getWeChatUserInfo, registerUser } from "../../../model/user/WeChat";
 import { getAccessTokenURL, getUserInfoURL } from "../../../utils/WeChatURL";
@@ -63,13 +71,34 @@ export const callback = async (req: Request, res: Response, next: Next): Promise
 
         await redisService.del(`${RedisKeyPrefix.WX_AUTH_UUID}:${uuid}`);
 
-        socket.emit(WeChatSocketEvents.LoginStatus, {
-            status: Status.Success,
-            data: {
-                ...weChatUserInfo,
-                userid: userID,
+        sign(
+            {
+                id,
+                source: "WeChat",
             },
-        });
+            JWT.SECRET,
+            {
+                algorithm: JWT.ALGORITHMS as Algorithm,
+                issuer: Server.NAME,
+                expiresIn: "29 days",
+            },
+            (err, token) => {
+                if (err) {
+                    socket.emit(WeChatSocketEvents.LoginStatus, {
+                        status: Status.AuthFailed,
+                        message: err.message,
+                    });
+                } else {
+                    socket.emit(WeChatSocketEvents.LoginStatus, {
+                        status: Status.Success,
+                        data: {
+                            ...weChatUserInfo,
+                            token,
+                        },
+                    });
+                }
+            },
+        );
     } catch (e: unknown) {
         socket.emit(WeChatSocketEvents.LoginStatus, {
             status: Status.AuthFailed,
