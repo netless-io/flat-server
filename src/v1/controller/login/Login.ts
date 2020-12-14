@@ -1,13 +1,14 @@
 import redisService from "../../service/RedisService";
-import { Next, Request, Response } from "restify";
+import { Next, Response } from "restify";
 import { getWeChatUserInfo } from "../../model/user/WeChat";
 import { LoginPlatform, RedisKeyPrefix, Status } from "../../../Constants";
-import { getUserInfoURL, renewAccessToken } from "../../utils/WeChatURL";
+import { renewAccessToken } from "../../utils/WeChatURL";
 import { wechatRequest } from "../../utils/WeChatRequest";
-import { RefreshToken, UserInfo } from "../../types/WeChatResponse";
-import { getUserInfo, updateAvatarURL } from "../../model/user/User";
+import { RefreshToken } from "../../types/WeChatResponse";
+import { getUserInfo } from "../../model/user/User";
+import { PatchRequest } from "../../types/Server";
 
-export const login = async (req: Request, res: Response, next: Next): Promise<void> => {
+export const login = async (req: PatchRequest, res: Response, next: Next): Promise<void> => {
     const { userID } = req.body as CanLoginBody;
 
     const userInfo = await getUserInfo(userID);
@@ -43,13 +44,9 @@ export const login = async (req: Request, res: Response, next: Next): Promise<vo
             return;
         }
 
-        let weChatRequestUserInfo: UserInfo;
         try {
             const renewAccessTokenURL = renewAccessToken(refreshToken);
-            const { access_token } = await wechatRequest<RefreshToken>(renewAccessTokenURL);
-            const userInfoURL = getUserInfoURL(access_token, weChatUserInfo.open_id);
-
-            weChatRequestUserInfo = await wechatRequest<UserInfo>(userInfoURL);
+            await wechatRequest<RefreshToken>(renewAccessTokenURL);
         } catch (e: unknown) {
             res.send({
                 status: Status.AuthFailed,
@@ -60,17 +57,12 @@ export const login = async (req: Request, res: Response, next: Next): Promise<vo
 
         await res.send({
             status: Status.Success,
-            data: weChatRequestUserInfo,
+            data: {
+                name: userInfo.name,
+                sex: userInfo.sex,
+                avatar: userInfo.avatar_url,
+            },
         });
-
-        if (userInfo.avatar_url !== weChatRequestUserInfo.headimgurl) {
-            updateAvatarURL(weChatRequestUserInfo.headimgurl, userID).catch((e: Error) => {
-                console.error(
-                    `update user avatar url failed, userID: ${userID}, avatar url: ${weChatRequestUserInfo.headimgurl}`,
-                );
-                console.error(e.message);
-            });
-        }
     }
 
     next();

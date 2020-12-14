@@ -14,7 +14,8 @@ import { wechatRequest } from "../../../utils/WeChatRequest";
 import { getWeChatUserID, getWeChatUserInfo, registerUser } from "../../../model/user/WeChat";
 import { getAccessTokenURL, getUserInfoURL } from "../../../utils/WeChatURL";
 import { AccessToken, UserInfo } from "../../../types/WeChatResponse";
-import { WeChatUserField } from "../../../model/types";
+import { UserField, WeChatUserField } from "../../../model/types";
+import { getUserInfo } from "../../../model/user/User";
 
 export const callback = async (req: Request, res: Response, next: Next): Promise<void> => {
     res.header("content-type", "text/html");
@@ -53,9 +54,11 @@ export const callback = async (req: Request, res: Response, next: Next): Promise
 
         let userID = await getWeChatUserID(weChatUserInfo.openid);
         if (!userID) {
+            // TODO need upload headimgurl to remote oss server
             userID = await registerUser({
                 name: weChatUserInfo.nickname,
                 avatarURL: weChatUserInfo.headimgurl,
+                sex: weChatUserInfo.sex,
                 openID: weChatUserInfo.openid,
                 unionID: weChatUserInfo.unionid,
             });
@@ -71,10 +74,12 @@ export const callback = async (req: Request, res: Response, next: Next): Promise
 
         await redisService.del(`${RedisKeyPrefix.WX_AUTH_UUID}:${uuid}`);
 
+        const { name, avatar_url, sex } = (await getUserInfo(userID)) as UserField;
+
         sign(
             {
-                id,
-                source: "WeChat",
+                userID,
+                loginSource: "WeChat",
             },
             JWT.SECRET,
             {
@@ -92,7 +97,9 @@ export const callback = async (req: Request, res: Response, next: Next): Promise
                     socket.emit(WeChatSocketEvents.LoginStatus, {
                         status: Status.Success,
                         data: {
-                            ...weChatUserInfo,
+                            name,
+                            sex,
+                            avatar: avatar_url,
                             token,
                         },
                     });
