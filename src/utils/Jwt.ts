@@ -1,4 +1,4 @@
-const errors = require("restify-errors");
+import errors from "restify-errors";
 import { Algorithm, verify } from "jsonwebtoken";
 import { Next, Request, Response } from "restify";
 import { JWT } from "../Constants";
@@ -37,6 +37,16 @@ export const jwtVerify = (options: Options) => {
                     return err.name === "TokenExpiredError"
                         ? next(new errors.UnauthorizedError("The token has expired"))
                         : next(new errors.InvalidCredentialsError(err));
+                }
+
+                if (
+                    typeof decoded === "undefined" ||
+                    // @ts-ignore
+                    typeof decoded.userID === "undefined" ||
+                    // @ts-ignore
+                    !["WeChat"].includes(decoded.loginSource)
+                ) {
+                    return next(new errors.InvalidContentError("JWT payload content error"));
                 }
 
                 // @ts-ignore
