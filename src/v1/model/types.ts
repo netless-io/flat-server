@@ -3,6 +3,7 @@ export type UserField = {
     name: string;
     avatar_url: string;
     phone: string;
+    sex: 0 | 1 | 2;
     user_id: string;
     last_login_platform: string;
 };
