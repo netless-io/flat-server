@@ -1,7 +1,7 @@
 import errors from "restify-errors";
 import { Algorithm, verify } from "jsonwebtoken";
 import { Next, Request, Response } from "restify";
-import { JWT } from "../Constants";
+import { JWT } from "../../Constants";
 
 export const jwtVerify = (options: Options) => {
     return (req: Request, _res: Response, next: Next): void => {

@@ -7,30 +7,13 @@ import { wechatRequest } from "../../utils/WeChatRequest";
 import { RefreshToken } from "../../types/WeChatResponse";
 import { getUserInfo } from "../../model/user/User";
 import { PatchRequest } from "../../types/Server";
+import { UserField, WeChatUserField } from "../../model/types";
 
 export const login = async (req: PatchRequest, res: Response, next: Next): Promise<void> => {
-    const { userID } = req.body as CanLoginBody;
+    const { userID, loginSource } = req.user;
 
-    const userInfo = await getUserInfo(userID);
-
-    if (typeof userInfo === "undefined") {
-        res.send({
-            status: Status.AuthFailed,
-            message: "user does not exist",
-        });
-        return;
-    }
-
-    if (userInfo.last_login_platform === LoginPlatform.WeChat) {
-        const weChatUserInfo = await getWeChatUserInfo(userID);
-
-        if (typeof weChatUserInfo === "undefined") {
-            res.send({
-                status: Status.AuthFailed,
-                message: "user does not exist",
-            });
-            return;
-        }
+    if (loginSource === LoginPlatform.WeChat) {
+        const weChatUserInfo = (await getWeChatUserInfo(userID)) as WeChatUserField;
 
         const refreshToken = await redisService.get(
             `${RedisKeyPrefix.WX_REFRESH_TOKEN}:${weChatUserInfo.id}`,
@@ -55,6 +38,8 @@ export const login = async (req: PatchRequest, res: Response, next: Next): Promi
             return;
         }
 
+        const userInfo = (await getUserInfo(userID)) as UserField;
+
         await res.send({
             status: Status.Success,
             data: {
@@ -66,19 +51,4 @@ export const login = async (req: PatchRequest, res: Response, next: Next): Promi
     }
 
     next();
-};
-
-type CanLoginBody = {
-    userID: string;
-};
-
-export const loginValidationRules = {
-    body: {
-        type: "object",
-        properties: {
-            userID: {
-                type: "string",
-            },
-        },
-    },
 };

@@ -3,7 +3,7 @@ import socketIO from "socket.io";
 import corsMiddleware from "restify-cors-middleware2";
 import { Server } from "./Constants";
 import { v1RegisterHTTP, v1RegisterWs } from "./v1";
-import { jwtVerify } from "./utils/Jwt";
+import { jwtVerify } from "./v1/utils/Jwt";
 
 const socketServer = new socketIO.Server();
 
