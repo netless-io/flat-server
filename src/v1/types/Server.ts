@@ -1,9 +1,17 @@
 import { Next, Request, Response } from "restify";
 
+export interface PatchRequest extends Request {
+    user: {
+        id: string;
+        source: "WeChat";
+    };
+}
+
 export type RestifyRoutes = Readonly<{
     readonly method: "get" | "post";
+    readonly auth: boolean;
     readonly path: string;
-    readonly handle: (req: Request, res: Response, next: Next) => void;
+    readonly handle: (req: PatchRequest, res: Response, next: Next) => void;
 }>;
 
 export type IOServer = import("socket.io").Server;

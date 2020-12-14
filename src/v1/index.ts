@@ -3,14 +3,23 @@ import { socketRoutes, httpRoutes } from "./Routes";
 import { Server } from "restify";
 import { IORoutes, IOServer, RestifyRoutes } from "./types/Server";
 
-export const v1RegisterHTTP = (server: Server): void => {
+export const v1RegisterHTTP = (server: Server): string[] => {
+    const skipAuthRoute: string[] = [];
+
     // @ts-ignore
     httpRoutes.flat(Infinity).forEach((item: RestifyRoutes) => {
-        const { method, path, handle } = item;
+        const { method, auth, path, handle } = item;
+        const router = `/v1/${path}`;
+
+        if (!auth) {
+            skipAuthRoute.push(router);
+        }
 
         // @ts-ignore
-        server[method](`/v1/${path}`, [handle]);
+        server[method](router, [handle]);
     });
+
+    return skipAuthRoute;
 };
 
 export const v1RegisterWs = (io: IOServer): void => {
