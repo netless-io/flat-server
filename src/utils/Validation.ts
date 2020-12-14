@@ -3,7 +3,7 @@ import inspector from "schema-inspector";
 
 import { PatchRequest, RestifyRoutes } from "../v1/types/Server";
 import { Next, Response } from "restify";
-import { invalidContentError } from "../v1/utils/errors";
+import { invalidContentError } from "../v1/utils/Errors";
 
 export const httpValidation = (rules: any, handle: RestifyRoutes["handle"]) => {
     return (req: PatchRequest, res: Response, next: Next): RestifyRoutes["handle"] | void => {
