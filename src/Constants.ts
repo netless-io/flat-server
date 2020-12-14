@@ -29,7 +29,12 @@ export const Wechat = {
 export const Agora = {
     APP_ID: process.env.AGORA_APP_ID,
     APP_CERTIFICATE: process.env.AGORA_APP_CERTIFICATE,
-}
+};
+
+export const JWT = {
+    SECRET: process.env.JWT_SECRET,
+    ALGORITHMS: process.env.JWT_ALGORITHMS,
+};
 
 export const RedisKeyPrefix = {
     WX_AUTH_UUID: "weChat:auth:uuid",
