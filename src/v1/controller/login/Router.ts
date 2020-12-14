@@ -1,6 +1,6 @@
 import { httpValidation } from "../../../utils/Validation";
 import { callback, callbackValidationRules } from "./weChat";
-import { login, loginValidationRules } from "./Login";
+import { login } from "./Login";
 import { RestifyRoutes } from "../../types/Server";
 
 export const httpLogin: Readonly<RestifyRoutes[]> = Object.freeze([
@@ -14,6 +14,6 @@ export const httpLogin: Readonly<RestifyRoutes[]> = Object.freeze([
         method: "post",
         auth: true,
         path: "login",
-        handle: httpValidation(loginValidationRules, login),
+        handle: login,
     }),
 ]);
