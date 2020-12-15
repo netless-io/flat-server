@@ -1,9 +1,15 @@
-import { Next, Request, Response } from "restify";
 import { RtcRole, RtcTokenBuilder } from "agora-access-token";
 import { Agora, Status } from "../../../../Constants";
+import { FastifyReply, FastifyRequest } from "fastify";
+import { FastifySchema } from "../../../types/Server";
 
-export const generateRTC = async (req: Request, res: Response, next: Next): Promise<void> => {
-    const { channelName, uid } = req.body as GenerateRTCBody;
+export const generateRTC = async (
+    req: FastifyRequest<{
+        Body: GenerateRTCBody;
+    }>,
+    reply: FastifyReply,
+): Promise<void> => {
+    const { channelName, uid } = req.body;
 
     const token = RtcTokenBuilder.buildTokenWithUid(
         Agora.APP_ID,
@@ -14,30 +20,32 @@ export const generateRTC = async (req: Request, res: Response, next: Next): Prom
         0,
     );
 
-    res.send({
+    return reply.send({
         status: Status.Success,
         data: {
             token,
         },
     });
-    next();
-};
-
-export const generateRTCValidationRules = {
-    body: {
-        type: "object",
-        properties: {
-            channelName: {
-                type: "string",
-            },
-            uid: {
-                type: "string",
-            },
-        },
-    },
 };
 
 type GenerateRTCBody = {
     channelName: string;
     uid: number;
+};
+
+export const generateRTCSchemaType: FastifySchema<{
+    body: GenerateRTCBody;
+}> = {
+    body: {
+        type: "object",
+        required: ["channelName", "uid"],
+        properties: {
+            channelName: {
+                type: "string",
+            },
+            uid: {
+                type: "integer",
+            },
+        },
+    },
 };
