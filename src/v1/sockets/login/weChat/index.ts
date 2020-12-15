@@ -1,6 +1,7 @@
 import redisService from "../../../service/RedisService";
 import { RedisKeyPrefix, Status, WeChatSocketEvents } from "../../../../Constants";
 import { IOSocket } from "../../../types/Server";
+import { JSONSchemaType } from "ajv/dist/types/json-schema";
 
 export const weChat = async (socket: IOSocket, data: AuthID): Promise<void> => {
     const { uuid } = data;
@@ -23,8 +24,9 @@ interface AuthID {
     uuid: string;
 }
 
-export const weChatValidationRules = {
+export const weChatSchemaType: JSONSchemaType<AuthID> = {
     type: "object",
+    required: ["uuid"],
     properties: {
         uuid: {
             type: "string",
