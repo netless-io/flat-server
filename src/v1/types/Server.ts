@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { JSONSchemaType } from "ajv/dist/types/json-schema";
+import { WeChatSocketEvents } from "../../Constants";
 
 export interface PatchRequest<T = any> extends FastifyRequest<T> {
     user: {
@@ -37,7 +38,11 @@ export type IOSocket = import("socket.io").Socket;
 export type IONsp = import("socket.io").Namespace;
 export interface IORoutes {
     readonly nsp: string;
-    readonly handle: (socket: IOSocket) => void;
+    readonly subs: {
+        readonly eventName: WeChatSocketEvents;
+        readonly handle: (socket: IOSocket, data: any) => any;
+        readonly schema: any;
+    }[];
 }
 
 export type SocketNamespaces = {
