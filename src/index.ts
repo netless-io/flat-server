@@ -1,42 +1,42 @@
-import restify from "restify";
+import fastify from "fastify";
 import socketIO from "socket.io";
-import corsMiddleware from "restify-cors-middleware2";
-import { Server } from "./Constants";
+import cors from "fastify-cors";
+import { Server, Status } from "./Constants";
 import { v1RegisterHTTP, v1RegisterWs } from "./v1";
-import { jwtVerify } from "./v1/utils/Jwt";
+import jwtVerify from "./v1/plugins/JWT";
 
 const socketServer = new socketIO.Server();
 
-const server = restify.createServer({
-    name: Server.NAME,
-    version: Server.VERSION,
+const app = fastify({
+    caseSensitive: true,
 });
 
-socketServer.listen(server.server);
+app.setErrorHandler((errors, _request, reply) => {
+    console.error(errors);
+    reply.send({
+        status: Status.Failed,
+        message: errors.message,
+    });
+});
 
-const skipAuthRoute = v1RegisterHTTP(server);
+socketServer.listen(app.server);
+
+app.register(jwtVerify).then(() => {
+    v1RegisterHTTP(app);
+});
 
 v1RegisterWs(socketServer);
 
-const cors = corsMiddleware({
-    preflightMaxAge: 100,
-    origins: ["*"],
-    allowHeaders: ["*"],
-    exposeHeaders: [],
+app.register(cors, {
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type', 'Authorization"],
+    maxAge: 100,
 });
 
-server.pre(cors.preflight);
-server.use(cors.actual);
-
-server.use(restify.plugins.queryParser());
-server.use(restify.plugins.bodyParser());
-server.use(restify.plugins.gzipResponse());
-server.use(
-    jwtVerify({
-        skipAuthRoute,
-    }),
-);
-
-server.listen(Server.PORT, () => {
-    console.log("ready on %s", server.url);
+app.listen(Server.PORT, "0.0.0.0", (err, address) => {
+    if (err) {
+        console.error(err);
+        process.exit(1);
+    }
+    console.log("ready on %s", address);
 });

@@ -1,25 +1,31 @@
 import { socketNamespaces } from "./store/SocketNamespaces";
 import { socketRoutes, httpRoutes } from "./Routes";
-import { Server } from "restify";
-import { IORoutes, IOServer, RestifyRoutes } from "./types/Server";
+import { IORoutes, IOServer, FastifyRoutes, FastifySchema } from "./types/Server";
+import { FastifyInstance, RouteShorthandOptions } from "fastify";
 
-export const v1RegisterHTTP = (server: Server): string[] => {
-    const skipAuthRoute: string[] = [];
-
+export const v1RegisterHTTP = (server: FastifyInstance): void => {
     // @ts-ignore
-    httpRoutes.flat(Infinity).forEach((item: RestifyRoutes) => {
-        const { method, auth, path, handle } = item;
-        const router = `/v1/${path}`;
+    httpRoutes.flat(Infinity).forEach((item: FastifyRoutes) => {
+        const { method, path, handler, auth, schema } = item;
 
-        if (!auth) {
-            skipAuthRoute.push(router);
+        const serverOpts: ServerOpts = {};
+
+        if (auth) {
+            // @ts-ignore
+            serverOpts.preValidation = [server.authenticate];
         }
 
-        // @ts-ignore
-        server[method](router, [handle]);
-    });
+        if (schema) {
+            serverOpts.schema = schema;
+        }
 
-    return skipAuthRoute;
+        server[method](
+            `/v1/${path}`,
+            serverOpts,
+            // @ts-ignore
+            handler,
+        );
+    });
 };
 
 export const v1RegisterWs = (io: IOServer): void => {
@@ -31,3 +37,7 @@ export const v1RegisterWs = (io: IOServer): void => {
         socketNamespaces[nsp].on("connection", handle);
     });
 };
+
+interface ServerOpts extends RouteShorthandOptions {
+    schema?: FastifySchema;
+}

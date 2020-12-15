@@ -1,19 +1,20 @@
-import { httpValidation } from "../../../utils/Validation";
-import { RestifyRoutes } from "../../types/Server";
-import { generateRTC, generateRTCValidationRules } from "./token/RTC";
-import { generateRTM, generateRTMValidationRules } from "./token/RTM";
+import { FastifyRoutes } from "../../types/Server";
+import { generateRTC, generateRTCSchemaType } from "./token/RTC";
+import { generateRTM, generateRTMSchemaType } from "./token/RTM";
 
-export const httpAgora: Readonly<RestifyRoutes[]> = Object.freeze([
+export const httpAgora: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
         method: "post",
-        auth: true,
         path: "agora/token/generate/rtc",
-        handle: httpValidation(generateRTCValidationRules, generateRTC),
+        handler: generateRTC,
+        auth: true,
+        schema: generateRTCSchemaType,
     }),
     Object.freeze({
         method: "post",
-        auth: true,
         path: "agora/token/generate/rtm",
-        handle: httpValidation(generateRTMValidationRules, generateRTM),
+        handler: generateRTM,
+        auth: true,
+        schema: generateRTMSchemaType,
     }),
 ]);

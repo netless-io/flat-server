@@ -1,33 +1,33 @@
-import { Next, Request, Response } from "restify";
-import { sign, Algorithm } from "jsonwebtoken";
 import redisService from "../../../service/RedisService";
 import { socketNamespaces } from "../../../store/SocketNamespaces";
-import {
-    JWT,
-    RedisKeyPrefix,
-    Server,
-    SocketNsp,
-    Status,
-    WeChatSocketEvents,
-} from "../../../../Constants";
+import { RedisKeyPrefix, SocketNsp, Status, WeChatSocketEvents } from "../../../../Constants";
 import { wechatRequest } from "../../../utils/WeChatRequest";
 import { getWeChatUserID, getWeChatUserInfo, registerUser } from "../../../model/user/WeChat";
 import { getAccessTokenURL, getUserInfoURL } from "../../../utils/WeChatURL";
 import { AccessToken, UserInfo } from "../../../types/WeChatResponse";
 import { UserField, WeChatUserField } from "../../../model/types";
 import { getUserInfo } from "../../../model/user/User";
+import { FastifyReply } from "fastify";
+import { FastifySchema, PatchRequest } from "../../../types/Server";
 
-export const callback = async (req: Request, res: Response, next: Next): Promise<void> => {
-    res.header("content-type", "text/html");
-    res.end("");
+export const callback = async (
+    req: PatchRequest<{
+        Querystring: CallbackQuery;
+    }>,
+    reply: FastifyReply,
+): Promise<void> => {
+    reply.headers({
+        "content-type": "text/html",
+    });
+    reply.send();
 
-    const { state: uuid, code } = req.query as CallbackQuery;
+    const { state: uuid, code } = req.query;
     const { socketID } = req.params as CallbackParams;
 
     const socket = socketNamespaces[SocketNsp.Login].sockets.get(socketID);
 
     if (typeof socket === "undefined") {
-        return next();
+        return;
     }
 
     socket.emit(WeChatSocketEvents.LoginStatus, {
@@ -42,7 +42,7 @@ export const callback = async (req: Request, res: Response, next: Next): Promise
             message: `uuid verification failed, current uuid: ${code}`,
         });
 
-        return next();
+        return;
     }
 
     try {
@@ -76,18 +76,12 @@ export const callback = async (req: Request, res: Response, next: Next): Promise
 
         const { name, avatar_url, sex } = (await getUserInfo(userID)) as UserField;
 
-        sign(
+        reply.jwtSign(
             {
                 userID,
                 loginSource: "WeChat",
             },
-            JWT.SECRET,
-            {
-                algorithm: JWT.ALGORITHMS as Algorithm,
-                issuer: Server.NAME,
-                expiresIn: "29 days",
-            },
-            (err, token) => {
+            (err: any, token: any) => {
                 if (err) {
                     socket.emit(WeChatSocketEvents.LoginStatus, {
                         status: Status.AuthFailed,
@@ -112,13 +106,24 @@ export const callback = async (req: Request, res: Response, next: Next): Promise
             message: (e as Error).message,
         });
     }
-
-    next();
 };
 
-export const callbackValidationRules = {
-    query: {
+type CallbackQuery = {
+    state: string;
+    code: string;
+};
+
+type CallbackParams = {
+    socketID: string;
+};
+
+export const callbackSchemaType: FastifySchema<{
+    querystring: CallbackQuery;
+    params: CallbackParams;
+}> = {
+    querystring: {
         type: "object",
+        required: ["code", "state"],
         properties: {
             code: {
                 type: "string",
@@ -130,19 +135,11 @@ export const callbackValidationRules = {
     },
     params: {
         type: "object",
+        required: ["socketID"],
         properties: {
             socketID: {
                 type: "string",
             },
         },
     },
-};
-
-type CallbackQuery = {
-    state: string;
-    code: string;
-};
-
-type CallbackParams = {
-    socketID: string;
 };
