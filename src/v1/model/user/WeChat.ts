@@ -43,7 +43,6 @@ export const registerUser = async (userInfo: SetUserInfo): Promise<string> => {
         (user_id, open_id, union_id)
         VALUES(?, ?, ?)`;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const uuid = v4();
     const timestamp = dayjs(Date.now()).utc().format("YYYY-MM-DD HH:mm:ss");
 

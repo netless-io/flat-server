@@ -1,5 +1,4 @@
 import redisService from "../../service/RedisService";
-import { Next, Response } from "restify";
 import { getWeChatUserInfo } from "../../model/user/WeChat";
 import { LoginPlatform, RedisKeyPrefix, Status } from "../../../Constants";
 import { renewAccessToken } from "../../utils/WeChatURL";
@@ -8,8 +7,9 @@ import { RefreshToken } from "../../types/WeChatResponse";
 import { getUserInfo } from "../../model/user/User";
 import { PatchRequest } from "../../types/Server";
 import { UserField, WeChatUserField } from "../../model/types";
+import { FastifyReply } from "fastify";
 
-export const login = async (req: PatchRequest, res: Response, next: Next): Promise<void> => {
+export const login = async (req: PatchRequest, reply: FastifyReply): Promise<void> => {
     const { userID, loginSource } = req.user;
 
     if (loginSource === LoginPlatform.WeChat) {
@@ -20,27 +20,25 @@ export const login = async (req: PatchRequest, res: Response, next: Next): Promi
         );
 
         if (refreshToken === null) {
-            res.send({
+            return reply.send({
                 status: Status.AuthFailed,
                 message: "The account token has expired, please log in again",
             });
-            return;
         }
 
         try {
             const renewAccessTokenURL = renewAccessToken(refreshToken);
             await wechatRequest<RefreshToken>(renewAccessTokenURL);
         } catch (e: unknown) {
-            res.send({
+            return reply.send({
                 status: Status.AuthFailed,
                 message: (e as Error).message,
             });
-            return;
         }
 
         const userInfo = (await getUserInfo(userID)) as UserField;
 
-        await res.send({
+        reply.send({
             status: Status.Success,
             data: {
                 name: userInfo.name,
@@ -49,6 +47,4 @@ export const login = async (req: PatchRequest, res: Response, next: Next): Promi
             },
         });
     }
-
-    next();
 };
