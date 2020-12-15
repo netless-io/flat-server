@@ -92,9 +92,10 @@ export const callback = async (
                         status: Status.Success,
                         data: {
                             name,
-                            sex,
+                            sex: Number(sex),
                             avatar: avatar_url,
                             token,
+                            userID,
                         },
                     });
                 }
