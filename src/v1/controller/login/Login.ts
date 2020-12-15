@@ -42,8 +42,9 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
             status: Status.Success,
             data: {
                 name: userInfo.name,
-                sex: userInfo.sex,
+                sex: Number(userInfo.sex),
                 avatar: userInfo.avatar_url,
+                userID,
             },
         });
     }
