@@ -1,27 +1,80 @@
-import { UserField } from "../types";
-import { mysqlService } from "../../service/MysqlService";
-import { RowDataPacket } from "mysql2";
-import { dayjs } from "../../../utils/Dayjs";
+import { sequelize } from "../../service/SequelizeService";
+import { DataTypes, Model, Optional } from "sequelize";
 
-export const getUserInfo = async (userID: string): Promise<UserField | undefined> => {
-    const conn = await mysqlService.getConnection();
+export interface UserAttributes {
+    id: number;
+    user_id: string;
+    name: string;
+    avatar_url: string;
+    phone: string;
+    password: string;
+    sex: 1 | 2;
+    last_login_platform: string;
+    created_at: string;
+    updated_at: string;
+}
 
-    const sql = "SELECT * FROM users WHERE user_id = ?";
+interface UserCreationAttributes extends Optional<UserAttributes, "id"> {}
 
-    const data = await conn.query(sql, [userID]);
-    conn.release();
-
-    const rows = data[0] as UserField[];
-
-    return rows[0];
-};
-
-export const updateAvatarURL = async (userID: string, avatarURL: string): Promise<void> => {
-    const timestamp = dayjs(Date.now()).utc().format("YYYY-MM-DD HH:mm:ss");
-    const conn = await mysqlService.getConnection();
-
-    const sql = "UPDATE users SET avatar_url = ?, updated_at = ? WHERE user_id = ?";
-
-    await conn.query<RowDataPacket[]>(sql, [avatarURL, timestamp, userID]);
-    conn.release();
-};
+export const UserModel = sequelize.define<Model<UserAttributes, UserCreationAttributes>>(
+    "users",
+    {
+        id: {
+            type: DataTypes.BIGINT,
+            allowNull: false,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        user_id: {
+            type: DataTypes.STRING(40),
+            allowNull: false,
+            unique: true,
+        },
+        name: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+        },
+        avatar_url: {
+            type: DataTypes.STRING(2083),
+            allowNull: false,
+        },
+        phone: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        password: {
+            type: DataTypes.STRING(32),
+            allowNull: false,
+        },
+        sex: {
+            type: DataTypes.CHAR(1),
+            allowNull: false,
+            set(value: number): void {
+                // @ts-ignore
+                this.setDataValue("sex", String(value));
+            },
+            get(): number {
+                const rawValue = this.getDataValue("sex");
+                return Number(rawValue);
+            },
+        },
+        last_login_platform: {
+            type: DataTypes.STRING(40),
+            allowNull: false,
+        },
+        created_at: {
+            type: DataTypes.TIME,
+            allowNull: false,
+        },
+        updated_at: {
+            type: DataTypes.TIME,
+            allowNull: false,
+        },
+    },
+    {
+        freezeTableName: true,
+        timestamps: false,
+        createdAt: false,
+        updatedAt: false,
+    },
+);
