@@ -1,7 +1,7 @@
-import { Wechat } from "../../Constants";
+import { WeChat } from "../../Constants";
 
 export const getAccessTokenURL = (code: string): string => {
-    return `https://api.weixin.qq.com/sns/oauth2/access_token?appid=${Wechat.APP_ID}&secret=${Wechat.APP_SECRET}&code=${code}&grant_type=authorization_code`;
+    return `https://api.weixin.qq.com/sns/oauth2/access_token?appid=${WeChat.APP_ID}&secret=${WeChat.APP_SECRET}&code=${code}&grant_type=authorization_code`;
 };
 
 export const getUserInfoURL = (accessToken: string, openid: string): string => {
@@ -9,5 +9,5 @@ export const getUserInfoURL = (accessToken: string, openid: string): string => {
 };
 
 export const renewAccessToken = (refreshToken: string): string => {
-    return `https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=${Wechat.APP_ID}&grant_type=refresh_token&refresh_token=${refreshToken}`;
+    return `https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=${WeChat.APP_ID}&grant_type=refresh_token&refresh_token=${refreshToken}`;
 };
