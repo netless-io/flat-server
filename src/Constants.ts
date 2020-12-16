@@ -21,7 +21,7 @@ export const MySQL = {
     DB: process.env.MYSQL_DB,
 };
 
-export const Wechat = {
+export const WeChat = {
     APP_ID: process.env.WECHAT_APP_ID,
     APP_SECRET: process.env.WECHAT_APP_SECRET,
 };
