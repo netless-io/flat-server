@@ -135,7 +135,6 @@ export const callback = async (
                             avatar: avatar_url,
                             userID,
                             token,
-                            userID,
                         },
                     });
                 }
