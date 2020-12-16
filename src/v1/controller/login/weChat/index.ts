@@ -2,13 +2,15 @@ import redisService from "../../../service/RedisService";
 import { socketNamespaces } from "../../../store/SocketNamespaces";
 import { RedisKeyPrefix, SocketNsp, Status, WeChatSocketEvents } from "../../../../Constants";
 import { wechatRequest } from "../../../utils/WeChatRequest";
-import { getWeChatUserID, getWeChatUserInfo, registerUser } from "../../../model/user/WeChat";
 import { getAccessTokenURL, getUserInfoURL } from "../../../utils/WeChatURL";
 import { AccessToken, UserInfo } from "../../../types/WeChatResponse";
-import { UserField, WeChatUserField } from "../../../model/types";
-import { getUserInfo } from "../../../model/user/User";
 import { FastifyReply } from "fastify";
 import { FastifySchema, PatchRequest } from "../../../types/Server";
+import { UserWeChatAttributes, UserWeChatModel } from "../../../model/user/WeChat";
+import { UserAttributes, UserModel } from "../../../model/user/User";
+import { timestampFormat } from "../../../../utils/Time";
+import { v4 } from "uuid";
+import { Model } from "sequelize";
 
 export const callback = async (
     req: PatchRequest<{
@@ -52,19 +54,49 @@ export const callback = async (
         const userInfoURL = getUserInfoURL(accessToken.access_token, accessToken.openid);
         const weChatUserInfo = await wechatRequest<UserInfo>(userInfoURL);
 
-        let userID = await getWeChatUserID(weChatUserInfo.openid);
-        if (!userID) {
-            // TODO need upload headimgurl to remote oss server
-            userID = await registerUser({
+        const getUserIDByUserWeChatInstance = await UserWeChatModel.findOne({
+            where: {
+                open_id: weChatUserInfo.openid,
+            },
+            attributes: ["user_id"],
+        });
+
+        let userID = "";
+        if (getUserIDByUserWeChatInstance === null) {
+            const timestamp = timestampFormat();
+            userID = v4();
+
+            await UserModel.create({
                 name: weChatUserInfo.nickname,
-                avatarURL: weChatUserInfo.headimgurl,
+                user_id: userID,
+                // TODO need upload headimgurl to remote oss server
+                avatar_url: weChatUserInfo.headimgurl,
                 sex: weChatUserInfo.sex,
-                openID: weChatUserInfo.openid,
-                unionID: weChatUserInfo.unionid,
+                password: "",
+                phone: "",
+                last_login_platform: "WeChat",
+                created_at: timestamp,
+                updated_at: timestamp,
             });
+            await UserWeChatModel.create({
+                user_id: userID,
+                open_id: weChatUserInfo.openid,
+                union_id: weChatUserInfo.unionid,
+                updated_at: timestamp,
+                created_at: timestamp,
+            });
+        } else {
+            userID = getUserIDByUserWeChatInstance.get().user_id;
         }
 
-        const { id } = (await getWeChatUserInfo(userID)) as WeChatUserField;
+        const getIDByUserWeChatInstance = (await UserWeChatModel.findOne({
+            where: {
+                user_id: userID,
+            },
+            attributes: ["id"],
+        })) as Model<UserWeChatAttributes>;
+
+        const id = getIDByUserWeChatInstance.get().id;
 
         await redisService.set(
             `${RedisKeyPrefix.WX_REFRESH_TOKEN}:${id}`,
@@ -74,7 +106,14 @@ export const callback = async (
 
         await redisService.del(`${RedisKeyPrefix.WX_AUTH_UUID}:${uuid}`);
 
-        const { name, avatar_url, sex } = (await getUserInfo(userID)) as UserField;
+        const getUserInfoByUserInstance = (await UserModel.findOne({
+            where: {
+                user_id: userID,
+            },
+            attributes: ["name", "sex", "avatar_url"],
+        })) as Model<UserAttributes>;
+
+        const { name, avatar_url, sex } = getUserInfoByUserInstance.get();
 
         reply.jwtSign(
             {
@@ -94,6 +133,7 @@ export const callback = async (
                             name,
                             sex: Number(sex),
                             avatar: avatar_url,
+                            userID,
                             token,
                             userID,
                         },
