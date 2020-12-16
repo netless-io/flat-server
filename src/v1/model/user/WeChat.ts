@@ -1,73 +1,55 @@
-import { v4 } from "uuid";
-import { RowDataPacket } from "mysql2";
-import { dayjs } from "../../../utils/Dayjs";
-import { mysqlService } from "../../service/MysqlService";
-import { WeChatUserField } from "../types";
-import { LoginPlatform } from "../../../Constants";
+import { sequelize } from "../../service/SequelizeService";
+import { Model, DataTypes, Optional } from "sequelize";
 
-export const getWeChatUserInfo = async (userID: string): Promise<WeChatUserField | undefined> => {
-    const conn = await mysqlService.getConnection();
+export interface UserWeChatAttributes {
+    id: number;
+    user_id: string;
+    open_id: string;
+    union_id: string;
+    created_at: string;
+    updated_at: string;
+}
 
-    const sql = "SELECT * FROM user_wechat WHERE user_id = ?";
+interface UserWeChatCreationAttributes extends Optional<UserWeChatAttributes, "id"> {}
 
-    const data = await conn.query(sql, [userID]);
-    conn.release();
-
-    const rows = data[0] as WeChatUserField[];
-
-    return rows[0];
-};
-
-export const getWeChatUserID = async (openID: string): Promise<string | undefined> => {
-    const conn = await mysqlService.getConnection();
-
-    const sql = "SELECT user_id from user_wechat WHERE open_id = ?";
-
-    const data = await conn.query<RowDataPacket[]>(sql, [openID]);
-    conn.release();
-
-    const rows = data[0] as Pick<WeChatUserField, "user_id">[];
-
-    return rows[0] ? rows[0].user_id : undefined;
-};
-
-export const registerUser = async (userInfo: SetUserInfo): Promise<string> => {
-    const { name, avatarURL, sex, openID, unionID } = userInfo;
-    const conn = await mysqlService.getConnection();
-
-    const insertUser = `INSERT INTO users
-        (name, avatar_url, phone, password, created_at, updated_at, last_login_platform, user_id, sex)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-    const insertWeChatUser = `INSERT INTO user_wechat
-        (user_id, open_id, union_id)
-        VALUES(?, ?, ?)`;
-
-    const uuid = v4();
-    const timestamp = dayjs(Date.now()).utc().format("YYYY-MM-DD HH:mm:ss");
-
-    await conn.query(insertUser, [
-        name,
-        avatarURL,
-        "",
-        "",
-        timestamp,
-        timestamp,
-        LoginPlatform.WeChat,
-        uuid,
-        sex,
-    ]);
-    await conn.query(insertWeChatUser, [uuid, openID, unionID]);
-
-    conn.release();
-
-    return uuid;
-};
-
-export type SetUserInfo = {
-    name: string;
-    avatarURL: string;
-    sex: 0 | 1 | 2;
-    openID: string;
-    unionID: string;
-};
+export const UserWeChatModel = sequelize.define<
+    Model<UserWeChatAttributes, UserWeChatCreationAttributes>
+>(
+    "users_wechat",
+    {
+        id: {
+            type: DataTypes.BIGINT,
+            allowNull: false,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        user_id: {
+            type: DataTypes.STRING(40),
+            allowNull: false,
+            unique: true,
+        },
+        open_id: {
+            type: DataTypes.STRING(40),
+            allowNull: false,
+            unique: true,
+        },
+        union_id: {
+            type: DataTypes.STRING(40),
+            allowNull: false,
+        },
+        created_at: {
+            type: DataTypes.TIME,
+            allowNull: false,
+        },
+        updated_at: {
+            type: DataTypes.TIME,
+            allowNull: false,
+        },
+    },
+    {
+        freezeTableName: true,
+        timestamps: false,
+        createdAt: false,
+        updatedAt: false,
+    },
+);
