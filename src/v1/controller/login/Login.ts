@@ -5,20 +5,35 @@ import { wechatRequest } from "../../utils/WeChatRequest";
 import { RefreshToken } from "../../types/WeChatResponse";
 import { PatchRequest } from "../../types/Server";
 import { FastifyReply } from "fastify";
-import { UserAttributes, UserModel } from "../../model/user/User";
-import { Model } from "sequelize";
-import { UserWeChatAttributes, UserWeChatModel } from "../../model/user/WeChat";
+import { UserModel } from "../../model/user/User";
+import { UserWeChatModel } from "../../model/user/WeChat";
 
 export const login = async (req: PatchRequest, reply: FastifyReply): Promise<void> => {
     const { userID, loginSource } = req.user;
 
     if (loginSource === LoginPlatform.WeChat) {
-        const weChatUserInfoInstance = (await UserWeChatModel.findOne({
+        const weChatUserInfoInstance = await UserWeChatModel.findOne({
             where: {
                 user_id: userID,
+                is_delete: false,
             },
             attributes: ["id"],
-        })) as Model<UserWeChatAttributes>;
+        });
+
+        const userInfoInstance = await UserModel.findOne({
+            where: {
+                user_id: userID,
+                is_delete: false,
+            },
+            attributes: ["name", "sex", "avatar_url"],
+        });
+
+        if (weChatUserInfoInstance === null || userInfoInstance === null) {
+            return reply.send({
+                status: Status.Failed,
+                message: "User does not exist",
+            });
+        }
 
         const weChatUserID = weChatUserInfoInstance.get().id;
 
@@ -42,13 +57,6 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
                 message: (e as Error).message,
             });
         }
-
-        const userInfoInstance = (await UserModel.findOne({
-            where: {
-                user_id: userID,
-            },
-            attributes: ["name", "sex", "avatar_url"],
-        })) as Model<UserAttributes>;
 
         const userInfo = userInfoInstance.get();
 

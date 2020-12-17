@@ -11,6 +11,7 @@ import { UserAttributes, UserModel } from "../../../model/user/User";
 import { timestampFormat } from "../../../../utils/Time";
 import { v4 } from "uuid";
 import { Model } from "sequelize";
+import { sequelize } from "../../../service/SequelizeService";
 
 export const callback = async (
     req: PatchRequest<{
@@ -57,6 +58,7 @@ export const callback = async (
         const getUserIDByUserWeChatInstance = await UserWeChatModel.findOne({
             where: {
                 open_id: weChatUserInfo.openid,
+                is_delete: false,
             },
             attributes: ["user_id"],
         });
@@ -66,25 +68,45 @@ export const callback = async (
             const timestamp = timestampFormat();
             userID = v4();
 
-            await UserModel.create({
-                name: weChatUserInfo.nickname,
-                user_id: userID,
-                // TODO need upload headimgurl to remote oss server
-                avatar_url: weChatUserInfo.headimgurl,
-                sex: weChatUserInfo.sex,
-                password: "",
-                phone: "",
-                last_login_platform: "WeChat",
-                created_at: timestamp,
-                updated_at: timestamp,
-            });
-            await UserWeChatModel.create({
-                user_id: userID,
-                open_id: weChatUserInfo.openid,
-                union_id: weChatUserInfo.unionid,
-                updated_at: timestamp,
-                created_at: timestamp,
-            });
+            await sequelize
+                .transaction(async t => {
+                    const createUser = UserModel.create(
+                        {
+                            name: weChatUserInfo.nickname,
+                            user_id: userID,
+                            // TODO need upload headimgurl to remote oss server
+                            avatar_url: weChatUserInfo.headimgurl,
+                            sex: weChatUserInfo.sex,
+                            password: "",
+                            phone: "",
+                            last_login_platform: "WeChat",
+                            created_at: timestamp,
+                            updated_at: timestamp,
+                            version: 0,
+                            is_delete: false,
+                        },
+                        { transaction: t },
+                    );
+
+                    const createWeChatUser = UserWeChatModel.create(
+                        {
+                            user_id: userID,
+                            open_id: weChatUserInfo.openid,
+                            union_id: weChatUserInfo.unionid,
+                            updated_at: timestamp,
+                            created_at: timestamp,
+                            version: 0,
+                            is_delete: false,
+                        },
+                        { transaction: t },
+                    );
+
+                    return Promise.all([createUser, createWeChatUser]);
+                })
+                .catch(e => {
+                    console.error(e);
+                    throw new Error("Failed to create user");
+                });
         } else {
             userID = getUserIDByUserWeChatInstance.get().user_id;
         }

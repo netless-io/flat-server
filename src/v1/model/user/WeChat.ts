@@ -8,6 +8,8 @@ export interface UserWeChatAttributes {
     union_id: string;
     created_at: string;
     updated_at: string;
+    version: number;
+    is_delete: boolean;
 }
 
 interface UserWeChatCreationAttributes extends Optional<UserWeChatAttributes, "id"> {}
@@ -42,8 +44,30 @@ export const UserWeChatModel = sequelize.define<
             allowNull: false,
         },
         updated_at: {
-            type: DataTypes.TIME,
+            type: DataTypes.DATE,
             allowNull: false,
+        },
+        version: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        is_delete: {
+            type: DataTypes.CHAR(1),
+            allowNull: false,
+            set(value: boolean): void {
+                // @ts-ignore
+                this.setDataValue("is_delete", value ? "1" : "0");
+            },
+            get(): boolean {
+                const rawValue = this.getDataValue("is_delete");
+
+                if (rawValue) {
+                    // @ts-ignore
+                    return rawValue === "1";
+                }
+
+                return rawValue;
+            },
         },
     },
     {
