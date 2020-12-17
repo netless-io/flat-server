@@ -57,7 +57,12 @@ export const UserModel = sequelize.define<Model<UserAttributes, UserCreationAttr
             },
             get(): number {
                 const rawValue = this.getDataValue("sex");
-                return Number(rawValue);
+
+                if (rawValue) {
+                    return Number(rawValue);
+                }
+
+                return rawValue;
             },
         },
         last_login_platform: {
