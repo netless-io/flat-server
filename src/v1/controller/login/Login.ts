@@ -9,12 +9,12 @@ import { UserModel } from "../../model/user/User";
 import { UserWeChatModel } from "../../model/user/WeChat";
 
 export const login = async (req: PatchRequest, reply: FastifyReply): Promise<void> => {
-    const { userID, loginSource } = req.user;
+    const { userUUID, loginSource } = req.user;
 
     if (loginSource === LoginPlatform.WeChat) {
         const weChatUserInfoInstance = await UserWeChatModel.findOne({
             where: {
-                user_uuid: userID,
+                user_uuid: userUUID,
                 is_delete: false,
             },
             attributes: ["id"],
@@ -22,7 +22,7 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
 
         const userInfoInstance = await UserModel.findOne({
             where: {
-                user_uuid: userID,
+                user_uuid: userUUID,
                 is_delete: false,
             },
             attributes: ["user_name", "sex", "avatar_url"],
@@ -66,7 +66,7 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
                 name: userInfo.user_name,
                 sex: Number(userInfo.sex),
                 avatar: userInfo.avatar_url,
-                userID,
+                userUUID,
             },
         });
     }

@@ -139,7 +139,7 @@ export const callback = async (
 
         reply.jwtSign(
             {
-                userID: userUUID,
+                userUUID,
                 loginSource: "WeChat",
             },
             (err: any, token: any) => {
