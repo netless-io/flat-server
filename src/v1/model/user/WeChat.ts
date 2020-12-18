@@ -3,9 +3,9 @@ import { Model, DataTypes, Optional } from "sequelize";
 
 export interface UserWeChatAttributes {
     id: number;
-    user_id: string;
-    open_id: string;
-    union_id: string;
+    user_uuid: string;
+    open_uuid: string;
+    union_uuid: string;
     created_at: string;
     updated_at: string;
     version: number;
@@ -25,17 +25,17 @@ export const UserWeChatModel = sequelize.define<
             primaryKey: true,
             autoIncrement: true,
         },
-        user_id: {
+        user_uuid: {
             type: DataTypes.STRING(40),
             allowNull: false,
             unique: true,
         },
-        open_id: {
+        open_uuid: {
             type: DataTypes.STRING(40),
             allowNull: false,
             unique: true,
         },
-        union_id: {
+        union_uuid: {
             type: DataTypes.STRING(40),
             allowNull: false,
         },

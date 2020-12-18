@@ -57,27 +57,27 @@ export const callback = async (
 
         const getUserIDByUserWeChatInstance = await UserWeChatModel.findOne({
             where: {
-                open_id: weChatUserInfo.openid,
+                open_uuid: weChatUserInfo.openid,
                 is_delete: false,
             },
-            attributes: ["user_id"],
+            attributes: ["user_uuid"],
         });
 
-        let userID = "";
+        let userUUID = "";
         if (getUserIDByUserWeChatInstance === null) {
             const timestamp = timestampFormat();
-            userID = v4();
+            userUUID = v4();
 
             await sequelize
                 .transaction(async t => {
                     const createUser = UserModel.create(
                         {
-                            name: weChatUserInfo.nickname,
-                            user_id: userID,
+                            user_name: weChatUserInfo.nickname,
+                            user_uuid: userUUID,
                             // TODO need upload headimgurl to remote oss server
                             avatar_url: weChatUserInfo.headimgurl,
                             sex: weChatUserInfo.sex,
-                            password: "",
+                            user_password: "",
                             phone: "",
                             last_login_platform: "WeChat",
                             created_at: timestamp,
@@ -90,9 +90,9 @@ export const callback = async (
 
                     const createWeChatUser = UserWeChatModel.create(
                         {
-                            user_id: userID,
-                            open_id: weChatUserInfo.openid,
-                            union_id: weChatUserInfo.unionid,
+                            user_uuid: userUUID,
+                            open_uuid: weChatUserInfo.openid,
+                            union_uuid: weChatUserInfo.unionid,
                             updated_at: timestamp,
                             created_at: timestamp,
                             version: 0,
@@ -108,12 +108,12 @@ export const callback = async (
                     throw new Error("Failed to create user");
                 });
         } else {
-            userID = getUserIDByUserWeChatInstance.get().user_id;
+            userUUID = getUserIDByUserWeChatInstance.get().user_uuid;
         }
 
         const getIDByUserWeChatInstance = (await UserWeChatModel.findOne({
             where: {
-                user_id: userID,
+                user_uuid: userUUID,
             },
             attributes: ["id"],
         })) as Model<UserWeChatAttributes>;
@@ -130,16 +130,16 @@ export const callback = async (
 
         const getUserInfoByUserInstance = (await UserModel.findOne({
             where: {
-                user_id: userID,
+                user_uuid: userUUID,
             },
-            attributes: ["name", "sex", "avatar_url"],
+            attributes: ["user_name", "sex", "avatar_url"],
         })) as Model<UserAttributes>;
 
-        const { name, avatar_url, sex } = getUserInfoByUserInstance.get();
+        const { user_name, avatar_url, sex } = getUserInfoByUserInstance.get();
 
         reply.jwtSign(
             {
-                userID,
+                userUUID,
                 loginSource: "WeChat",
             },
             (err: any, token: any) => {
@@ -152,10 +152,10 @@ export const callback = async (
                     socket.emit(WeChatSocketEvents.LoginStatus, {
                         status: Status.Success,
                         data: {
-                            name,
+                            name: user_name,
                             sex: Number(sex),
                             avatar: avatar_url,
-                            userID,
+                            userUUID,
                             token,
                         },
                     });
