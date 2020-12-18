@@ -14,7 +14,7 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
     if (loginSource === LoginPlatform.WeChat) {
         const weChatUserInfoInstance = await UserWeChatModel.findOne({
             where: {
-                user_id: userID,
+                user_uuid: userID,
                 is_delete: false,
             },
             attributes: ["id"],
@@ -22,10 +22,10 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
 
         const userInfoInstance = await UserModel.findOne({
             where: {
-                user_id: userID,
+                user_uuid: userID,
                 is_delete: false,
             },
-            attributes: ["name", "sex", "avatar_url"],
+            attributes: ["user_name", "sex", "avatar_url"],
         });
 
         if (weChatUserInfoInstance === null || userInfoInstance === null) {
@@ -63,7 +63,7 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
         reply.send({
             status: Status.Success,
             data: {
-                name: userInfo.name,
+                name: userInfo.user_name,
                 sex: Number(userInfo.sex),
                 avatar: userInfo.avatar_url,
                 userID,

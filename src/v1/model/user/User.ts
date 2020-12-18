@@ -3,11 +3,11 @@ import { DataTypes, Model, Optional } from "sequelize";
 
 export interface UserAttributes {
     id: number;
-    user_id: string;
-    name: string;
+    user_uuid: string;
+    user_name: string;
+    user_password: string;
     avatar_url: string;
     phone: string;
-    password: string;
     sex: 1 | 2;
     last_login_platform: string;
     created_at: string;
@@ -27,13 +27,17 @@ export const UserModel = sequelize.define<Model<UserAttributes, UserCreationAttr
             primaryKey: true,
             autoIncrement: true,
         },
-        user_id: {
+        user_uuid: {
             type: DataTypes.STRING(40),
             allowNull: false,
             unique: true,
         },
-        name: {
+        user_name: {
             type: DataTypes.STRING(50),
+            allowNull: false,
+        },
+        user_password: {
+            type: DataTypes.STRING(32),
             allowNull: false,
         },
         avatar_url: {
@@ -42,10 +46,6 @@ export const UserModel = sequelize.define<Model<UserAttributes, UserCreationAttr
         },
         phone: {
             type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        password: {
-            type: DataTypes.STRING(32),
             allowNull: false,
         },
         sex: {
