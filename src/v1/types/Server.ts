@@ -4,7 +4,7 @@ import { WeChatSocketEvents } from "../../Constants";
 
 export interface PatchRequest<T = any> extends FastifyRequest<T> {
     user: {
-        userID: string;
+        userUUID: string;
         loginSource: "WeChat";
     };
 }
