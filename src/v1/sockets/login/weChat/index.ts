@@ -6,7 +6,11 @@ import { JSONSchemaType } from "ajv/dist/types/json-schema";
 export const weChat = async (socket: IOSocket, data: AuthID): Promise<void> => {
     const { uuid } = data;
 
-    const result = await redisService.set(`${RedisKeyPrefix.WX_AUTH_UUID}:${uuid}`, "0", 60 * 2);
+    const result = await redisService.set(
+        `${RedisKeyPrefix.WECHAT_AUTH_UUID}:${uuid}`,
+        "0",
+        60 * 2,
+    );
 
     if (result === null) {
         socket.emit(WeChatSocketEvents.AuthID, {

@@ -39,8 +39,8 @@ export const JWT = {
 };
 
 export const RedisKeyPrefix = {
-    WX_AUTH_UUID: "weChat:auth:uuid",
-    WX_REFRESH_TOKEN: "weChat:refresh:token",
+    WECHAT_AUTH_UUID: "weChat:auth:uuid",
+    WECHAT_REFRESH_TOKEN: "weChat:refresh:token",
 };
 
 export enum Status {
