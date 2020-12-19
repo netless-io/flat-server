@@ -57,11 +57,11 @@ export const UserModel = sequelize.define<Model<UserAttributes, UserCreationAttr
             allowNull: false,
         },
         created_at: {
-            type: DataTypes.DATE,
+            type: DataTypes.DATE(3),
             allowNull: false,
         },
         updated_at: {
-            type: DataTypes.DATE,
+            type: DataTypes.DATE(3),
             allowNull: false,
         },
         version: {
