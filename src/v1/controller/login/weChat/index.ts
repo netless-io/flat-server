@@ -38,7 +38,7 @@ export const callback = async (
         status: Status.Process,
     });
 
-    const result = await redisService.get(`${RedisKeyPrefix.WX_AUTH_UUID}:${uuid}`);
+    const result = await redisService.get(`${RedisKeyPrefix.WECHAT_AUTH_UUID}:${uuid}`);
 
     if (result === null) {
         socket.emit(WeChatSocketEvents.LoginStatus, {
@@ -122,12 +122,12 @@ export const callback = async (
         const id = getIDByUserWeChatInstance.get().id;
 
         await redisService.set(
-            `${RedisKeyPrefix.WX_REFRESH_TOKEN}:${id}`,
+            `${RedisKeyPrefix.WECHAT_REFRESH_TOKEN}:${id}`,
             accessToken.refresh_token,
             60 * 60 * 24 * 29,
         );
 
-        await redisService.del(`${RedisKeyPrefix.WX_AUTH_UUID}:${uuid}`);
+        await redisService.del(`${RedisKeyPrefix.WECHAT_AUTH_UUID}:${uuid}`);
 
         const getUserInfoByUserInstance = (await UserModel.findOne({
             where: {
