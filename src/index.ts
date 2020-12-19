@@ -4,11 +4,15 @@ import cors from "fastify-cors";
 import { Server, Status } from "./Constants";
 import { v1RegisterHTTP, v1RegisterWs } from "./v1";
 import jwtVerify from "./v1/plugins/JWT";
+import { ajvSelfPlugin } from "./plugins/Ajv";
 
 const socketServer = new socketIO.Server();
 
 const app = fastify({
     caseSensitive: true,
+    ajv: {
+        plugins: [ajvSelfPlugin],
+    },
 });
 
 app.setErrorHandler((errors, _request, reply) => {
