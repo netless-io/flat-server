@@ -94,6 +94,7 @@ export const callback = async (
                             user_uuid: userUUID,
                             open_uuid: weChatUserInfo.openid,
                             union_uuid: weChatUserInfo.unionid,
+                            user_name: weChatUserInfo.nickname,
                             updated_at: timestamp,
                             created_at: timestamp,
                             version: 0,
