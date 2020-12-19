@@ -1,5 +1,7 @@
 import packages from "../package.json";
 
+export const isDev = process.env.NODE_ENV === "development";
+
 export const Server = {
     PORT: process.env.SERVER_PORT,
     NAME: "flat-server",
