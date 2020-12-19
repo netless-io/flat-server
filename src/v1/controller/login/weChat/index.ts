@@ -153,7 +153,7 @@ export const callback = async (
                         status: Status.Success,
                         data: {
                             name: user_name,
-                            sex: Number(sex),
+                            sex,
                             avatar: avatar_url,
                             userUUID,
                             token,

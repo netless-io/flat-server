@@ -17,7 +17,7 @@ interface UserWeChatCreationAttributes extends Optional<UserWeChatAttributes, "i
 export const UserWeChatModel = sequelize.define<
     Model<UserWeChatAttributes, UserWeChatCreationAttributes>
 >(
-    "users_wechat",
+    "user_wechat",
     {
         id: {
             type: DataTypes.BIGINT,
@@ -40,7 +40,7 @@ export const UserWeChatModel = sequelize.define<
             allowNull: false,
         },
         created_at: {
-            type: DataTypes.TIME,
+            type: DataTypes.DATE,
             allowNull: false,
         },
         updated_at: {
@@ -52,22 +52,8 @@ export const UserWeChatModel = sequelize.define<
             allowNull: false,
         },
         is_delete: {
-            type: DataTypes.CHAR(1),
+            type: DataTypes.BOOLEAN,
             allowNull: false,
-            set(value: boolean): void {
-                // @ts-ignore
-                this.setDataValue("is_delete", value ? "1" : "0");
-            },
-            get(): boolean {
-                const rawValue = this.getDataValue("is_delete");
-
-                if (rawValue) {
-                    // @ts-ignore
-                    return rawValue === "1";
-                }
-
-                return rawValue;
-            },
         },
     },
     {

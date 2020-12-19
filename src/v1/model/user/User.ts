@@ -8,7 +8,7 @@ export interface UserAttributes {
     user_password: string;
     avatar_url: string;
     phone: string;
-    sex: 1 | 2;
+    sex: number;
     last_login_platform: string;
     created_at: string;
     updated_at: string;
@@ -49,21 +49,8 @@ export const UserModel = sequelize.define<Model<UserAttributes, UserCreationAttr
             allowNull: false,
         },
         sex: {
-            type: DataTypes.CHAR(1),
+            type: DataTypes.TINYINT,
             allowNull: false,
-            set(value: number): void {
-                // @ts-ignore
-                this.setDataValue("sex", String(value));
-            },
-            get(): number {
-                const rawValue = this.getDataValue("sex");
-
-                if (rawValue) {
-                    return Number(rawValue);
-                }
-
-                return rawValue;
-            },
         },
         last_login_platform: {
             type: DataTypes.STRING(40),
@@ -82,22 +69,8 @@ export const UserModel = sequelize.define<Model<UserAttributes, UserCreationAttr
             allowNull: false,
         },
         is_delete: {
-            type: DataTypes.CHAR(1),
+            type: DataTypes.BOOLEAN,
             allowNull: false,
-            set(value: boolean): void {
-                // @ts-ignore
-                this.setDataValue("is_delete", value ? "1" : "0");
-            },
-            get(): boolean {
-                const rawValue = this.getDataValue("is_delete");
-
-                if (rawValue) {
-                    // @ts-ignore
-                    return rawValue === "1";
-                }
-
-                return rawValue;
-            },
         },
     },
     {
