@@ -11,6 +11,21 @@ import { UserWeChatModel } from "../../model/user/WeChat";
 export const login = async (req: PatchRequest, reply: FastifyReply): Promise<void> => {
     const { userUUID, loginSource } = req.user;
 
+    const userInfoInstance = await UserModel.findOne({
+        where: {
+            user_uuid: userUUID,
+            is_delete: false,
+        },
+        attributes: ["user_name", "sex", "avatar_url"],
+    });
+
+    if (userInfoInstance === null) {
+        return reply.send({
+            status: Status.Failed,
+            message: "User does not exist",
+        });
+    }
+
     if (loginSource === LoginPlatform.WeChat) {
         const weChatUserInfoInstance = await UserWeChatModel.findOne({
             where: {
@@ -20,15 +35,7 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
             attributes: ["id"],
         });
 
-        const userInfoInstance = await UserModel.findOne({
-            where: {
-                user_uuid: userUUID,
-                is_delete: false,
-            },
-            attributes: ["user_name", "sex", "avatar_url"],
-        });
-
-        if (weChatUserInfoInstance === null || userInfoInstance === null) {
+        if (weChatUserInfoInstance === null) {
             return reply.send({
                 status: Status.Failed,
                 message: "User does not exist",
