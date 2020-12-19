@@ -12,6 +12,7 @@ import { timestampFormat } from "../../../../utils/Time";
 import { v4 } from "uuid";
 import { Model } from "sequelize";
 import { sequelize } from "../../../service/SequelizeService";
+import { LoginPlatform } from "../Constants";
 
 export const callback = async (
     req: PatchRequest<{
@@ -79,7 +80,7 @@ export const callback = async (
                             sex: weChatUserInfo.sex,
                             user_password: "",
                             phone: "",
-                            last_login_platform: "WeChat",
+                            last_login_platform: LoginPlatform.WeChat,
                             created_at: timestamp,
                             updated_at: timestamp,
                             version: 0,
@@ -140,7 +141,7 @@ export const callback = async (
         reply.jwtSign(
             {
                 userUUID,
-                loginSource: "WeChat",
+                loginSource: LoginPlatform.WeChat,
             },
             (err: any, token: any) => {
                 if (err) {

@@ -1,5 +1,5 @@
 import redisService from "../../service/RedisService";
-import { LoginPlatform, RedisKeyPrefix, Status } from "../../../Constants";
+import { RedisKeyPrefix, Status } from "../../../Constants";
 import { renewAccessToken } from "../../utils/WeChatURL";
 import { wechatRequest } from "../../utils/WeChatRequest";
 import { RefreshToken } from "../../types/WeChatResponse";
@@ -7,6 +7,7 @@ import { PatchRequest } from "../../types/Server";
 import { FastifyReply } from "fastify";
 import { UserModel } from "../../model/user/User";
 import { UserWeChatModel } from "../../model/user/WeChat";
+import { LoginPlatform } from "./Constants";
 
 export const login = async (req: PatchRequest, reply: FastifyReply): Promise<void> => {
     const { userUUID, loginSource } = req.user;
