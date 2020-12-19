@@ -6,7 +6,7 @@ import { getAccessTokenURL, getUserInfoURL } from "../../../utils/WeChatURL";
 import { AccessToken, UserInfo } from "../../../types/WeChatResponse";
 import { FastifyReply } from "fastify";
 import { FastifySchema, PatchRequest } from "../../../types/Server";
-import { UserWeChatAttributes, UserWeChatModel } from "../../../model/user/WeChat";
+import { UserWeChatModel } from "../../../model/user/WeChat";
 import { UserAttributes, UserModel } from "../../../model/user/User";
 import { timestampFormat } from "../../../../utils/Time";
 import { v4 } from "uuid";
@@ -56,16 +56,16 @@ export const callback = async (
         const userInfoURL = getUserInfoURL(accessToken.access_token, accessToken.openid);
         const weChatUserInfo = await wechatRequest<UserInfo>(userInfoURL);
 
-        const getUserIDByUserWeChatInstance = await UserWeChatModel.findOne({
+        const getUserInfoByUserWeChatInstance = await UserWeChatModel.findOne({
             where: {
                 open_uuid: weChatUserInfo.openid,
                 is_delete: false,
             },
-            attributes: ["user_uuid"],
+            attributes: ["user_uuid", "user_name"],
         });
 
         let userUUID = "";
-        if (getUserIDByUserWeChatInstance === null) {
+        if (getUserInfoByUserWeChatInstance === null) {
             const timestamp = timestampFormat();
             userUUID = v4();
 
@@ -110,20 +110,29 @@ export const callback = async (
                     throw new Error("Failed to create user");
                 });
         } else {
-            userUUID = getUserIDByUserWeChatInstance.get().user_uuid;
+            const { user_name, user_uuid } = getUserInfoByUserWeChatInstance.get();
+            userUUID = user_uuid;
+
+            // wechat name update
+            if (weChatUserInfo.nickname !== user_name) {
+                UserWeChatModel.update(
+                    {
+                        user_name: weChatUserInfo.nickname,
+                    },
+                    {
+                        where: {
+                            user_uuid,
+                        },
+                    },
+                ).catch(e => {
+                    console.log("update wechat nickname failed");
+                    console.error(e);
+                });
+            }
         }
 
-        const getIDByUserWeChatInstance = (await UserWeChatModel.findOne({
-            where: {
-                user_uuid: userUUID,
-            },
-            attributes: ["id"],
-        })) as Model<UserWeChatAttributes>;
-
-        const id = getIDByUserWeChatInstance.get().id;
-
         await redisService.set(
-            `${RedisKeyPrefix.WECHAT_REFRESH_TOKEN}:${id}`,
+            `${RedisKeyPrefix.WECHAT_REFRESH_TOKEN}:${userUUID}`,
             accessToken.refresh_token,
             60 * 60 * 24 * 29,
         );
