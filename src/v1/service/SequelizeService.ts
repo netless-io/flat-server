@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import { MySQL } from "../../Constants";
+import { isDev, MySQL } from "../../Constants";
 
 export const sequelize = new Sequelize({
     host: MySQL.HOST,
@@ -8,7 +8,8 @@ export const sequelize = new Sequelize({
     database: MySQL.DB,
     port: Number(MySQL.PORT),
     dialect: "mysql",
-    logging: false,
+    logging: isDev,
+    benchmark: isDev,
 });
 
 sequelize.authenticate().catch(err => {
