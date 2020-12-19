@@ -57,7 +57,3 @@ export enum WeChatSocketEvents {
 export enum SocketNsp {
     Login = "Login",
 }
-
-export enum LoginPlatform {
-    WeChat = "WeChat",
-}

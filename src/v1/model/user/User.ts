@@ -53,7 +53,7 @@ export const UserModel = sequelize.define<Model<UserAttributes, UserCreationAttr
             allowNull: false,
         },
         last_login_platform: {
-            type: DataTypes.STRING(40),
+            type: DataTypes.ENUM("WeChat", "Google"),
             allowNull: false,
         },
         created_at: {
