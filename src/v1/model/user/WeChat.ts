@@ -6,6 +6,7 @@ export interface UserWeChatAttributes {
     user_uuid: string;
     open_uuid: string;
     union_uuid: string;
+    user_name: string;
     created_at: string;
     updated_at: string;
     version: number;
@@ -36,6 +37,10 @@ export const UserWeChatModel = sequelize.define<
             unique: true,
         },
         union_uuid: {
+            type: DataTypes.STRING(40),
+            allowNull: false,
+        },
+        user_name: {
             type: DataTypes.STRING(40),
             allowNull: false,
         },
