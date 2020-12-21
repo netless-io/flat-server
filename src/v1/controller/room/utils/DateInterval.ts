@@ -84,9 +84,9 @@ export const dateIntervalByWeek = ({
     });
 
     const result: DateIntervalResult[] = [];
-    let index = 0;
-    while (index < allDays.length) {
-        const date = allDays[index++];
+
+    for (let i = 0; i < allDays.length; i++) {
+        const date = allDays[i];
         if (weeks.includes(getDay(date))) {
             // e.g: 2020-12-29T16:00:00.000Z -> 2020-12-29T${16 + hours}:${00 + minutes}:${00 + seconds}.${000 + milliseconds}Z
             // link: https://date-fns.org/v2.16.1/docs/fp/addMilliseconds
@@ -156,9 +156,9 @@ export const dateIntervalByRate = ({
     });
 
     const result: DateIntervalResult[] = [];
-    let index = 0;
-    while (index < allDays.length) {
-        const date = allDays[index++];
+    for (let i = 0; i < allDays.length; i++) {
+        const date = allDays[i];
+
         if (weeks.includes(getDay(date))) {
             const start = addMilliseconds(completionTimeInfo.milliseconds)(
                 add(completionTimeInfo)(date),
