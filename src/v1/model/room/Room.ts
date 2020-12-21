@@ -1,90 +1,98 @@
-import { sequelize } from "../../service/SequelizeService";
-import { DataTypes, Model, Optional } from "sequelize";
-import { RoomStatus, RoomType } from "../../controller/room/Constants";
-import { MySQLBaseField } from "../types";
+import { RoomStatus } from "../../controller/room/Constants";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    Index,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+    VersionColumn,
+} from "typeorm";
 
-export interface RoomAttributes {
+@Entity({
+    name: "rooms",
+})
+export class RoomModel {
+    @PrimaryGeneratedColumn({
+        type: "bigint",
+    })
+    id: number;
+
+    @Index("rooms_room_uuid_uindex", {
+        unique: true,
+    })
+    @Column({
+        length: 40,
+    })
     room_uuid: string;
-    creator_user_uuid: string;
+
+    @Index("rooms_cyclical_uuid_index")
+    @Column({
+        length: 40,
+        comment: "cyclical uuid",
+    })
     cyclical_uuid: string;
+
+    @Index("rooms_creator_user_uuid_index")
+    @Column({
+        length: 40,
+    })
+    creator_user_uuid: string;
+
+    @Column({
+        length: 150,
+        comment: "room title",
+    })
     title: string;
-    room_type: RoomType;
+
+    @Index("rooms_room_type_index")
+    @Column({
+        type: "tinyint",
+        comment: "room type(one to one: 0 / small class: 1 / big class: 2",
+    })
+    room_type: number;
+
+    @Index("rooms_room_status_index")
+    @Column({
+        type: "enum",
+        enum: [RoomStatus.Pending, RoomStatus.Running, RoomStatus.Stopped],
+        comment: "current room status",
+    })
     room_status: RoomStatus;
-    begin_time: number;
-    end_time: number;
-    created_at: string;
-    updated_at: string;
+
+    @Column({
+        type: "datetime",
+        precision: 3,
+        comment: "room begin time",
+    })
+    begin_time: Date;
+
+    @Column({
+        type: "datetime",
+        precision: 3,
+        comment: "room end time",
+    })
+    end_time: Date;
+
+    @CreateDateColumn({
+        type: "datetime",
+        precision: 3,
+        default: () => "CURRENT_TIMESTAMP(3)",
+    })
+    created_at: Date;
+
+    @UpdateDateColumn({
+        type: "datetime",
+        precision: 3,
+        default: () => "CURRENT_TIMESTAMP(3)",
+    })
+    updated_at: Date;
+
+    @VersionColumn()
     version: number;
+
+    @Column({
+        default: false,
+    })
     is_delete: boolean;
 }
-
-interface RoomField extends RoomAttributes, MySQLBaseField {}
-
-interface RoomCreationAttributes extends Optional<RoomField, "id"> {}
-
-export const RoomModel = sequelize.define<Model<RoomField, RoomCreationAttributes>>(
-    "rooms",
-    {
-        id: {
-            type: DataTypes.BIGINT,
-            allowNull: false,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        room_uuid: {
-            type: DataTypes.STRING(40),
-            allowNull: false,
-            unique: true,
-        },
-        cyclical_uuid: {
-            type: DataTypes.STRING(40),
-            allowNull: false,
-        },
-        creator_user_uuid: {
-            type: DataTypes.STRING(40),
-            allowNull: false,
-        },
-        title: {
-            type: DataTypes.STRING(150),
-            allowNull: false,
-        },
-        room_type: {
-            type: DataTypes.TINYINT,
-            allowNull: false,
-        },
-        room_status: {
-            type: DataTypes.ENUM("Pending", "Running", "Stopped"),
-            allowNull: false,
-        },
-        begin_time: {
-            type: DataTypes.DATE(3),
-            allowNull: false,
-        },
-        end_time: {
-            type: DataTypes.DATE(3),
-            allowNull: false,
-        },
-        created_at: {
-            type: DataTypes.DATE(3),
-            allowNull: false,
-        },
-        updated_at: {
-            type: DataTypes.DATE(3),
-            allowNull: false,
-        },
-        version: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        is_delete: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-        },
-    },
-    {
-        freezeTableName: true,
-        timestamps: false,
-        createdAt: false,
-        updatedAt: false,
-    },
-);

@@ -6,13 +6,11 @@ import { getAccessTokenURL, getUserInfoURL } from "../../../utils/WeChatURL";
 import { AccessToken, UserInfo } from "../../../types/WeChatResponse";
 import { FastifyReply } from "fastify";
 import { FastifySchema, PatchRequest } from "../../../types/Server";
-import { UserWeChatModel } from "../../../model/user/WeChat";
-import { UserAttributes, UserModel } from "../../../model/user/User";
-import { timestampFormat } from "../../../../utils/Time";
+import { UserModel } from "../../../model/user/User";
 import { v4 } from "uuid";
-import { Model } from "sequelize";
-import { sequelize } from "../../../service/SequelizeService";
 import { LoginPlatform } from "../Constants";
+import { getConnection, getRepository } from "typeorm";
+import { UserWeChatModel } from "../../../model/user/WeChat";
 
 export const callback = async (
     req: PatchRequest<{
@@ -56,78 +54,64 @@ export const callback = async (
         const userInfoURL = getUserInfoURL(accessToken.access_token, accessToken.openid);
         const weChatUserInfo = await wechatRequest<UserInfo>(userInfoURL);
 
-        const getUserInfoByUserWeChatInstance = await UserWeChatModel.findOne({
+        const getUserInfoByUserWeChat = await getRepository(UserWeChatModel).findOne({
+            select: ["user_uuid", "user_name"],
+
             where: {
                 open_uuid: weChatUserInfo.openid,
-                is_delete: false,
             },
-            attributes: ["user_uuid", "user_name"],
         });
 
         let userUUID = "";
-        if (getUserInfoByUserWeChatInstance === null) {
-            const timestamp = timestampFormat();
+        if (getUserInfoByUserWeChat === undefined) {
             userUUID = v4();
 
-            await sequelize
+            await getConnection()
                 .transaction(async t => {
-                    const createUser = UserModel.create(
-                        {
-                            user_name: weChatUserInfo.nickname,
-                            user_uuid: userUUID,
-                            // TODO need upload headimgurl to remote oss server
-                            avatar_url: weChatUserInfo.headimgurl,
-                            sex: weChatUserInfo.sex,
-                            user_password: "",
-                            phone: "",
-                            last_login_platform: LoginPlatform.WeChat,
-                            created_at: timestamp,
-                            updated_at: timestamp,
-                            version: 0,
-                            is_delete: false,
-                        },
-                        { transaction: t },
-                    );
+                    const createUser = t.save(UserModel, {
+                        user_name: weChatUserInfo.nickname,
+                        user_uuid: userUUID,
+                        // TODO need upload headimgurl to remote oss server
+                        avatar_url: weChatUserInfo.headimgurl,
+                        sex: weChatUserInfo.sex,
+                        user_password: "",
+                        phone: "",
+                        last_login_platform: LoginPlatform.WeChat,
+                    });
 
-                    const createWeChatUser = UserWeChatModel.create(
-                        {
-                            user_uuid: userUUID,
-                            open_uuid: weChatUserInfo.openid,
-                            union_uuid: weChatUserInfo.unionid,
-                            user_name: weChatUserInfo.nickname,
-                            updated_at: timestamp,
-                            created_at: timestamp,
-                            version: 0,
-                            is_delete: false,
-                        },
-                        { transaction: t },
-                    );
+                    const createUserWeChat = t.save(UserWeChatModel, {
+                        user_uuid: userUUID,
+                        open_uuid: weChatUserInfo.openid,
+                        union_uuid: weChatUserInfo.unionid,
+                        user_name: weChatUserInfo.nickname,
+                    });
 
-                    return Promise.all([createUser, createWeChatUser]);
+                    return Promise.all([createUser, createUserWeChat]);
                 })
                 .catch(e => {
                     console.error(e);
                     throw new Error("Failed to create user");
                 });
         } else {
-            const { user_name, user_uuid } = getUserInfoByUserWeChatInstance.get();
+            const { user_name, user_uuid } = getUserInfoByUserWeChat;
             userUUID = user_uuid;
 
             // wechat name update
             if (weChatUserInfo.nickname !== user_name) {
-                UserWeChatModel.update(
-                    {
+                getRepository(UserWeChatModel)
+                    .createQueryBuilder()
+                    .update()
+                    .set({
                         user_name: weChatUserInfo.nickname,
-                    },
-                    {
-                        where: {
-                            user_uuid,
-                        },
-                    },
-                ).catch(e => {
-                    console.log("update wechat nickname failed");
-                    console.error(e);
-                });
+                    })
+                    .where("user_uuid = :user_uuid", {
+                        user_uuid,
+                    })
+                    .execute()
+                    .catch(e => {
+                        console.error("update wechat nickname failed");
+                        console.error(e);
+                    });
             }
         }
 
@@ -139,14 +123,14 @@ export const callback = async (
 
         await redisService.del(`${RedisKeyPrefix.WECHAT_AUTH_UUID}:${uuid}`);
 
-        const getUserInfoByUserInstance = (await UserModel.findOne({
+        const getUserInfoByUser = await getRepository(UserModel).findOne({
+            select: ["user_name", "sex", "avatar_url"],
             where: {
                 user_uuid: userUUID,
             },
-            attributes: ["user_name", "sex", "avatar_url"],
-        })) as Model<UserAttributes>;
+        });
 
-        const { user_name, avatar_url, sex } = getUserInfoByUserInstance.get();
+        const { user_name, avatar_url, sex } = getUserInfoByUser!;
 
         reply.jwtSign(
             {

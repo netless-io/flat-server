@@ -1,70 +1,67 @@
-import { sequelize } from "../../service/SequelizeService";
-import { Model, DataTypes, Optional } from "sequelize";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    Index,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+    VersionColumn,
+} from "typeorm";
 
-export interface UserWeChatAttributes {
+@Entity({
+    name: "user_wechat",
+})
+export class UserWeChatModel {
+    @PrimaryGeneratedColumn({
+        type: "bigint",
+    })
     id: number;
+
+    @Index("users_wechat_user_uuid_uindex", {
+        unique: true,
+    })
+    @Column({
+        length: 40,
+    })
     user_uuid: string;
-    open_uuid: string;
-    union_uuid: string;
+
+    @Column({
+        length: 40,
+        comment: "wechat nickname",
+    })
     user_name: string;
-    created_at: string;
-    updated_at: string;
+
+    @Column({
+        length: 40,
+        comment: "wechat open id",
+    })
+    open_uuid: string;
+
+    @Column({
+        length: 40,
+        comment: "wechat union id",
+    })
+    union_uuid: string;
+
+    @CreateDateColumn({
+        type: "datetime",
+        precision: 3,
+        default: () => "CURRENT_TIMESTAMP(3)",
+    })
+    created_at: Date;
+
+    @UpdateDateColumn({
+        type: "datetime",
+        precision: 3,
+        default: () => "CURRENT_TIMESTAMP(3)",
+    })
+    updated_at: Date;
+
+    @VersionColumn()
     version: number;
+
+    @Column({
+        default: false,
+    })
     is_delete: boolean;
 }
-
-interface UserWeChatCreationAttributes extends Optional<UserWeChatAttributes, "id"> {}
-
-export const UserWeChatModel = sequelize.define<
-    Model<UserWeChatAttributes, UserWeChatCreationAttributes>
->(
-    "user_wechat",
-    {
-        id: {
-            type: DataTypes.BIGINT,
-            allowNull: false,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        user_uuid: {
-            type: DataTypes.STRING(40),
-            allowNull: false,
-            unique: true,
-        },
-        open_uuid: {
-            type: DataTypes.STRING(40),
-            allowNull: false,
-            unique: true,
-        },
-        union_uuid: {
-            type: DataTypes.STRING(40),
-            allowNull: false,
-        },
-        user_name: {
-            type: DataTypes.STRING(40),
-            allowNull: false,
-        },
-        created_at: {
-            type: DataTypes.DATE(3),
-            allowNull: false,
-        },
-        updated_at: {
-            type: DataTypes.DATE(3),
-            allowNull: false,
-        },
-        version: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        is_delete: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-        },
-    },
-    {
-        freezeTableName: true,
-        timestamps: false,
-        createdAt: false,
-        updatedAt: false,
-    },
-);
