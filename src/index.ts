@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import fastify from "fastify";
 import socketIO from "socket.io";
 import cors from "fastify-cors";
@@ -5,6 +6,7 @@ import { Server, Status } from "./Constants";
 import { v1RegisterHTTP, v1RegisterWs } from "./v1";
 import jwtVerify from "./v1/plugins/JWT";
 import { ajvSelfPlugin } from "./plugins/Ajv";
+import { orm } from "./v1/service/TypeORMService";
 
 const socketServer = new socketIO.Server();
 
@@ -37,10 +39,12 @@ app.register(cors, {
     maxAge: 100,
 });
 
-app.listen(Server.PORT, "0.0.0.0", (err, address) => {
-    if (err) {
-        console.error(err);
-        process.exit(1);
-    }
-    console.log("ready on %s", address);
+orm.then(() => {
+    app.listen(Server.PORT, "0.0.0.0", (err, address) => {
+        if (err) {
+            console.error(err);
+            process.exit(1);
+        }
+        console.log("ready on %s", address);
+    });
 });
