@@ -19,7 +19,7 @@ export const generateRTM = async (
         0,
     );
 
-    reply.send({
+    return reply.send({
         status: Status.Success,
         data: {
             token,

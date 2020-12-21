@@ -18,10 +18,10 @@ export const callback = async (
     }>,
     reply: FastifyReply,
 ): Promise<void> => {
-    reply.headers({
+    void reply.headers({
         "content-type": "text/html",
     });
-    reply.send();
+    void reply.send();
 
     const { state: uuid, code } = req.query;
     const { socketID } = req.params as CallbackParams;

@@ -65,7 +65,7 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
             });
         }
 
-        reply.send({
+        return reply.send({
             status: Status.Success,
             data: {
                 name: userInfoInstance.user_name,

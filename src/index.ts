@@ -19,7 +19,7 @@ const app = fastify({
 
 app.setErrorHandler((errors, _request, reply) => {
     console.error(errors);
-    reply.send({
+    void reply.send({
         status: Status.Failed,
         message: errors.message,
     });
@@ -27,19 +27,19 @@ app.setErrorHandler((errors, _request, reply) => {
 
 socketServer.listen(app.server);
 
-app.register(jwtVerify).then(() => {
+void app.register(jwtVerify).then(() => {
     v1RegisterHTTP(app);
 });
 
 v1RegisterWs(socketServer);
 
-app.register(cors, {
+void app.register(cors, {
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type', 'Authorization"],
     maxAge: 100,
 });
 
-orm.then(() => {
+void orm.then(() => {
     app.listen(Server.PORT, "0.0.0.0", (err, address) => {
         if (err) {
             console.error(err);
