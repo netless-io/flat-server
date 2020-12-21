@@ -1,70 +1,68 @@
-import { sequelize } from "../../service/SequelizeService";
-import { DataTypes, Model, Optional } from "sequelize";
-import { MySQLBaseField } from "../types";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    Index,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+    VersionColumn,
+} from "typeorm";
 
-export interface RoomCyclicalAttributes {
+@Entity({
+    name: "room_cyclical",
+})
+export class RoomCyclicalModel {
+    @PrimaryGeneratedColumn({
+        type: "bigint",
+    })
+    id: number;
+
+    @Index("room_cyclical_cyclical_uuid_uindex", {
+        unique: true,
+    })
+    @Column({
+        length: 40,
+    })
     cyclical_uuid: string;
+
+    @Column({
+        length: 40,
+    })
     creator_user_uuid: string;
+
+    @Column({
+        type: "tinyint",
+        precision: 3,
+        comment: "cyclical rate (max 50)",
+    })
     rate: number;
-    end_time: string;
-    created_at: string;
-    updated_at: string;
+
+    @Column({
+        type: "datetime",
+        precision: 3,
+        comment: "cyclical end time",
+    })
+    end_time: Date;
+
+    @CreateDateColumn({
+        type: "datetime",
+        precision: 3,
+        default: () => "CURRENT_TIMESTAMP(3)",
+    })
+    created_at: Date;
+
+    @UpdateDateColumn({
+        type: "datetime",
+        precision: 3,
+        default: () => "CURRENT_TIMESTAMP(3)",
+    })
+    updated_at: Date;
+
+    @VersionColumn()
     version: number;
+
+    @Column({
+        default: false,
+    })
     is_delete: boolean;
 }
-
-interface RoomCyclicalField extends RoomCyclicalAttributes, MySQLBaseField {}
-
-interface RoomCyclicalCreationAttributes extends Optional<RoomCyclicalField, "id"> {}
-
-export const RoomCyclicalModel = sequelize.define<
-    Model<RoomCyclicalField, RoomCyclicalCreationAttributes>
->(
-    "room_cyclical",
-    {
-        id: {
-            type: DataTypes.BIGINT,
-            allowNull: false,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        cyclical_uuid: {
-            type: DataTypes.STRING(40),
-            allowNull: false,
-        },
-        creator_user_uuid: {
-            type: DataTypes.STRING(40),
-            allowNull: false,
-        },
-        rate: {
-            type: DataTypes.TINYINT,
-            allowNull: false,
-        },
-        end_time: {
-            type: DataTypes.DATE(3),
-            allowNull: false,
-        },
-        created_at: {
-            type: DataTypes.DATE(3),
-            allowNull: false,
-        },
-        updated_at: {
-            type: DataTypes.DATE(3),
-            allowNull: false,
-        },
-        version: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        is_delete: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-        },
-    },
-    {
-        freezeTableName: true,
-        timestamps: false,
-        createdAt: false,
-        updatedAt: false,
-    },
-);

@@ -8,19 +8,19 @@ import { FastifyReply } from "fastify";
 import { UserModel } from "../../model/user/User";
 import { UserWeChatModel } from "../../model/user/WeChat";
 import { LoginPlatform } from "./Constants";
+import { getRepository } from "typeorm";
 
 export const login = async (req: PatchRequest, reply: FastifyReply): Promise<void> => {
     const { userUUID, loginSource } = req.user;
 
-    const userInfoInstance = await UserModel.findOne({
+    const userInfoInstance = await getRepository(UserModel).findOne({
+        select: ["user_name", "sex", "avatar_url"],
         where: {
             user_uuid: userUUID,
-            is_delete: false,
         },
-        attributes: ["user_name", "sex", "avatar_url"],
     });
 
-    if (userInfoInstance === null) {
+    if (userInfoInstance === undefined) {
         return reply.send({
             status: Status.Failed,
             message: "User does not exist",
@@ -28,22 +28,21 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
     }
 
     if (loginSource === LoginPlatform.WeChat) {
-        const weChatUserInfoInstance = await UserWeChatModel.findOne({
+        const weChatUserInfo = await getRepository(UserWeChatModel).findOne({
+            select: ["id"],
             where: {
                 user_uuid: userUUID,
-                is_delete: false,
             },
-            attributes: ["id"],
         });
 
-        if (weChatUserInfoInstance === null) {
+        if (weChatUserInfo === undefined) {
             return reply.send({
                 status: Status.Failed,
                 message: "User does not exist",
             });
         }
 
-        const weChatUserID = weChatUserInfoInstance.get().id;
+        const weChatUserID = weChatUserInfo.id;
 
         const refreshToken = await redisService.get(
             `${RedisKeyPrefix.WECHAT_REFRESH_TOKEN}:${weChatUserID}`,
@@ -66,14 +65,12 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
             });
         }
 
-        const userInfo = userInfoInstance.get();
-
         reply.send({
             status: Status.Success,
             data: {
-                name: userInfo.user_name,
-                sex: userInfo.sex,
-                avatar: userInfo.avatar_url,
+                name: userInfoInstance.user_name,
+                sex: userInfoInstance.sex,
+                avatar: userInfoInstance.avatar_url,
                 userUUID,
             },
         });

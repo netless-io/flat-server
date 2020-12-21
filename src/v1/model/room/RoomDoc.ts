@@ -1,74 +1,69 @@
-import { sequelize } from "../../service/SequelizeService";
-import { DataTypes, Model, Optional } from "sequelize";
-import { MySQLBaseField } from "../types";
-import { DocsType } from "../../controller/room/Constants";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    Index,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+    VersionColumn,
+} from "typeorm";
 
-export interface RoomDocAttributes {
+@Entity({
+    name: "room_docs",
+})
+export class RoomDocModel {
+    @PrimaryGeneratedColumn({
+        type: "bigint",
+    })
+    id: number;
+
+    @Index("room_docs_room_uuid_index")
+    @Column({
+        length: 40,
+    })
     room_uuid: string;
+
+    @Index("room_docs_cyclical_uuid_index")
+    @Column({
+        length: 40,
+    })
     cyclical_uuid: string;
+
+    @Index("room_docs_doc_uuid_index")
+    @Column({
+        length: 40,
+    })
     doc_uuid: string;
-    doc_type: DocsType;
+
+    @Column({
+        type: "enum",
+        enum: ["Dynamic", "Static"],
+    })
+    doc_type: string;
+
+    @Index("room_doc_is_preload_index")
+    @Column()
     is_preload: boolean;
-    created_at: string;
-    updated_at: string;
+
+    @CreateDateColumn({
+        type: "datetime",
+        precision: 3,
+        default: () => "CURRENT_TIMESTAMP(3)",
+    })
+    created_at: Date;
+
+    @UpdateDateColumn({
+        type: "datetime",
+        precision: 3,
+        default: () => "CURRENT_TIMESTAMP(3)",
+    })
+    updated_at: Date;
+
+    @VersionColumn()
     version: number;
+
+    @Column({
+        default: false,
+    })
     is_delete: boolean;
 }
-
-interface RoomDocField extends RoomDocAttributes, MySQLBaseField {}
-
-interface RoomDocCreationAttributes extends Optional<RoomDocField, "id"> {}
-
-export const RoomDocModel = sequelize.define<Model<RoomDocField, RoomDocCreationAttributes>>(
-    "room_docs",
-    {
-        id: {
-            type: DataTypes.BIGINT,
-            allowNull: false,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        room_uuid: {
-            type: DataTypes.STRING(40),
-            allowNull: false,
-        },
-        cyclical_uuid: {
-            type: DataTypes.STRING(40),
-            allowNull: false,
-        },
-        doc_uuid: {
-            type: DataTypes.STRING(40),
-            allowNull: false,
-        },
-        doc_type: {
-            type: DataTypes.ENUM("Dynamic", "Static"),
-            allowNull: false,
-        },
-        is_preload: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-        },
-        created_at: {
-            type: DataTypes.DATE(3),
-            allowNull: false,
-        },
-        updated_at: {
-            type: DataTypes.DATE(3),
-            allowNull: false,
-        },
-        version: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        is_delete: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-        },
-    },
-    {
-        freezeTableName: true,
-        timestamps: false,
-        createdAt: false,
-        updatedAt: false,
-    },
-);

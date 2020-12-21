@@ -1,5 +1,9 @@
-import { format } from "date-fns/fp";
+import { toDate } from "date-fns/fp";
+import { DateUtils } from "typeorm/util/DateUtils";
 
-export const timestampFormat = (time: number | Date = Date.now()): string => {
-    return format("yyyy-MM-dd HH:mm:ss.SSS")(time);
+export const UTCDate = (time: string | Date | number = new Date()) => {
+    if (typeof time === "number") {
+        return DateUtils.mixedDateToDate(toDate(time), true);
+    }
+    return DateUtils.mixedDateToDate(time, true);
 };

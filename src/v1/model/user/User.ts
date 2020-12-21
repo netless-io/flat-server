@@ -1,82 +1,82 @@
-import { sequelize } from "../../service/SequelizeService";
-import { DataTypes, Model, Optional } from "sequelize";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    Index,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+    VersionColumn,
+} from "typeorm";
+import { LoginPlatform } from "../../controller/login/Constants";
 
-export interface UserAttributes {
+@Entity({
+    name: "users",
+})
+export class UserModel {
+    @PrimaryGeneratedColumn({
+        type: "bigint",
+    })
     id: number;
+
+    @Index("users_user_uuid_uindex", {
+        unique: true,
+    })
+    @Column({
+        length: 40,
+    })
     user_uuid: string;
+
+    @Column({
+        length: 50,
+    })
     user_name: string;
+
+    @Column({
+        precision: 32,
+    })
     user_password: string;
+
+    @Column({
+        length: 2083,
+    })
     avatar_url: string;
+
+    @Column({
+        length: 20,
+    })
     phone: string;
+
+    @Column({
+        type: "tinyint",
+        comment: "1: man / 2: woman",
+    })
     sex: number;
-    last_login_platform: string;
-    created_at: string;
-    updated_at: string;
+
+    @Column({
+        type: "enum",
+        enum: [LoginPlatform.WeChat, LoginPlatform.Google],
+    })
+    last_login_platform: LoginPlatform;
+
+    @CreateDateColumn({
+        type: "datetime",
+        precision: 3,
+        default: () => "CURRENT_TIMESTAMP(3)",
+    })
+    created_at: Date;
+
+    @UpdateDateColumn({
+        type: "datetime",
+        precision: 3,
+        default: () => "CURRENT_TIMESTAMP(3)",
+    })
+    updated_at: Date;
+
+    @VersionColumn()
     version: number;
+
+    @Column({
+        default: false,
+    })
     is_delete: boolean;
 }
-
-interface UserCreationAttributes extends Optional<UserAttributes, "id"> {}
-
-export const UserModel = sequelize.define<Model<UserAttributes, UserCreationAttributes>>(
-    "users",
-    {
-        id: {
-            type: DataTypes.BIGINT,
-            allowNull: false,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        user_uuid: {
-            type: DataTypes.STRING(40),
-            allowNull: false,
-            unique: true,
-        },
-        user_name: {
-            type: DataTypes.STRING(50),
-            allowNull: false,
-        },
-        user_password: {
-            type: DataTypes.STRING(32),
-            allowNull: false,
-        },
-        avatar_url: {
-            type: DataTypes.STRING(2083),
-            allowNull: false,
-        },
-        phone: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        sex: {
-            type: DataTypes.TINYINT,
-            allowNull: false,
-        },
-        last_login_platform: {
-            type: DataTypes.ENUM("WeChat", "Google"),
-            allowNull: false,
-        },
-        created_at: {
-            type: DataTypes.DATE(3),
-            allowNull: false,
-        },
-        updated_at: {
-            type: DataTypes.DATE(3),
-            allowNull: false,
-        },
-        version: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        is_delete: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-        },
-    },
-    {
-        freezeTableName: true,
-        timestamps: false,
-        createdAt: false,
-        updatedAt: false,
-    },
-);

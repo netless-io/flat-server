@@ -3,15 +3,15 @@ import { Cyclical, Docs } from "../Types";
 import { Status } from "../../../../Constants";
 import { FastifyReply } from "fastify";
 import { FastifySchema, PatchRequest } from "../../../types/Server";
-import { sequelize } from "../../../service/SequelizeService";
 import { RoomModel } from "../../../model/room/Room";
 import { v4 } from "uuid";
-import { timestampFormat } from "../../../../utils/Time";
-import { RoomUserModel } from "../../../model/room/RoomUser";
+import { UTCDate } from "../../../../utils/Time";
 import { compareDesc, subMinutes, toDate } from "date-fns/fp";
 import { dateIntervalByRate, dateIntervalByWeek, DateIntervalResult } from "../utils/DateInterval";
-import { RoomCyclicalModel } from "../../../model/room/RoomCyclical";
 import { RoomDocModel } from "../../../model/room/RoomDoc";
+import { getConnection } from "typeorm";
+import { RoomUserModel } from "../../../model/room/RoomUser";
+import { RoomCyclicalModel } from "../../../model/room/RoomCyclical";
 
 export const create = async (
     req: PatchRequest<{
@@ -43,8 +43,8 @@ export const create = async (
     }
 
     try {
-        const beginDateTime = toDate(beginTime);
-        const endDateTime = toDate(endTime);
+        const beginDateTime = UTCDate(beginTime);
+        const endDateTime = UTCDate(endTime);
 
         let dates: DateIntervalResult[];
 
@@ -71,66 +71,49 @@ export const create = async (
             });
         }
 
-        const timestamp = timestampFormat();
         const cyclicalUUID = cyclical ? v4() : "";
-
-        const baseDate = {
-            created_at: timestamp,
-            updated_at: timestamp,
-            version: 0,
-            is_delete: false,
-        };
 
         const roomData = dates.map(({ start, end }) => {
             return {
-                ...baseDate,
                 cyclical_uuid: cyclicalUUID,
                 creator_user_uuid: req.user.userUUID,
                 title,
                 room_type: type,
                 room_status: RoomStatus.Pending,
                 room_uuid: v4(),
-                begin_time: start.getTime(),
-                end_time: end.getTime(),
+                begin_time: start,
+                end_time: end,
             };
         });
 
         const roomUserData = roomData.map(({ room_uuid }) => {
             return {
-                ...baseDate,
                 room_uuid,
                 user_uuid: req.user.userUUID,
             };
         });
 
-        await sequelize.transaction(async t => {
+        await getConnection().transaction(async t => {
             const commands: Promise<any>[] = [];
 
-            commands.push(RoomModel.bulkCreate(roomData, { transaction: t }));
+            commands.push(t.save(RoomModel, roomData));
 
-            commands.push(RoomUserModel.bulkCreate(roomUserData, { transaction: t }));
+            commands.push(t.save(RoomUserModel, roomUserData));
 
             if (cyclical) {
                 commands.push(
-                    RoomCyclicalModel.create(
-                        {
-                            ...baseDate,
-                            creator_user_uuid: req.user.userUUID,
-                            rate: cyclical.rate || 0,
-                            end_time: cyclical.endTime ? timestampFormat(cyclical.endTime) : "0",
-                            cyclical_uuid: cyclicalUUID,
-                        },
-                        {
-                            transaction: t,
-                        },
-                    ),
+                    t.save(RoomCyclicalModel, {
+                        creator_user_uuid: req.user.userUUID,
+                        rate: cyclical.rate || 0,
+                        end_time: cyclical.endTime ? UTCDate(cyclical.endTime) : "0",
+                        cyclical_uuid: cyclicalUUID,
+                    }),
                 );
             }
 
             if (docs) {
                 const roomDocData = docs.map(({ uuid, type }) => {
                     return {
-                        ...baseDate,
                         doc_uuid: uuid,
                         room_uuid: cyclical ? "" : roomData[0].room_uuid,
                         cyclical_uuid: cyclicalUUID,
@@ -138,7 +121,7 @@ export const create = async (
                         is_preload: false,
                     };
                 });
-                commands.push(RoomDocModel.bulkCreate(roomDocData, { transaction: t }));
+                commands.push(t.save(RoomDocModel, roomDocData));
             }
 
             await Promise.all(commands);

@@ -1,58 +1,53 @@
-import { sequelize } from "../../service/SequelizeService";
-import { DataTypes, Model, Optional } from "sequelize";
-import { MySQLBaseField } from "../types";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    Index,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+    VersionColumn,
+} from "typeorm";
 
-export interface RoomUserAttributes {
+@Entity({
+    name: "room_users",
+})
+export class RoomUserModel {
+    @PrimaryGeneratedColumn({
+        type: "bigint",
+    })
+    id: number;
+
+    @Index("room_users_room_uuid_index")
+    @Column({
+        length: 40,
+    })
     room_uuid: string;
+
+    @Index("room_users_user_uuid_index")
+    @Column({
+        length: 40,
+    })
     user_uuid: string;
-    created_at: string;
-    updated_at: string;
+
+    @CreateDateColumn({
+        type: "datetime",
+        precision: 3,
+        default: () => "CURRENT_TIMESTAMP(3)",
+    })
+    created_at: Date;
+
+    @UpdateDateColumn({
+        type: "datetime",
+        precision: 3,
+        default: () => "CURRENT_TIMESTAMP(3)",
+    })
+    updated_at: Date;
+
+    @VersionColumn()
     version: number;
+
+    @Column({
+        default: false,
+    })
     is_delete: boolean;
 }
-
-interface RoomUserField extends RoomUserAttributes, MySQLBaseField {}
-
-interface RoomUserCreationAttributes extends Optional<RoomUserField, "id"> {}
-
-export const RoomUserModel = sequelize.define<Model<RoomUserField, RoomUserCreationAttributes>>(
-    "room_users",
-    {
-        id: {
-            type: DataTypes.BIGINT,
-            allowNull: false,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        room_uuid: {
-            type: DataTypes.STRING(40),
-            allowNull: false,
-        },
-        user_uuid: {
-            type: DataTypes.STRING(40),
-            allowNull: false,
-        },
-        created_at: {
-            type: DataTypes.DATE(3),
-            allowNull: false,
-        },
-        updated_at: {
-            type: DataTypes.DATE(3),
-            allowNull: false,
-        },
-        version: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        is_delete: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-        },
-    },
-    {
-        freezeTableName: true,
-        timestamps: false,
-        createdAt: false,
-        updatedAt: false,
-    },
-);
