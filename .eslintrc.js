@@ -130,7 +130,7 @@ module.exports = {
             "error",
             {
                 selector: "default",
-                format: ["camelCase", "snake_case"],
+                format: ["camelCase", "snake_case", "PascalCase"],
                 leadingUnderscore: "allow",
             },
             {
@@ -174,5 +174,8 @@ module.exports = {
                 leadingUnderscore: "allow",
             },
         ],
+        "@typescript-eslint/no-unsafe-assignment": ["off"],
+        "@typescript-eslint/no-non-null-assertion": ["off"],
+        "@typescript-eslint/no-explicit-any": ["off"],
     },
 };

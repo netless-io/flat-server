@@ -9,6 +9,6 @@ const unixTimestamp: FormatDefinition<number> = {
     },
 };
 
-export const ajvSelfPlugin = (ajv: Ajv) => {
+export const ajvSelfPlugin = (ajv: Ajv): void => {
     ajv.addFormat("unix-timestamp", unixTimestamp);
 };

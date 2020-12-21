@@ -94,7 +94,7 @@ export const create = async (
         });
 
         await getConnection().transaction(async t => {
-            const commands: Promise<any>[] = [];
+            const commands: Promise<unknown>[] = [];
 
             commands.push(t.save(RoomModel, roomData));
 
@@ -126,7 +126,7 @@ export const create = async (
 
             await Promise.all(commands);
 
-            reply.send({
+            return reply.send({
                 status: Status.Success,
             });
         });
