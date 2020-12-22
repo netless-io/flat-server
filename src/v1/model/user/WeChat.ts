@@ -17,7 +17,7 @@ export class UserWeChatModel {
     })
     id: number;
 
-    @Index("users_wechat_user_uuid_uindex", {
+    @Index("user_wechat_user_uuid_uindex", {
         unique: true,
     })
     @Column({
@@ -60,6 +60,7 @@ export class UserWeChatModel {
     @VersionColumn()
     version: number;
 
+    @Index("user_wechat_is_delete_index")
     @Column({
         default: false,
     })

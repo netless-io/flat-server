@@ -75,6 +75,7 @@ export class UserModel {
     @VersionColumn()
     version: number;
 
+    @Index("users_is_delete_index")
     @Column({
         default: false,
     })

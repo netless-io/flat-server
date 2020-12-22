@@ -60,6 +60,7 @@ export class RoomModel {
     })
     room_status: RoomStatus;
 
+    @Index("rooms_begin_time_index")
     @Column({
         type: "datetime",
         precision: 3,
@@ -91,6 +92,7 @@ export class RoomModel {
     @VersionColumn()
     version: number;
 
+    @Index("rooms_is_delete_index")
     @Column({
         default: false,
     })

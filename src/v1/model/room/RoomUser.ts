@@ -46,6 +46,7 @@ export class RoomUserModel {
     @VersionColumn()
     version: number;
 
+    @Index("room_users_is_delete_index")
     @Column({
         default: false,
     })

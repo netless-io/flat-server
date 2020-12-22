@@ -25,6 +25,7 @@ export class RoomCyclicalModel {
     })
     cyclical_uuid: string;
 
+    @Index("room_cyclical_creator_user_uuid_index")
     @Column({
         length: 40,
     })
@@ -61,6 +62,7 @@ export class RoomCyclicalModel {
     @VersionColumn()
     version: number;
 
+    @Index("room_cyclical_is_delete_index")
     @Column({
         default: false,
     })
