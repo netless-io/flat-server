@@ -61,5 +61,5 @@ yarn run start
 * [TypeScript](https://github.com/microsoft/TypeScript)
 * [MySQL](https://github.com/mysql/mysql-server)
 * [Redis](https://github.com/redis/redis)
-* [Restify](https://github.com/restify/node-restify)
+* [Fastify](https://github.com/fastify/fastify)
 * [Socket.IO](https://github.com/socketio/socket.io)
