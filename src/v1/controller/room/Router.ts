@@ -1,5 +1,6 @@
-import { create, createSchemaType } from "./create";
 import { FastifyRoutes } from "../../types/Server";
+import { create, createSchemaType } from "./create";
+import { list, listSchemaType } from "./list/List";
 
 export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
@@ -8,5 +9,12 @@ export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
         handler: create,
         auth: true,
         schema: createSchemaType,
+    }),
+    Object.freeze({
+        method: "get",
+        path: "room/list/:type",
+        handler: list,
+        auth: true,
+        schema: listSchemaType,
     }),
 ]);

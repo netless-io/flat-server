@@ -24,3 +24,10 @@ export enum RoomStatus {
     Running = "Running",
     Stopped = "Stopped",
 }
+
+export enum ListType {
+    All = "all",
+    Today = "today",
+    Cyclical = "cyclical",
+    History = "history",
+}
