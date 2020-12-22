@@ -45,7 +45,7 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
         const weChatUserID = weChatUserInfo.id;
 
         const refreshToken = await redisService.get(
-            `${RedisKeyPrefix.WECHAT_REFRESH_TOKEN}:${weChatUserID}`,
+            `${RedisKeyPrefix.WECHAT_REFRESH_TOKEN}:${userUUID}`,
         );
 
         if (refreshToken === null) {
