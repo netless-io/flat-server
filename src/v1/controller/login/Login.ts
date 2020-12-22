@@ -17,10 +17,19 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
         select: ["user_name", "sex", "avatar_url"],
         where: {
             user_uuid: userUUID,
+            is_delete: false,
         },
     });
 
-    if (userInfoInstance === undefined) {
+    const weChatUserInfo = await getRepository(UserWeChatModel).findOne({
+        select: ["id"],
+        where: {
+            user_uuid: userUUID,
+            is_delete: false,
+        },
+    });
+
+    if (userInfoInstance === undefined || weChatUserInfo === undefined) {
         return reply.send({
             status: Status.Failed,
             message: "User does not exist",
@@ -28,22 +37,6 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
     }
 
     if (loginSource === LoginPlatform.WeChat) {
-        const weChatUserInfo = await getRepository(UserWeChatModel).findOne({
-            select: ["id"],
-            where: {
-                user_uuid: userUUID,
-            },
-        });
-
-        if (weChatUserInfo === undefined) {
-            return reply.send({
-                status: Status.Failed,
-                message: "User does not exist",
-            });
-        }
-
-        const weChatUserID = weChatUserInfo.id;
-
         const refreshToken = await redisService.get(
             `${RedisKeyPrefix.WECHAT_REFRESH_TOKEN}:${userUUID}`,
         );
