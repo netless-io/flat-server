@@ -43,6 +43,11 @@ export const RedisKeyPrefix = {
     WECHAT_REFRESH_TOKEN: "weChat:refresh:token",
 };
 
+export const Netless = {
+    SDK_TOKEN: process.env.NETLESS_SDK_TOKEN,
+    APP_IDENTIFIER: process.env.NETLESS_APP_IDENTIFIER,
+};
+
 export enum Status {
     NoLogin = -1,
     Success,
