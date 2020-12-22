@@ -41,7 +41,7 @@ export class RoomDocModel {
     })
     doc_type: string;
 
-    @Index("room_doc_is_preload_index")
+    @Index("room_docs_is_preload_index")
     @Column()
     is_preload: boolean;
 
@@ -62,6 +62,7 @@ export class RoomDocModel {
     @VersionColumn()
     version: number;
 
+    @Index("room_docs_is_delete_index")
     @Column({
         default: false,
     })
