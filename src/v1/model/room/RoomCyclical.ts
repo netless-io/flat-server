@@ -1,22 +1,10 @@
-import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    Index,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
-    VersionColumn,
-} from "typeorm";
+import { Column, Entity, Index } from "typeorm";
+import { Content } from "../Content";
 
 @Entity({
     name: "room_cyclical",
 })
-export class RoomCyclicalModel {
-    @PrimaryGeneratedColumn({
-        type: "bigint",
-    })
-    id: number;
-
+export class RoomCyclicalModel extends Content {
     @Index("room_cyclical_cyclical_uuid_uindex", {
         unique: true,
     })
@@ -44,23 +32,6 @@ export class RoomCyclicalModel {
         comment: "cyclical end time",
     })
     end_time: Date;
-
-    @CreateDateColumn({
-        type: "datetime",
-        precision: 3,
-        default: () => "CURRENT_TIMESTAMP(3)",
-    })
-    created_at: Date;
-
-    @UpdateDateColumn({
-        type: "datetime",
-        precision: 3,
-        default: () => "CURRENT_TIMESTAMP(3)",
-    })
-    updated_at: Date;
-
-    @VersionColumn()
-    version: number;
 
     @Index("room_cyclical_is_delete_index")
     @Column({

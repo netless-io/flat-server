@@ -1,22 +1,10 @@
-import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    Index,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
-    VersionColumn,
-} from "typeorm";
+import { Column, Entity, Index } from "typeorm";
+import { Content } from "../Content";
 
 @Entity({
     name: "room_docs",
 })
-export class RoomDocModel {
-    @PrimaryGeneratedColumn({
-        type: "bigint",
-    })
-    id: number;
-
+export class RoomDocModel extends Content {
     @Index("room_docs_room_uuid_index")
     @Column({
         length: 40,
@@ -44,23 +32,6 @@ export class RoomDocModel {
     @Index("room_docs_is_preload_index")
     @Column()
     is_preload: boolean;
-
-    @CreateDateColumn({
-        type: "datetime",
-        precision: 3,
-        default: () => "CURRENT_TIMESTAMP(3)",
-    })
-    created_at: Date;
-
-    @UpdateDateColumn({
-        type: "datetime",
-        precision: 3,
-        default: () => "CURRENT_TIMESTAMP(3)",
-    })
-    updated_at: Date;
-
-    @VersionColumn()
-    version: number;
 
     @Index("room_docs_is_delete_index")
     @Column({

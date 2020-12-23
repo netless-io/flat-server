@@ -1,23 +1,11 @@
 import { RoomStatus } from "../../controller/room/Constants";
-import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    Index,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
-    VersionColumn,
-} from "typeorm";
+import { Column, Entity, Index } from "typeorm";
+import { Content } from "../Content";
 
 @Entity({
     name: "rooms",
 })
-export class RoomModel {
-    @PrimaryGeneratedColumn({
-        type: "bigint",
-    })
-    id: number;
-
+export class RoomModel extends Content {
     @Index("rooms_room_uuid_uindex", {
         unique: true,
     })
@@ -74,23 +62,6 @@ export class RoomModel {
         comment: "room end time",
     })
     end_time: Date;
-
-    @CreateDateColumn({
-        type: "datetime",
-        precision: 3,
-        default: () => "CURRENT_TIMESTAMP(3)",
-    })
-    created_at: Date;
-
-    @UpdateDateColumn({
-        type: "datetime",
-        precision: 3,
-        default: () => "CURRENT_TIMESTAMP(3)",
-    })
-    updated_at: Date;
-
-    @VersionColumn()
-    version: number;
 
     @Index("rooms_is_delete_index")
     @Column({
