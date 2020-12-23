@@ -68,7 +68,7 @@ export const callback = async (
 
             await getConnection()
                 .transaction(async t => {
-                    const createUser = t.save(UserModel, {
+                    const createUser = t.insert(UserModel, {
                         user_name: weChatUserInfo.nickname,
                         user_uuid: userUUID,
                         // TODO need upload headimgurl to remote oss server
@@ -79,7 +79,7 @@ export const callback = async (
                         last_login_platform: LoginPlatform.WeChat,
                     });
 
-                    const createUserWeChat = t.save(UserWeChatModel, {
+                    const createUserWeChat = t.insert(UserWeChatModel, {
                         user_uuid: userUUID,
                         open_uuid: weChatUserInfo.openid,
                         union_uuid: weChatUserInfo.unionid,
