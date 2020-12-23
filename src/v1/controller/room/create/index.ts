@@ -33,6 +33,7 @@ export const create = async (
         }
     }
 
+    const roomUUID = v4();
     try {
         const time = UTCDate(beginTime);
         const roomData = {
@@ -41,7 +42,7 @@ export const create = async (
             title,
             room_type: type,
             room_status: RoomStatus.Pending,
-            room_uuid: v4(),
+            room_uuid: roomUUID,
             begin_time: time,
             end_time: "0",
         };
@@ -76,6 +77,9 @@ export const create = async (
 
         return reply.send({
             status: Status.Success,
+            data: {
+                roomUUID,
+            },
         });
     } catch (e) {
         console.error(e);
