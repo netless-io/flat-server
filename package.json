@@ -34,6 +34,8 @@
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-webpack-plugin": "^2.4.1",
     "fork-ts-checker-webpack-plugin": "^6.0.4",
+    "husky": ">=4",
+    "lint-staged": ">=10",
     "nodemon": "^2.0.6",
     "prettier": "^2.2.1",
     "typescript": "^4.1.2",
@@ -59,5 +61,13 @@
     "socket.io": "^3.0.3",
     "typeorm": "^0.2.29",
     "uuid": "^8.3.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.ts": ["eslint --cache --fix", "prettier --write"]
   }
 }
