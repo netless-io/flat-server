@@ -1,22 +1,10 @@
-import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    Index,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
-    VersionColumn,
-} from "typeorm";
+import { Column, Entity, Index } from "typeorm";
+import { Content } from "../Content";
 
 @Entity({
     name: "user_wechat",
 })
-export class UserWeChatModel {
-    @PrimaryGeneratedColumn({
-        type: "bigint",
-    })
-    id: number;
-
+export class UserWeChatModel extends Content {
     @Index("user_wechat_user_uuid_uindex", {
         unique: true,
     })
@@ -42,23 +30,6 @@ export class UserWeChatModel {
         comment: "wechat union id",
     })
     union_uuid: string;
-
-    @CreateDateColumn({
-        type: "datetime",
-        precision: 3,
-        default: () => "CURRENT_TIMESTAMP(3)",
-    })
-    created_at: Date;
-
-    @UpdateDateColumn({
-        type: "datetime",
-        precision: 3,
-        default: () => "CURRENT_TIMESTAMP(3)",
-    })
-    updated_at: Date;
-
-    @VersionColumn()
-    version: number;
 
     @Index("user_wechat_is_delete_index")
     @Column({
