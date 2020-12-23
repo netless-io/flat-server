@@ -54,9 +54,9 @@ export const create = async (
         await getConnection().transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
-            commands.push(t.save(RoomModel, roomData));
+            commands.push(t.insert(RoomModel, roomData));
 
-            commands.push(t.save(RoomUserModel, roomUserData));
+            commands.push(t.insert(RoomUserModel, roomUserData));
 
             if (docs) {
                 const roomDocData = docs.map(({ uuid, type }) => {
@@ -68,7 +68,7 @@ export const create = async (
                         is_preload: false,
                     };
                 });
-                commands.push(t.save(RoomDocModel, roomDocData));
+                commands.push(t.insert(RoomDocModel, roomDocData));
             }
 
             await Promise.all(commands);

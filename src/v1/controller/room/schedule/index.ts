@@ -100,12 +100,12 @@ export const schedule = async (
         await getConnection().transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
-            commands.push(t.save(RoomModel, roomData));
+            commands.push(t.insert(RoomModel, roomData));
 
-            commands.push(t.save(RoomUserModel, roomUserData));
+            commands.push(t.insert(RoomUserModel, roomUserData));
 
             commands.push(
-                t.save(RoomCyclicalModel, {
+                t.insert(RoomCyclicalModel, {
                     creator_user_uuid: userUUID,
                     rate: cyclical.rate || 0,
                     end_time: cyclical.endTime ? UTCDate(cyclical.endTime) : "0",
@@ -123,7 +123,7 @@ export const schedule = async (
                         is_preload: false,
                     };
                 });
-                commands.push(t.save(RoomDocModel, roomDocData));
+                commands.push(t.insert(RoomDocModel, roomDocData));
             }
 
             await Promise.all(commands);
