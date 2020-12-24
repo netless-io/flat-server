@@ -92,10 +92,12 @@ export const list = async (
                 creatorUserName: room.creator_user_name,
             };
 
-            // if there is cyclical_uuid, the front end only needs to know cyclical_uuid, not room_uuid
-            if (room.cyclical_uuid) {
+            // the history list requires roomUUID
+            if (result.cyclicalUUID && type !== ListType.History) {
                 delete result.roomUUID;
-            } else {
+            }
+
+            if (result.cyclicalUUID === "") {
                 delete result.cyclicalUUID;
             }
 
