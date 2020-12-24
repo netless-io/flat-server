@@ -73,15 +73,15 @@ export const list = async (
             .innerJoin(RoomModel, "r", "ru.room_uuid = r.room_uuid")
             .innerJoin(UserModel, "u", "u.user_uuid = r.creator_user_uuid")
             .where(whereMap[type].sql, whereMap[type].params)
-            .offset((req.query.page - 1) * 50)
-            .limit(50)
             .orderBy({
                 "r.begin_time": "ASC",
             })
+            .offset((req.query.page - 1) * 50)
+            .limit(50)
             .getRawMany();
 
-        const result = rooms.map((room: Room) => {
-            return {
+        const resp: Resp[] = rooms.map((room: Room) => {
+            const result: Resp = {
                 roomUUID: room.room_uuid,
                 cyclicalUUID: room.cyclical_uuid,
                 creatorUserUUID: room.creator_user_uuid,
@@ -91,11 +91,20 @@ export const list = async (
                 roomStatus: room.room_status,
                 creatorUserName: room.creator_user_name,
             };
+
+            // if there is cyclical_uuid, the front end only needs to know cyclical_uuid, not room_uuid
+            if (room.cyclical_uuid) {
+                delete result.roomUUID;
+            } else {
+                delete result.cyclicalUUID;
+            }
+
+            return result;
         });
 
         return reply.send({
             status: Status.Success,
-            data: result,
+            data: resp,
         });
     } catch (e) {
         console.error(e);
@@ -151,3 +160,14 @@ interface Room {
     room_status: RoomStatus;
     creator_user_name: string;
 }
+
+type Resp = {
+    roomUUID?: string;
+    cyclicalUUID?: string;
+    creatorUserUUID: string;
+    title: string;
+    beginTime: string;
+    endTime: string;
+    roomStatus: RoomStatus;
+    creatorUserName: string;
+};

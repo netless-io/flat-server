@@ -5,31 +5,31 @@ import { Content } from "../Content";
     name: "room_cyclical",
 })
 export class RoomCyclicalModel extends Content {
-    @Index("room_cyclical_cyclical_uuid_uindex", {
-        unique: true,
-    })
     @Column({
         length: 40,
     })
     cyclical_uuid: string;
 
-    @Index("room_cyclical_creator_user_uuid_index")
+    @Index("room_cyclical_fake_room_uuid_uindex", {
+        unique: true,
+    })
     @Column({
         length: 40,
     })
-    creator_user_uuid: string;
+    fake_room_uuid: string;
 
+    @Index("rooms_begin_time_index")
     @Column({
-        type: "tinyint",
+        type: "datetime",
         precision: 3,
-        comment: "cyclical rate (max 50)",
+        comment: "room begin time",
     })
-    rate: number;
+    begin_time: Date;
 
     @Column({
         type: "datetime",
         precision: 3,
-        comment: "cyclical end time",
+        comment: "room end time",
     })
     end_time: Date;
 

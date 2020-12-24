@@ -6,6 +6,7 @@ import { RoomCyclicalModel } from "../model/room/RoomCyclical";
 import { RoomDocModel } from "../model/room/RoomDoc";
 import { UserModel } from "../model/user/User";
 import { UserWeChatModel } from "../model/user/WeChat";
+import { RoomCyclicalConfigModel } from "../model/room/RoomCyclicalConfig";
 
 export const orm = createConnection({
     type: "mysql",
@@ -19,6 +20,7 @@ export const orm = createConnection({
         UserWeChatModel,
         RoomModel,
         RoomUserModel,
+        RoomCyclicalConfigModel,
         RoomCyclicalModel,
         RoomDocModel,
     ],
