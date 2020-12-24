@@ -11,6 +11,7 @@ import { dateIntervalByRate, dateIntervalByWeek, DateIntervalResult } from "../u
 import { RoomDocModel } from "../../../model/room/RoomDoc";
 import { getConnection } from "typeorm";
 import { RoomUserModel } from "../../../model/room/RoomUser";
+import { RoomCyclicalConfigModel } from "../../../model/room/RoomCyclicalConfig";
 import { RoomCyclicalModel } from "../../../model/room/RoomCyclical";
 
 export const schedule = async (
@@ -77,41 +78,54 @@ export const schedule = async (
 
         const cyclicalUUID = v4();
 
-        const roomData = dates.map(({ start, end }) => {
+        const roomCyclicalData = dates.map(({ start, end }) => {
             return {
                 cyclical_uuid: cyclicalUUID,
-                creator_user_uuid: userUUID,
-                title,
+                fake_room_uuid: v4(),
                 room_type: type,
-                room_status: RoomStatus.Pending,
-                room_uuid: v4(),
                 begin_time: start,
                 end_time: end,
-            };
-        });
-
-        const roomUserData = roomData.map(({ room_uuid }) => {
-            return {
-                room_uuid,
-                user_uuid: userUUID,
             };
         });
 
         await getConnection().transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
-            commands.push(t.insert(RoomModel, roomData));
+            commands.push(t.insert(RoomCyclicalModel, roomCyclicalData));
 
-            commands.push(t.insert(RoomUserModel, roomUserData));
+            // take the first lesson of the cyclical room
+            {
+                commands.push(
+                    t.insert(RoomCyclicalConfigModel, {
+                        creator_user_uuid: userUUID,
+                        current_room_uuid: roomCyclicalData[0].fake_room_uuid,
+                        title,
+                        rate: cyclical.rate || 0,
+                        end_time: cyclical.endTime ? UTCDate(cyclical.endTime) : "0",
+                        cyclical_uuid: cyclicalUUID,
+                    }),
+                );
 
-            commands.push(
-                t.insert(RoomCyclicalModel, {
-                    creator_user_uuid: userUUID,
-                    rate: cyclical.rate || 0,
-                    end_time: cyclical.endTime ? UTCDate(cyclical.endTime) : "0",
-                    cyclical_uuid: cyclicalUUID,
-                }),
-            );
+                commands.push(
+                    t.insert(RoomModel, {
+                        cyclical_uuid: cyclicalUUID,
+                        creator_user_uuid: userUUID,
+                        title,
+                        room_type: type,
+                        room_status: RoomStatus.Pending,
+                        room_uuid: roomCyclicalData[0].fake_room_uuid,
+                        begin_time: roomCyclicalData[0].begin_time,
+                        end_time: roomCyclicalData[0].end_time,
+                    }),
+                );
+
+                commands.push(
+                    t.insert(RoomUserModel, {
+                        room_uuid: roomCyclicalData[0].fake_room_uuid,
+                        user_uuid: userUUID,
+                    }),
+                );
+            }
 
             if (docs) {
                 const roomDocData = docs.map(({ uuid, type }) => {
