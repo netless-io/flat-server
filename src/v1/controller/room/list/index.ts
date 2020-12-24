@@ -81,7 +81,7 @@ export const list = async (
             .getRawMany();
 
         const resp: Resp[] = rooms.map((room: Room) => {
-            const result: Resp = {
+            return {
                 roomUUID: room.room_uuid,
                 cyclicalUUID: room.cyclical_uuid,
                 creatorUserUUID: room.creator_user_uuid,
@@ -91,17 +91,6 @@ export const list = async (
                 roomStatus: room.room_status,
                 creatorUserName: room.creator_user_name,
             };
-
-            // the history list requires roomUUID
-            if (result.cyclicalUUID && type !== ListType.History) {
-                delete result.roomUUID;
-            }
-
-            if (result.cyclicalUUID === "") {
-                delete result.cyclicalUUID;
-            }
-
-            return result;
         });
 
         return reply.send({
@@ -164,8 +153,8 @@ interface Room {
 }
 
 type Resp = {
-    roomUUID?: string;
-    cyclicalUUID?: string;
+    roomUUID: string;
+    cyclicalUUID: string;
     creatorUserUUID: string;
     title: string;
     beginTime: string;
