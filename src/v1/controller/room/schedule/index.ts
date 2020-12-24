@@ -13,6 +13,7 @@ import { getConnection } from "typeorm";
 import { RoomUserModel } from "../../../model/room/RoomUser";
 import { RoomCyclicalConfigModel } from "../../../model/room/RoomCyclicalConfig";
 import { RoomCyclicalModel } from "../../../model/room/RoomCyclical";
+import cryptoRandomString from "crypto-random-string";
 
 export const schedule = async (
     req: PatchRequest<{
@@ -123,6 +124,7 @@ export const schedule = async (
                     t.insert(RoomUserModel, {
                         room_uuid: roomCyclicalData[0].fake_room_uuid,
                         user_uuid: userUUID,
+                        user_int_uuid: cryptoRandomString({ length: 10, type: "numeric" }),
                     }),
                 );
             }

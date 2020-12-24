@@ -22,4 +22,10 @@ export class RoomUserModel extends Content {
         default: false,
     })
     is_delete: boolean;
+
+    @Column({
+        length: 10,
+        comment: "front-end needs this field to set whiteboard, rtc, rtm",
+    })
+    user_int_uuid: string;
 }
