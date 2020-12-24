@@ -10,6 +10,7 @@ import { compareDesc, subMinutes } from "date-fns/fp";
 import { RoomDocModel } from "../../../model/room/RoomDoc";
 import { getConnection } from "typeorm";
 import { RoomUserModel } from "../../../model/room/RoomUser";
+import cryptoRandomString from "crypto-random-string";
 
 export const create = async (
     req: PatchRequest<{
@@ -47,9 +48,10 @@ export const create = async (
             end_time: "0",
         };
 
-        const roomUserData = {
+        const roomUserData: Pick<RoomUserModel, "user_int_uuid" | "room_uuid" | "user_uuid"> = {
             room_uuid: roomData.room_uuid,
             user_uuid: userUUID,
+            user_int_uuid: cryptoRandomString({ length: 10, type: "numeric" }),
         };
 
         await getConnection().transaction(async t => {

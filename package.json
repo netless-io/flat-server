@@ -49,6 +49,7 @@
     "agora-access-token": "^2.0.4",
     "ajv": "^7.0.0-rc.5",
     "axios": "^0.21.0",
+    "crypto-random-string": "^3.3.0",
     "date-fns": "^2.16.1",
     "fastify": "^3.9.1",
     "fastify-cors": "^5.1.0",
