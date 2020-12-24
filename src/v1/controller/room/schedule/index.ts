@@ -82,6 +82,7 @@ export const schedule = async (
             return {
                 cyclical_uuid: cyclicalUUID,
                 fake_room_uuid: v4(),
+                room_type: type,
                 begin_time: start,
                 end_time: end,
             };
@@ -98,6 +99,7 @@ export const schedule = async (
                     t.insert(RoomCyclicalConfigModel, {
                         creator_user_uuid: userUUID,
                         current_room_uuid: roomCyclicalData[0].fake_room_uuid,
+                        title,
                         rate: cyclical.rate || 0,
                         end_time: cyclical.endTime ? UTCDate(cyclical.endTime) : "0",
                         cyclical_uuid: cyclicalUUID,

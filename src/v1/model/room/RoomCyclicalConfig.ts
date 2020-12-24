@@ -20,6 +20,12 @@ export class RoomCyclicalConfigModel extends Content {
     creator_user_uuid: string;
 
     @Column({
+        length: 150,
+        comment: "room title",
+    })
+    title: string;
+
+    @Column({
         type: "tinyint",
         precision: 3,
         comment: "cyclical rate (max 50)",

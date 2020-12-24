@@ -18,7 +18,14 @@ export class RoomCyclicalModel extends Content {
     })
     fake_room_uuid: string;
 
-    @Index("rooms_begin_time_index")
+    @Index("room_cyclical_room_type_index")
+    @Column({
+        type: "tinyint",
+        comment: "room type(one to one: 0 / small class: 1 / big class: 2",
+    })
+    room_type: number;
+
+    @Index("room_cyclical_begin_time_index")
     @Column({
         type: "datetime",
         precision: 3,
