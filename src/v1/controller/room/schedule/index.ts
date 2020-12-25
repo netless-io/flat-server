@@ -100,7 +100,6 @@ export const schedule = async (
                 commands.push(
                     t.insert(RoomCyclicalConfigModel, {
                         creator_user_uuid: userUUID,
-                        current_room_uuid: roomCyclicalData[0].fake_room_uuid,
                         cyclical_status: RoomStatus.Pending,
                         title,
                         rate: cyclical.rate || 0,
