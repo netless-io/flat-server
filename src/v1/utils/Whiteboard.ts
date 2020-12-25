@@ -34,6 +34,6 @@ type Room = {
     teamUUID: string;
     isRecord: boolean;
     isBan: boolean;
-    limit: 0;
+    limit: number;
     createdAt: string;
 };
