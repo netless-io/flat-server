@@ -18,9 +18,9 @@ export const updateDB = async (
         // insert current user uuid to room_user table when room_user table not current user uuid
         commands.push(
             t
-                .getRepository(RoomUserModel)
                 .createQueryBuilder()
                 .insert()
+                .into(RoomUserModel)
                 .orIgnore()
                 .values({
                     room_uuid: roomUUID,
@@ -40,9 +40,8 @@ export const updateDB = async (
 
                 commands.push(
                     t
-                        .getRepository(RoomCyclicalConfigModel)
                         .createQueryBuilder()
-                        .update()
+                        .update(RoomCyclicalConfigModel)
                         .set({
                             cyclical_status: RoomStatus.Running,
                         })
@@ -57,9 +56,8 @@ export const updateDB = async (
 
             commands.push(
                 t
-                    .getRepository(RoomModel)
                     .createQueryBuilder()
-                    .update()
+                    .update(RoomModel)
                     .set(updateRoomColumns)
                     .where({
                         room_uuid: roomUUID,
