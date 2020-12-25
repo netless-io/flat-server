@@ -1,5 +1,6 @@
 import { Column, Entity, Index } from "typeorm";
 import { Content } from "../Content";
+import { RoomStatus } from "../../controller/room/Constants";
 
 @Entity({
     name: "room_cyclical_configs",
@@ -47,6 +48,14 @@ export class RoomCyclicalConfigModel extends Content {
         comment: "room_uuid of the current periodic room",
     })
     current_room_uuid: string;
+
+    @Index("rooms_cyclical_status_index")
+    @Column({
+        type: "enum",
+        enum: [RoomStatus.Pending, RoomStatus.Running, RoomStatus.Stopped],
+        comment: "current room status",
+    })
+    cyclical_status: RoomStatus;
 
     @Index("cyclical_configs_is_delete_index")
     @Column({
