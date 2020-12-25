@@ -11,6 +11,7 @@ import { RoomDocModel } from "../../../model/room/RoomDoc";
 import { getConnection } from "typeorm";
 import { RoomUserModel } from "../../../model/room/RoomUser";
 import cryptoRandomString from "crypto-random-string";
+import { whiteboardCreateRoom } from "../../../utils/Whiteboard";
 
 export const create = async (
     req: PatchRequest<{
@@ -44,6 +45,7 @@ export const create = async (
             room_type: type,
             room_status: RoomStatus.Pending,
             room_uuid: roomUUID,
+            whiteboard_room_uuid: await whiteboardCreateRoom(title),
             begin_time: time,
             end_time: "0",
         };

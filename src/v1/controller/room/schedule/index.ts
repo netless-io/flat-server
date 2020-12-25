@@ -14,6 +14,7 @@ import { RoomUserModel } from "../../../model/room/RoomUser";
 import { RoomCyclicalConfigModel } from "../../../model/room/RoomCyclicalConfig";
 import { RoomCyclicalModel } from "../../../model/room/RoomCyclical";
 import cryptoRandomString from "crypto-random-string";
+import { whiteboardCreateRoom } from "../../../utils/Whiteboard";
 
 export const schedule = async (
     req: PatchRequest<{
@@ -115,6 +116,7 @@ export const schedule = async (
                         room_type: type,
                         room_status: RoomStatus.Pending,
                         room_uuid: roomCyclicalData[0].fake_room_uuid,
+                        whiteboard_room_uuid: await whiteboardCreateRoom(title),
                         begin_time: roomCyclicalData[0].begin_time,
                         end_time: roomCyclicalData[0].end_time,
                     }),
