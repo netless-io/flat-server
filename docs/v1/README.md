@@ -54,3 +54,21 @@ GET room/list/:type?page=1 # type: "all" | "today" | "cyclical" | "history"
 ```
 
 For type declarations see [List Rooms](./RoomList.md).
+
+### Join Room
+
+```ruby
+POST room/join/ordinary
+{ roomUUID }
+=>
+{ whiteboardRoomToken, whiteboardRoomUUID }
+```
+
+```ruby
+POST room/join/cyclical
+{ cyclicalUUID }
+=>
+{ roomUUID, whiteboardRoomToken, whiteboardRoomUUID }
+```
+
+All fields' types are `string`.

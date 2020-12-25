@@ -4,7 +4,7 @@ type ScheduleRoomRequest = {
     type: RoomType;
     beginTime: number;
     endTime: number;
-    cyclical: { weeks: Week[] } & ({ rate: number } | { endTime: number });
+    cyclical?: { weeks: Week[] } & ({ rate: number } | { endTime: number });
     docs?: {
         type: DocsType;
         uuid: string;
