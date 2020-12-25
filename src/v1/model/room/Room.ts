@@ -63,6 +63,14 @@ export class RoomModel extends Content {
     })
     end_time: Date;
 
+    @Index("rooms_whiteboard_room_uuid_uindex", {
+        unique: true,
+    })
+    @Column({
+        length: 40,
+    })
+    whiteboard_room_uuid: string;
+
     @Index("rooms_is_delete_index")
     @Column({
         default: false,
