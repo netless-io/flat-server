@@ -44,8 +44,8 @@ export const RedisKeyPrefix = {
 };
 
 export const Netless = {
-    SDK_TOKEN: process.env.NETLESS_SDK_TOKEN,
-    APP_IDENTIFIER: process.env.NETLESS_APP_IDENTIFIER,
+    ACCESS_KEY: process.env.NETLESS_ACCESS_KEY,
+    SECRET_ACCESS_KEY: process.env.NETLESS_SECRET_ACCESS_KEY,
 };
 
 export enum Status {
