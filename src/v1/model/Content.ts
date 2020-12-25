@@ -1,4 +1,4 @@
-import { CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn, VersionColumn } from "typeorm";
+import { Column, CreateDateColumn, PrimaryGeneratedColumn, VersionColumn } from "typeorm";
 
 export abstract class Content {
     @PrimaryGeneratedColumn({
@@ -13,10 +13,11 @@ export abstract class Content {
     })
     created_at: Date;
 
-    @UpdateDateColumn({
+    @Column({
         type: "datetime",
         precision: 3,
         default: () => "CURRENT_TIMESTAMP(3)",
+        onUpdate: "CURRENT_TIMESTAMP(3)",
     })
     updated_at: Date;
 
