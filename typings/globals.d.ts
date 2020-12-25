@@ -26,7 +26,7 @@ declare namespace NodeJS {
         JWT_SECRET: string;
         JWT_ALGORITHMS: string;
 
-        NETLESS_SDK_TOKEN: string;
-        NETLESS_APP_IDENTIFIER: string;
+        NETLESS_ACCESS_KEY: string;
+        NETLESS_SECRET_ACCESS_KEY: string;
     }
 }
