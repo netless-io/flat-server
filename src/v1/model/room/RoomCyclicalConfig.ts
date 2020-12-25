@@ -40,15 +40,6 @@ export class RoomCyclicalConfigModel extends Content {
     })
     end_time: Date;
 
-    @Index("cyclical_configs_current_room_uuid_uindex", {
-        unique: true,
-    })
-    @Column({
-        length: 40,
-        comment: "room_uuid of the current periodic room",
-    })
-    current_room_uuid: string;
-
     @Index("rooms_cyclical_status_index")
     @Column({
         type: "enum",
