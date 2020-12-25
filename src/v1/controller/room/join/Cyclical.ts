@@ -18,9 +18,8 @@ export const joinCyclical = async (
     const { userUUID } = req.user;
 
     try {
-        // determine if it exists
-        const roomCyclicalConfig = await getRepository(RoomCyclicalConfigModel).find({
-            select: ["id"],
+        const roomCyclicalConfig = await getRepository(RoomCyclicalConfigModel).findOne({
+            select: ["cyclical_status"],
             where: {
                 cyclical_uuid: cyclicalUUID,
                 is_delete: false,
@@ -31,6 +30,13 @@ export const joinCyclical = async (
             return reply.send({
                 status: Status.Failed,
                 message: "Cyclical room not found",
+            });
+        }
+
+        if (roomCyclicalConfig.cyclical_status === RoomStatus.Stopped) {
+            return reply.send({
+                status: Status.Failed,
+                message: "Cyclical has been ended",
             });
         }
 
@@ -47,7 +53,7 @@ export const joinCyclical = async (
             )
             .getOne();
 
-        // notify user to retry
+        // will arrive here in extreme cases, notify user to retry
         if (roomInfo === undefined) {
             return reply.send({
                 status: Status.Failed,
