@@ -6,7 +6,7 @@ import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
 import { RoomCyclicalConfigModel } from "../../../model/room/RoomCyclicalConfig";
-import { insertUserToRoomUserDB } from "./Utils";
+import { updateDB } from "./Utils";
 
 export const joinCyclical = async (
     req: PatchRequest<{
@@ -42,6 +42,7 @@ export const joinCyclical = async (
 
         const roomInfo = await getRepository(RoomModel)
             .createQueryBuilder()
+            .select(["room_uuid", "whiteboard_room_uuid", "creator_user_uuid", "room_status"])
             .where(
                 `cyclical_uuid = :cyclicalUUID
                 AND room_status IN (:...roomStatus)
@@ -51,7 +52,7 @@ export const joinCyclical = async (
                     roomStatus: [RoomStatus.Pending, RoomStatus.Running],
                 },
             )
-            .getOne();
+            .getRawOne();
 
         // will arrive here in extreme cases, notify user to retry
         if (roomInfo === undefined) {
@@ -61,7 +62,13 @@ export const joinCyclical = async (
             });
         }
 
-        await insertUserToRoomUserDB(roomInfo.room_uuid, userUUID);
+        if (roomInfo.creator_user_uuid === userUUID) {
+            if (roomInfo.room_status === RoomStatus.Pending) {
+                await updateDB(roomInfo.room_uuid, userUUID, true, cyclicalUUID);
+            }
+        } else {
+            await updateDB(roomInfo.room_uuid, userUUID);
+        }
 
         return reply.send({
             status: Status.Success,

@@ -5,7 +5,7 @@ import { Status } from "../../../../Constants";
 import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
-import { insertUserToRoomUserDB } from "./Utils";
+import { updateDB } from "./Utils";
 
 export const joinOrdinary = async (
     req: PatchRequest<{
@@ -18,7 +18,7 @@ export const joinOrdinary = async (
 
     try {
         const roomInfo = await getRepository(RoomModel).findOne({
-            select: ["room_status", "whiteboard_room_uuid"],
+            select: ["room_status", "whiteboard_room_uuid", "creator_user_uuid"],
             where: {
                 room_uuid: roomUUID,
                 is_delete: false,
@@ -39,7 +39,13 @@ export const joinOrdinary = async (
             });
         }
 
-        await insertUserToRoomUserDB(roomUUID, userUUID);
+        if (roomInfo.creator_user_uuid === userUUID) {
+            if (roomInfo.room_status === RoomStatus.Pending) {
+                await updateDB(roomUUID, userUUID, true);
+            }
+        } else {
+            await updateDB(roomUUID, userUUID);
+        }
 
         return reply.send({
             status: Status.Success,
