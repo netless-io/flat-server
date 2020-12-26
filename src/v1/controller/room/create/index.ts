@@ -39,7 +39,7 @@ export const create = async (
     try {
         const time = UTCDate(beginTime);
         const roomData = {
-            cyclical_uuid: "",
+            periodic_uuid: "",
             creator_user_uuid: userUUID,
             title,
             room_type: type,
@@ -68,7 +68,7 @@ export const create = async (
                     return {
                         doc_uuid: uuid,
                         room_uuid: roomData.room_uuid,
-                        cyclical_uuid: "",
+                        periodic_uuid: "",
                         doc_type: type,
                         is_preload: false,
                     };

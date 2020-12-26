@@ -37,10 +37,10 @@ export const list = async (
                 roomStatus: [RoomStatus.Pending, RoomStatus.Running],
             },
         },
-        cyclical: {
+        periodic: {
             sql: `ru.user_uuid = :userUUID
                 AND r.room_status IN (:...roomStatus)
-                AND length(r.cyclical_uuid) <> 0
+                AND length(r.periodic_uuid) <> 0
                 AND ru.is_delete = false
                 AND r.is_delete = false`,
             params: {
@@ -64,7 +64,7 @@ export const list = async (
         const rooms = await createQueryBuilder(RoomUserModel, "ru")
             .addSelect("r.title", "title")
             .addSelect("r.room_uuid", "room_uuid")
-            .addSelect("r.cyclical_uuid", "cyclical_uuid")
+            .addSelect("r.periodic_uuid", "periodic_uuid")
             .addSelect("r.begin_time", "begin_time")
             .addSelect("r.end_time", "end_time")
             .addSelect("r.creator_user_uuid", "creator_user_uuid")
@@ -83,7 +83,7 @@ export const list = async (
         const resp: Resp[] = rooms.map((room: Room) => {
             return {
                 roomUUID: room.room_uuid,
-                cyclicalUUID: room.cyclical_uuid,
+                periodicUUID: room.periodic_uuid,
                 creatorUserUUID: room.creator_user_uuid,
                 title: room.title,
                 beginTime: room.begin_time,
@@ -135,7 +135,7 @@ export const listSchemaType: FastifySchema<{
         properties: {
             type: {
                 type: "string",
-                enum: [ListType.All, ListType.Today, ListType.Cyclical, ListType.History],
+                enum: [ListType.All, ListType.Today, ListType.Periodic, ListType.History],
             },
         },
     },
@@ -143,7 +143,7 @@ export const listSchemaType: FastifySchema<{
 
 interface Room {
     room_uuid: string;
-    cyclical_uuid: string;
+    periodic_uuid: string;
     creator_user_uuid: string;
     title: string;
     begin_time: string;
@@ -154,7 +154,7 @@ interface Room {
 
 type Resp = {
     roomUUID: string;
-    cyclicalUUID: string;
+    periodicUUID: string;
     creatorUserUUID: string;
     title: string;
     beginTime: string;

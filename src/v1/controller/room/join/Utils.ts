@@ -3,15 +3,15 @@ import { RoomUserModel } from "../../../model/room/RoomUser";
 import cryptoRandomString from "crypto-random-string";
 import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
-import { RoomCyclicalConfigModel } from "../../../model/room/RoomCyclicalConfig";
+import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
 import { UTCDate } from "../../../../utils/Time";
-import { RoomCyclicalModel } from "../../../model/room/RoomCyclical";
+import { RoomPeriodicModel } from "../../../model/room/RoomPeriodic";
 
 export const updateDB = async (
     roomUUID: string,
     userUUID: string,
     updateStatus = false,
-    cyclicalUUID = "",
+    periodicUUID = "",
 ): Promise<void> => {
     await getConnection().transaction(async t => {
         const commands: Promise<unknown>[] = [];
@@ -48,17 +48,17 @@ export const updateDB = async (
                     .execute(),
             );
 
-            if (cyclicalUUID !== "") {
+            if (periodicUUID !== "") {
                 commands.push(
                     t
                         .createQueryBuilder()
-                        .update(RoomCyclicalConfigModel)
+                        .update(RoomPeriodicConfigModel)
                         .set({
-                            cyclical_status: RoomStatus.Running,
+                            periodic_status: RoomStatus.Running,
                         })
                         .where({
-                            cyclical_uuid: cyclicalUUID,
-                            cyclical_status: RoomStatus.Pending,
+                            periodic_uuid: periodicUUID,
+                            periodic_status: RoomStatus.Pending,
                             is_delete: false,
                         })
                         .execute(),
@@ -67,7 +67,7 @@ export const updateDB = async (
                 commands.push(
                     t
                         .createQueryBuilder()
-                        .update(RoomCyclicalModel)
+                        .update(RoomPeriodicModel)
                         .set({
                             begin_time: beginTime,
                         })

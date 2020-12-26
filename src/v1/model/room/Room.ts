@@ -14,12 +14,12 @@ export class RoomModel extends Content {
     })
     room_uuid: string;
 
-    @Index("rooms_cyclical_uuid_index")
+    @Index("rooms_periodic_uuid_index")
     @Column({
         length: 40,
-        comment: "cyclical uuid",
+        comment: "periodic uuid",
     })
-    cyclical_uuid: string;
+    periodic_uuid: string;
 
     @Index("rooms_creator_user_uuid_index")
     @Column({

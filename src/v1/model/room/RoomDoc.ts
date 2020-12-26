@@ -11,11 +11,11 @@ export class RoomDocModel extends Content {
     })
     room_uuid: string;
 
-    @Index("room_docs_cyclical_uuid_index")
+    @Index("room_docs_periodic_uuid_index")
     @Column({
         length: 40,
     })
-    cyclical_uuid: string;
+    periodic_uuid: string;
 
     @Index("room_docs_doc_uuid_index")
     @Column({

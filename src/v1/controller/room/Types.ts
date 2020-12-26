@@ -5,7 +5,7 @@ export interface Docs {
     uuid: string;
 }
 
-export type Cyclical = {
+export type Periodic = {
     weeks: Week[];
     rate?: number;
     endTime?: number;
