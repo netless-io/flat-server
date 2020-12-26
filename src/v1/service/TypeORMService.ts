@@ -24,6 +24,7 @@ export const orm = createConnection({
         RoomPeriodicModel,
         RoomDocModel,
     ],
+    timezone: "Z",
 }).catch(err => {
     console.error("Unable to connect to the database");
     console.error(err);
