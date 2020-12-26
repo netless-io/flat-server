@@ -5,7 +5,8 @@ import { RoomUserModel } from "../../../model/room/RoomUser";
 import { RoomModel } from "../../../model/room/Room";
 import { UserModel } from "../../../model/user/User";
 import { ListType, RoomStatus } from "../Constants";
-import { Status } from "../../../../Constants";
+import { DefaultDatetime, Status } from "../../../../Constants";
+import { isEqual } from "date-fns/fp";
 
 export const list = async (
     req: PatchRequest<{
@@ -86,8 +87,8 @@ export const list = async (
                 periodicUUID: room.periodic_uuid,
                 creatorUserUUID: room.creator_user_uuid,
                 title: room.title,
-                beginTime: room.begin_time,
-                endTime: room.end_time,
+                beginTime: room.begin_time.toISOString(),
+                endTime: isEqual(room.end_time)(DefaultDatetime) ? "" : room.end_time.toISOString(),
                 roomStatus: room.room_status,
                 creatorUserName: room.creator_user_name,
             };
@@ -146,8 +147,8 @@ interface Room {
     periodic_uuid: string;
     creator_user_uuid: string;
     title: string;
-    begin_time: string;
-    end_time: string;
+    begin_time: Date;
+    end_time: Date;
     room_status: RoomStatus;
     creator_user_name: string;
 }
