@@ -5,6 +5,7 @@ import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
 import { RoomCyclicalConfigModel } from "../../../model/room/RoomCyclicalConfig";
 import { UTCDate } from "../../../../utils/Time";
+import { RoomCyclicalModel } from "../../../model/room/RoomCyclical";
 
 export const updateDB = async (
     roomUUID: string,
@@ -31,13 +32,14 @@ export const updateDB = async (
         );
 
         if (updateStatus) {
+            const beginTime = UTCDate();
             commands.push(
                 t
                     .createQueryBuilder()
                     .update(RoomModel)
                     .set({
                         room_status: RoomStatus.Running,
-                        begin_time: UTCDate(),
+                        begin_time: beginTime,
                     })
                     .where({
                         room_uuid: roomUUID,
@@ -57,6 +59,20 @@ export const updateDB = async (
                         .where({
                             cyclical_uuid: cyclicalUUID,
                             cyclical_status: RoomStatus.Pending,
+                            is_delete: false,
+                        })
+                        .execute(),
+                );
+
+                commands.push(
+                    t
+                        .createQueryBuilder()
+                        .update(RoomCyclicalModel)
+                        .set({
+                            begin_time: beginTime,
+                        })
+                        .where({
+                            fake_room_uuid: roomUUID,
                             is_delete: false,
                         })
                         .execute(),
