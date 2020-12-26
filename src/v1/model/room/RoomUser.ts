@@ -23,15 +23,15 @@ export class RoomUserModel extends Content {
     })
     user_uuid: string;
 
-    @Index("room_users_is_delete_index")
-    @Column({
-        default: false,
-    })
-    is_delete: boolean;
-
     @Column({
         length: 10,
         comment: "front-end needs this field to set whiteboard, rtc, rtm",
     })
     user_int_uuid: string;
+
+    @Index("room_users_is_delete_index")
+    @Column({
+        default: false,
+    })
+    is_delete: boolean;
 }
