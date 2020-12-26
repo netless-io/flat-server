@@ -93,8 +93,7 @@ export const callback = async (
                     throw new Error("Failed to create user");
                 });
         } else {
-            const { user_name, user_uuid } = getUserInfoByUserWeChat;
-            userUUID = user_uuid;
+            const { user_name, user_uuid: userUUID } = getUserInfoByUserWeChat;
 
             // wechat name update
             if (weChatUserInfo.nickname !== user_name) {
@@ -104,8 +103,8 @@ export const callback = async (
                     .set({
                         user_name: weChatUserInfo.nickname,
                     })
-                    .where("user_uuid = :user_uuid", {
-                        user_uuid,
+                    .where("user_uuid = :userUUID", {
+                        user_uuid: userUUID,
                     })
                     .execute()
                     .catch(e => {
