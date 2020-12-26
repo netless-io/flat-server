@@ -1,5 +1,5 @@
 import { DocsType, RoomStatus, RoomType, Week } from "../Constants";
-import { Cyclical, Docs } from "../Types";
+import { Periodic, Docs } from "../Types";
 import { Status } from "../../../../Constants";
 import { FastifyReply } from "fastify";
 import { FastifySchema, PatchRequest } from "../../../types/Server";
@@ -11,8 +11,8 @@ import { dateIntervalByRate, dateIntervalByWeek, DateIntervalResult } from "../u
 import { RoomDocModel } from "../../../model/room/RoomDoc";
 import { getConnection } from "typeorm";
 import { RoomUserModel } from "../../../model/room/RoomUser";
-import { RoomCyclicalConfigModel } from "../../../model/room/RoomCyclicalConfig";
-import { RoomCyclicalModel } from "../../../model/room/RoomCyclical";
+import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
+import { RoomPeriodicModel } from "../../../model/room/RoomPeriodic";
 import cryptoRandomString from "crypto-random-string";
 import { whiteboardCreateRoom } from "../../../utils/Whiteboard";
 
@@ -22,7 +22,7 @@ export const schedule = async (
     }>,
     reply: FastifyReply,
 ): Promise<void> => {
-    const { title, type, beginTime, endTime, cyclical, docs } = req.body;
+    const { title, type, beginTime, endTime, periodic, docs } = req.body;
     const { userUUID } = req.user;
 
     // check beginTime and endTime
@@ -62,27 +62,27 @@ export const schedule = async (
 
         let dates: DateIntervalResult[];
 
-        if (typeof cyclical.rate === "number") {
+        if (typeof periodic.rate === "number") {
             dates = dateIntervalByRate({
                 start: beginDateTime,
                 end: endDateTime,
-                rate: cyclical.rate,
-                weeks: cyclical.weeks,
+                rate: periodic.rate,
+                weeks: periodic.weeks,
             });
         } else {
             dates = dateIntervalByWeek({
                 start: beginDateTime,
                 end: endDateTime,
-                endDate: toDate(cyclical.endTime as number),
-                weeks: cyclical.weeks,
+                endDate: toDate(periodic.endTime as number),
+                weeks: periodic.weeks,
             });
         }
 
-        const cyclicalUUID = v4();
+        const periodicUUID = v4();
 
-        const roomCyclicalData = dates.map(({ start, end }) => {
+        const roomPeriodicData = dates.map(({ start, end }) => {
             return {
-                cyclical_uuid: cyclicalUUID,
+                periodic_uuid: periodicUUID,
                 fake_room_uuid: v4(),
                 room_type: type,
                 begin_time: start,
@@ -93,38 +93,38 @@ export const schedule = async (
         await getConnection().transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
-            commands.push(t.insert(RoomCyclicalModel, roomCyclicalData));
+            commands.push(t.insert(RoomPeriodicModel, roomPeriodicData));
 
-            // take the first lesson of the cyclical room
+            // take the first lesson of the periodic room
             {
                 commands.push(
-                    t.insert(RoomCyclicalConfigModel, {
+                    t.insert(RoomPeriodicConfigModel, {
                         creator_user_uuid: userUUID,
-                        cyclical_status: RoomStatus.Pending,
+                        periodic_status: RoomStatus.Pending,
                         title,
-                        rate: cyclical.rate || 0,
-                        end_time: cyclical.endTime ? UTCDate(cyclical.endTime) : "0",
-                        cyclical_uuid: cyclicalUUID,
+                        rate: periodic.rate || 0,
+                        end_time: periodic.endTime ? UTCDate(periodic.endTime) : "0",
+                        periodic_uuid: periodicUUID,
                     }),
                 );
 
                 commands.push(
                     t.insert(RoomModel, {
-                        cyclical_uuid: cyclicalUUID,
+                        periodic_uuid: periodicUUID,
                         creator_user_uuid: userUUID,
                         title,
                         room_type: type,
                         room_status: RoomStatus.Pending,
-                        room_uuid: roomCyclicalData[0].fake_room_uuid,
+                        room_uuid: roomPeriodicData[0].fake_room_uuid,
                         whiteboard_room_uuid: await whiteboardCreateRoom(title),
-                        begin_time: roomCyclicalData[0].begin_time,
-                        end_time: roomCyclicalData[0].end_time,
+                        begin_time: roomPeriodicData[0].begin_time,
+                        end_time: roomPeriodicData[0].end_time,
                     }),
                 );
 
                 commands.push(
                     t.insert(RoomUserModel, {
-                        room_uuid: roomCyclicalData[0].fake_room_uuid,
+                        room_uuid: roomPeriodicData[0].fake_room_uuid,
                         user_uuid: userUUID,
                         user_int_uuid: cryptoRandomString({ length: 10, type: "numeric" }),
                     }),
@@ -136,7 +136,7 @@ export const schedule = async (
                     return {
                         doc_uuid: uuid,
                         room_uuid: "",
-                        cyclical_uuid: cyclicalUUID,
+                        periodic_uuid: periodicUUID,
                         doc_type: type,
                         is_preload: false,
                     };
@@ -164,7 +164,7 @@ type ScheduleBody = {
     type: RoomType;
     beginTime: number;
     endTime: number;
-    cyclical: Cyclical;
+    periodic: Periodic;
     docs?: Docs[];
 };
 
@@ -173,7 +173,7 @@ export const scheduleSchemaType: FastifySchema<{
 }> = {
     body: {
         type: "object",
-        required: ["title", "type", "beginTime", "endTime", "cyclical"],
+        required: ["title", "type", "beginTime", "endTime", "periodic"],
         properties: {
             title: {
                 type: "string",
@@ -191,7 +191,7 @@ export const scheduleSchemaType: FastifySchema<{
                 type: "integer",
                 format: "unix-timestamp",
             },
-            cyclical: {
+            periodic: {
                 type: "object",
                 required: ["weeks"],
                 properties: {

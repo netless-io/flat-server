@@ -2,11 +2,11 @@ import { MySQL } from "../../Constants";
 import { createConnection } from "typeorm";
 import { RoomModel } from "../model/room/Room";
 import { RoomUserModel } from "../model/room/RoomUser";
-import { RoomCyclicalModel } from "../model/room/RoomCyclical";
+import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
 import { RoomDocModel } from "../model/room/RoomDoc";
 import { UserModel } from "../model/user/User";
 import { UserWeChatModel } from "../model/user/WeChat";
-import { RoomCyclicalConfigModel } from "../model/room/RoomCyclicalConfig";
+import { RoomPeriodicConfigModel } from "../model/room/RoomPeriodicConfig";
 
 export const orm = createConnection({
     type: "mysql",
@@ -20,8 +20,8 @@ export const orm = createConnection({
         UserWeChatModel,
         RoomModel,
         RoomUserModel,
-        RoomCyclicalConfigModel,
-        RoomCyclicalModel,
+        RoomPeriodicConfigModel,
+        RoomPeriodicModel,
         RoomDocModel,
     ],
 }).catch(err => {

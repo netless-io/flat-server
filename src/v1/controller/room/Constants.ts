@@ -28,6 +28,6 @@ export enum RoomStatus {
 export enum ListType {
     All = "all",
     Today = "today",
-    Cyclical = "cyclical",
+    Periodic = "periodic",
     History = "history",
 }

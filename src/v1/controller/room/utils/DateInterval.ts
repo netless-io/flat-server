@@ -53,7 +53,7 @@ export const dateIntervalByWeek = ({
         const result = compareDesc(endDate)(start);
         if (result === -1) {
             throw new Error(
-                "The cyclical end time cannot be less than the creation room begin time",
+                "The periodic end time cannot be less than the creation room begin time",
             );
         }
 

@@ -3,18 +3,18 @@ import { Content } from "../Content";
 import { RoomStatus } from "../../controller/room/Constants";
 
 @Entity({
-    name: "room_cyclical_configs",
+    name: "room_periodic_configs",
 })
-export class RoomCyclicalConfigModel extends Content {
-    @Index("cyclical_configs_cyclical_uuid_uindex", {
+export class RoomPeriodicConfigModel extends Content {
+    @Index("periodic_configs_periodic_uuid_uindex", {
         unique: true,
     })
     @Column({
         length: 40,
     })
-    cyclical_uuid: string;
+    periodic_uuid: string;
 
-    @Index("cyclical_configs_creator_user_uuid_index")
+    @Index("periodic_configs_creator_user_uuid_index")
     @Column({
         length: 40,
     })
@@ -29,26 +29,26 @@ export class RoomCyclicalConfigModel extends Content {
     @Column({
         type: "tinyint",
         precision: 3,
-        comment: "cyclical rate (max 50)",
+        comment: "periodic rate (max 50)",
     })
     rate: number;
 
     @Column({
         type: "datetime",
         precision: 3,
-        comment: "cyclical end time",
+        comment: "periodic end time",
     })
     end_time: Date;
 
-    @Index("rooms_cyclical_status_index")
+    @Index("rooms_periodic_status_index")
     @Column({
         type: "enum",
         enum: [RoomStatus.Pending, RoomStatus.Running, RoomStatus.Stopped],
         comment: "current room status",
     })
-    cyclical_status: RoomStatus;
+    periodic_status: RoomStatus;
 
-    @Index("cyclical_configs_is_delete_index")
+    @Index("periodic_configs_is_delete_index")
     @Column({
         default: false,
     })

@@ -5,38 +5,38 @@ import { Status } from "../../../../Constants";
 import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
-import { RoomCyclicalConfigModel } from "../../../model/room/RoomCyclicalConfig";
+import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
 import { updateDB } from "./Utils";
 
-export const joinCyclical = async (
+export const joinPeriodic = async (
     req: PatchRequest<{
-        Body: JoinCyclicalBody;
+        Body: JoinPeriodicBody;
     }>,
     reply: FastifyReply,
 ): Promise<void> => {
-    const { cyclicalUUID } = req.body;
+    const { periodicUUID } = req.body;
     const { userUUID } = req.user;
 
     try {
-        const roomCyclicalConfig = await getRepository(RoomCyclicalConfigModel).findOne({
-            select: ["cyclical_status"],
+        const roomPeriodicConfig = await getRepository(RoomPeriodicConfigModel).findOne({
+            select: ["periodic_status"],
             where: {
-                cyclical_uuid: cyclicalUUID,
+                periodic_uuid: periodicUUID,
                 is_delete: false,
             },
         });
 
-        if (roomCyclicalConfig === undefined) {
+        if (roomPeriodicConfig === undefined) {
             return reply.send({
                 status: Status.Failed,
-                message: "Cyclical room not found",
+                message: "Periodic room not found",
             });
         }
 
-        if (roomCyclicalConfig.cyclical_status === RoomStatus.Stopped) {
+        if (roomPeriodicConfig.periodic_status === RoomStatus.Stopped) {
             return reply.send({
                 status: Status.Failed,
-                message: "Cyclical has been ended",
+                message: "Periodic has been ended",
             });
         }
 
@@ -44,11 +44,11 @@ export const joinCyclical = async (
             .createQueryBuilder()
             .select(["room_uuid", "whiteboard_room_uuid", "creator_user_uuid", "room_status"])
             .where(
-                `cyclical_uuid = :cyclicalUUID
+                `periodic_uuid = :periodicUUID
                 AND room_status IN (:...roomStatus)
                 AND is_delete = false`,
                 {
-                    cyclicalUUID,
+                    periodicUUID,
                     roomStatus: [RoomStatus.Pending, RoomStatus.Running],
                 },
             )
@@ -64,7 +64,7 @@ export const joinCyclical = async (
 
         if (roomInfo.creator_user_uuid === userUUID) {
             if (roomInfo.room_status === RoomStatus.Pending) {
-                await updateDB(roomInfo.room_uuid, userUUID, true, cyclicalUUID);
+                await updateDB(roomInfo.room_uuid, userUUID, true, periodicUUID);
             }
         } else {
             await updateDB(roomInfo.room_uuid, userUUID);
@@ -88,19 +88,19 @@ export const joinCyclical = async (
 };
 
 /* eslint-disable @typescript-eslint/indent */
-type JoinCyclicalBody = {
-    cyclicalUUID: string;
+type JoinPeriodicBody = {
+    periodicUUID: string;
 };
 /* eslint-enable @typescript-eslint/indent */
 
-export const joinCyclicalSchemaType: FastifySchema<{
-    body: JoinCyclicalBody;
+export const joinPeriodicSchemaType: FastifySchema<{
+    body: JoinPeriodicBody;
 }> = {
     body: {
         type: "object",
-        required: ["cyclicalUUID"],
+        required: ["periodicUUID"],
         properties: {
-            cyclicalUUID: {
+            periodicUUID: {
                 type: "string",
                 maxLength: 40,
             },

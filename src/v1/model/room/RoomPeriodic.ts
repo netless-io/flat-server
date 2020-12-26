@@ -2,15 +2,15 @@ import { Column, Entity, Index } from "typeorm";
 import { Content } from "../Content";
 
 @Entity({
-    name: "room_cyclical",
+    name: "room_periodic",
 })
-export class RoomCyclicalModel extends Content {
+export class RoomPeriodicModel extends Content {
     @Column({
         length: 40,
     })
-    cyclical_uuid: string;
+    periodic_uuid: string;
 
-    @Index("room_cyclical_fake_room_uuid_uindex", {
+    @Index("room_periodic_fake_room_uuid_uindex", {
         unique: true,
     })
     @Column({
@@ -18,14 +18,14 @@ export class RoomCyclicalModel extends Content {
     })
     fake_room_uuid: string;
 
-    @Index("room_cyclical_room_type_index")
+    @Index("room_periodic_room_type_index")
     @Column({
         type: "tinyint",
         comment: "room type(one to one: 0 / small class: 1 / big class: 2",
     })
     room_type: number;
 
-    @Index("room_cyclical_begin_time_index")
+    @Index("room_periodic_begin_time_index")
     @Column({
         type: "datetime",
         precision: 3,
@@ -40,7 +40,7 @@ export class RoomCyclicalModel extends Content {
     })
     end_time: Date;
 
-    @Index("room_cyclical_is_delete_index")
+    @Index("room_periodic_is_delete_index")
     @Column({
         default: false,
     })
