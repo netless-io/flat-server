@@ -31,13 +31,22 @@ export const updateDB = async (
         );
 
         if (updateStatus) {
-            const updateRoomColumns: UpdateRoomColumns = {
-                room_status: RoomStatus.Running,
-            };
+            commands.push(
+                t
+                    .createQueryBuilder()
+                    .update(RoomModel)
+                    .set({
+                        room_status: RoomStatus.Running,
+                        begin_time: UTCDate(),
+                    })
+                    .where({
+                        room_uuid: roomUUID,
+                        is_delete: false,
+                    })
+                    .execute(),
+            );
 
             if (cyclicalUUID !== "") {
-                updateRoomColumns.begin_time = UTCDate();
-
                 commands.push(
                     t
                         .createQueryBuilder()
@@ -53,25 +62,8 @@ export const updateDB = async (
                         .execute(),
                 );
             }
-
-            commands.push(
-                t
-                    .createQueryBuilder()
-                    .update(RoomModel)
-                    .set(updateRoomColumns)
-                    .where({
-                        room_uuid: roomUUID,
-                        is_delete: false,
-                    })
-                    .execute(),
-            );
         }
 
         return Promise.all(commands);
     });
 };
-
-interface UpdateRoomColumns {
-    room_status: RoomStatus;
-    begin_time?: Date;
-}
