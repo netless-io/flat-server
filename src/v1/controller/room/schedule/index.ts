@@ -159,14 +159,14 @@ export const schedule = async (
     }
 };
 
-type ScheduleBody = {
+interface ScheduleBody {
     title: string;
     type: RoomType;
     beginTime: number;
     endTime: number;
     periodic: Periodic;
     docs?: Docs[];
-};
+}
 
 export const scheduleSchemaType: FastifySchema<{
     body: ScheduleBody;

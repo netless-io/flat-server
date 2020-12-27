@@ -153,7 +153,7 @@ interface Room {
     creator_user_name: string;
 }
 
-type Resp = {
+interface Resp {
     roomUUID: string;
     periodicUUID: string;
     creatorUserUUID: string;
@@ -162,4 +162,4 @@ type Resp = {
     endTime: string;
     roomStatus: RoomStatus;
     creatorUserName: string;
-};
+}

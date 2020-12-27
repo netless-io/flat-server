@@ -92,14 +92,14 @@ export const createWhiteboardRoomToken = (whiteboardRoomUUID: string, lifespan =
     });
 };
 
-type SdkTokenTags = {
+interface SdkTokenTags {
     readonly role: TokenRole;
-};
+}
 
-type RoomTokenTags = {
+interface RoomTokenTags {
     readonly uuid: string;
     readonly role: TokenRole;
-};
+}
 
 type StrAndIntByObj = Record<string, string | number>;
 type StrByObj = Record<string, string>;

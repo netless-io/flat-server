@@ -87,11 +87,9 @@ export const joinPeriodic = async (
     }
 };
 
-/* eslint-disable @typescript-eslint/indent */
-type JoinPeriodicBody = {
+interface JoinPeriodicBody {
     periodicUUID: string;
-};
-/* eslint-enable @typescript-eslint/indent */
+}
 
 export const joinPeriodicSchemaType: FastifySchema<{
     body: JoinPeriodicBody;

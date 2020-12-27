@@ -164,14 +164,14 @@ export const callback = async (
     }
 };
 
-type CallbackQuery = {
+interface CallbackQuery {
     state: string;
     code: string;
-};
+}
 
-type CallbackParams = {
+interface CallbackParams {
     socketID: string;
-};
+}
 
 export const callbackSchemaType: FastifySchema<{
     querystring: CallbackQuery;

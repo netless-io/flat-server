@@ -28,7 +28,7 @@ export const whiteboardCreateRoom = async (name: string, limit = 0): Promise<str
     return uuid;
 };
 
-type Room = {
+interface Room {
     uuid: string;
     name: string;
     teamUUID: string;
@@ -36,4 +36,4 @@ type Room = {
     isBan: boolean;
     limit: number;
     createdAt: string;
-};
+}

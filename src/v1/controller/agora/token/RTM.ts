@@ -27,9 +27,9 @@ export const generateRTM = async (
     });
 };
 
-type GenerateRTMBody = {
+interface GenerateRTMBody {
     uid: string;
-};
+}
 
 export const generateRTMSchemaType: FastifySchema<{
     body: GenerateRTMBody;
