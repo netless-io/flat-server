@@ -28,10 +28,10 @@ export const generateRTC = async (
     });
 };
 
-type GenerateRTCBody = {
+interface GenerateRTCBody {
     channelName: string;
     uid: number;
-};
+}
 
 export const generateRTCSchemaType: FastifySchema<{
     body: GenerateRTCBody;

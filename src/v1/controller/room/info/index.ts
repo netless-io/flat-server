@@ -126,9 +126,9 @@ interface UserInfo {
     sex: number;
 }
 
-type InfoBody = {
+interface InfoBody {
     roomUUID: string;
-};
+}
 
 export const infoSchemaType: FastifySchema<{
     body: InfoBody;

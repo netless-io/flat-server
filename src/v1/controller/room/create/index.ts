@@ -94,12 +94,12 @@ export const create = async (
     }
 };
 
-type CreateBody = {
+interface CreateBody {
     title: string;
     type: RoomType;
     beginTime: number;
     docs?: Docs[];
-};
+}
 
 export const createSchemaType: FastifySchema<{
     body: CreateBody;

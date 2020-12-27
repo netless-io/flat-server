@@ -63,12 +63,9 @@ export const joinOrdinary = async (
     }
 };
 
-/* eslint-disable @typescript-eslint/indent */
-type JoinOrdinaryBody = {
+interface JoinOrdinaryBody {
     roomUUID: string;
-};
-
-/* eslint-enable @typescript-eslint/indent */
+}
 
 export const joinOrdinarySchemaType: FastifySchema<{
     body: JoinOrdinaryBody;
