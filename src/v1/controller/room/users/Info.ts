@@ -6,9 +6,9 @@ import { RoomModel } from "../../../model/room/Room";
 import { RoomUserModel } from "../../../model/room/RoomUser";
 import { UserModel } from "../../../model/user/User";
 
-export const info = async (
+export const userInfo = async (
     req: PatchRequest<{
-        Body: InfoBody;
+        Body: UserInfoBody;
     }>,
     reply: FastifyReply,
 ): Promise<void> => {
@@ -33,7 +33,7 @@ export const info = async (
         }
 
         const roomInfoPromise = getRepository(RoomModel).findOne({
-            select: ["room_status", "creator_user_uuid", "begin_time", "end_time"],
+            select: ["creator_user_uuid"],
             where: {
                 room_uuid: roomUUID,
                 is_delete: false,
@@ -65,68 +65,39 @@ export const info = async (
             });
         }
 
-        const { owner, users } = (() => {
-            let owner: UserInfo = {} as UserInfo;
-            const users: UserInfo[] = [];
+        let owner: UserInfo = {} as UserInfo;
+        const learners: UserInfo[] = [];
 
-            roomUserList.forEach(({ user_name, user_uuid, user_int_uuid, avatar_url, sex }) => {
-                const userInfo = {
-                    userIntUUID: Number(user_int_uuid),
-                    userUUID: user_uuid,
-                    userName: user_name,
-                    avatarURL: avatar_url,
-                    sex,
-                };
-
-                if (user_uuid === roomInfo.creator_user_uuid) {
-                    owner = userInfo;
-                } else {
-                    users.push(userInfo);
-                }
-            });
-
-            return {
-                owner,
-                users,
+        roomUserList.forEach(({ user_name, user_uuid, user_int_uuid, avatar_url, sex }) => {
+            const userInfo = {
+                userIntUUID: Number(user_int_uuid),
+                userUUID: user_uuid,
+                userName: user_name,
+                avatarURL: avatar_url,
+                sex,
             };
-        })();
+
+            if (user_uuid === roomInfo.creator_user_uuid) {
+                owner = userInfo;
+            } else {
+                learners.push(userInfo);
+            }
+        });
 
         return reply.send({
             status: Status.Success,
             data: {
-                roomStatus: roomInfo.room_status,
-                beginTime: roomInfo.begin_time,
-                endTime: roomInfo.end_time,
                 owner,
-                users,
+                learners,
             },
         });
     } catch (e) {
         console.error(e);
         return reply.send({
             status: Status.Failed,
-            message: "Get room info failed",
+            message: "Get room users info failed",
         });
     }
-};
-
-interface InfoBody {
-    roomUUID: string;
-}
-
-export const infoSchemaType: FastifySchema<{
-    body: InfoBody;
-}> = {
-    body: {
-        type: "object",
-        required: ["roomUUID"],
-        properties: {
-            roomUUID: {
-                type: "string",
-                maxLength: 40,
-            },
-        },
-    },
 };
 
 interface RoomUserList {
@@ -144,3 +115,22 @@ interface UserInfo {
     avatarURL: string;
     sex: number;
 }
+
+interface UserInfoBody {
+    roomUUID: string;
+}
+
+export const userInfoSchemaType: FastifySchema<{
+    body: UserInfoBody;
+}> = {
+    body: {
+        type: "object",
+        required: ["roomUUID"],
+        properties: {
+            roomUUID: {
+                type: "string",
+                maxLength: 40,
+            },
+        },
+    },
+};
