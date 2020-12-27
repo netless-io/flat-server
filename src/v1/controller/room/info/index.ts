@@ -110,22 +110,6 @@ export const info = async (
     }
 };
 
-interface RoomUserList {
-    user_uuid: string;
-    user_int_uuid: string;
-    user_name: string;
-    avatar_url: string;
-    sex: number;
-}
-
-interface UserInfo {
-    userUUID: string;
-    userIntUUID: number;
-    userName: string;
-    avatarURL: string;
-    sex: number;
-}
-
 interface InfoBody {
     roomUUID: string;
 }
@@ -144,3 +128,19 @@ export const infoSchemaType: FastifySchema<{
         },
     },
 };
+
+interface RoomUserList {
+    user_uuid: string;
+    user_int_uuid: string;
+    user_name: string;
+    avatar_url: string;
+    sex: number;
+}
+
+interface UserInfo {
+    userUUID: string;
+    userIntUUID: number;
+    userName: string;
+    avatarURL: string;
+    sex: number;
+}
