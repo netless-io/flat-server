@@ -105,7 +105,7 @@ export const info = async (
         console.error(e);
         return reply.send({
             status: Status.Failed,
-            message: "Join room failed",
+            message: "Get room info failed",
         });
     }
 };
