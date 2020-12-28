@@ -138,7 +138,7 @@ export const schedule = async (
                         room_uuid: "",
                         periodic_uuid: periodicUUID,
                         doc_type: type,
-                        is_preload: false,
+                        is_preload: true,
                     };
                 });
                 commands.push(t.insert(RoomDocModel, roomDocData));
