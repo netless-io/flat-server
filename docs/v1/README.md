@@ -209,6 +209,7 @@ results:
       status: Status.Success,
       data: {
           owner,
+          myself,
           learners,
       },
   }
