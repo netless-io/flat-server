@@ -105,7 +105,7 @@ export const schedule = async (
 
                 commands.push(
                     t.insert(RoomPeriodicConfigModel, {
-                        owner_user_uuid: userUUID,
+                        owner_uuid: userUUID,
                         periodic_status: RoomStatus.Pending,
                         title,
                         rate: periodic.rate || 0,
@@ -120,7 +120,7 @@ export const schedule = async (
                 commands.push(
                     t.insert(RoomModel, {
                         periodic_uuid: typeof periodic !== "undefined" ? periodicUUID : "",
-                        owner_user_uuid: userUUID,
+                        owner_uuid: userUUID,
                         title,
                         room_type: type,
                         room_status: RoomStatus.Pending,

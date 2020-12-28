@@ -34,7 +34,7 @@ export const userInfo = async (
         }
 
         const roomInfoPromise = getRepository(RoomModel).findOne({
-            select: ["owner_user_uuid", "title"],
+            select: ["owner_uuid", "title"],
             where: {
                 room_uuid: roomUUID,
                 is_delete: false,
@@ -79,7 +79,7 @@ export const userInfo = async (
                 sex,
             };
 
-            if (user_uuid === roomInfo.owner_user_uuid) {
+            if (user_uuid === roomInfo.owner_uuid) {
                 owner = userInfo;
             } else {
                 learners.push(userInfo);

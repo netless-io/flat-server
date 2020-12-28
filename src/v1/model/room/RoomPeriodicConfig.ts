@@ -14,11 +14,11 @@ export class RoomPeriodicConfigModel extends Content {
     })
     periodic_uuid: string;
 
-    @Index("periodic_configs_owner_user_uuid_index")
+    @Index("periodic_configs_owner_uuid_index")
     @Column({
         length: 40,
     })
-    owner_user_uuid: string;
+    owner_uuid: string;
 
     @Column({
         length: 150,
