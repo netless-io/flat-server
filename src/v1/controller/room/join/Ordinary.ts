@@ -18,7 +18,7 @@ export const joinOrdinary = async (
 
     try {
         const roomInfo = await getRepository(RoomModel).findOne({
-            select: ["room_status", "whiteboard_room_uuid", "creator_user_uuid"],
+            select: ["room_status", "whiteboard_room_uuid", "owner_uuid"],
             where: {
                 room_uuid: roomUUID,
                 is_delete: false,
@@ -39,7 +39,7 @@ export const joinOrdinary = async (
             });
         }
 
-        if (roomInfo.creator_user_uuid === userUUID) {
+        if (roomInfo.owner_uuid === userUUID) {
             if (roomInfo.room_status === RoomStatus.Pending) {
                 await updateDB(roomUUID, userUUID, true);
             }

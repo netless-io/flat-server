@@ -21,11 +21,11 @@ export class RoomModel extends Content {
     })
     periodic_uuid: string;
 
-    @Index("rooms_creator_user_uuid_index")
+    @Index("rooms_owner_uuid_index")
     @Column({
         length: 40,
     })
-    creator_user_uuid: string;
+    owner_uuid: string;
 
     @Column({
         length: 150,

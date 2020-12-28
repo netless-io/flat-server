@@ -68,11 +68,11 @@ export const list = async (
             .addSelect("r.periodic_uuid", "periodic_uuid")
             .addSelect("r.begin_time", "begin_time")
             .addSelect("r.end_time", "end_time")
-            .addSelect("r.creator_user_uuid", "creator_user_uuid")
+            .addSelect("r.owner_uuid", "owner_uuid")
             .addSelect("r.room_status", "room_status")
-            .addSelect("u.user_name", "creator_user_name")
+            .addSelect("u.user_name", "owner_user_name")
             .innerJoin(RoomModel, "r", "ru.room_uuid = r.room_uuid")
-            .innerJoin(UserModel, "u", "u.user_uuid = r.creator_user_uuid")
+            .innerJoin(UserModel, "u", "u.user_uuid = r.owner_uuid")
             .where(whereMap[type].sql, whereMap[type].params)
             .orderBy({
                 "r.begin_time": "ASC",
@@ -85,12 +85,12 @@ export const list = async (
             return {
                 roomUUID: room.room_uuid,
                 periodicUUID: room.periodic_uuid,
-                creatorUserUUID: room.creator_user_uuid,
+                ownerUUID: room.owner_uuid,
                 title: room.title,
                 beginTime: room.begin_time.toISOString(),
                 endTime: isEqual(room.end_time)(DefaultDatetime) ? "" : room.end_time.toISOString(),
                 roomStatus: room.room_status,
-                creatorUserName: room.creator_user_name,
+                ownerName: room.owner_user_name,
             };
         });
 
@@ -145,21 +145,21 @@ export const listSchemaType: FastifySchema<{
 interface Room {
     room_uuid: string;
     periodic_uuid: string;
-    creator_user_uuid: string;
+    owner_uuid: string;
     title: string;
     begin_time: Date;
     end_time: Date;
     room_status: RoomStatus;
-    creator_user_name: string;
+    owner_user_name: string;
 }
 
 interface Resp {
     roomUUID: string;
     periodicUUID: string;
-    creatorUserUUID: string;
+    ownerUUID: string;
     title: string;
     beginTime: string;
     endTime: string;
     roomStatus: RoomStatus;
-    creatorUserName: string;
+    ownerName: string;
 }
