@@ -1,23 +1,10 @@
-import { RtmRole, RtmTokenBuilder } from "agora-access-token";
-import { Agora, Status } from "../../../../Constants";
-import { FastifyReply, FastifyRequest } from "fastify";
-import { FastifySchema } from "../../../types/Server";
+import { Status } from "../../../../Constants";
+import { FastifyReply } from "fastify";
+import { PatchRequest } from "../../../types/Server";
+import { getRTMToken } from "../../../utils/AgoraToken";
 
-export const generateRTM = async (
-    req: FastifyRequest<{
-        Body: GenerateRTMBody;
-    }>,
-    reply: FastifyReply,
-): Promise<void> => {
-    const { uid } = req.body;
-
-    const token = RtmTokenBuilder.buildToken(
-        Agora.APP_ID,
-        Agora.APP_CERTIFICATE,
-        uid,
-        RtmRole.Rtm_User,
-        0,
-    );
+export const generateRTM = async (req: PatchRequest, reply: FastifyReply): Promise<void> => {
+    const token = await getRTMToken(req.user.userUUID);
 
     return reply.send({
         status: Status.Success,
@@ -25,22 +12,4 @@ export const generateRTM = async (
             token,
         },
     });
-};
-
-interface GenerateRTMBody {
-    uid: string;
-}
-
-export const generateRTMSchemaType: FastifySchema<{
-    body: GenerateRTMBody;
-}> = {
-    body: {
-        type: "object",
-        required: ["uid"],
-        properties: {
-            uid: {
-                type: "string",
-            },
-        },
-    },
 };

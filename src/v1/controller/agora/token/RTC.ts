@@ -1,7 +1,7 @@
-import { RtcRole, RtcTokenBuilder } from "agora-access-token";
-import { Agora, Status } from "../../../../Constants";
+import { Status } from "../../../../Constants";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { FastifySchema } from "../../../types/Server";
+import { getRTCToken } from "../../../utils/AgoraToken";
 
 export const generateRTC = async (
     req: FastifyRequest<{
@@ -9,16 +9,9 @@ export const generateRTC = async (
     }>,
     reply: FastifyReply,
 ): Promise<void> => {
-    const { channelName, uid } = req.body;
+    const { roomUUID, channelName, uid } = req.body;
 
-    const token = RtcTokenBuilder.buildTokenWithUid(
-        Agora.APP_ID,
-        Agora.APP_CERTIFICATE,
-        channelName,
-        uid,
-        RtcRole.PUBLISHER,
-        0,
-    );
+    const token = await getRTCToken(roomUUID, uid, channelName);
 
     return reply.send({
         status: Status.Success,
@@ -31,6 +24,7 @@ export const generateRTC = async (
 interface GenerateRTCBody {
     channelName: string;
     uid: number;
+    roomUUID: string;
 }
 
 export const generateRTCSchemaType: FastifySchema<{
@@ -38,13 +32,16 @@ export const generateRTCSchemaType: FastifySchema<{
 }> = {
     body: {
         type: "object",
-        required: ["channelName", "uid"],
+        required: ["channelName", "uid", "roomUUID"],
         properties: {
             channelName: {
                 type: "string",
             },
             uid: {
                 type: "integer",
+            },
+            roomUUID: {
+                type: "string",
             },
         },
     },
