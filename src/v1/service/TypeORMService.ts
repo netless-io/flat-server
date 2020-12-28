@@ -26,6 +26,8 @@ export const orm = createConnection({
     ],
     timezone: "Z",
     logging: isDev ? "all" : false,
+    // only effective under dev
+    maxQueryExecutionTime: 1,
 }).catch(err => {
     console.error("Unable to connect to the database");
     console.error(err);
