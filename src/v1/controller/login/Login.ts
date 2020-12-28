@@ -1,5 +1,5 @@
 import redisService from "../../service/RedisService";
-import { RedisKeyPrefix, Status } from "../../../Constants";
+import { Status } from "../../../Constants";
 import { renewAccessToken } from "../../utils/WeChatURL";
 import { wechatRequest } from "../../utils/WeChatRequest";
 import { RefreshToken } from "../../types/WeChatResponse";
@@ -9,6 +9,7 @@ import { UserModel } from "../../model/user/User";
 import { UserWeChatModel } from "../../model/user/WeChat";
 import { LoginPlatform } from "./Constants";
 import { getRepository } from "typeorm";
+import { RedisKey } from "../../../utils/Redis";
 
 export const login = async (req: PatchRequest, reply: FastifyReply): Promise<void> => {
     const { userUUID, loginSource } = req.user;
@@ -37,9 +38,7 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
     }
 
     if (loginSource === LoginPlatform.WeChat) {
-        const refreshToken = await redisService.get(
-            `${RedisKeyPrefix.WECHAT_REFRESH_TOKEN}:${userUUID}`,
-        );
+        const refreshToken = await redisService.get(RedisKey.wechatRefreshToken(userUUID));
 
         if (refreshToken === null) {
             return reply.send({

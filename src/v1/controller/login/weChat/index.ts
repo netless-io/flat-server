@@ -1,6 +1,6 @@
 import redisService from "../../../service/RedisService";
 import { socketNamespaces } from "../../../store/SocketNamespaces";
-import { RedisKeyPrefix, SocketNsp, Status, WeChatSocketEvents } from "../../../../Constants";
+import { SocketNsp, Status, WeChatSocketEvents } from "../../../../Constants";
 import { wechatRequest } from "../../../utils/WeChatRequest";
 import { getAccessTokenURL, getUserInfoURL } from "../../../utils/WeChatURL";
 import { AccessToken, UserInfo } from "../../../types/WeChatResponse";
@@ -11,6 +11,7 @@ import { v4 } from "uuid";
 import { LoginPlatform } from "../Constants";
 import { getConnection, getRepository } from "typeorm";
 import { UserWeChatModel } from "../../../model/user/WeChat";
+import { RedisKey } from "../../../../utils/Redis";
 
 export const callback = async (
     req: PatchRequest<{
@@ -36,7 +37,7 @@ export const callback = async (
         status: Status.Process,
     });
 
-    const result = await redisService.get(`${RedisKeyPrefix.WECHAT_AUTH_UUID}:${uuid}`);
+    const result = await redisService.get(RedisKey.weChatAuthUUID(uuid));
 
     if (result === null) {
         socket.emit(WeChatSocketEvents.LoginStatus, {
@@ -115,12 +116,12 @@ export const callback = async (
         }
 
         await redisService.set(
-            `${RedisKeyPrefix.WECHAT_REFRESH_TOKEN}:${userUUID}`,
+            RedisKey.wechatRefreshToken(userUUID),
             accessToken.refresh_token,
             60 * 60 * 24 * 29,
         );
 
-        await redisService.del(`${RedisKeyPrefix.WECHAT_AUTH_UUID}:${uuid}`);
+        await redisService.del(RedisKey.weChatAuthUUID(uuid));
 
         const getUserInfoByUser = await getRepository(UserModel).findOne({
             select: ["user_name", "sex", "avatar_url"],

@@ -38,11 +38,6 @@ export const JWT = {
     ALGORITHMS: process.env.JWT_ALGORITHMS,
 };
 
-export const RedisKeyPrefix = {
-    WECHAT_AUTH_UUID: "weChat:auth:uuid",
-    WECHAT_REFRESH_TOKEN: "weChat:refresh:token",
-};
-
 export const Netless = {
     ACCESS_KEY: process.env.NETLESS_ACCESS_KEY,
     SECRET_ACCESS_KEY: process.env.NETLESS_SECRET_ACCESS_KEY,
