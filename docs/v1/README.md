@@ -218,4 +218,38 @@ results:
       message: "Get room users info failed",
   }
 
+POST room/info (roomInfo) [auth]
+body:
+  interface RoomInfoBody {
+      roomUUID: string;
+      queryDocs: boolean;
+  }
+results:
+  {
+      status: Status.Failed,
+      message: "Not have permission",
+  }
+  {
+      status: Status.Failed,
+      message: "Room not found",
+  }
+  {
+      status: Status.Success,
+      data: {
+          roomInfo: {
+              title: roomInfo.title,
+              beginTime: roomInfo.begin_time,
+              endTime: roomInfo.end_time,
+              roomType: roomInfo.room_type,
+              roomStatus: roomInfo.room_status,
+              creatorUserUUID: roomInfo.creator_user_uuid,
+          },
+          docs,
+      },
+  }
+  {
+      status: Status.Failed,
+      message: "get room info failed",
+  }
+
 ```
