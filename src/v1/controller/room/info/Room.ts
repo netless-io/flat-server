@@ -39,7 +39,7 @@ export const roomInfo = async (
                 "end_time",
                 "room_type",
                 "room_status",
-                "creator_user_uuid",
+                "owner_user_uuid",
                 "periodic_uuid",
             ],
             where: {
@@ -93,7 +93,7 @@ export const roomInfo = async (
                     endTime: roomInfo.end_time,
                     roomType: roomInfo.room_type,
                     roomStatus: roomInfo.room_status,
-                    creatorUserUUID: roomInfo.creator_user_uuid,
+                    ownerUserUUID: roomInfo.owner_user_uuid,
                 },
                 docs,
             },

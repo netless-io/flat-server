@@ -42,7 +42,7 @@ export const joinPeriodic = async (
 
         const roomInfo = await getRepository(RoomModel)
             .createQueryBuilder()
-            .select(["room_uuid", "whiteboard_room_uuid", "creator_user_uuid", "room_status"])
+            .select(["room_uuid", "whiteboard_room_uuid", "owner_user_uuid", "room_status"])
             .where(
                 `periodic_uuid = :periodicUUID
                 AND room_status IN (:...roomStatus)
@@ -62,7 +62,7 @@ export const joinPeriodic = async (
             });
         }
 
-        if (roomInfo.creator_user_uuid === userUUID) {
+        if (roomInfo.owner_user_uuid === userUUID) {
             if (roomInfo.room_status === RoomStatus.Pending) {
                 await updateDB(roomInfo.room_uuid, userUUID, true, periodicUUID);
             }

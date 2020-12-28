@@ -40,7 +40,7 @@ export const create = async (
         const time = UTCDate(beginTime);
         const roomData = {
             periodic_uuid: "",
-            creator_user_uuid: userUUID,
+            owner_user_uuid: userUUID,
             title,
             room_type: type,
             room_status: RoomStatus.Pending,
