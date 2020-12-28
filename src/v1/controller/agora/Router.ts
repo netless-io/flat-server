@@ -1,6 +1,6 @@
 import { FastifyRoutes } from "../../types/Server";
 import { generateRTC, generateRTCSchemaType } from "./token/RTC";
-import { generateRTM, generateRTMSchemaType } from "./token/RTM";
+import { generateRTM } from "./token/RTM";
 
 export const httpAgora: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
@@ -15,6 +15,5 @@ export const httpAgora: Readonly<FastifyRoutes[]> = Object.freeze([
         path: "agora/token/generate/rtm",
         handler: generateRTM,
         auth: true,
-        schema: generateRTMSchemaType,
     }),
 ]);
