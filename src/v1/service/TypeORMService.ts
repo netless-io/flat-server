@@ -1,4 +1,4 @@
-import { MySQL } from "../../Constants";
+import { isDev, MySQL } from "../../Constants";
 import { createConnection } from "typeorm";
 import { RoomModel } from "../model/room/Room";
 import { RoomUserModel } from "../model/room/RoomUser";
@@ -25,6 +25,7 @@ export const orm = createConnection({
         RoomDocModel,
     ],
     timezone: "Z",
+    logging: isDev ? "all" : false,
 }).catch(err => {
     console.error("Unable to connect to the database");
     console.error(err);
