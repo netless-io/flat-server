@@ -70,7 +70,7 @@ export const create = async (
                         room_uuid: roomData.room_uuid,
                         periodic_uuid: "",
                         doc_type: type,
-                        is_preload: false,
+                        is_preload: true,
                     };
                 });
                 commands.push(t.insert(RoomDocModel, roomDocData));
