@@ -62,7 +62,14 @@ export const schedule = async (
 
         let dates: DateIntervalResult[];
 
-        if (typeof periodic.rate === "number") {
+        if (typeof periodic === "undefined") {
+            dates = [
+                {
+                    start: toDate(beginTime),
+                    end: toDate(endTime),
+                },
+            ];
+        } else if (typeof periodic.rate === "number") {
             dates = dateIntervalByRate({
                 start: beginDateTime,
                 end: endDateTime,
@@ -80,7 +87,7 @@ export const schedule = async (
 
         const periodicUUID = v4();
 
-        const roomPeriodicData = dates.map(({ start, end }) => {
+        const roomData = dates.map(({ start, end }) => {
             return {
                 periodic_uuid: periodicUUID,
                 fake_room_uuid: v4(),
@@ -93,10 +100,9 @@ export const schedule = async (
         await getConnection().transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
-            commands.push(t.insert(RoomPeriodicModel, roomPeriodicData));
+            if (typeof periodic !== "undefined") {
+                commands.push(t.insert(RoomPeriodicModel, roomData));
 
-            // take the first lesson of the periodic room
-            {
                 commands.push(
                     t.insert(RoomPeriodicConfigModel, {
                         creator_user_uuid: userUUID,
@@ -107,24 +113,27 @@ export const schedule = async (
                         periodic_uuid: periodicUUID,
                     }),
                 );
+            }
 
+            // take the first lesson of the periodic room
+            {
                 commands.push(
                     t.insert(RoomModel, {
-                        periodic_uuid: periodicUUID,
+                        periodic_uuid: typeof periodic !== "undefined" ? periodicUUID : "",
                         creator_user_uuid: userUUID,
                         title,
                         room_type: type,
                         room_status: RoomStatus.Pending,
-                        room_uuid: roomPeriodicData[0].fake_room_uuid,
+                        room_uuid: roomData[0].fake_room_uuid,
                         whiteboard_room_uuid: await whiteboardCreateRoom(title),
-                        begin_time: roomPeriodicData[0].begin_time,
-                        end_time: roomPeriodicData[0].end_time,
+                        begin_time: roomData[0].begin_time,
+                        end_time: roomData[0].end_time,
                     }),
                 );
 
                 commands.push(
                     t.insert(RoomUserModel, {
-                        room_uuid: roomPeriodicData[0].fake_room_uuid,
+                        room_uuid: roomData[0].fake_room_uuid,
                         user_uuid: userUUID,
                         user_int_uuid: cryptoRandomString({ length: 10, type: "numeric" }),
                     }),
@@ -164,7 +173,7 @@ interface ScheduleBody {
     type: RoomType;
     beginTime: number;
     endTime: number;
-    periodic: Periodic;
+    periodic?: Periodic;
     docs?: Docs[];
 }
 
@@ -173,7 +182,7 @@ export const scheduleSchemaType: FastifySchema<{
 }> = {
     body: {
         type: "object",
-        required: ["title", "type", "beginTime", "endTime", "periodic"],
+        required: ["title", "type", "beginTime", "endTime"],
         properties: {
             title: {
                 type: "string",
@@ -194,6 +203,7 @@ export const scheduleSchemaType: FastifySchema<{
             periodic: {
                 type: "object",
                 required: ["weeks"],
+                nullable: true,
                 properties: {
                     weeks: {
                         type: "array",
