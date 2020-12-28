@@ -5,6 +5,7 @@ import { Status } from "../../../../Constants";
 import { RoomModel } from "../../../model/room/Room";
 import { RoomUserModel } from "../../../model/room/RoomUser";
 import { UserModel } from "../../../model/user/User";
+import { getRTCToken, getRTMToken } from "../../../utils/AgoraToken";
 
 export const userInfo = async (
     req: PatchRequest<{
@@ -33,7 +34,7 @@ export const userInfo = async (
         }
 
         const roomInfoPromise = getRepository(RoomModel).findOne({
-            select: ["creator_user_uuid"],
+            select: ["creator_user_uuid", "title"],
             where: {
                 room_uuid: roomUUID,
                 is_delete: false,
@@ -66,9 +67,10 @@ export const userInfo = async (
         }
 
         let owner: UserInfo = {} as UserInfo;
+        let myself: MySelfInfo = {} as MySelfInfo;
         const learners: UserInfo[] = [];
 
-        roomUserList.forEach(({ user_name, user_uuid, user_int_uuid, avatar_url, sex }) => {
+        for (const { user_name, user_uuid, user_int_uuid, avatar_url, sex } of roomUserList) {
             const userInfo = {
                 userIntUUID: Number(user_int_uuid),
                 userUUID: user_uuid,
@@ -82,12 +84,21 @@ export const userInfo = async (
             } else {
                 learners.push(userInfo);
             }
-        });
+
+            if (user_uuid === userUUID) {
+                myself = {
+                    ...userInfo,
+                    rtcToken: await getRTCToken(roomUUID, userInfo.userIntUUID, roomInfo.title),
+                    rtmToken: await getRTMToken(userUUID),
+                };
+            }
+        }
 
         return reply.send({
             status: Status.Success,
             data: {
                 owner,
+                myself,
                 learners,
             },
         });
@@ -114,6 +125,11 @@ interface UserInfo {
     userName: string;
     avatarURL: string;
     sex: number;
+}
+
+interface MySelfInfo extends UserInfo {
+    rtmToken: string;
+    rtcToken: string;
 }
 
 interface UserInfoBody {
