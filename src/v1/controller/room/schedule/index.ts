@@ -93,6 +93,7 @@ export const schedule = async (
                 periodic_uuid: periodicUUID,
                 fake_room_uuid: v4(),
                 room_type: type,
+                room_status: RoomStatus.Pending,
                 begin_time: start,
                 end_time: end,
             };
