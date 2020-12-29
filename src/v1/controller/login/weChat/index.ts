@@ -158,6 +158,7 @@ export const callback = async (
             },
         );
     } catch (e: unknown) {
+        console.error(e);
         socket.emit(WeChatSocketEvents.LoginStatus, {
             status: Status.AuthFailed,
             message: (e as Error).message,
