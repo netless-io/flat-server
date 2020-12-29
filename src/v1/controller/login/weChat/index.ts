@@ -94,7 +94,8 @@ export const callback = async (
                     throw new Error("Failed to create user");
                 });
         } else {
-            const { user_name, user_uuid: userUUID } = getUserInfoByUserWeChat;
+            const { user_name } = getUserInfoByUserWeChat;
+            userUUID = getUserInfoByUserWeChat.user_uuid;
 
             // wechat name update
             if (weChatUserInfo.nickname !== user_name) {
