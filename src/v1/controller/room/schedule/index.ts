@@ -5,7 +5,6 @@ import { FastifyReply } from "fastify";
 import { FastifySchema, PatchRequest } from "../../../types/Server";
 import { RoomModel } from "../../../model/room/Room";
 import { v4 } from "uuid";
-import { UTCDate } from "../../../../utils/Time";
 import { compareDesc, differenceInMilliseconds, subMinutes, toDate } from "date-fns/fp";
 import { dateIntervalByRate, dateIntervalByWeek, DateIntervalResult } from "../utils/DateInterval";
 import { RoomDocModel } from "../../../model/room/RoomDoc";
@@ -58,16 +57,16 @@ export const schedule = async (
     }
 
     try {
-        const beginDateTime = UTCDate(beginTime);
-        const endDateTime = UTCDate(endTime);
+        const beginDateTime = toDate(beginTime);
+        const endDateTime = toDate(endTime);
 
         let dates: DateIntervalResult[];
 
         if (typeof periodic === "undefined") {
             dates = [
                 {
-                    start: toDate(beginTime),
-                    end: toDate(endTime),
+                    start: beginDateTime,
+                    end: endDateTime,
                 },
             ];
         } else if (typeof periodic.rate === "number") {
@@ -111,7 +110,7 @@ export const schedule = async (
                         periodic_status: RoomStatus.Pending,
                         title,
                         rate: periodic.rate || 0,
-                        end_time: periodic.endTime ? UTCDate(periodic.endTime) : "0",
+                        end_time: periodic.endTime || "0",
                         periodic_uuid: periodicUUID,
                     }),
                 );

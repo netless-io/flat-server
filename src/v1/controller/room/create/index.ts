@@ -5,8 +5,7 @@ import { FastifyReply } from "fastify";
 import { FastifySchema, PatchRequest } from "../../../types/Server";
 import { RoomModel } from "../../../model/room/Room";
 import { v4 } from "uuid";
-import { UTCDate } from "../../../../utils/Time";
-import { compareDesc, subMinutes } from "date-fns/fp";
+import { compareDesc, subMinutes, toDate } from "date-fns/fp";
 import { RoomDocModel } from "../../../model/room/RoomDoc";
 import { getConnection } from "typeorm";
 import { RoomUserModel } from "../../../model/room/RoomUser";
@@ -37,7 +36,6 @@ export const create = async (
 
     const roomUUID = v4();
     try {
-        const time = UTCDate(beginTime);
         const roomData = {
             periodic_uuid: "",
             owner_uuid: userUUID,
@@ -46,7 +44,7 @@ export const create = async (
             room_status: RoomStatus.Pending,
             room_uuid: roomUUID,
             whiteboard_room_uuid: await whiteboardCreateRoom(title),
-            begin_time: time,
+            begin_time: toDate(beginTime),
             end_time: "0",
         };
 
