@@ -6,6 +6,7 @@ import { joinPeriodic, joinPeriodicSchemaType } from "./join/Periodic";
 import { joinOrdinary, joinOrdinarySchemaType } from "./join/Ordinary";
 import { userInfo, userInfoSchemaType } from "./users/Info";
 import { roomInfo, roomInfoSchemaType } from "./info/Room";
+import { periodicInfo, periodicInfoSchemaType } from "./info/Periodic";
 
 export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
@@ -56,5 +57,12 @@ export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
         handler: roomInfo,
         auth: true,
         schema: roomInfoSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "room/periodic/info",
+        handler: periodicInfo,
+        auth: true,
+        schema: periodicInfoSchemaType,
     }),
 ]);
