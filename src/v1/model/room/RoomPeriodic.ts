@@ -1,5 +1,6 @@
 import { Column, Entity, Index } from "typeorm";
 import { Content } from "../Content";
+import { RoomStatus } from "../../controller/room/Constants";
 
 @Entity({
     name: "room_periodic",
@@ -39,6 +40,14 @@ export class RoomPeriodicModel extends Content {
         comment: "room end time",
     })
     end_time: Date;
+
+    @Index("room_periodic_room_status_index")
+    @Column({
+        type: "enum",
+        enum: [RoomStatus.Pending, RoomStatus.Running, RoomStatus.Stopped],
+        comment: "current room status",
+    })
+    room_status: RoomStatus;
 
     @Index("room_periodic_is_delete_index")
     @Column({
