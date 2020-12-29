@@ -58,8 +58,7 @@ export const periodicInfo = async (
         const rooms: Rooms[] = await createQueryBuilder(RoomPeriodicModel)
             .select(["room_status", "begin_time", "end_time", "fake_room_uuid"])
             .where(
-                `
-                periodic_uuid = :periodicUUID
+                `periodic_uuid = :periodicUUID
                 AND room_status IN (:...roomStatus)
                 AND is_delete = false`,
                 {
