@@ -1,11 +1,12 @@
 import { FastifyReply } from "fastify";
 import { FastifySchema, PatchRequest } from "../../../types/Server";
-import { getRepository } from "typeorm";
+import { createQueryBuilder, getRepository } from "typeorm";
 import { Status } from "../../../../Constants";
 import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
-import { updateDB } from "./Utils";
+import { RoomUserModel } from "../../../model/room/RoomUser";
+import cryptoRandomString from "crypto-random-string";
 
 export const joinOrdinary = async (
     req: PatchRequest<{
@@ -39,13 +40,16 @@ export const joinOrdinary = async (
             });
         }
 
-        if (roomInfo.owner_uuid === userUUID) {
-            if (roomInfo.room_status === RoomStatus.Pending) {
-                await updateDB(roomUUID, userUUID, true);
-            }
-        } else {
-            await updateDB(roomUUID, userUUID);
-        }
+        await createQueryBuilder()
+            .insert()
+            .into(RoomUserModel)
+            .orIgnore()
+            .values({
+                room_uuid: roomUUID,
+                user_uuid: userUUID,
+                user_int_uuid: cryptoRandomString({ length: 10, type: "numeric" }),
+            })
+            .execute();
 
         return reply.send({
             status: Status.Success,

@@ -1,12 +1,14 @@
 import { FastifyReply } from "fastify";
 import { FastifySchema, PatchRequest } from "../../../types/Server";
-import { getRepository } from "typeorm";
+import { getConnection, getRepository } from "typeorm";
 import { Status } from "../../../../Constants";
 import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
 import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
-import { updateDB } from "./Utils";
+import { RoomUserModel } from "../../../model/room/RoomUser";
+import cryptoRandomString from "crypto-random-string";
+import { RoomPeriodicUserModel } from "../../../model/room/RoomPeriodicUser";
 
 export const joinPeriodic = async (
     req: PatchRequest<{
@@ -62,13 +64,38 @@ export const joinPeriodic = async (
             });
         }
 
-        if (roomInfo.owner_uuid === userUUID) {
-            if (roomInfo.room_status === RoomStatus.Pending) {
-                await updateDB(roomInfo.room_uuid, userUUID, true, periodicUUID);
-            }
-        } else {
-            await updateDB(roomInfo.room_uuid, userUUID);
-        }
+        await getConnection().transaction(async t => {
+            const commands: Promise<unknown>[] = [];
+
+            commands.push(
+                t
+                    .createQueryBuilder()
+                    .insert()
+                    .into(RoomUserModel)
+                    .orIgnore()
+                    .values({
+                        room_uuid: roomInfo.room_uuid,
+                        user_uuid: userUUID,
+                        user_int_uuid: cryptoRandomString({ length: 10, type: "numeric" }),
+                    })
+                    .execute(),
+            );
+
+            commands.push(
+                t
+                    .createQueryBuilder()
+                    .insert()
+                    .into(RoomPeriodicUserModel)
+                    .orIgnore()
+                    .values({
+                        periodic_uuid: periodicUUID,
+                        user_uuid: userUUID,
+                    })
+                    .execute(),
+            );
+
+            return await Promise.all(commands);
+        });
 
         return reply.send({
             status: Status.Success,
