@@ -7,6 +7,7 @@ import { RoomDocModel } from "../model/room/RoomDoc";
 import { UserModel } from "../model/user/User";
 import { UserWeChatModel } from "../model/user/WeChat";
 import { RoomPeriodicConfigModel } from "../model/room/RoomPeriodicConfig";
+import { RoomPeriodicUserModel } from "../model/room/RoomPeriodicUser";
 
 export const orm = createConnection({
     type: "mysql",
@@ -23,6 +24,7 @@ export const orm = createConnection({
         RoomPeriodicConfigModel,
         RoomPeriodicModel,
         RoomDocModel,
+        RoomPeriodicUserModel,
     ],
     timezone: "Z",
     logging: isDev ? "all" : false,

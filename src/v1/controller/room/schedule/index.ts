@@ -15,6 +15,7 @@ import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig"
 import { RoomPeriodicModel } from "../../../model/room/RoomPeriodic";
 import cryptoRandomString from "crypto-random-string";
 import { whiteboardCreateRoom } from "../../../utils/Whiteboard";
+import { RoomPeriodicUserModel } from "../../../model/room/RoomPeriodicUser";
 
 export const schedule = async (
     req: PatchRequest<{
@@ -111,6 +112,13 @@ export const schedule = async (
                         rate: periodic.rate || 0,
                         end_time: periodic.endTime ? UTCDate(periodic.endTime) : "0",
                         periodic_uuid: periodicUUID,
+                    }),
+                );
+
+                commands.push(
+                    t.insert(RoomPeriodicUserModel, {
+                        periodic_uuid: periodicUUID,
+                        user_uuid: userUUID,
                     }),
                 );
             }
