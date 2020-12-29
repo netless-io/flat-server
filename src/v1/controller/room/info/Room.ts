@@ -68,7 +68,7 @@ export const roomInfo = async (
                 if (roomInfo.periodic_uuid) {
                     where.periodic_uuid = roomInfo.periodic_uuid;
                 } else {
-                    where.room_uuid = roomInfo.room_uuid;
+                    where.room_uuid = roomUUID;
                 }
 
                 return await getRepository(RoomDocModel).find({
