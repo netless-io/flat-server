@@ -1,10 +1,11 @@
 import { FastifyReply } from "fastify";
 import { FastifySchema, PatchRequest } from "../../../types/Server";
 import { getRepository } from "typeorm";
-import { Status } from "../../../../Constants";
+import { DefaultDatetime, Status } from "../../../../Constants";
 import { RoomModel } from "../../../model/room/Room";
 import { RoomDocModel } from "../../../model/room/RoomDoc";
 import { RoomUserModel } from "../../../model/room/RoomUser";
+import { isEqual } from "date-fns/fp";
 
 export const roomInfo = async (
     req: PatchRequest<{
@@ -90,7 +91,9 @@ export const roomInfo = async (
                 roomInfo: {
                     title: roomInfo.title,
                     beginTime: roomInfo.begin_time,
-                    endTime: roomInfo.end_time,
+                    endTime: isEqual(roomInfo.end_time)(DefaultDatetime)
+                        ? ""
+                        : roomInfo.end_time.toISOString(),
                     roomType: roomInfo.room_type,
                     roomStatus: roomInfo.room_status,
                     ownerUUID: roomInfo.owner_uuid,
