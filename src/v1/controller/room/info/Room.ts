@@ -33,15 +33,7 @@ export const roomInfo = async (
         }
 
         const roomInfo = await getRepository(RoomModel).findOne({
-            select: [
-                "title",
-                "begin_time",
-                "end_time",
-                "room_type",
-                "room_status",
-                "owner_uuid",
-                "periodic_uuid",
-            ],
+            select: ["title", "begin_time", "end_time", "room_type", "room_status", "owner_uuid"],
             where: {
                 room_uuid: roomUUID,
                 is_delete: false,
@@ -61,19 +53,12 @@ export const roomInfo = async (
                     return [];
                 }
 
-                const where: DocsWhere = {
-                    is_delete: false,
-                };
-
-                if (roomInfo.periodic_uuid) {
-                    where.periodic_uuid = roomInfo.periodic_uuid;
-                } else {
-                    where.room_uuid = roomUUID;
-                }
-
                 return await getRepository(RoomDocModel).find({
                     select: ["doc_type", "doc_uuid", "is_preload"],
-                    where,
+                    where: {
+                        room_uuid: roomUUID,
+                        is_delete: false,
+                    },
                 });
             })()
         ).map(({ doc_type, doc_uuid, is_preload }) => {
@@ -128,10 +113,4 @@ export const roomInfoSchemaType: FastifySchema<{
             },
         },
     },
-};
-
-type DocsWhere = {
-    is_delete: boolean;
-    room_uuid?: string;
-    periodic_uuid?: string;
 };
