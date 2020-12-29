@@ -4,10 +4,10 @@ import { Content } from "../Content";
 @Entity({
     name: "room_users",
 })
-@Index("room_room_uuid_user_uuid_uindex", ["room_uuid", "user_uuid"], {
+@Index("room_users_room_uuid_user_uuid_uindex", ["room_uuid", "user_uuid"], {
     unique: true,
 })
-@Index("room_room_uuid_user_int_uuid_uindex", ["room_uuid", "user_int_uuid"], {
+@Index("room_users_room_uuid_user_int_uuid_uindex", ["room_uuid", "user_int_uuid"], {
     unique: true,
 })
 export class RoomUserModel extends Content {
