@@ -94,6 +94,7 @@ export const running = async (
                         .createQueryBuilder()
                         .update(RoomPeriodicModel)
                         .set({
+                            room_status: RoomStatus.Running,
                             begin_time: beginTime,
                         })
                         .where({
