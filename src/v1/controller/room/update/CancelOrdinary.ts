@@ -5,6 +5,7 @@ import { Status } from "../../../../Constants";
 import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
 import { RoomUserModel } from "../../../model/room/RoomUser";
+import { whiteboardBanRoom } from "../../../utils/Whiteboard";
 
 export const cancelOrdinary = async (
     req: PatchRequest<{
@@ -17,7 +18,7 @@ export const cancelOrdinary = async (
 
     try {
         const roomInfo = await getRepository(RoomModel).findOne({
-            select: ["room_status", "owner_uuid", "periodic_uuid"],
+            select: ["room_status", "owner_uuid", "periodic_uuid", "whiteboard_room_uuid"],
             where: {
                 room_uuid: roomUUID,
                 is_delete: false,
@@ -78,9 +79,17 @@ export const cancelOrdinary = async (
                         })
                         .execute(),
                 );
+
+                await Promise.all(commands);
+
+                // after the room owner cancels the room, block the whiteboard room
+                // this operation must be placed in the last place
+                await whiteboardBanRoom(roomInfo.whiteboard_room_uuid);
+
+                return;
             }
 
-            return await Promise.all(commands);
+            await Promise.all(commands);
         });
 
         return reply.send({
