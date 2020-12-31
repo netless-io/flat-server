@@ -99,33 +99,6 @@ module.exports = {
                 exceptAfterSingleLine: true,
             },
         ],
-        "@typescript-eslint/indent": [
-            "error",
-            4,
-            {
-                flatTernaryExpressions: true,
-                offsetTernaryExpressions: true,
-                ignoredNodes: ["JSXElement *", "JSXElement"],
-
-                SwitchCase: 1,
-                MemberExpression: "off",
-                VariableDeclarator: "first",
-                ArrayExpression: "first",
-                ObjectExpression: "first",
-                ImportDeclaration: "first",
-                FunctionDeclaration: {
-                    body: 1,
-                    parameters: "first",
-                },
-                FunctionExpression: {
-                    body: 1,
-                    parameters: "first",
-                },
-                CallExpression: {
-                    arguments: "first",
-                },
-            },
-        ],
         "@typescript-eslint/naming-convention": [
             "error",
             {
