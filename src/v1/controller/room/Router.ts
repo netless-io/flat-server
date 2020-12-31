@@ -2,14 +2,13 @@ import { FastifyRoutes } from "../../types/Server";
 import { create, createSchemaType } from "./create";
 import { schedule, scheduleSchemaType } from "./schedule";
 import { list, listSchemaType } from "./list";
-import { joinPeriodic, joinPeriodicSchemaType } from "./join/Periodic";
-import { joinOrdinary, joinOrdinarySchemaType } from "./join/Ordinary";
 import { userInfo, userInfoSchemaType } from "./users/Info";
 import { roomInfo, roomInfoSchemaType } from "./info/Room";
 import { periodicInfo, periodicInfoSchemaType } from "./info/Periodic";
 import { running, runningSchemaType } from "./update/Running";
 import { cancelOrdinary, cancelOrdinarySchemaType } from "./update/CancelOrdinary";
 import { stopped, stoppedSchemaType } from "./update/Stopped";
+import { join, joinSchemaType } from "./join";
 
 export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
@@ -35,17 +34,10 @@ export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
     }),
     Object.freeze({
         method: "post",
-        path: "room/join/ordinary",
-        handler: joinOrdinary,
+        path: "room/join",
+        handler: join,
         auth: true,
-        schema: joinOrdinarySchemaType,
-    }),
-    Object.freeze({
-        method: "post",
-        path: "room/join/periodic",
-        handler: joinPeriodic,
-        auth: true,
-        schema: joinPeriodicSchemaType,
+        schema: joinSchemaType,
     }),
     Object.freeze({
         method: "post",
