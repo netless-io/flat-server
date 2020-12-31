@@ -1,16 +1,7 @@
 import { ax } from "./Axios";
 import { shuntCreateRoomURL } from "./WhiteboardURL";
 import { createWhiteboardSDKToken } from "../../utils/NetlessToken";
-
-const makeFetch = async <T>(url: string, body: unknown = undefined): Promise<T> => {
-    const response = await ax.post<T>(url, body, {
-        headers: {
-            token: createWhiteboardSDKToken(),
-            // TODO region: 'cn-hz',
-        },
-    });
-    return response.data;
-};
+import { AxiosResponse } from "axios";
 
 /**
  * whiteboard create room api
@@ -19,13 +10,39 @@ const makeFetch = async <T>(url: string, body: unknown = undefined): Promise<T> 
  * @return {string} whiteboard room uuid, not room model's room_uuid
  */
 export const whiteboardCreateRoom = async (name: string, limit = 0): Promise<string> => {
-    const { uuid } = await makeFetch<Room>(shuntCreateRoomURL, {
-        name,
-        isRecord: true,
-        limit,
-    });
+    const {
+        data: { uuid },
+    } = await ax.post<Room>(
+        shuntCreateRoomURL,
+        {
+            name,
+            isRecord: true,
+            limit,
+        },
+        {
+            headers: {
+                token: createWhiteboardSDKToken(),
+                // TODO region: 'cn-hz',
+            },
+        },
+    );
 
     return uuid;
+};
+
+export const whiteboardBanRoom = async (uuid: string): Promise<AxiosResponse<Room>> => {
+    return await ax.patch<Room>(
+        `${shuntCreateRoomURL}/${uuid}`,
+        {
+            isBan: true,
+        },
+        {
+            headers: {
+                token: createWhiteboardSDKToken(),
+                // TODO region: 'cn-hz',
+            },
+        },
+    );
 };
 
 interface Room {
