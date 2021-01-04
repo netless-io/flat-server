@@ -1,17 +1,35 @@
 import { Status } from "../../../../Constants";
-import { FastifyReply, FastifyRequest } from "fastify";
-import { FastifySchema } from "../../../types/Server";
+import { FastifyReply } from "fastify";
+import { FastifySchema, PatchRequest } from "../../../types/Server";
 import { getRTCToken } from "../../../utils/AgoraToken";
+import { getRepository } from "typeorm";
+import { RoomUserModel } from "../../../model/room/RoomUser";
 
 export const generateRTC = async (
-    req: FastifyRequest<{
+    req: PatchRequest<{
         Body: GenerateRTCBody;
     }>,
     reply: FastifyReply,
 ): Promise<void> => {
-    const { roomUUID, channelName, uid } = req.body;
+    const { roomUUID } = req.body;
+    const { userUUID } = req.user;
 
-    const token = await getRTCToken(roomUUID, uid, channelName);
+    const roomUserInfo = await getRepository(RoomUserModel).findOne({
+        select: ["user_int_uuid"],
+        where: {
+            room_uuid: roomUUID,
+            user_uuid: userUUID,
+        },
+    });
+
+    if (roomUserInfo === undefined) {
+        return reply.send({
+            status: Status.Failed,
+            message: "User is not in this room",
+        });
+    }
+
+    const token = await getRTCToken(roomUUID, Number(roomUserInfo.user_int_uuid));
 
     return reply.send({
         status: Status.Success,
@@ -22,8 +40,6 @@ export const generateRTC = async (
 };
 
 interface GenerateRTCBody {
-    channelName: string;
-    uid: number;
     roomUUID: string;
 }
 
@@ -32,14 +48,8 @@ export const generateRTCSchemaType: FastifySchema<{
 }> = {
     body: {
         type: "object",
-        required: ["channelName", "uid", "roomUUID"],
+        required: ["roomUUID"],
         properties: {
-            channelName: {
-                type: "string",
-            },
-            uid: {
-                type: "integer",
-            },
             roomUUID: {
                 type: "string",
             },
