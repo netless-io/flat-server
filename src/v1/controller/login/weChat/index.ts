@@ -105,7 +105,7 @@ export const callback = async (
                     .set({
                         user_name: weChatUserInfo.nickname,
                     })
-                    .where("user_uuid = :userUUID", {
+                    .where({
                         user_uuid: userUUID,
                     })
                     .execute()
