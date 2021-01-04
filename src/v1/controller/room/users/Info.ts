@@ -88,7 +88,7 @@ export const userInfo = async (
             if (user_uuid === userUUID) {
                 myself = {
                     ...userInfo,
-                    rtcToken: await getRTCToken(roomUUID, userInfo.userIntUUID, roomInfo.title),
+                    rtcToken: await getRTCToken(roomUUID, userInfo.userIntUUID),
                     rtmToken: await getRTMToken(userUUID),
                 };
             }
