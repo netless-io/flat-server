@@ -97,6 +97,7 @@ export const joinPeriodic = async (periodicUUID: string, userUUID: string): Prom
             roomUUID: roomUUID,
             whiteboardRoomToken: createWhiteboardRoomToken(whiteboardRoomUUID),
             whiteboardRoomUUID: whiteboardRoomUUID,
+            rtcUID: Number(rtcUID),
             rtcToken: await getRTCToken(roomUUID, Number(rtcUID)),
             rtmToken: await getRTMToken(userUUID),
         },
