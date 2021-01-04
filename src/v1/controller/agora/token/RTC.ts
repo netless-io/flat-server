@@ -15,7 +15,7 @@ export const generateRTC = async (
     const { userUUID } = req.user;
 
     const roomUserInfo = await getRepository(RoomUserModel).findOne({
-        select: ["user_int_uuid"],
+        select: ["rtc_uid"],
         where: {
             room_uuid: roomUUID,
             user_uuid: userUUID,
@@ -29,7 +29,7 @@ export const generateRTC = async (
         });
     }
 
-    const token = await getRTCToken(roomUUID, Number(roomUserInfo.user_int_uuid));
+    const token = await getRTCToken(roomUUID, Number(roomUserInfo.rtc_uid));
 
     return reply.send({
         status: Status.Success,

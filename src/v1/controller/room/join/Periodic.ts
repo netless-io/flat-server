@@ -56,7 +56,7 @@ export const joinPeriodic = async (periodicUUID: string, userUUID: string): Prom
     }
 
     const { room_uuid: roomUUID, whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
-    const userIntUUID = cryptoRandomString({ length: 10, type: "numeric" });
+    const rtcUID = cryptoRandomString({ length: 10, type: "numeric" });
 
     await getConnection().transaction(async t => {
         const commands: Promise<unknown>[] = [];
@@ -70,7 +70,7 @@ export const joinPeriodic = async (periodicUUID: string, userUUID: string): Prom
                 .values({
                     room_uuid: roomUUID,
                     user_uuid: userUUID,
-                    user_int_uuid: userIntUUID,
+                    rtc_uid: rtcUID,
                 })
                 .execute(),
         );
@@ -97,7 +97,7 @@ export const joinPeriodic = async (periodicUUID: string, userUUID: string): Prom
             roomUUID: roomUUID,
             whiteboardRoomToken: createWhiteboardRoomToken(whiteboardRoomUUID),
             whiteboardRoomUUID: whiteboardRoomUUID,
-            rtcToken: await getRTCToken(roomUUID, Number(userIntUUID)),
+            rtcToken: await getRTCToken(roomUUID, Number(rtcUID)),
             rtmToken: await getRTMToken(userUUID),
         },
     };

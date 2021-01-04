@@ -24,12 +24,12 @@ const generateRTMToken = (uid: string): string => {
     );
 };
 
-export const getRTCToken = async (roomUUID: string, userIntUUID: number): Promise<string> => {
-    const rtcKey = RedisKey.agoraRTCRoomUserToken(roomUUID, userIntUUID);
+export const getRTCToken = async (roomUUID: string, rtcUID: number): Promise<string> => {
+    const rtcKey = RedisKey.agoraRTCRoomUserToken(roomUUID, rtcUID);
     let rtcToken = await RedisService.get(rtcKey);
 
     if (rtcToken === null) {
-        rtcToken = generateRTCToken(roomUUID, userIntUUID);
+        rtcToken = generateRTCToken(roomUUID, rtcUID);
         await RedisService.set(rtcKey, rtcToken, 60 * 60 * 24);
     }
 

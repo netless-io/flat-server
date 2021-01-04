@@ -32,7 +32,7 @@ export const userInfo = async (
         }
 
         const roomUsersInfo = await createQueryBuilder(RoomUserModel, "ru")
-            .addSelect("ru.user_int_uuid", "user_int_uuid")
+            .addSelect("ru.rtc_uid", "rtc_uid")
             .addSelect("ru.user_uuid", "user_uuid")
             .addSelect("u.user_name", "user_name")
             .addSelect("u.avatar_url", "avatar_url")
@@ -57,10 +57,10 @@ export const userInfo = async (
         }
 
         const result: Result = {};
-        for (const { user_name, user_uuid, user_int_uuid, avatar_url } of roomUsersInfo) {
+        for (const { user_name, user_uuid, rtc_uid, avatar_url } of roomUsersInfo) {
             result[user_uuid] = {
                 name: user_name,
-                userIntUUID: Number(user_int_uuid),
+                rtcUID: Number(rtc_uid),
                 avatarURL: avatar_url,
             };
         }
@@ -81,7 +81,7 @@ export const userInfo = async (
 type Result = {
     [key in string]: {
         name: string;
-        userIntUUID: number;
+        rtcUID: number;
         avatarURL: string;
     };
 };
