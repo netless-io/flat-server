@@ -51,6 +51,7 @@ export const joinOrdinary = async (roomUUID: string, userUUID: string): Promise<
             roomUUID: roomUUID,
             whiteboardRoomToken: createWhiteboardRoomToken(whiteboardRoomUUID),
             whiteboardRoomUUID: whiteboardRoomUUID,
+            rtcUID: Number(rtcUID),
             rtcToken: await getRTCToken(roomUUID, Number(rtcUID)),
             rtmToken: await getRTMToken(userUUID),
         },
