@@ -13,7 +13,7 @@ export const ordinaryInfo = async (
     }>,
     reply: FastifyReply,
 ): Promise<void> => {
-    const { queryDocs, roomUUID } = req.body;
+    const { roomUUID } = req.body;
     const { userUUID } = req.user;
 
     try {
@@ -49,19 +49,13 @@ export const ordinaryInfo = async (
         }
 
         const docs = (
-            await (async () => {
-                if (!queryDocs) {
-                    return [];
-                }
-
-                return await getRepository(RoomDocModel).find({
-                    select: ["doc_type", "doc_uuid", "is_preload"],
-                    where: {
-                        room_uuid: roomUUID,
-                        is_delete: false,
-                    },
-                });
-            })()
+            await getRepository(RoomDocModel).find({
+                select: ["doc_type", "doc_uuid", "is_preload"],
+                where: {
+                    room_uuid: roomUUID,
+                    is_delete: false,
+                },
+            })
         ).map(({ doc_type, doc_uuid, is_preload }) => {
             return {
                 docType: doc_type,
@@ -97,7 +91,6 @@ export const ordinaryInfo = async (
 
 interface OrdinaryInfoBody {
     roomUUID: string;
-    queryDocs: boolean;
 }
 
 export const OrdinaryInfoSchemaType: FastifySchema<{
@@ -110,9 +103,6 @@ export const OrdinaryInfoSchemaType: FastifySchema<{
             roomUUID: {
                 type: "string",
                 format: "uuidV4",
-            },
-            queryDocs: {
-                type: "boolean",
             },
         },
     },
