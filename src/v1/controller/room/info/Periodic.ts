@@ -117,7 +117,7 @@ export const periodicInfoSchemaType: FastifySchema<{
         properties: {
             periodicUUID: {
                 type: "string",
-                maxLength: 40,
+                format: "uuidV4",
             },
         },
     },

@@ -54,7 +54,7 @@ export const joinSchemaType: FastifySchema<{
         properties: {
             roomUUID: {
                 type: "string",
-                maxLength: 40,
+                format: "uuidV4",
             },
         },
     },

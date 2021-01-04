@@ -109,7 +109,7 @@ export const roomInfoSchemaType: FastifySchema<{
         properties: {
             roomUUID: {
                 type: "string",
-                maxLength: 40,
+                format: "uuidV4",
             },
             queryDocs: {
                 type: "boolean",
