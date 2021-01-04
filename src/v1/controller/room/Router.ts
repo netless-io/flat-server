@@ -3,7 +3,7 @@ import { create, createSchemaType } from "./create";
 import { schedule, scheduleSchemaType } from "./schedule";
 import { list, listSchemaType } from "./list";
 import { userInfo, userInfoSchemaType } from "./info/Users";
-import { roomInfo, roomInfoSchemaType } from "./info/Room";
+import { ordinaryInfo, OrdinaryInfoSchemaType } from "./info/Ordinary";
 import { periodicInfo, periodicInfoSchemaType } from "./info/Periodic";
 import { running, runningSchemaType } from "./update/Running";
 import { cancelOrdinary, cancelOrdinarySchemaType } from "./update/CancelOrdinary";
@@ -41,24 +41,24 @@ export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
     }),
     Object.freeze({
         method: "post",
+        path: "room/info/ordinary",
+        handler: ordinaryInfo,
+        auth: true,
+        schema: OrdinaryInfoSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "room/info/periodic",
+        handler: periodicInfo,
+        auth: true,
+        schema: periodicInfoSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
         path: "room/info/users",
         handler: userInfo,
         auth: true,
         schema: userInfoSchemaType,
-    }),
-    Object.freeze({
-        method: "post",
-        path: "room/info",
-        handler: roomInfo,
-        auth: true,
-        schema: roomInfoSchemaType,
-    }),
-    Object.freeze({
-        method: "post",
-        path: "room/periodic/info",
-        handler: periodicInfo,
-        auth: true,
-        schema: periodicInfoSchemaType,
     }),
     Object.freeze({
         method: "post",
