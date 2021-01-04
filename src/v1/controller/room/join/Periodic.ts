@@ -8,6 +8,7 @@ import { RoomUserModel } from "../../../model/room/RoomUser";
 import cryptoRandomString from "crypto-random-string";
 import { RoomPeriodicUserModel } from "../../../model/room/RoomPeriodicUser";
 import { Result } from "./Type";
+import { getRTCToken, getRTMToken } from "../../../utils/AgoraToken";
 
 export const joinPeriodic = async (periodicUUID: string, userUUID: string): Promise<Result> => {
     const roomPeriodicConfig = await getRepository(RoomPeriodicConfigModel).findOne({
@@ -54,6 +55,9 @@ export const joinPeriodic = async (periodicUUID: string, userUUID: string): Prom
         };
     }
 
+    const { room_uuid: roomUUID, whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
+    const userIntUUID = cryptoRandomString({ length: 10, type: "numeric" });
+
     await getConnection().transaction(async t => {
         const commands: Promise<unknown>[] = [];
 
@@ -64,9 +68,9 @@ export const joinPeriodic = async (periodicUUID: string, userUUID: string): Prom
                 .into(RoomUserModel)
                 .orIgnore()
                 .values({
-                    room_uuid: roomInfo.room_uuid,
+                    room_uuid: roomUUID,
                     user_uuid: userUUID,
-                    user_int_uuid: cryptoRandomString({ length: 10, type: "numeric" }),
+                    user_int_uuid: userIntUUID,
                 })
                 .execute(),
         );
@@ -90,9 +94,11 @@ export const joinPeriodic = async (periodicUUID: string, userUUID: string): Prom
     return {
         status: Status.Success,
         data: {
-            roomUUID: roomInfo.room_uuid,
-            whiteboardRoomToken: createWhiteboardRoomToken(roomInfo.whiteboard_room_uuid),
-            whiteboardRoomUUID: roomInfo.whiteboard_room_uuid,
+            roomUUID: roomUUID,
+            whiteboardRoomToken: createWhiteboardRoomToken(whiteboardRoomUUID),
+            whiteboardRoomUUID: whiteboardRoomUUID,
+            rtcToken: await getRTCToken(roomUUID, Number(userIntUUID)),
+            rtmToken: await getRTMToken(userUUID),
         },
     };
 };

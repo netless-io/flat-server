@@ -7,6 +7,8 @@ export type Result =
               roomUUID: string;
               whiteboardRoomToken: string;
               whiteboardRoomUUID: string;
+              rtcToken: string;
+              rtmToken: string;
           };
       }
     | {
