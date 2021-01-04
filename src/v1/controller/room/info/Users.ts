@@ -52,7 +52,7 @@ export const userInfo = async (
         if (roomUsersInfo === undefined) {
             return reply.send({
                 status: Status.Failed,
-                message: "Room not found",
+                message: "Can't find relevant information",
             });
         }
 
