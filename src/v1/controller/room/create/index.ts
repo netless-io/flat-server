@@ -48,10 +48,10 @@ export const create = async (
             end_time: "0",
         };
 
-        const roomUserData: Pick<RoomUserModel, "user_int_uuid" | "room_uuid" | "user_uuid"> = {
+        const roomUserData: Pick<RoomUserModel, "rtc_uid" | "room_uuid" | "user_uuid"> = {
             room_uuid: roomData.room_uuid,
             user_uuid: userUUID,
-            user_int_uuid: cryptoRandomString({ length: 10, type: "numeric" }),
+            rtc_uid: cryptoRandomString({ length: 10, type: "numeric" }),
         };
 
         await getConnection().transaction(async t => {

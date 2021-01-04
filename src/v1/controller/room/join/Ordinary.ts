@@ -32,7 +32,7 @@ export const joinOrdinary = async (roomUUID: string, userUUID: string): Promise<
     }
 
     const { whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
-    const userIntUUID = cryptoRandomString({ length: 10, type: "numeric" });
+    const rtcUID = cryptoRandomString({ length: 10, type: "numeric" });
 
     await createQueryBuilder()
         .insert()
@@ -41,7 +41,7 @@ export const joinOrdinary = async (roomUUID: string, userUUID: string): Promise<
         .values({
             room_uuid: roomUUID,
             user_uuid: userUUID,
-            user_int_uuid: cryptoRandomString({ length: 10, type: "numeric" }),
+            rtc_uid: cryptoRandomString({ length: 10, type: "numeric" }),
         })
         .execute();
 
@@ -51,7 +51,7 @@ export const joinOrdinary = async (roomUUID: string, userUUID: string): Promise<
             roomUUID: roomUUID,
             whiteboardRoomToken: createWhiteboardRoomToken(whiteboardRoomUUID),
             whiteboardRoomUUID: whiteboardRoomUUID,
-            rtcToken: await getRTCToken(roomUUID, Number(userIntUUID)),
+            rtcToken: await getRTCToken(roomUUID, Number(rtcUID)),
             rtmToken: await getRTMToken(userUUID),
         },
     };
