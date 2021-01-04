@@ -7,9 +7,9 @@ import { RoomDocModel } from "../../../model/room/RoomDoc";
 import { RoomUserModel } from "../../../model/room/RoomUser";
 import { isEqual } from "date-fns/fp";
 
-export const roomInfo = async (
+export const ordinaryInfo = async (
     req: PatchRequest<{
-        Body: RoomInfoBody;
+        Body: OrdinaryInfoBody;
     }>,
     reply: FastifyReply,
 ): Promise<void> => {
@@ -95,13 +95,13 @@ export const roomInfo = async (
     }
 };
 
-interface RoomInfoBody {
+interface OrdinaryInfoBody {
     roomUUID: string;
     queryDocs: boolean;
 }
 
-export const roomInfoSchemaType: FastifySchema<{
-    body: RoomInfoBody;
+export const OrdinaryInfoSchemaType: FastifySchema<{
+    body: OrdinaryInfoBody;
 }> = {
     body: {
         type: "object",
