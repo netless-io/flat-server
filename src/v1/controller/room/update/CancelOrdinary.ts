@@ -117,7 +117,7 @@ export const cancelOrdinarySchemaType: FastifySchema<{
         properties: {
             roomUUID: {
                 type: "string",
-                format: "uuidV4",
+                format: "uuid-v4",
             },
         },
     },

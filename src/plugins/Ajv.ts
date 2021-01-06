@@ -18,5 +18,5 @@ const uuidV4: FormatDefinition<string> = {
 
 export const ajvSelfPlugin = (ajv: Ajv): void => {
     ajv.addFormat("unix-timestamp", unixTimestamp);
-    ajv.addFormat("uuidV4", uuidV4);
+    ajv.addFormat("uuid-v4", uuidV4);
 };
