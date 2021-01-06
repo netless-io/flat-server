@@ -35,7 +35,7 @@ export const joinPeriodic = async (periodicUUID: string, userUUID: string): Prom
 
     const roomInfo = await getRepository(RoomModel)
         .createQueryBuilder()
-        .select(["room_uuid", "whiteboard_room_uuid", "owner_uuid", "room_status"])
+        .select(["room_uuid", "whiteboard_room_uuid", "owner_uuid", "room_status", "room_type"])
         .where(
             `periodic_uuid = :periodicUUID
                 AND room_status IN (:...roomStatus)
@@ -45,7 +45,7 @@ export const joinPeriodic = async (periodicUUID: string, userUUID: string): Prom
                 roomStatus: [RoomStatus.Pending, RoomStatus.Running],
             },
         )
-        .getRawOne();
+        .getRawOne<RoomModel>();
 
     // will arrive here in extreme cases, notify user to retry
     if (roomInfo === undefined) {
@@ -94,6 +94,7 @@ export const joinPeriodic = async (periodicUUID: string, userUUID: string): Prom
     return {
         status: Status.Success,
         data: {
+            roomType: roomInfo.room_type,
             roomUUID: roomUUID,
             whiteboardRoomToken: createWhiteboardRoomToken(whiteboardRoomUUID),
             whiteboardRoomUUID: whiteboardRoomUUID,
