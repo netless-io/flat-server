@@ -1,5 +1,6 @@
 import { Column, Entity, Index } from "typeorm";
 import { Content } from "../Content";
+import { DocsType } from "../../controller/room/Constants";
 
 @Entity({
     name: "room_docs",
@@ -25,9 +26,9 @@ export class RoomDocModel extends Content {
 
     @Column({
         type: "enum",
-        enum: ["Dynamic", "Static"],
+        enum: [DocsType.Dynamic, DocsType.Static],
     })
-    doc_type: string;
+    doc_type: DocsType;
 
     @Index("room_docs_is_preload_index")
     @Column()
