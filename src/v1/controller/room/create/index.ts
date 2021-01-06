@@ -112,7 +112,7 @@ export const createSchemaType: FastifySchema<{
             },
             type: {
                 type: "string",
-                eq: [RoomType.OneToOne, RoomType.SmallClass, RoomType.BigClass],
+                enum: [RoomType.OneToOne, RoomType.SmallClass, RoomType.BigClass],
             },
             beginTime: {
                 type: "integer",
