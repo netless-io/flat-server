@@ -8,7 +8,7 @@ import { FastifyReply } from "fastify";
 import { FastifySchema, PatchRequest } from "../../../types/Server";
 import { UserModel } from "../../../model/user/User";
 import { v4 } from "uuid";
-import { LoginPlatform } from "../Constants";
+import { LoginPlatform, Sex } from "../Constants";
 import { getConnection, getRepository } from "typeorm";
 import { UserWeChatModel } from "../../../model/user/WeChat";
 import { RedisKey } from "../../../../utils/Redis";
@@ -74,7 +74,7 @@ export const callback = async (
                         user_uuid: userUUID,
                         // TODO need upload headimgurl to remote oss server
                         avatar_url: weChatUserInfo.headimgurl,
-                        sex: weChatUserInfo.sex,
+                        sex: weChatUserInfo.sex === 1 ? Sex.Man : Sex.Woman,
                         user_password: "",
                         phone: "",
                         last_login_platform: LoginPlatform.WeChat,
