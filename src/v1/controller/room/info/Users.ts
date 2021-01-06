@@ -100,13 +100,13 @@ export const userInfoSchemaType: FastifySchema<{
         properties: {
             roomUUID: {
                 type: "string",
-                format: "uuidV4",
+                format: "uuid-v4",
             },
             usersUUID: {
                 type: "array",
                 items: {
                     type: "string",
-                    format: "uuidV4",
+                    format: "uuid-v4",
                 },
                 minItems: 1,
             },
