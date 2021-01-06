@@ -10,7 +10,7 @@ import { getRTCToken, getRTMToken } from "../../../utils/AgoraToken";
 
 export const joinOrdinary = async (roomUUID: string, userUUID: string): Promise<Result> => {
     const roomInfo = await getRepository(RoomModel).findOne({
-        select: ["room_status", "whiteboard_room_uuid", "periodic_uuid"],
+        select: ["room_status", "whiteboard_room_uuid", "periodic_uuid", "room_type"],
         where: {
             room_uuid: roomUUID,
             is_delete: false,
@@ -48,6 +48,7 @@ export const joinOrdinary = async (roomUUID: string, userUUID: string): Promise<
     return {
         status: Status.Success,
         data: {
+            roomType: roomInfo.room_type,
             roomUUID: roomUUID,
             whiteboardRoomToken: createWhiteboardRoomToken(whiteboardRoomUUID),
             whiteboardRoomUUID: whiteboardRoomUUID,

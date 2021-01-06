@@ -1,9 +1,11 @@
 import { Status } from "../../../../Constants";
+import { RoomType } from "../Constants";
 
 export type Result =
     | {
           status: Status.Success;
           data: {
+              roomType: RoomType;
               roomUUID: string;
               whiteboardRoomToken: string;
               whiteboardRoomUUID: string;
