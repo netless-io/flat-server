@@ -32,7 +32,7 @@ export const joinOrdinary = async (roomUUID: string, userUUID: string): Promise<
     }
 
     const { whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
-    const rtcUID = cryptoRandomString({ length: 10, type: "numeric" });
+    const rtcUID = cryptoRandomString({ length: 6, type: "numeric" });
 
     await createQueryBuilder()
         .insert()
@@ -41,7 +41,7 @@ export const joinOrdinary = async (roomUUID: string, userUUID: string): Promise<
         .values({
             room_uuid: roomUUID,
             user_uuid: userUUID,
-            rtc_uid: cryptoRandomString({ length: 10, type: "numeric" }),
+            rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
         })
         .execute();
 

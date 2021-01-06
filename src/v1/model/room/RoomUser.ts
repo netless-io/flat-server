@@ -24,7 +24,7 @@ export class RoomUserModel extends Content {
     user_uuid: string;
 
     @Column({
-        length: 10,
+        length: 6,
         comment: "front-end needs this field to set rtc",
     })
     rtc_uid: string;

@@ -143,7 +143,7 @@ export const schedule = async (
                     t.insert(RoomUserModel, {
                         room_uuid: roomData[0].fake_room_uuid,
                         user_uuid: userUUID,
-                        rtc_uid: cryptoRandomString({ length: 10, type: "numeric" }),
+                        rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
                     }),
                 );
             }
