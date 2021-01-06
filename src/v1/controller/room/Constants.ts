@@ -1,7 +1,7 @@
 export enum RoomType {
-    OneToOne,
-    SmallClass,
-    BigClass,
+    OneToOne = "OneToOne",
+    SmallClass = "SmallClass",
+    BigClass = "BigClass",
 }
 
 export enum DocsType {

@@ -1,5 +1,5 @@
 import { Column, Entity, Index } from "typeorm";
-import { LoginPlatform } from "../../controller/login/Constants";
+import { LoginPlatform, Sex } from "../../controller/login/Constants";
 import { Content } from "../Content";
 
 @Entity({
@@ -35,10 +35,10 @@ export class UserModel extends Content {
     phone: string;
 
     @Column({
-        type: "tinyint",
-        comment: "1: man / 2: woman",
+        type: "enum",
+        enum: [Sex.Man, Sex.Woman],
     })
-    sex: number;
+    sex: Sex;
 
     @Column({
         type: "enum",
