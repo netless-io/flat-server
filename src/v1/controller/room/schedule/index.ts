@@ -197,7 +197,7 @@ export const scheduleSchemaType: FastifySchema<{
                 maxLength: 50,
             },
             type: {
-                type: "integer",
+                type: "string",
                 eq: [RoomType.OneToOne, RoomType.SmallClass, RoomType.BigClass],
             },
             beginTime: {

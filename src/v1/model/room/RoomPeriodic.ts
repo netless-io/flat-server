@@ -1,6 +1,6 @@
 import { Column, Entity, Index } from "typeorm";
 import { Content } from "../Content";
-import { RoomStatus } from "../../controller/room/Constants";
+import { RoomStatus, RoomType } from "../../controller/room/Constants";
 
 @Entity({
     name: "room_periodic",
@@ -21,10 +21,11 @@ export class RoomPeriodicModel extends Content {
 
     @Index("room_periodic_room_type_index")
     @Column({
-        type: "tinyint",
-        comment: "room type(one to one: 0 / small class: 1 / big class: 2",
+        type: "enum",
+        enum: [RoomType.OneToOne, RoomType.BigClass, RoomType.SmallClass],
+        comment: "room type",
     })
-    room_type: number;
+    room_type: RoomType;
 
     @Index("room_periodic_begin_time_index")
     @Column({
