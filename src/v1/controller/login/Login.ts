@@ -10,6 +10,7 @@ import { UserWeChatModel } from "../../model/user/WeChat";
 import { LoginPlatform } from "./Constants";
 import { getRepository } from "typeorm";
 import { RedisKey } from "../../../utils/Redis";
+import { ErrorCode } from "../../../ErrorCode";
 
 export const login = async (req: PatchRequest, reply: FastifyReply): Promise<void> => {
     const { userUUID, loginSource } = req.user;
@@ -33,7 +34,7 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
     if (userInfoInstance === undefined || weChatUserInfo === undefined) {
         return reply.send({
             status: Status.Failed,
-            message: "User does not exist",
+            code: ErrorCode.UserNotFound,
         });
     }
 
@@ -43,7 +44,7 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
         if (refreshToken === null) {
             return reply.send({
                 status: Status.AuthFailed,
-                message: "The account token has expired, please log in again",
+                code: ErrorCode.NeedLoginAgain,
             });
         }
 
@@ -51,9 +52,10 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
             const renewAccessTokenURL = renewAccessToken(refreshToken);
             await wechatRequest<RefreshToken>(renewAccessTokenURL);
         } catch (e: unknown) {
+            console.error((e as Error).message);
             return reply.send({
                 status: Status.AuthFailed,
-                message: (e as Error).message,
+                code: ErrorCode.CanRetry,
             });
         }
 

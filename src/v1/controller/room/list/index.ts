@@ -7,6 +7,7 @@ import { UserModel } from "../../../model/user/User";
 import { ListType, RoomStatus } from "../Constants";
 import { DefaultDatetime, Status } from "../../../../Constants";
 import { isEqual } from "date-fns/fp";
+import { ErrorCode } from "../../../../ErrorCode";
 
 export const list = async (
     req: PatchRequest<{
@@ -102,7 +103,7 @@ export const list = async (
         console.error(e);
         return reply.send({
             status: Status.Failed,
-            message: "Error in querying room list",
+            code: ErrorCode.CurrentProcessFailed,
         });
     }
 };

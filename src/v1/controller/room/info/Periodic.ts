@@ -6,6 +6,7 @@ import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig"
 import { RoomPeriodicUserModel } from "../../../model/room/RoomPeriodicUser";
 import { RoomStatus } from "../Constants";
 import { RoomPeriodicModel } from "../../../model/room/RoomPeriodic";
+import { ErrorCode } from "../../../../ErrorCode";
 
 export const periodicInfo = async (
     req: PatchRequest<{
@@ -29,7 +30,7 @@ export const periodicInfo = async (
         if (checkUserExistPeriodicRoom === undefined) {
             return reply.send({
                 status: Status.Failed,
-                message: "Not have permission",
+                code: ErrorCode.NotPermission,
             });
         }
 
@@ -44,14 +45,14 @@ export const periodicInfo = async (
         if (periodicConfig === undefined) {
             return reply.send({
                 status: Status.Failed,
-                message: "Periodic room not found",
+                code: ErrorCode.PeriodicNotFound,
             });
         }
 
         if (periodicConfig.periodic_status === RoomStatus.Stopped) {
             return reply.send({
                 status: Status.Failed,
-                message: "Periodic room has been ended",
+                code: ErrorCode.PeriodicIsEnded,
             });
         }
 
@@ -72,7 +73,7 @@ export const periodicInfo = async (
         if (rooms === undefined || rooms.length === 0) {
             return reply.send({
                 status: Status.Failed,
-                message: "Periodic room has been ended",
+                code: ErrorCode.CanRetry,
             });
         }
 
@@ -99,7 +100,7 @@ export const periodicInfo = async (
         console.error(e);
         return reply.send({
             status: Status.Failed,
-            message: "get periodic room info failed",
+            code: ErrorCode.CurrentProcessFailed,
         });
     }
 };

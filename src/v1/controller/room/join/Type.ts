@@ -1,5 +1,6 @@
 import { Status } from "../../../../Constants";
 import { RoomType } from "../Constants";
+import { ErrorCode } from "../../../../ErrorCode";
 
 export type Result =
     | {
@@ -16,5 +17,5 @@ export type Result =
       }
     | {
           status: Status.Failed;
-          message: string;
+          code: ErrorCode;
       };

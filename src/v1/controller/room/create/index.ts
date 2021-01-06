@@ -11,6 +11,7 @@ import { getConnection } from "typeorm";
 import { RoomUserModel } from "../../../model/room/RoomUser";
 import cryptoRandomString from "crypto-random-string";
 import { whiteboardCreateRoom } from "../../../utils/Whiteboard";
+import { ErrorCode } from "../../../../ErrorCode";
 
 export const create = async (
     req: PatchRequest<{
@@ -29,7 +30,7 @@ export const create = async (
         if (compareDesc(beginTime)(redundancyTime) === -1) {
             return reply.send({
                 status: Status.Failed,
-                message: "Creation room time cannot be less than current time",
+                code: ErrorCode.ParamsCheckFailed,
             });
         }
     }
@@ -87,7 +88,7 @@ export const create = async (
         console.error(e);
         return reply.send({
             status: Status.Failed,
-            message: "Failed to create room",
+            code: ErrorCode.CurrentProcessFailed,
         });
     }
 };

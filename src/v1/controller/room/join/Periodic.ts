@@ -9,6 +9,7 @@ import cryptoRandomString from "crypto-random-string";
 import { RoomPeriodicUserModel } from "../../../model/room/RoomPeriodicUser";
 import { Result } from "./Type";
 import { getRTCToken, getRTMToken } from "../../../utils/AgoraToken";
+import { ErrorCode } from "../../../../ErrorCode";
 
 export const joinPeriodic = async (periodicUUID: string, userUUID: string): Promise<Result> => {
     const roomPeriodicConfig = await getRepository(RoomPeriodicConfigModel).findOne({
@@ -22,14 +23,14 @@ export const joinPeriodic = async (periodicUUID: string, userUUID: string): Prom
     if (roomPeriodicConfig === undefined) {
         return {
             status: Status.Failed,
-            message: "Periodic room not found",
+            code: ErrorCode.PeriodicNotFound,
         };
     }
 
     if (roomPeriodicConfig.periodic_status === RoomStatus.Stopped) {
         return {
             status: Status.Failed,
-            message: "Periodic has been ended",
+            code: ErrorCode.PeriodicIsEnded,
         };
     }
 
@@ -51,7 +52,7 @@ export const joinPeriodic = async (periodicUUID: string, userUUID: string): Prom
     if (roomInfo === undefined) {
         return {
             status: Status.Failed,
-            message: "Room has ended or been deleted",
+            code: ErrorCode.CanRetry,
         };
     }
 
