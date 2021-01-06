@@ -6,8 +6,13 @@ import Ajv, { FormatDefinition } from "ajv";
 // link: https://github.com/ajv-validator/ajv-formats/blob/ce49433448384b4c0b2407adafc345e43b85f8ea/src/formats.ts#L38
 const unixTimestamp: FormatDefinition<number> = {
     type: "number",
-    validate: data => {
-        return isValid(data);
+    validate: date => {
+        // must be a millisecond timestamp
+        if (String(date).length !== 13) {
+            return false;
+        }
+
+        return isValid(date);
     },
 };
 
