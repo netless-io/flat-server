@@ -26,7 +26,7 @@ export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
         schema: scheduleSchemaType,
     }),
     Object.freeze({
-        method: "get",
+        method: "post",
         path: "room/list/:type",
         handler: list,
         auth: true,
