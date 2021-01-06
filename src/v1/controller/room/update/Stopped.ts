@@ -157,7 +157,7 @@ export const stopped = async (
                             return {
                                 room_uuid: roomPeriodicInfo.fake_room_uuid,
                                 user_uuid: user_uuid,
-                                rtc_uid: cryptoRandomString({ length: 10, type: "numeric" }),
+                                rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
                             };
                         });
 

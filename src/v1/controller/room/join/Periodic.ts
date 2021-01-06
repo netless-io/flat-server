@@ -56,7 +56,7 @@ export const joinPeriodic = async (periodicUUID: string, userUUID: string): Prom
     }
 
     const { room_uuid: roomUUID, whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
-    const rtcUID = cryptoRandomString({ length: 10, type: "numeric" });
+    const rtcUID = cryptoRandomString({ length: 6, type: "numeric" });
 
     await getConnection().transaction(async t => {
         const commands: Promise<unknown>[] = [];
