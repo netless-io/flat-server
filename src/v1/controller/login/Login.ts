@@ -3,16 +3,15 @@ import { Status } from "../../../Constants";
 import { renewAccessToken } from "../../utils/WeChatURL";
 import { wechatRequest } from "../../utils/WeChatRequest";
 import { RefreshToken } from "../../types/WeChatResponse";
-import { PatchRequest } from "../../types/Server";
-import { FastifyReply } from "fastify";
+import { PatchRequest, Response } from "../../types/Server";
 import { UserModel } from "../../model/user/User";
 import { UserWeChatModel } from "../../model/user/WeChat";
-import { LoginPlatform } from "./Constants";
+import { LoginPlatform, Sex } from "./Constants";
 import { getRepository } from "typeorm";
 import { RedisKey } from "../../../utils/Redis";
 import { ErrorCode } from "../../../ErrorCode";
 
-export const login = async (req: PatchRequest, reply: FastifyReply): Promise<void> => {
+export const login = async (req: PatchRequest): Response<LoginResponse> => {
     const { userUUID, loginSource } = req.user;
 
     const userInfoInstance = await getRepository(UserModel).findOne({
@@ -32,20 +31,20 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
     });
 
     if (userInfoInstance === undefined || weChatUserInfo === undefined) {
-        return reply.send({
+        return {
             status: Status.Failed,
             code: ErrorCode.UserNotFound,
-        });
+        };
     }
 
     if (loginSource === LoginPlatform.WeChat) {
         const refreshToken = await redisService.get(RedisKey.wechatRefreshToken(userUUID));
 
         if (refreshToken === null) {
-            return reply.send({
+            return {
                 status: Status.AuthFailed,
                 code: ErrorCode.NeedLoginAgain,
-            });
+            };
         }
 
         try {
@@ -53,13 +52,13 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
             await wechatRequest<RefreshToken>(renewAccessTokenURL);
         } catch (e: unknown) {
             console.error((e as Error).message);
-            return reply.send({
+            return {
                 status: Status.AuthFailed,
                 code: ErrorCode.CanRetry,
-            });
+            };
         }
 
-        return reply.send({
+        return {
             status: Status.Success,
             data: {
                 name: userInfoInstance.user_name,
@@ -67,6 +66,18 @@ export const login = async (req: PatchRequest, reply: FastifyReply): Promise<voi
                 avatar: userInfoInstance.avatar_url,
                 userUUID,
             },
-        });
+        };
     }
+
+    return {
+        status: Status.AuthFailed,
+        code: ErrorCode.UnsupportedPlatform,
+    };
 };
+
+interface LoginResponse {
+    name: string;
+    sex: Sex;
+    avatar: string;
+    userUUID: string;
+}

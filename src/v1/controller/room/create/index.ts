@@ -1,8 +1,7 @@
 import { DocsType, RoomStatus, RoomType } from "../Constants";
 import { Docs } from "../Types";
 import { Status } from "../../../../Constants";
-import { FastifyReply } from "fastify";
-import { FastifySchema, PatchRequest } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { RoomModel } from "../../../model/room/Room";
 import { v4 } from "uuid";
 import { compareDesc, subMinutes, toDate } from "date-fns/fp";
@@ -17,8 +16,7 @@ export const create = async (
     req: PatchRequest<{
         Body: CreateBody;
     }>,
-    reply: FastifyReply,
-): Promise<void> => {
+): Response<CreateResponse> => {
     const { title, type, beginTime, docs } = req.body;
     const { userUUID } = req.user;
 
@@ -28,10 +26,10 @@ export const create = async (
         const redundancyTime = subMinutes(Date.now(), 1);
         // beginTime >= redundancyTime
         if (compareDesc(beginTime)(redundancyTime) === -1) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.ParamsCheckFailed,
-            });
+            };
         }
     }
 
@@ -78,18 +76,18 @@ export const create = async (
             await Promise.all(commands);
         });
 
-        return reply.send({
+        return {
             status: Status.Success,
             data: {
                 roomUUID,
             },
-        });
+        };
     } catch (e) {
         console.error(e);
-        return reply.send({
+        return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
-        });
+        };
     }
 };
 
@@ -140,3 +138,7 @@ export const createSchemaType: FastifySchema<{
         },
     },
 };
+
+interface CreateResponse {
+    roomUUID: string;
+}

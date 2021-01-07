@@ -1,5 +1,4 @@
-import { FastifySchema, PatchRequest } from "../../../types/Server";
-import { FastifyReply } from "fastify";
+import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { createQueryBuilder } from "typeorm";
 import { RoomUserModel } from "../../../model/room/RoomUser";
 import { RoomModel } from "../../../model/room/Room";
@@ -14,8 +13,7 @@ export const list = async (
         Querystring: ListQuery;
         Params: ListParams;
     }>,
-    reply: FastifyReply,
-): Promise<void> => {
+): Response<ListResponse> => {
     const { type } = req.params;
     const whereMap = {
         all: {
@@ -82,7 +80,7 @@ export const list = async (
             .limit(50)
             .getRawMany();
 
-        const resp: Resp[] = rooms.map((room: Room) => {
+        const resp: ListResponse = rooms.map((room: Room) => {
             return {
                 roomUUID: room.room_uuid,
                 periodicUUID: room.periodic_uuid,
@@ -95,16 +93,16 @@ export const list = async (
             };
         });
 
-        return reply.send({
+        return {
             status: Status.Success,
             data: resp,
-        });
+        };
     } catch (e) {
         console.error(e);
-        return reply.send({
+        return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
-        });
+        };
     }
 };
 
@@ -143,6 +141,17 @@ export const listSchemaType: FastifySchema<{
     },
 };
 
+type ListResponse = Array<{
+    roomUUID: string;
+    periodicUUID: string;
+    ownerUUID: string;
+    title: string;
+    beginTime: string;
+    endTime: string;
+    roomStatus: RoomStatus;
+    ownerName: string;
+}>;
+
 interface Room {
     room_uuid: string;
     periodic_uuid: string;
@@ -152,15 +161,4 @@ interface Room {
     end_time: Date;
     room_status: RoomStatus;
     owner_user_name: string;
-}
-
-interface Resp {
-    roomUUID: string;
-    periodicUUID: string;
-    ownerUUID: string;
-    title: string;
-    beginTime: string;
-    endTime: string;
-    roomStatus: RoomStatus;
-    ownerName: string;
 }

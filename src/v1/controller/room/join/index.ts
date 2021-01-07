@@ -1,19 +1,17 @@
-import { FastifyReply } from "fastify";
-import { FastifySchema, PatchRequest } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { getRepository } from "typeorm";
 import { Status } from "../../../../Constants";
 import { joinOrdinary } from "./Ordinary";
 import { joinPeriodic } from "./Periodic";
 import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
-import { Result } from "./Type";
+import { JoinResponse } from "./Type";
 import { ErrorCode } from "../../../../ErrorCode";
 
 export const join = async (
     req: PatchRequest<{
         Body: JoinBody;
     }>,
-    reply: FastifyReply,
-): Promise<void> => {
+): Response<JoinResponse> => {
     const { roomUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -25,20 +23,17 @@ export const join = async (
             },
         });
 
-        let result: Result;
         if (uuidIsPeriodicUUID) {
-            result = await joinPeriodic(roomUUID, userUUID);
+            return await joinPeriodic(roomUUID, userUUID);
         } else {
-            result = await joinOrdinary(roomUUID, userUUID);
+            return await joinOrdinary(roomUUID, userUUID);
         }
-
-        return reply.send(result);
     } catch (e) {
         console.error(e);
-        return reply.send({
+        return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
-        });
+        };
     }
 };
 

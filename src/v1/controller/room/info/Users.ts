@@ -1,5 +1,4 @@
-import { FastifySchema, PatchRequest } from "../../../types/Server";
-import { FastifyReply } from "fastify";
+import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { createQueryBuilder, getRepository } from "typeorm";
 import { RoomUserModel } from "../../../model/room/RoomUser";
 import { Status } from "../../../../Constants";
@@ -10,8 +9,7 @@ export const userInfo = async (
     req: PatchRequest<{
         Body: UserInfoBody;
     }>,
-    reply: FastifyReply,
-): Promise<void> => {
+): Response<UserInfoResponse> => {
     const { roomUUID, usersUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -26,10 +24,10 @@ export const userInfo = async (
         });
 
         if (checkUserExistRoom === undefined) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.NotPermission,
-            });
+            };
         }
 
         const roomUsersInfo = await createQueryBuilder(RoomUserModel, "ru")
@@ -48,16 +46,16 @@ export const userInfo = async (
                     usersUUID,
                 },
             )
-            .getRawMany();
+            .getRawMany<RoomUsersInfo>();
 
         if (roomUsersInfo.length === 0) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.UserNotFound,
-            });
+            };
         }
 
-        const result: Result = {};
+        const result: UserInfoResponse = {};
         for (const { user_name, user_uuid, rtc_uid, avatar_url } of roomUsersInfo) {
             result[user_uuid] = {
                 name: user_name,
@@ -66,25 +64,17 @@ export const userInfo = async (
             };
         }
 
-        return reply.send({
+        return {
             status: Status.Success,
             data: result,
-        });
+        };
     } catch (e) {
         console.error(e);
-        return reply.send({
+        return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
-        });
+        };
     }
-};
-
-type Result = {
-    [key in string]: {
-        name: string;
-        rtcUID: number;
-        avatarURL: string;
-    };
 };
 
 interface UserInfoBody {
@@ -114,3 +104,14 @@ export const userInfoSchemaType: FastifySchema<{
         },
     },
 };
+
+type UserInfoResponse = {
+    [key in string]: {
+        name: string;
+        rtcUID: number;
+        avatarURL: string;
+    };
+};
+
+type RoomUsersInfo = Pick<RoomUserModel, "rtc_uid" | "user_uuid"> &
+    Pick<UserModel, "user_name" | "avatar_url">;

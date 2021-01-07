@@ -1,5 +1,4 @@
-import { FastifyReply } from "fastify";
-import { FastifySchema, PatchRequest } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { getConnection, getRepository } from "typeorm";
 import { Status } from "../../../../Constants";
 import { RoomModel } from "../../../model/room/Room";
@@ -12,8 +11,7 @@ export const running = async (
     req: PatchRequest<{
         Body: RunningBody;
     }>,
-    reply: FastifyReply,
-): Promise<void> => {
+): Response<RunningResponse> => {
     const { roomUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -27,32 +25,33 @@ export const running = async (
         });
 
         if (roomInfo === undefined) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.RoomNotFound,
-            });
+            };
         }
 
         // only the room owner can call this API
         if (roomInfo.owner_uuid !== userUUID) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.NotPermission,
-            });
+            };
         }
 
         // if the room is running, return
         if (roomInfo.room_status === RoomStatus.Running) {
-            return reply.send({
+            return {
                 status: Status.Success,
-            });
+                data: {},
+            };
         }
 
         if (roomInfo.room_status === RoomStatus.Stopped) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.RoomIsEnded,
-            });
+            };
         }
 
         await getConnection().transaction(async t => {
@@ -109,15 +108,16 @@ export const running = async (
             return await Promise.all(commands);
         });
 
-        return reply.send({
+        return {
             status: Status.Success,
-        });
+            data: {},
+        };
     } catch (e) {
         console.error(e);
-        return reply.send({
+        return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
-        });
+        };
     }
 };
 
@@ -139,3 +139,5 @@ export const runningSchemaType: FastifySchema<{
         },
     },
 };
+
+interface RunningResponse {}

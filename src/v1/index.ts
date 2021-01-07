@@ -2,14 +2,21 @@ import { FastifyInstance, RouteShorthandOptions } from "fastify";
 import Ajv from "ajv";
 import { socketNamespaces } from "./store/SocketNamespaces";
 import { socketRoutes, httpRoutes } from "./Routes";
-import { IORoutes, IOServer, FastifyRoutes, FastifySchema, IOSocket } from "./types/Server";
+import {
+    IORoutes,
+    IOServer,
+    FastifyRoutes,
+    FastifySchema,
+    IOSocket,
+    PatchRequest,
+} from "./types/Server";
 import { Status } from "../Constants";
 import { ErrorCode } from "../ErrorCode";
 
 export const v1RegisterHTTP = (server: FastifyInstance): void => {
     // @ts-ignore
     httpRoutes.flat(Infinity).forEach((item: FastifyRoutes) => {
-        const { method, path, handler, auth, schema } = item;
+        const { method, path, handler, auth, schema, skipAutoHandle } = item;
 
         const serverOpts: ServerOpts = {};
 
@@ -22,12 +29,26 @@ export const v1RegisterHTTP = (server: FastifyInstance): void => {
             serverOpts.schema = schema;
         }
 
-        server[method](
-            `/v1/${path}`,
-            serverOpts,
-            // @ts-ignore
-            handler,
-        );
+        if (skipAutoHandle) {
+            server[method](
+                `/v1/${path}`,
+                serverOpts,
+                // @ts-ignore
+                handler,
+            );
+        } else {
+            server[method](
+                `/v1/${path}`,
+                serverOpts,
+                // @ts-ignore
+                async (req: PatchRequest, reply): Promise<void> => {
+                    // @ts-ignore
+                    const result = await handler(req);
+
+                    return reply.send(result);
+                },
+            );
+        }
     });
 };
 

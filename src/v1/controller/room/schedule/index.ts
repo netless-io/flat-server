@@ -1,8 +1,7 @@
 import { DocsType, RoomStatus, RoomType, Week } from "../Constants";
 import { Periodic, Docs } from "../Types";
 import { Status } from "../../../../Constants";
-import { FastifyReply } from "fastify";
-import { FastifySchema, PatchRequest } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { RoomModel } from "../../../model/room/Room";
 import { v4 } from "uuid";
 import { compareDesc, differenceInMilliseconds, subMinutes, toDate } from "date-fns/fp";
@@ -21,8 +20,7 @@ export const schedule = async (
     req: PatchRequest<{
         Body: ScheduleBody;
     }>,
-    reply: FastifyReply,
-): Promise<void> => {
+): Response<ScheduleResponse> => {
     const { title, type, beginTime, endTime, periodic, docs } = req.body;
     const { userUUID } = req.user;
 
@@ -33,29 +31,29 @@ export const schedule = async (
         // beginTime >= redundancyTime
         // creation room time cannot be less than current time
         if (compareDesc(beginTime)(redundancyTime) === -1) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.ParamsCheckFailed,
-            });
+            };
         }
 
         const result = compareDesc(endTime)(beginTime);
         // endTime < beginTime
         // the end time cannot be less than the creation time
         if (result === -1) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.ParamsCheckFailed,
-            });
+            };
         }
 
         // endTime - beginTime < 15m
         // the interval between the start time and the end time must be greater than 15 minutes
         if (differenceInMilliseconds(beginTime, endTime) < 1000 * 60 * 15) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.ParamsCheckFailed,
-            });
+            };
         }
     }
 
@@ -167,15 +165,16 @@ export const schedule = async (
             await Promise.all(commands);
         });
 
-        return reply.send({
+        return {
             status: Status.Success,
-        });
+            data: {},
+        };
     } catch (e) {
         console.error(e);
-        return reply.send({
+        return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
-        });
+        };
     }
 };
 
@@ -276,3 +275,5 @@ export const scheduleSchemaType: FastifySchema<{
         },
     },
 };
+
+interface ScheduleResponse {}

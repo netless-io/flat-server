@@ -1,5 +1,4 @@
-import { FastifyReply } from "fastify";
-import { FastifySchema, PatchRequest } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { createQueryBuilder, getRepository } from "typeorm";
 import { Status } from "../../../../Constants";
 import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
@@ -12,8 +11,7 @@ export const periodicInfo = async (
     req: PatchRequest<{
         Body: PeriodicInfoBody;
     }>,
-    reply: FastifyReply,
-): Promise<void> => {
+): Response<PeriodicInfoResponse> => {
     const { periodicUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -28,10 +26,10 @@ export const periodicInfo = async (
         });
 
         if (checkUserExistPeriodicRoom === undefined) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.NotPermission,
-            });
+            };
         }
 
         const periodicConfig = await getRepository(RoomPeriodicConfigModel).findOne({
@@ -43,20 +41,20 @@ export const periodicInfo = async (
         });
 
         if (periodicConfig === undefined) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.PeriodicNotFound,
-            });
+            };
         }
 
         if (periodicConfig.periodic_status === RoomStatus.Stopped) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.PeriodicIsEnded,
-            });
+            };
         }
 
-        const rooms: Rooms[] = await createQueryBuilder(RoomPeriodicModel)
+        const rooms = await createQueryBuilder(RoomPeriodicModel)
             .select(["room_status", "begin_time", "end_time", "fake_room_uuid"])
             .where(
                 `periodic_uuid = :periodicUUID
@@ -67,17 +65,17 @@ export const periodicInfo = async (
                     roomStatus: [RoomStatus.Pending, RoomStatus.Running],
                 },
             )
-            .getRawMany();
+            .getRawMany<Rooms>();
 
         // only in the case of very boundary, will come here
         if (rooms === undefined || rooms.length === 0) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.CanRetry,
-            });
+            };
         }
 
-        return reply.send({
+        return {
             status: Status.Success,
             data: {
                 periodic: {
@@ -95,13 +93,13 @@ export const periodicInfo = async (
                     };
                 }),
             },
-        });
+        };
     } catch (e) {
         console.error(e);
-        return reply.send({
+        return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
-        });
+        };
     }
 };
 
@@ -124,9 +122,18 @@ export const periodicInfoSchemaType: FastifySchema<{
     },
 };
 
-interface Rooms {
-    room_status: string;
-    begin_time: Date;
-    end_time: Date;
-    fake_room_uuid: string;
+interface PeriodicInfoResponse {
+    periodic: {
+        ownerUUID: string;
+        endTime: string | Date;
+        rate: number;
+    };
+    rooms: Array<{
+        roomUUID: string;
+        beginTime: Date;
+        endTime: Date;
+        roomStatus: RoomStatus;
+    }>;
 }
+
+type Rooms = Pick<RoomPeriodicModel, "room_status" | "begin_time" | "end_time" | "fake_room_uuid">;

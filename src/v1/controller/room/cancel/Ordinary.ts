@@ -1,5 +1,4 @@
-import { FastifyReply } from "fastify";
-import { FastifySchema, PatchRequest } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { getConnection, getRepository } from "typeorm";
 import { Status } from "../../../../Constants";
 import { RoomModel } from "../../../model/room/Room";
@@ -12,8 +11,7 @@ export const cancelOrdinary = async (
     req: PatchRequest<{
         Body: CancelOrdinaryBody;
     }>,
-    reply: FastifyReply,
-): Promise<void> => {
+): Response<CancelOrdinaryResponse> => {
     const { roomUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -27,25 +25,25 @@ export const cancelOrdinary = async (
         });
 
         if (roomInfo === undefined) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.RoomNotFound,
-            });
+            };
         }
 
         if (roomInfo.periodic_uuid !== "") {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.NotPermission,
-            });
+            };
         }
 
         // the owner of the room cannot delete this lesson while the room is running
         if (roomInfo.owner_uuid === userUUID && roomInfo.room_status === RoomStatus.Running) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.SituationHasChanged,
-            });
+            };
         }
 
         await getConnection().transaction(async t => {
@@ -93,15 +91,16 @@ export const cancelOrdinary = async (
             await Promise.all(commands);
         });
 
-        return reply.send({
+        return {
             status: Status.Success,
-        });
+            data: {},
+        };
     } catch (e) {
         console.error(e);
-        return reply.send({
+        return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
-        });
+        };
     }
 };
 
@@ -123,3 +122,5 @@ export const cancelOrdinarySchemaType: FastifySchema<{
         },
     },
 };
+
+interface CancelOrdinaryResponse {}
