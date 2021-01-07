@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { JSONSchemaType } from "ajv/dist/types/json-schema";
-import { WeChatSocketEvents } from "../../Constants";
+import { Status, WeChatSocketEvents } from "../../Constants";
+import { ErrorCode } from "../../ErrorCode";
 
 export interface PatchRequest<T = any> extends FastifyRequest<T> {
     user: {
@@ -28,10 +29,24 @@ export interface FastifySchema<T extends Schema = Schema> {
 export interface FastifyRoutes {
     readonly path: string;
     readonly method: "get" | "post";
+    readonly skipAutoHandle?: true;
     readonly auth: boolean;
-    readonly handler: (req: PatchRequest, reply: FastifyReply) => Promise<void>;
+    readonly handler:
+        | ((req: PatchRequest, reply: FastifyReply) => Promise<void>)
+        | ((req: PatchRequest) => Response);
     readonly schema?: any;
 }
+
+export type Response<T = any> = Promise<
+    | {
+          status: Status.Failed | Status.AuthFailed;
+          code: ErrorCode;
+      }
+    | {
+          status: Status.Success;
+          data: T;
+      }
+>;
 
 export type IOServer = import("socket.io").Server;
 export type IOSocket = import("socket.io").Socket;

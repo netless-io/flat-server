@@ -1,5 +1,4 @@
-import { FastifyReply } from "fastify";
-import { FastifySchema, PatchRequest } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { getRepository } from "typeorm";
 import { Status } from "../../../../Constants";
 import { RoomDocModel } from "../../../model/room/RoomDoc";
@@ -7,13 +6,13 @@ import { ErrorCode } from "../../../../ErrorCode";
 import { RoomPeriodicModel } from "../../../model/room/RoomPeriodic";
 import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
 import { RoomPeriodicUserModel } from "../../../model/room/RoomPeriodicUser";
+import { DocsType, RoomStatus, RoomType } from "../Constants";
 
 export const periodicSubRoomInfo = async (
     req: PatchRequest<{
         Body: PeriodicSubRoomInfoBody;
     }>,
-    reply: FastifyReply,
-): Promise<void> => {
+): Response<PeriodicSubRoomInfoResponse> => {
     const { periodicUUID, roomUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -28,10 +27,10 @@ export const periodicSubRoomInfo = async (
         });
 
         if (checkUserInPeriodicRoom === undefined) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.PeriodicNotFound,
-            });
+            };
         }
 
         const roomPeriodicInfo = await getRepository(RoomPeriodicModel).findOne({
@@ -43,10 +42,10 @@ export const periodicSubRoomInfo = async (
         });
 
         if (roomPeriodicInfo === undefined) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.PeriodicNotFound,
-            });
+            };
         }
 
         const { room_status, begin_time, end_time, room_type } = roomPeriodicInfo;
@@ -60,10 +59,10 @@ export const periodicSubRoomInfo = async (
         });
 
         if (periodicConfigInfo === undefined) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.PeriodicNotFound,
-            });
+            };
         }
 
         const { title, owner_uuid } = periodicConfigInfo;
@@ -84,7 +83,7 @@ export const periodicSubRoomInfo = async (
             };
         });
 
-        return reply.send({
+        return {
             status: Status.Success,
             data: {
                 roomInfo: {
@@ -97,13 +96,13 @@ export const periodicSubRoomInfo = async (
                 },
                 docs,
             },
-        });
+        };
     } catch (e) {
         console.error(e);
-        return reply.send({
+        return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
-        });
+        };
     }
 };
 
@@ -130,3 +129,19 @@ export const periodicSubRoomInfoSchemaType: FastifySchema<{
         },
     },
 };
+
+interface PeriodicSubRoomInfoResponse {
+    roomInfo: {
+        title: string;
+        beginTime: Date;
+        endTime: Date;
+        roomType: RoomType;
+        roomStatus: RoomStatus;
+        ownerUUID: string;
+    };
+    docs: Array<{
+        docType: DocsType;
+        docUUID: string;
+        isPreload: boolean;
+    }>;
+}

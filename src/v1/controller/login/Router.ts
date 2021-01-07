@@ -7,6 +7,7 @@ export const httpLogin: Readonly<FastifyRoutes[]> = Object.freeze([
         method: "get",
         path: "login/weChat/callback/:socketID",
         handler: callback,
+        skipAutoHandle: true,
         auth: false,
         schema: callbackSchemaType,
     }),

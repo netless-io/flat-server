@@ -1,5 +1,4 @@
-import { FastifyReply } from "fastify";
-import { FastifySchema, PatchRequest } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { getConnection, getRepository } from "typeorm";
@@ -14,8 +13,7 @@ export const cancelPeriodic = async (
     req: PatchRequest<{
         Body: CancelPeriodicBody;
     }>,
-    reply: FastifyReply,
-): Promise<void> => {
+): Response<CancelPeriodicResponse> => {
     const { periodicUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -30,10 +28,10 @@ export const cancelPeriodic = async (
         });
 
         if (checkUserInPeriodicRoom === undefined) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.PeriodicNotFound,
-            });
+            };
         }
 
         const periodicConfig = await getRepository(RoomPeriodicConfigModel).findOne({
@@ -45,10 +43,10 @@ export const cancelPeriodic = async (
         });
 
         if (periodicConfig === undefined) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.PeriodicNotFound,
-            });
+            };
         }
 
         const roomInfo = await getRepository(RoomModel)
@@ -66,18 +64,18 @@ export const cancelPeriodic = async (
             .getRawOne<Pick<RoomModel, "room_uuid" | "room_status" | "owner_uuid">>();
 
         if (roomInfo === undefined) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.CanRetry,
-            });
+            };
         }
 
         // room status is running, owner can't cancel current room
         if (roomInfo.owner_uuid === userUUID && roomInfo.room_status === RoomStatus.Running) {
-            return reply.send({
-                status: Status.Success,
+            return {
+                status: Status.Failed,
                 code: ErrorCode.RoomIsRunning,
-            });
+            };
         }
 
         await getConnection().transaction(async t => {
@@ -169,15 +167,16 @@ export const cancelPeriodic = async (
             return await Promise.all(commands);
         });
 
-        return reply.send({
+        return {
             status: Status.Success,
-        });
+            data: {},
+        };
     } catch (e) {
         console.error(e);
-        return reply.send({
+        return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
-        });
+        };
     }
 };
 
@@ -199,3 +198,5 @@ export const cancelPeriodicSchemaType: FastifySchema<{
         },
     },
 };
+
+interface CancelPeriodicResponse {}

@@ -1,5 +1,4 @@
-import { FastifyReply } from "fastify";
-import { FastifySchema, PatchRequest } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { getRepository } from "typeorm";
 import { DefaultDatetime, Status } from "../../../../Constants";
 import { RoomModel } from "../../../model/room/Room";
@@ -7,13 +6,13 @@ import { RoomDocModel } from "../../../model/room/RoomDoc";
 import { RoomUserModel } from "../../../model/room/RoomUser";
 import { isEqual } from "date-fns/fp";
 import { ErrorCode } from "../../../../ErrorCode";
+import { DocsType, RoomStatus, RoomType } from "../Constants";
 
 export const ordinaryInfo = async (
     req: PatchRequest<{
         Body: OrdinaryInfoBody;
     }>,
-    reply: FastifyReply,
-): Promise<void> => {
+): Response<OrdinaryInfoResponse> => {
     const { roomUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -28,10 +27,10 @@ export const ordinaryInfo = async (
         });
 
         if (checkUserExistRoom === undefined) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.NotPermission,
-            });
+            };
         }
 
         const roomInfo = await getRepository(RoomModel).findOne({
@@ -43,10 +42,10 @@ export const ordinaryInfo = async (
         });
 
         if (roomInfo === undefined) {
-            return reply.send({
+            return {
                 status: Status.Failed,
                 code: ErrorCode.RoomNotFound,
-            });
+            };
         }
 
         const docs = (
@@ -65,7 +64,7 @@ export const ordinaryInfo = async (
             };
         });
 
-        return reply.send({
+        return {
             status: Status.Success,
             data: {
                 roomInfo: {
@@ -80,13 +79,13 @@ export const ordinaryInfo = async (
                 },
                 docs,
             },
-        });
+        };
     } catch (e) {
         console.error(e);
-        return reply.send({
+        return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
-        });
+        };
     }
 };
 
@@ -108,3 +107,19 @@ export const OrdinaryInfoSchemaType: FastifySchema<{
         },
     },
 };
+
+interface OrdinaryInfoResponse {
+    roomInfo: {
+        title: string;
+        beginTime: Date;
+        endTime: string;
+        roomType: RoomType;
+        roomStatus: RoomStatus;
+        ownerUUID: string;
+    };
+    docs: Array<{
+        docType: DocsType;
+        docUUID: string;
+        isPreload: boolean;
+    }>;
+}

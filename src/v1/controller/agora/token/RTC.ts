@@ -1,6 +1,5 @@
 import { Status } from "../../../../Constants";
-import { FastifyReply } from "fastify";
-import { FastifySchema, PatchRequest } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { getRTCToken } from "../../../utils/AgoraToken";
 import { getRepository } from "typeorm";
 import { RoomUserModel } from "../../../model/room/RoomUser";
@@ -10,8 +9,7 @@ export const generateRTC = async (
     req: PatchRequest<{
         Body: GenerateRTCBody;
     }>,
-    reply: FastifyReply,
-): Promise<void> => {
+): Response<GenerateRTCResponse> => {
     const { roomUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -24,20 +22,20 @@ export const generateRTC = async (
     });
 
     if (roomUserInfo === undefined) {
-        return reply.send({
+        return {
             status: Status.Failed,
             code: ErrorCode.UserNotInRoom,
-        });
+        };
     }
 
     const token = await getRTCToken(roomUUID, Number(roomUserInfo.rtc_uid));
 
-    return reply.send({
+    return {
         status: Status.Success,
         data: {
             token,
         },
-    });
+    };
 };
 
 interface GenerateRTCBody {
@@ -57,3 +55,7 @@ export const generateRTCSchemaType: FastifySchema<{
         },
     },
 };
+
+interface GenerateRTCResponse {
+    token: string;
+}

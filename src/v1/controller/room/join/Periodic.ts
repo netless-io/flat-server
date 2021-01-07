@@ -7,11 +7,15 @@ import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig"
 import { RoomUserModel } from "../../../model/room/RoomUser";
 import cryptoRandomString from "crypto-random-string";
 import { RoomPeriodicUserModel } from "../../../model/room/RoomPeriodicUser";
-import { Result } from "./Type";
+import { JoinResponse } from "./Type";
 import { getRTCToken, getRTMToken } from "../../../utils/AgoraToken";
 import { ErrorCode } from "../../../../ErrorCode";
+import { Response } from "../../../types/Server";
 
-export const joinPeriodic = async (periodicUUID: string, userUUID: string): Promise<Result> => {
+export const joinPeriodic = async (
+    periodicUUID: string,
+    userUUID: string,
+): Response<JoinResponse> => {
     const roomPeriodicConfig = await getRepository(RoomPeriodicConfigModel).findOne({
         select: ["periodic_status"],
         where: {

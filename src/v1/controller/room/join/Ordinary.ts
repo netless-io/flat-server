@@ -5,11 +5,12 @@ import { Status } from "../../../../Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
 import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
-import { Result } from "./Type";
+import { JoinResponse } from "./Type";
 import { getRTCToken, getRTMToken } from "../../../utils/AgoraToken";
 import { ErrorCode } from "../../../../ErrorCode";
+import { Response } from "../../../types/Server";
 
-export const joinOrdinary = async (roomUUID: string, userUUID: string): Promise<Result> => {
+export const joinOrdinary = async (roomUUID: string, userUUID: string): Response<JoinResponse> => {
     const roomInfo = await getRepository(RoomModel).findOne({
         select: ["room_status", "whiteboard_room_uuid", "periodic_uuid", "room_type"],
         where: {
