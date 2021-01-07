@@ -50,7 +50,7 @@ export const userInfo = async (
             )
             .getRawMany();
 
-        if (roomUsersInfo === undefined) {
+        if (roomUsersInfo.length === 0) {
             return reply.send({
                 status: Status.Failed,
                 code: ErrorCode.UserNotFound,
