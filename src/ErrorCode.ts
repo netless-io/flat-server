@@ -16,6 +16,7 @@ export enum ErrorCode {
     RoomNotFound, // room not found,
     RoomIsEnded, // room has been ended
     UserNotInRoom, // user is not in this room
+    RoomIsRunning, // room status is running
     PeriodicNotFound, // room not found
     PeriodicIsEnded, // room has been ended
 
