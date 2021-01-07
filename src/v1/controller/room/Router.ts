@@ -6,7 +6,7 @@ import { userInfo, userInfoSchemaType } from "./info/Users";
 import { ordinaryInfo, OrdinaryInfoSchemaType } from "./info/Ordinary";
 import { periodicInfo, periodicInfoSchemaType } from "./info/Periodic";
 import { running, runningSchemaType } from "./update/Running";
-import { cancelOrdinary, cancelOrdinarySchemaType } from "./update/CancelOrdinary";
+import { cancelOrdinary, cancelOrdinarySchemaType } from "./cancel/Ordinary";
 import { stopped, stoppedSchemaType } from "./update/Stopped";
 import { join, joinSchemaType } from "./join";
 
@@ -76,7 +76,7 @@ export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
     }),
     Object.freeze({
         method: "post",
-        path: "room/update/cancelOrdinary",
+        path: "room/cancel/ordinary",
         handler: cancelOrdinary,
         auth: true,
         schema: cancelOrdinarySchemaType,
