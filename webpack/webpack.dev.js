@@ -3,7 +3,6 @@ const DotenvFlow = require("dotenv-flow-webpack");
 const paths = require("./paths");
 const common = require("./webpack.common.js");
 const { NoEmitOnErrorsPlugin } = require("webpack");
-const ExecCommandWebpackPlugin = require("./plugin/exec-command-webpack-plugin");
 
 module.exports = merge(common, {
     mode: "development",
@@ -27,6 +26,5 @@ module.exports = merge(common, {
             system_vars: true,
             default_node_env: "development",
         }),
-        new ExecCommandWebpackPlugin("yarn run launch:server"),
     ],
 });
