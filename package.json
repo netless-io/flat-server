@@ -5,8 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack --watch --progress --config webpack/webpack.dev.js",
-    "build": "cross-env NODE_ENV=production webpack --progress --config webpack/webpack.prod.js",
-    "launch:server": "node --trace-uncaught ./scripts/launch-server.js"
+    "build": "cross-env NODE_ENV=production webpack --progress --config webpack/webpack.prod.js"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
@@ -36,7 +35,6 @@
     "fork-ts-checker-webpack-plugin": "^6.0.4",
     "husky": ">=4",
     "lint-staged": ">=10",
-    "nodemon": "^2.0.6",
     "prettier": "^2.2.1",
     "typescript": "^4.1.2",
     "webpack": "^5.9.0",
