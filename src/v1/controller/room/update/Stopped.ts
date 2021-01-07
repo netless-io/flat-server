@@ -53,6 +53,8 @@ export const stopped = async (
             });
         }
 
+        const { periodic_uuid } = roomInfo;
+
         await getConnection().transaction(
             async (t): Promise<void> => {
                 const commands: Promise<unknown>[] = [];
@@ -73,7 +75,7 @@ export const stopped = async (
                         .execute(),
                 );
 
-                if (roomInfo.periodic_uuid !== "") {
+                if (periodic_uuid !== "") {
                     commands.push(
                         t
                             .createQueryBuilder()
@@ -89,7 +91,7 @@ export const stopped = async (
                             .execute(),
                     );
 
-                    const roomPeriodicInfo = await t
+                    const nextRoomPeriodicInfo = await t
                         .createQueryBuilder(RoomPeriodicModel, "rp")
                         .select(["begin_time", "end_time", "fake_room_uuid", "room_type"])
                         .where(
@@ -98,7 +100,7 @@ export const stopped = async (
                             AND end_time >= :currentTime
                             AND is_delete = false`,
                             {
-                                periodicUUID: roomInfo.periodic_uuid,
+                                periodic_uuid,
                                 roomStatus: RoomStatus.Pending,
                                 // the end time of the next class must be greater than the current time (add one minutes, this is redundancy)
                                 currentTime: addMinutes(1, new Date()),
@@ -107,12 +109,12 @@ export const stopped = async (
                         .orderBy("rp.end_time", "ASC")
                         .getRawOne<RoomPeriodicModel | undefined>();
 
-                    if (roomPeriodicInfo) {
+                    if (nextRoomPeriodicInfo) {
                         const roomPeriodicConfig = await t
                             .createQueryBuilder(RoomPeriodicConfigModel, "rpc")
                             .select("title")
                             .where({
-                                periodic_uuid: roomInfo.periodic_uuid,
+                                periodic_uuid,
                                 is_delete: false,
                             })
                             .getRawOne();
@@ -125,19 +127,26 @@ export const stopped = async (
                             });
                         }
 
+                        const {
+                            room_type,
+                            fake_room_uuid,
+                            begin_time,
+                            end_time,
+                        } = nextRoomPeriodicInfo;
+
                         commands.push(
                             t.insert(RoomModel, {
-                                periodic_uuid: roomInfo.periodic_uuid,
+                                periodic_uuid: periodic_uuid,
                                 owner_uuid: userUUID,
                                 title: roomPeriodicConfig.title,
-                                room_type: roomPeriodicInfo.room_type,
+                                room_type,
                                 room_status: RoomStatus.Pending,
-                                room_uuid: roomPeriodicInfo.fake_room_uuid,
+                                room_uuid: fake_room_uuid,
                                 whiteboard_room_uuid: await whiteboardCreateRoom(
                                     roomPeriodicConfig.title,
                                 ),
-                                begin_time: roomPeriodicInfo.begin_time,
-                                end_time: roomPeriodicInfo.end_time,
+                                begin_time,
+                                end_time,
                             }),
                         );
 
@@ -148,14 +157,14 @@ export const stopped = async (
                                 `periodic_uuid = :periodicUUID
                                 AND is_delete = false`,
                                 {
-                                    periodicUUID: roomInfo.periodic_uuid,
+                                    periodicUUID: periodic_uuid,
                                 },
                             )
                             .getRawMany<Pick<RoomPeriodicUserModel, "user_uuid">>();
 
                         const transformRoomUser = periodicRoomAllUsers.map(({ user_uuid }) => {
                             return {
-                                room_uuid: roomPeriodicInfo.fake_room_uuid,
+                                room_uuid: fake_room_uuid,
                                 user_uuid: user_uuid,
                                 rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
                             };
@@ -163,7 +172,7 @@ export const stopped = async (
 
                         /**
                          * TODO: when the number exceeds 500, there will be performance problems
-                         * Combining xx and yy should solve this potential problem
+                         * Combining RoomUser and RoomPeriodicUsers should solve this potential problem
                          */
                         commands.push(t.insert(RoomUserModel, transformRoomUser));
                     } else {
