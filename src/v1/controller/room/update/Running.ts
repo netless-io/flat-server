@@ -6,6 +6,7 @@ import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
 import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
 import { RoomPeriodicModel } from "../../../model/room/RoomPeriodic";
+import { ErrorCode } from "../../../../ErrorCode";
 
 export const running = async (
     req: PatchRequest<{
@@ -28,7 +29,7 @@ export const running = async (
         if (roomInfo === undefined) {
             return reply.send({
                 status: Status.Failed,
-                message: "Room not found",
+                code: ErrorCode.RoomNotFound,
             });
         }
 
@@ -36,7 +37,7 @@ export const running = async (
         if (roomInfo.owner_uuid !== userUUID) {
             return reply.send({
                 status: Status.Failed,
-                message: "Not have permission",
+                code: ErrorCode.NotPermission,
             });
         }
 
@@ -50,7 +51,7 @@ export const running = async (
         if (roomInfo.room_status === RoomStatus.Stopped) {
             return reply.send({
                 status: Status.Failed,
-                message: "Room has been ended",
+                code: ErrorCode.RoomIsEnded,
             });
         }
 
@@ -115,7 +116,7 @@ export const running = async (
         console.error(e);
         return reply.send({
             status: Status.Failed,
-            message: "Set room status is running failed",
+            code: ErrorCode.CurrentProcessFailed,
         });
     }
 };

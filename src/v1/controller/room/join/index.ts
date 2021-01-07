@@ -6,6 +6,7 @@ import { joinOrdinary } from "./Ordinary";
 import { joinPeriodic } from "./Periodic";
 import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
 import { Result } from "./Type";
+import { ErrorCode } from "../../../../ErrorCode";
 
 export const join = async (
     req: PatchRequest<{
@@ -36,7 +37,7 @@ export const join = async (
         console.error(e);
         return reply.send({
             status: Status.Failed,
-            message: "Join room failed",
+            code: ErrorCode.CurrentProcessFailed,
         });
     }
 };

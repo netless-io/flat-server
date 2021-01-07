@@ -6,6 +6,7 @@ import { RoomModel } from "../../../model/room/Room";
 import { RoomDocModel } from "../../../model/room/RoomDoc";
 import { RoomUserModel } from "../../../model/room/RoomUser";
 import { isEqual } from "date-fns/fp";
+import { ErrorCode } from "../../../../ErrorCode";
 
 export const ordinaryInfo = async (
     req: PatchRequest<{
@@ -29,7 +30,7 @@ export const ordinaryInfo = async (
         if (checkUserExistRoom === undefined) {
             return reply.send({
                 status: Status.Failed,
-                message: "Not have permission",
+                code: ErrorCode.NotPermission,
             });
         }
 
@@ -44,7 +45,7 @@ export const ordinaryInfo = async (
         if (roomInfo === undefined) {
             return reply.send({
                 status: Status.Failed,
-                message: "Room not found",
+                code: ErrorCode.RoomNotFound,
             });
         }
 
@@ -84,7 +85,7 @@ export const ordinaryInfo = async (
         console.error(e);
         return reply.send({
             status: Status.Failed,
-            message: "get room info failed",
+            code: ErrorCode.CurrentProcessFailed,
         });
     }
 };

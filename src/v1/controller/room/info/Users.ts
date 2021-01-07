@@ -4,6 +4,7 @@ import { createQueryBuilder, getRepository } from "typeorm";
 import { RoomUserModel } from "../../../model/room/RoomUser";
 import { Status } from "../../../../Constants";
 import { UserModel } from "../../../model/user/User";
+import { ErrorCode } from "../../../../ErrorCode";
 
 export const userInfo = async (
     req: PatchRequest<{
@@ -27,7 +28,7 @@ export const userInfo = async (
         if (checkUserExistRoom === undefined) {
             return reply.send({
                 status: Status.Failed,
-                message: "Not have permission",
+                code: ErrorCode.NotPermission,
             });
         }
 
@@ -52,7 +53,7 @@ export const userInfo = async (
         if (roomUsersInfo === undefined) {
             return reply.send({
                 status: Status.Failed,
-                message: "Can't find relevant information",
+                code: ErrorCode.UserNotFound,
             });
         }
 
@@ -73,7 +74,7 @@ export const userInfo = async (
         console.error(e);
         return reply.send({
             status: Status.Failed,
-            message: "Get room users info failed",
+            code: ErrorCode.CurrentProcessFailed,
         });
     }
 };

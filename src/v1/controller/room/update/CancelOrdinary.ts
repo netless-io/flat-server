@@ -6,6 +6,7 @@ import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
 import { RoomUserModel } from "../../../model/room/RoomUser";
 import { whiteboardBanRoom } from "../../../utils/Whiteboard";
+import { ErrorCode } from "../../../../ErrorCode";
 
 export const cancelOrdinary = async (
     req: PatchRequest<{
@@ -28,14 +29,14 @@ export const cancelOrdinary = async (
         if (roomInfo === undefined) {
             return reply.send({
                 status: Status.Failed,
-                message: "Room not found",
+                code: ErrorCode.RoomNotFound,
             });
         }
 
         if (roomInfo.periodic_uuid !== "") {
             return reply.send({
                 status: Status.Failed,
-                message: "Does not support cancel of sub-rooms under periodic rooms",
+                code: ErrorCode.NotPermission,
             });
         }
 
@@ -43,7 +44,7 @@ export const cancelOrdinary = async (
         if (roomInfo.owner_uuid === userUUID && roomInfo.room_status === RoomStatus.Running) {
             return reply.send({
                 status: Status.Failed,
-                message: "Cannot cancel when the room is running",
+                code: ErrorCode.SituationHasChanged,
             });
         }
 
@@ -99,7 +100,7 @@ export const cancelOrdinary = async (
         console.error(e);
         return reply.send({
             status: Status.Failed,
-            message: "Cancel room failed",
+            code: ErrorCode.CurrentProcessFailed,
         });
     }
 };

@@ -7,6 +7,7 @@ import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
 import { Result } from "./Type";
 import { getRTCToken, getRTMToken } from "../../../utils/AgoraToken";
+import { ErrorCode } from "../../../../ErrorCode";
 
 export const joinOrdinary = async (roomUUID: string, userUUID: string): Promise<Result> => {
     const roomInfo = await getRepository(RoomModel).findOne({
@@ -20,14 +21,14 @@ export const joinOrdinary = async (roomUUID: string, userUUID: string): Promise<
     if (roomInfo === undefined) {
         return {
             status: Status.Failed,
-            message: "Room not found",
+            code: ErrorCode.RoomNotFound,
         };
     }
 
     if (roomInfo.room_status === RoomStatus.Stopped) {
         return {
             status: Status.Failed,
-            message: "Room has been ended",
+            code: ErrorCode.RoomIsEnded,
         };
     }
 

@@ -12,6 +12,7 @@ import { LoginPlatform, Sex } from "../Constants";
 import { getConnection, getRepository } from "typeorm";
 import { UserWeChatModel } from "../../../model/user/WeChat";
 import { RedisKey } from "../../../../utils/Redis";
+import { ErrorCode } from "../../../../ErrorCode";
 
 export const callback = async (
     req: PatchRequest<{
@@ -40,9 +41,10 @@ export const callback = async (
     const result = await redisService.get(RedisKey.weChatAuthUUID(uuid));
 
     if (result === null) {
+        console.error(`uuid verification failed, current uuid: ${code}`);
         socket.emit(WeChatSocketEvents.LoginStatus, {
             status: Status.AuthFailed,
-            message: `uuid verification failed, current uuid: ${code}`,
+            code: ErrorCode.ParamsCheckFailed,
         });
 
         return;
@@ -140,9 +142,10 @@ export const callback = async (
             },
             (err: any, token: any) => {
                 if (err) {
+                    console.error(err.message);
                     socket.emit(WeChatSocketEvents.LoginStatus, {
                         status: Status.AuthFailed,
-                        message: err.message,
+                        code: ErrorCode.JWTSignFailed,
                     });
                 } else {
                     socket.emit(WeChatSocketEvents.LoginStatus, {
@@ -162,7 +165,7 @@ export const callback = async (
         console.error(e);
         socket.emit(WeChatSocketEvents.LoginStatus, {
             status: Status.AuthFailed,
-            message: (e as Error).message,
+            code: ErrorCode.CurrentProcessFailed,
         });
     }
 };

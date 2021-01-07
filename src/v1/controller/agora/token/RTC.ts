@@ -4,6 +4,7 @@ import { FastifySchema, PatchRequest } from "../../../types/Server";
 import { getRTCToken } from "../../../utils/AgoraToken";
 import { getRepository } from "typeorm";
 import { RoomUserModel } from "../../../model/room/RoomUser";
+import { ErrorCode } from "../../../../ErrorCode";
 
 export const generateRTC = async (
     req: PatchRequest<{
@@ -25,7 +26,7 @@ export const generateRTC = async (
     if (roomUserInfo === undefined) {
         return reply.send({
             status: Status.Failed,
-            message: "User is not in this room",
+            code: ErrorCode.UserNotInRoom,
         });
     }
 

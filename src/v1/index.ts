@@ -4,6 +4,7 @@ import { socketNamespaces } from "./store/SocketNamespaces";
 import { socketRoutes, httpRoutes } from "./Routes";
 import { IORoutes, IOServer, FastifyRoutes, FastifySchema, IOSocket } from "./types/Server";
 import { Status } from "../Constants";
+import { ErrorCode } from "../ErrorCode";
 
 export const v1RegisterHTTP = (server: FastifyInstance): void => {
     // @ts-ignore
@@ -43,9 +44,10 @@ export const v1RegisterWs = (io: IOServer): void => {
                     const validate = ajv.compile(schema);
 
                     if (validate.errors != null) {
+                        console.error(validate.errors[0].message);
                         socket.emit(eventName, {
                             status: Status.Failed,
-                            message: validate.errors[0].message,
+                            code: ErrorCode.ParamsCheckFailed,
                         });
                     } else {
                         handle(socket, data);

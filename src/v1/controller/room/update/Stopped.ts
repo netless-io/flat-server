@@ -11,6 +11,7 @@ import { whiteboardBanRoom, whiteboardCreateRoom } from "../../../utils/Whiteboa
 import { RoomUserModel } from "../../../model/room/RoomUser";
 import cryptoRandomString from "crypto-random-string";
 import { RoomPeriodicUserModel } from "../../../model/room/RoomPeriodicUser";
+import { ErrorCode } from "../../../../ErrorCode";
 
 export const stopped = async (
     req: PatchRequest<{
@@ -33,7 +34,7 @@ export const stopped = async (
         if (roomInfo === undefined) {
             return reply.send({
                 status: Status.Failed,
-                message: "Room not found",
+                code: ErrorCode.RoomNotFound,
             });
         }
 
@@ -41,14 +42,14 @@ export const stopped = async (
         if (roomInfo.owner_uuid !== userUUID) {
             return reply.send({
                 status: Status.Failed,
-                message: "Not have permission",
+                code: ErrorCode.NotPermission,
             });
         }
 
         if (roomInfo.room_status !== RoomStatus.Running) {
             return reply.send({
                 status: Status.Failed,
-                message: "When ending the room, the room status must be running",
+                code: ErrorCode.SituationHasChanged,
             });
         }
 
@@ -120,8 +121,7 @@ export const stopped = async (
                         if (roomPeriodicConfig === undefined) {
                             return reply.send({
                                 status: Status.Failed,
-                                message:
-                                    "The recurring room has been deleted, please exit the classroom",
+                                code: ErrorCode.SituationHasChanged,
                             });
                         }
 
@@ -195,7 +195,7 @@ export const stopped = async (
         console.error(e);
         return reply.send({
             status: Status.Failed,
-            message: "Set room status is stopped failed",
+            code: ErrorCode.CurrentProcessFailed,
         });
     }
 };

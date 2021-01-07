@@ -7,6 +7,7 @@ import { v1RegisterHTTP, v1RegisterWs } from "./v1";
 import jwtVerify from "./v1/plugins/JWT";
 import { ajvSelfPlugin } from "./plugins/Ajv";
 import { orm } from "./v1/service/TypeORMService";
+import { ErrorCode } from "./ErrorCode";
 
 const socketServer = new socketIO.Server();
 
@@ -17,11 +18,18 @@ const app = fastify({
     },
 });
 
-app.setErrorHandler((errors, _request, reply) => {
-    console.error(errors);
+app.setErrorHandler((error, _request, reply) => {
+    if (error.validation) {
+        void reply.send({
+            status: Status.Failed,
+            code: ErrorCode.ParamsCheckFailed,
+        });
+    }
+
+    console.error(error);
     void reply.send({
         status: Status.Failed,
-        message: errors.message,
+        code: ErrorCode.ServerFail,
     });
 });
 

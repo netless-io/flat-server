@@ -15,6 +15,7 @@ import { RoomPeriodicModel } from "../../../model/room/RoomPeriodic";
 import cryptoRandomString from "crypto-random-string";
 import { whiteboardCreateRoom } from "../../../utils/Whiteboard";
 import { RoomPeriodicUserModel } from "../../../model/room/RoomPeriodicUser";
+import { ErrorCode } from "../../../../ErrorCode";
 
 export const schedule = async (
     req: PatchRequest<{
@@ -30,28 +31,30 @@ export const schedule = async (
         // Because network transmission will consume a little time, there is 1 minute redundancy
         const redundancyTime = subMinutes(Date.now(), 1);
         // beginTime >= redundancyTime
+        // creation room time cannot be less than current time
         if (compareDesc(beginTime)(redundancyTime) === -1) {
             return reply.send({
                 status: Status.Failed,
-                message: "Creation room time cannot be less than current time",
+                code: ErrorCode.ParamsCheckFailed,
             });
         }
 
         const result = compareDesc(endTime)(beginTime);
         // endTime < beginTime
+        // the end time cannot be less than the creation time
         if (result === -1) {
             return reply.send({
                 status: Status.Failed,
-                message: "The end time cannot be less than the creation time",
+                code: ErrorCode.ParamsCheckFailed,
             });
         }
 
         // endTime - beginTime < 15m
+        // the interval between the start time and the end time must be greater than 15 minutes
         if (differenceInMilliseconds(beginTime, endTime) < 1000 * 60 * 15) {
             return reply.send({
                 status: Status.Failed,
-                message:
-                    "The interval between the start time and the end time must be greater than 15 minutes",
+                code: ErrorCode.ParamsCheckFailed,
             });
         }
     }
@@ -171,7 +174,7 @@ export const schedule = async (
         console.error(e);
         return reply.send({
             status: Status.Failed,
-            message: "Failed to schedule room",
+            code: ErrorCode.CurrentProcessFailed,
         });
     }
 };
