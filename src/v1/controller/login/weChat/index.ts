@@ -84,7 +84,7 @@ export const callback = async (
                         user_name: weChatUserInfo.nickname,
                     });
 
-                    return Promise.all([createUser, createUserWeChat]);
+                    return await Promise.all([createUser, createUserWeChat]);
                 })
                 .catch(e => {
                     console.error(e);
