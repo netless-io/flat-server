@@ -1,13 +1,15 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
-import { getConnection, getRepository } from "typeorm";
-import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
-import { RoomModel } from "../../../model/room/Room";
+import { getConnection, In, Not } from "typeorm";
 import { RoomStatus } from "../Constants";
-import { RoomUserModel } from "../../../model/room/RoomUser";
-import { RoomPeriodicUserModel } from "../../../model/room/RoomPeriodicUser";
-import { RoomPeriodicModel } from "../../../model/room/RoomPeriodic";
+import {
+    RoomDAO,
+    RoomPeriodicConfigDAO,
+    RoomPeriodicDAO,
+    RoomPeriodicUserDAO,
+    RoomUserDAO,
+} from "../../../dao";
 
 export const cancelPeriodic = async (
     req: PatchRequest<{
@@ -18,13 +20,9 @@ export const cancelPeriodic = async (
     const { userUUID } = req.user;
 
     try {
-        const checkUserInPeriodicRoom = await getRepository(RoomPeriodicUserModel).findOne({
-            select: ["id"],
-            where: {
-                periodic_uuid: periodicUUID,
-                user_uuid: userUUID,
-                is_delete: false,
-            },
+        const checkUserInPeriodicRoom = await RoomPeriodicUserDAO().findOne(["id"], {
+            periodic_uuid: periodicUUID,
+            user_uuid: userUUID,
         });
 
         if (checkUserInPeriodicRoom === undefined) {
@@ -34,12 +32,8 @@ export const cancelPeriodic = async (
             };
         }
 
-        const periodicConfig = await getRepository(RoomPeriodicConfigModel).findOne({
-            select: ["owner_uuid"],
-            where: {
-                periodic_uuid: periodicUUID,
-                is_delete: false,
-            },
+        const periodicConfig = await RoomPeriodicConfigDAO().findOne(["owner_uuid"], {
+            periodic_uuid: periodicUUID,
         });
 
         if (periodicConfig === undefined) {
@@ -49,19 +43,10 @@ export const cancelPeriodic = async (
             };
         }
 
-        const roomInfo = await getRepository(RoomModel)
-            .createQueryBuilder()
-            .select(["room_uuid", "room_status", "owner_uuid"])
-            .where(
-                `periodic_uuid = :periodicUUID
-                AND room_status NOT IN (:...notRoomStatus)
-                AND is_delete = false`,
-                {
-                    periodicUUID,
-                    notRoomStatus: [RoomStatus.Stopped],
-                },
-            )
-            .getRawOne<Pick<RoomModel, "room_uuid" | "room_status" | "owner_uuid">>();
+        const roomInfo = await RoomDAO().findOne(["room_uuid", "room_status", "owner_uuid"], {
+            periodic_uuid: periodicUUID,
+            room_status: Not(In([RoomStatus.Stopped])),
+        });
 
         if (roomInfo === undefined) {
             return {
@@ -82,85 +67,41 @@ export const cancelPeriodic = async (
             const commands: Promise<unknown>[] = [];
 
             commands.push(
-                t
-                    .createQueryBuilder()
-                    .update(RoomUserModel)
-                    .set({
-                        is_delete: true,
-                    })
-                    .where({
-                        room_uuid: roomInfo.room_uuid,
-                        user_uuid: userUUID,
-                        is_delete: false,
-                    })
-                    .execute(),
+                RoomUserDAO(t).remove({
+                    room_uuid: roomInfo.room_uuid,
+                    user_uuid: userUUID,
+                }),
             );
 
             if (roomInfo.owner_uuid === userUUID && roomInfo.room_status === RoomStatus.Pending) {
                 commands.push(
-                    t
-                        .createQueryBuilder()
-                        .update(RoomModel)
-                        .set({
-                            is_delete: true,
-                        })
-                        .where({
-                            room_uuid: roomInfo.room_uuid,
-                            is_delete: false,
-                        })
-                        .execute(),
+                    RoomDAO(t).remove({
+                        room_uuid: roomInfo.room_uuid,
+                    }),
                 );
             }
 
             commands.push(
-                t
-                    .createQueryBuilder()
-                    .update(RoomPeriodicUserModel)
-                    .set({
-                        is_delete: true,
-                    })
-                    .where({
-                        periodic_uuid: periodicUUID,
-                        user_uuid: userUUID,
-                        is_delete: false,
-                    })
-                    .execute(),
+                RoomPeriodicUserDAO(t).remove({
+                    periodic_uuid: periodicUUID,
+                    user_uuid: userUUID,
+                }),
             );
 
             if (periodicConfig.owner_uuid === userUUID) {
                 commands.push(
-                    t
-                        .createQueryBuilder()
-                        .update(RoomPeriodicModel)
-                        .set({
-                            is_delete: true,
-                        })
-                        .where(
-                            `periodic_uuid = :periodicUUID
-                            AND room_status NOT IN (:...notRoomStatus)
-                            AND is_delete = false`,
-                            {
-                                periodicUUID,
-                                // the logic here shows that there is only one situation in the state: Pending
-                                // `NOT IN` is used here just to be on the safe side
-                                notRoomStatus: [RoomStatus.Stopped],
-                            },
-                        )
-                        .execute(),
+                    RoomPeriodicDAO(t).remove({
+                        periodic_uuid: periodicUUID,
+                        // the logic here shows that there is only one situation in the state: Pending
+                        // `NOT IN` is used here just to be on the safe side
+                        room_status: Not(In([RoomStatus.Stopped])),
+                    }),
                 );
 
                 commands.push(
-                    t
-                        .createQueryBuilder()
-                        .update(RoomPeriodicConfigModel)
-                        .set({
-                            is_delete: true,
-                        })
-                        .where({
-                            periodic_uuid: periodicUUID,
-                            is_delete: false,
-                        })
-                        .execute(),
+                    RoomPeriodicConfigDAO(t).remove({
+                        periodic_uuid: periodicUUID,
+                    }),
                 );
             }
 

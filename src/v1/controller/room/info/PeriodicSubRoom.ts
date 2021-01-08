@@ -1,12 +1,13 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { getRepository } from "typeorm";
 import { Status } from "../../../../Constants";
-import { RoomDocModel } from "../../../model/room/RoomDoc";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomPeriodicModel } from "../../../model/room/RoomPeriodic";
-import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
-import { RoomPeriodicUserModel } from "../../../model/room/RoomPeriodicUser";
 import { DocsType, RoomStatus, RoomType } from "../Constants";
+import {
+    RoomDocDAO,
+    RoomPeriodicConfigDAO,
+    RoomPeriodicDAO,
+    RoomPeriodicUserDAO,
+} from "../../../dao";
 
 export const periodicSubRoomInfo = async (
     req: PatchRequest<{
@@ -17,13 +18,9 @@ export const periodicSubRoomInfo = async (
     const { userUUID } = req.user;
 
     try {
-        const checkUserInPeriodicRoom = await getRepository(RoomPeriodicUserModel).findOne({
-            select: ["id"],
-            where: {
-                periodic_uuid: periodicUUID,
-                user_uuid: userUUID,
-                is_delete: false,
-            },
+        const checkUserInPeriodicRoom = await RoomPeriodicUserDAO().findOne(["id"], {
+            periodic_uuid: periodicUUID,
+            user_uuid: userUUID,
         });
 
         if (checkUserInPeriodicRoom === undefined) {
@@ -33,13 +30,12 @@ export const periodicSubRoomInfo = async (
             };
         }
 
-        const roomPeriodicInfo = await getRepository(RoomPeriodicModel).findOne({
-            select: ["room_status", "begin_time", "end_time", "room_type"],
-            where: {
+        const roomPeriodicInfo = await RoomPeriodicDAO().findOne(
+            ["room_status", "begin_time", "end_time", "room_type"],
+            {
                 fake_room_uuid: roomUUID,
-                is_delete: false,
             },
-        });
+        );
 
         if (roomPeriodicInfo === undefined) {
             return {
@@ -50,12 +46,8 @@ export const periodicSubRoomInfo = async (
 
         const { room_status, begin_time, end_time, room_type } = roomPeriodicInfo;
 
-        const periodicConfigInfo = await getRepository(RoomPeriodicConfigModel).findOne({
-            select: ["title", "owner_uuid"],
-            where: {
-                periodic_uuid: periodicUUID,
-                is_delete: false,
-            },
+        const periodicConfigInfo = await RoomPeriodicConfigDAO().findOne(["title", "owner_uuid"], {
+            periodic_uuid: periodicUUID,
         });
 
         if (periodicConfigInfo === undefined) {
@@ -68,12 +60,8 @@ export const periodicSubRoomInfo = async (
         const { title, owner_uuid } = periodicConfigInfo;
 
         const docs = (
-            await getRepository(RoomDocModel).find({
-                select: ["doc_type", "doc_uuid", "is_preload"],
-                where: {
-                    periodic_uuid: periodicUUID,
-                    is_delete: false,
-                },
+            await RoomDocDAO().find(["doc_type", "doc_uuid", "is_preload"], {
+                periodic_uuid: periodicUUID,
             })
         ).map(({ doc_type, doc_uuid, is_preload }) => {
             return {

@@ -1,27 +1,20 @@
-import { getConnection, getRepository } from "typeorm";
+import { getConnection, In } from "typeorm";
 import { Status } from "../../../../Constants";
-import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
-import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
-import { RoomUserModel } from "../../../model/room/RoomUser";
 import cryptoRandomString from "crypto-random-string";
-import { RoomPeriodicUserModel } from "../../../model/room/RoomPeriodicUser";
 import { JoinResponse } from "./Type";
 import { getRTCToken, getRTMToken } from "../../../utils/AgoraToken";
 import { ErrorCode } from "../../../../ErrorCode";
 import { Response } from "../../../types/Server";
+import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicUserDAO, RoomUserDAO } from "../../../dao";
 
 export const joinPeriodic = async (
     periodicUUID: string,
     userUUID: string,
 ): Response<JoinResponse> => {
-    const roomPeriodicConfig = await getRepository(RoomPeriodicConfigModel).findOne({
-        select: ["periodic_status"],
-        where: {
-            periodic_uuid: periodicUUID,
-            is_delete: false,
-        },
+    const roomPeriodicConfig = await RoomPeriodicConfigDAO().findOne(["periodic_status"], {
+        periodic_uuid: periodicUUID,
     });
 
     if (roomPeriodicConfig === undefined) {
@@ -38,19 +31,13 @@ export const joinPeriodic = async (
         };
     }
 
-    const roomInfo = await getRepository(RoomModel)
-        .createQueryBuilder()
-        .select(["room_uuid", "whiteboard_room_uuid", "owner_uuid", "room_status", "room_type"])
-        .where(
-            `periodic_uuid = :periodicUUID
-                AND room_status IN (:...roomStatus)
-                AND is_delete = false`,
-            {
-                periodicUUID,
-                roomStatus: [RoomStatus.Pending, RoomStatus.Running],
-            },
-        )
-        .getRawOne<RoomModel>();
+    const roomInfo = await RoomDAO().findOne(
+        ["room_uuid", "whiteboard_room_uuid", "owner_uuid", "room_status", "room_type"],
+        {
+            periodic_uuid: periodicUUID,
+            room_status: In([RoomStatus.Pending, RoomStatus.Running]),
+        },
+    );
 
     // will arrive here in extreme cases, notify user to retry
     if (roomInfo === undefined) {
@@ -67,30 +54,24 @@ export const joinPeriodic = async (
         const commands: Promise<unknown>[] = [];
 
         commands.push(
-            t
-                .createQueryBuilder()
-                .insert()
-                .into(RoomUserModel)
-                .orIgnore()
-                .values({
+            RoomUserDAO(t).insert(
+                {
                     room_uuid: roomUUID,
                     user_uuid: userUUID,
                     rtc_uid: rtcUID,
-                })
-                .execute(),
+                },
+                true,
+            ),
         );
 
         commands.push(
-            t
-                .createQueryBuilder()
-                .insert()
-                .into(RoomPeriodicUserModel)
-                .orIgnore()
-                .values({
+            RoomPeriodicUserDAO(t).insert(
+                {
                     periodic_uuid: periodicUUID,
                     user_uuid: userUUID,
-                })
-                .execute(),
+                },
+                true,
+            ),
         );
 
         return await Promise.all(commands);

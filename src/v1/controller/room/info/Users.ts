@@ -1,9 +1,10 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { createQueryBuilder, getRepository } from "typeorm";
-import { RoomUserModel } from "../../../model/room/RoomUser";
+import { createQueryBuilder } from "typeorm";
 import { Status } from "../../../../Constants";
-import { UserModel } from "../../../model/user/User";
 import { ErrorCode } from "../../../../ErrorCode";
+import { RoomUserDAO } from "../../../dao";
+import { RoomUserModel } from "../../../model/room/RoomUser";
+import { UserModel } from "../../../model/user/User";
 
 export const userInfo = async (
     req: PatchRequest<{
@@ -14,13 +15,9 @@ export const userInfo = async (
     const { userUUID } = req.user;
 
     try {
-        const checkUserExistRoom = await getRepository(RoomUserModel).findOne({
-            select: ["id"],
-            where: {
-                user_uuid: userUUID,
-                room_uuid: roomUUID,
-                is_delete: false,
-            },
+        const checkUserExistRoom = await RoomUserDAO().findOne(["id"], {
+            user_uuid: userUUID,
+            room_uuid: roomUUID,
         });
 
         if (checkUserExistRoom === undefined) {

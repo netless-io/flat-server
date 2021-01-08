@@ -4,30 +4,20 @@ import { renewAccessToken } from "../../utils/WeChatURL";
 import { wechatRequest } from "../../utils/WeChatRequest";
 import { RefreshToken } from "../../types/WeChatResponse";
 import { PatchRequest, Response } from "../../types/Server";
-import { UserModel } from "../../model/user/User";
-import { UserWeChatModel } from "../../model/user/WeChat";
 import { LoginPlatform, Sex } from "./Constants";
-import { getRepository } from "typeorm";
 import { RedisKey } from "../../../utils/Redis";
 import { ErrorCode } from "../../../ErrorCode";
+import { UserDAO, UserWeChatDAO } from "../../dao";
 
 export const login = async (req: PatchRequest): Response<LoginResponse> => {
     const { userUUID, loginSource } = req.user;
 
-    const userInfoInstance = await getRepository(UserModel).findOne({
-        select: ["user_name", "sex", "avatar_url"],
-        where: {
-            user_uuid: userUUID,
-            is_delete: false,
-        },
+    const userInfoInstance = await UserDAO().findOne(["user_name", "sex", "avatar_url"], {
+        user_uuid: userUUID,
     });
 
-    const weChatUserInfo = await getRepository(UserWeChatModel).findOne({
-        select: ["id"],
-        where: {
-            user_uuid: userUUID,
-            is_delete: false,
-        },
+    const weChatUserInfo = await UserWeChatDAO().findOne(["id"], {
+        user_uuid: userUUID,
     });
 
     if (userInfoInstance === undefined || weChatUserInfo === undefined) {

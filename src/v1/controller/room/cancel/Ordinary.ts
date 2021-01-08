@@ -1,11 +1,10 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { getConnection, getRepository } from "typeorm";
+import { getConnection } from "typeorm";
 import { Status } from "../../../../Constants";
-import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
-import { RoomUserModel } from "../../../model/room/RoomUser";
 import { whiteboardBanRoom } from "../../../utils/Whiteboard";
 import { ErrorCode } from "../../../../ErrorCode";
+import { RoomDAO, RoomUserDAO } from "../../../dao";
 
 export const cancelOrdinary = async (
     req: PatchRequest<{
@@ -16,13 +15,12 @@ export const cancelOrdinary = async (
     const { userUUID } = req.user;
 
     try {
-        const roomInfo = await getRepository(RoomModel).findOne({
-            select: ["room_status", "owner_uuid", "periodic_uuid", "whiteboard_room_uuid"],
-            where: {
+        const roomInfo = await RoomDAO().findOne(
+            ["room_status", "owner_uuid", "periodic_uuid", "whiteboard_room_uuid"],
+            {
                 room_uuid: roomUUID,
-                is_delete: false,
             },
-        });
+        );
 
         if (roomInfo === undefined) {
             return {
@@ -50,33 +48,17 @@ export const cancelOrdinary = async (
             const commands: Promise<unknown>[] = [];
 
             commands.push(
-                t
-                    .createQueryBuilder()
-                    .update(RoomUserModel)
-                    .set({
-                        is_delete: true,
-                    })
-                    .where({
-                        room_uuid: roomUUID,
-                        user_uuid: userUUID,
-                        is_delete: false,
-                    })
-                    .execute(),
+                RoomUserDAO(t).remove({
+                    room_uuid: roomUUID,
+                    user_uuid: userUUID,
+                }),
             );
 
             if (roomInfo.owner_uuid === userUUID && roomInfo.room_status === RoomStatus.Pending) {
                 commands.push(
-                    t
-                        .createQueryBuilder()
-                        .update(RoomModel)
-                        .set({
-                            is_delete: true,
-                        })
-                        .where({
-                            room_uuid: roomUUID,
-                            is_delete: false,
-                        })
-                        .execute(),
+                    RoomDAO(t).remove({
+                        room_uuid: roomUUID,
+                    }),
                 );
 
                 await Promise.all(commands);

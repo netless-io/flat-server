@@ -1,16 +1,18 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { getConnection, getRepository } from "typeorm";
+import { getConnection, MoreThanOrEqual } from "typeorm";
 import { Status } from "../../../../Constants";
-import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
-import { RoomPeriodicModel } from "../../../model/room/RoomPeriodic";
 import { addMinutes } from "date-fns/fp";
-import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
 import { whiteboardBanRoom, whiteboardCreateRoom } from "../../../utils/Whiteboard";
-import { RoomUserModel } from "../../../model/room/RoomUser";
 import cryptoRandomString from "crypto-random-string";
-import { RoomPeriodicUserModel } from "../../../model/room/RoomPeriodicUser";
 import { ErrorCode } from "../../../../ErrorCode";
+import {
+    RoomDAO,
+    RoomPeriodicConfigDAO,
+    RoomPeriodicDAO,
+    RoomPeriodicUserDAO,
+    RoomUserDAO,
+} from "../../../dao";
 
 export const stopped = async (
     req: PatchRequest<{
@@ -21,13 +23,12 @@ export const stopped = async (
     const { userUUID } = req.user;
 
     try {
-        const roomInfo = await getRepository(RoomModel).findOne({
-            select: ["room_status", "owner_uuid", "periodic_uuid", "whiteboard_room_uuid"],
-            where: {
+        const roomInfo = await RoomDAO().findOne(
+            ["room_status", "owner_uuid", "periodic_uuid", "whiteboard_room_uuid"],
+            {
                 room_uuid: roomUUID,
-                is_delete: false,
             },
-        });
+        );
 
         if (roomInfo === undefined) {
             return {
@@ -56,66 +57,51 @@ export const stopped = async (
         await getConnection().transaction(
             async (t): Promise<void> => {
                 const commands: Promise<unknown>[] = [];
+                const roomDAO = RoomDAO(t);
 
                 const endTime = new Date();
                 commands.push(
-                    t
-                        .createQueryBuilder()
-                        .update(RoomModel)
-                        .set({
+                    roomDAO.update(
+                        {
                             room_status: RoomStatus.Stopped,
                             end_time: endTime,
-                        })
-                        .where({
+                        },
+                        {
                             room_uuid: roomUUID,
-                            is_delete: false,
-                        })
-                        .execute(),
+                        },
+                    ),
                 );
 
                 if (periodic_uuid !== "") {
                     commands.push(
-                        t
-                            .createQueryBuilder()
-                            .update(RoomPeriodicModel)
-                            .set({
+                        RoomPeriodicDAO(t).update(
+                            {
                                 room_status: RoomStatus.Stopped,
                                 end_time: endTime,
-                            })
-                            .where({
+                            },
+                            {
                                 fake_room_uuid: roomUUID,
-                                is_delete: false,
-                            })
-                            .execute(),
+                            },
+                        ),
                     );
 
-                    const nextRoomPeriodicInfo = await t
-                        .createQueryBuilder(RoomPeriodicModel, "rp")
-                        .select(["begin_time", "end_time", "fake_room_uuid", "room_type"])
-                        .where(
-                            `periodic_uuid = :periodicUUID
-                            AND room_status = :roomStatus
-                            AND end_time >= :currentTime
-                            AND is_delete = false`,
-                            {
-                                periodic_uuid,
-                                roomStatus: RoomStatus.Pending,
-                                // the end time of the next class must be greater than the current time (add one minutes, this is redundancy)
-                                currentTime: addMinutes(1, new Date()),
-                            },
-                        )
-                        .orderBy("rp.end_time", "ASC")
-                        .getRawOne<RoomPeriodicModel | undefined>();
+                    const nextRoomPeriodicInfo = await RoomPeriodicDAO().findOne(
+                        ["begin_time", "end_time", "fake_room_uuid", "room_type"],
+                        {
+                            periodic_uuid,
+                            room_status: RoomStatus.Pending,
+                            end_time: MoreThanOrEqual(addMinutes(1, new Date())),
+                        },
+                        ["end_time", "ASC"],
+                    );
 
                     if (nextRoomPeriodicInfo) {
-                        const roomPeriodicConfig = await t
-                            .createQueryBuilder(RoomPeriodicConfigModel, "rpc")
-                            .select("title")
-                            .where({
+                        const roomPeriodicConfig = await RoomPeriodicConfigDAO().findOne(
+                            ["title"],
+                            {
                                 periodic_uuid,
-                                is_delete: false,
-                            })
-                            .getRawOne();
+                            },
+                        );
 
                         // unless you encounter special boundary conditions, you will not get here
                         if (roomPeriodicConfig === undefined) {
@@ -130,7 +116,7 @@ export const stopped = async (
                         } = nextRoomPeriodicInfo;
 
                         commands.push(
-                            t.insert(RoomModel, {
+                            roomDAO.insert({
                                 periodic_uuid: periodic_uuid,
                                 owner_uuid: userUUID,
                                 title: roomPeriodicConfig.title,
@@ -145,17 +131,12 @@ export const stopped = async (
                             }),
                         );
 
-                        const periodicRoomAllUsers = await t
-                            .createQueryBuilder(RoomPeriodicUserModel, "rpu")
-                            .select("user_uuid")
-                            .where(
-                                `periodic_uuid = :periodicUUID
-                                AND is_delete = false`,
-                                {
-                                    periodicUUID: periodic_uuid,
-                                },
-                            )
-                            .getRawMany<Pick<RoomPeriodicUserModel, "user_uuid">>();
+                        const periodicRoomAllUsers = await RoomPeriodicUserDAO().find(
+                            ["user_uuid"],
+                            {
+                                periodic_uuid,
+                            },
+                        );
 
                         const transformRoomUser = periodicRoomAllUsers.map(({ user_uuid }) => {
                             return {
@@ -169,20 +150,17 @@ export const stopped = async (
                          * TODO: when the number exceeds 500, there will be performance problems
                          * Combining RoomUser and RoomPeriodicUsers should solve this potential problem
                          */
-                        commands.push(t.insert(RoomUserModel, transformRoomUser));
+                        commands.push(RoomUserDAO(t).insert(transformRoomUser));
                     } else {
                         commands.push(
-                            t
-                                .createQueryBuilder()
-                                .update(RoomPeriodicConfigModel)
-                                .set({
+                            RoomPeriodicConfigDAO(t).update(
+                                {
                                     periodic_status: RoomStatus.Stopped,
-                                })
-                                .where({
+                                },
+                                {
                                     periodic_uuid: roomInfo.periodic_uuid,
-                                    is_delete: false,
-                                })
-                                .execute(),
+                                },
+                            ),
                         );
                     }
                 }

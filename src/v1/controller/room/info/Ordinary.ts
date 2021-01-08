@@ -1,12 +1,9 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { getRepository } from "typeorm";
 import { DefaultDatetime, Status } from "../../../../Constants";
-import { RoomModel } from "../../../model/room/Room";
-import { RoomDocModel } from "../../../model/room/RoomDoc";
-import { RoomUserModel } from "../../../model/room/RoomUser";
 import { isEqual } from "date-fns/fp";
 import { ErrorCode } from "../../../../ErrorCode";
 import { DocsType, RoomStatus, RoomType } from "../Constants";
+import { RoomDAO, RoomDocDAO, RoomUserDAO } from "../../../dao";
 
 export const ordinaryInfo = async (
     req: PatchRequest<{
@@ -17,13 +14,9 @@ export const ordinaryInfo = async (
     const { userUUID } = req.user;
 
     try {
-        const checkUserExistRoom = await getRepository(RoomUserModel).findOne({
-            select: ["id"],
-            where: {
-                user_uuid: userUUID,
-                room_uuid: roomUUID,
-                is_delete: false,
-            },
+        const checkUserExistRoom = await RoomUserDAO().findOne(["id"], {
+            user_uuid: userUUID,
+            room_uuid: roomUUID,
         });
 
         if (checkUserExistRoom === undefined) {
@@ -33,13 +26,12 @@ export const ordinaryInfo = async (
             };
         }
 
-        const roomInfo = await getRepository(RoomModel).findOne({
-            select: ["title", "begin_time", "end_time", "room_type", "room_status", "owner_uuid"],
-            where: {
+        const roomInfo = await RoomDAO().findOne(
+            ["title", "begin_time", "end_time", "room_type", "room_status", "owner_uuid"],
+            {
                 room_uuid: roomUUID,
-                is_delete: false,
             },
-        });
+        );
 
         if (roomInfo === undefined) {
             return {
@@ -49,12 +41,8 @@ export const ordinaryInfo = async (
         }
 
         const docs = (
-            await getRepository(RoomDocModel).find({
-                select: ["doc_type", "doc_uuid", "is_preload"],
-                where: {
-                    room_uuid: roomUUID,
-                    is_delete: false,
-                },
+            await RoomDocDAO().find(["doc_type", "doc_uuid", "is_preload"], {
+                room_uuid: roomUUID,
             })
         ).map(({ doc_type, doc_uuid, is_preload }) => {
             return {
