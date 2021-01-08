@@ -3,7 +3,7 @@ import { Docs } from "../Types";
 import { Status } from "../../../../Constants";
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { v4 } from "uuid";
-import { compareDesc, subMinutes, toDate } from "date-fns/fp";
+import { addHours, compareDesc, subMinutes, toDate } from "date-fns/fp";
 import { getConnection } from "typeorm";
 import cryptoRandomString from "crypto-random-string";
 import { whiteboardCreateRoom } from "../../../utils/Whiteboard";
@@ -42,7 +42,7 @@ export const create = async (
             room_uuid: roomUUID,
             whiteboard_room_uuid: await whiteboardCreateRoom(title),
             begin_time: toDate(beginTime),
-            end_time: "0",
+            end_time: addHours(1, Date.now()),
         };
 
         const roomUserData = {
