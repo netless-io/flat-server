@@ -1,9 +1,8 @@
 import { Status } from "../../../../Constants";
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { getRTCToken } from "../../../utils/AgoraToken";
-import { getRepository } from "typeorm";
-import { RoomUserModel } from "../../../model/room/RoomUser";
 import { ErrorCode } from "../../../../ErrorCode";
+import { RoomUserDAO } from "../../../dao";
 
 export const generateRTC = async (
     req: PatchRequest<{
@@ -13,12 +12,9 @@ export const generateRTC = async (
     const { roomUUID } = req.body;
     const { userUUID } = req.user;
 
-    const roomUserInfo = await getRepository(RoomUserModel).findOne({
-        select: ["rtc_uid"],
-        where: {
-            room_uuid: roomUUID,
-            user_uuid: userUUID,
-        },
+    const roomUserInfo = await RoomUserDAO().findOne(["rtc_uid"], {
+        room_uuid: roomUUID,
+        user_uuid: userUUID,
     });
 
     if (roomUserInfo === undefined) {

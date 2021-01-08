@@ -1,23 +1,20 @@
-import { createQueryBuilder, getRepository } from "typeorm";
-import { RoomUserModel } from "../../../model/room/RoomUser";
 import cryptoRandomString from "crypto-random-string";
 import { Status } from "../../../../Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
-import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
 import { JoinResponse } from "./Type";
 import { getRTCToken, getRTMToken } from "../../../utils/AgoraToken";
 import { ErrorCode } from "../../../../ErrorCode";
 import { Response } from "../../../types/Server";
+import { RoomDAO, RoomUserDAO } from "../../../dao";
 
 export const joinOrdinary = async (roomUUID: string, userUUID: string): Response<JoinResponse> => {
-    const roomInfo = await getRepository(RoomModel).findOne({
-        select: ["room_status", "whiteboard_room_uuid", "periodic_uuid", "room_type"],
-        where: {
+    const roomInfo = await RoomDAO().findOne(
+        ["room_status", "whiteboard_room_uuid", "periodic_uuid", "room_type"],
+        {
             room_uuid: roomUUID,
-            is_delete: false,
         },
-    });
+    );
 
     if (roomInfo === undefined) {
         return {
@@ -36,16 +33,14 @@ export const joinOrdinary = async (roomUUID: string, userUUID: string): Response
     const { whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
     const rtcUID = cryptoRandomString({ length: 6, type: "numeric" });
 
-    await createQueryBuilder()
-        .insert()
-        .into(RoomUserModel)
-        .orIgnore()
-        .values({
+    await RoomUserDAO().insert(
+        {
             room_uuid: roomUUID,
             user_uuid: userUUID,
             rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
-        })
-        .execute();
+        },
+        true,
+    );
 
     return {
         status: Status.Success,

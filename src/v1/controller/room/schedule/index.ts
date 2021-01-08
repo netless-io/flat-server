@@ -2,19 +2,21 @@ import { DocsType, RoomStatus, RoomType, Week } from "../Constants";
 import { Periodic, Docs } from "../Types";
 import { Status } from "../../../../Constants";
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { RoomModel } from "../../../model/room/Room";
 import { v4 } from "uuid";
 import { compareDesc, differenceInMilliseconds, subMinutes, toDate } from "date-fns/fp";
 import { dateIntervalByRate, dateIntervalByWeek, DateIntervalResult } from "../utils/DateInterval";
-import { RoomDocModel } from "../../../model/room/RoomDoc";
 import { getConnection } from "typeorm";
-import { RoomUserModel } from "../../../model/room/RoomUser";
-import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
-import { RoomPeriodicModel } from "../../../model/room/RoomPeriodic";
 import cryptoRandomString from "crypto-random-string";
 import { whiteboardCreateRoom } from "../../../utils/Whiteboard";
-import { RoomPeriodicUserModel } from "../../../model/room/RoomPeriodicUser";
 import { ErrorCode } from "../../../../ErrorCode";
+import {
+    RoomDAO,
+    RoomDocDAO,
+    RoomPeriodicConfigDAO,
+    RoomPeriodicDAO,
+    RoomPeriodicUserDAO,
+    RoomUserDAO,
+} from "../../../dao";
 
 export const schedule = async (
     req: PatchRequest<{
@@ -103,10 +105,10 @@ export const schedule = async (
             const commands: Promise<unknown>[] = [];
 
             if (typeof periodic !== "undefined") {
-                commands.push(t.insert(RoomPeriodicModel, roomData));
+                commands.push(RoomPeriodicDAO(t).insert(roomData));
 
                 commands.push(
-                    t.insert(RoomPeriodicConfigModel, {
+                    RoomPeriodicConfigDAO(t).insert({
                         owner_uuid: userUUID,
                         periodic_status: RoomStatus.Pending,
                         title,
@@ -117,7 +119,7 @@ export const schedule = async (
                 );
 
                 commands.push(
-                    t.insert(RoomPeriodicUserModel, {
+                    RoomPeriodicUserDAO(t).insert({
                         periodic_uuid: periodicUUID,
                         user_uuid: userUUID,
                     }),
@@ -127,7 +129,7 @@ export const schedule = async (
             // take the first lesson of the periodic room
             {
                 commands.push(
-                    t.insert(RoomModel, {
+                    RoomDAO(t).insert({
                         periodic_uuid: typeof periodic !== "undefined" ? periodicUUID : "",
                         owner_uuid: userUUID,
                         title,
@@ -141,7 +143,7 @@ export const schedule = async (
                 );
 
                 commands.push(
-                    t.insert(RoomUserModel, {
+                    RoomUserDAO(t).insert({
                         room_uuid: roomData[0].fake_room_uuid,
                         user_uuid: userUUID,
                         rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
@@ -159,7 +161,7 @@ export const schedule = async (
                         is_preload: true,
                     };
                 });
-                commands.push(t.insert(RoomDocModel, roomDocData));
+                commands.push(RoomDocDAO(t).insert(roomDocData));
             }
 
             await Promise.all(commands);

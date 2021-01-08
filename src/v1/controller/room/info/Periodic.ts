@@ -1,11 +1,9 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { createQueryBuilder, getRepository } from "typeorm";
+import { In } from "typeorm";
 import { Status } from "../../../../Constants";
-import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
-import { RoomPeriodicUserModel } from "../../../model/room/RoomPeriodicUser";
 import { RoomStatus } from "../Constants";
-import { RoomPeriodicModel } from "../../../model/room/RoomPeriodic";
 import { ErrorCode } from "../../../../ErrorCode";
+import { RoomPeriodicConfigDAO, RoomPeriodicDAO, RoomPeriodicUserDAO } from "../../../dao";
 
 export const periodicInfo = async (
     req: PatchRequest<{
@@ -16,13 +14,9 @@ export const periodicInfo = async (
     const { userUUID } = req.user;
 
     try {
-        const checkUserExistPeriodicRoom = await getRepository(RoomPeriodicUserModel).findOne({
-            select: ["id"],
-            where: {
-                periodic_uuid: periodicUUID,
-                user_uuid: userUUID,
-                is_delete: false,
-            },
+        const checkUserExistPeriodicRoom = await RoomPeriodicUserDAO().findOne(["id"], {
+            periodic_uuid: periodicUUID,
+            user_uuid: userUUID,
         });
 
         if (checkUserExistPeriodicRoom === undefined) {
@@ -32,13 +26,12 @@ export const periodicInfo = async (
             };
         }
 
-        const periodicConfig = await getRepository(RoomPeriodicConfigModel).findOne({
-            select: ["end_time", "rate", "owner_uuid", "periodic_status"],
-            where: {
+        const periodicConfig = await RoomPeriodicConfigDAO().findOne(
+            ["end_time", "rate", "owner_uuid", "periodic_status"],
+            {
                 periodic_uuid: periodicUUID,
-                is_delete: false,
             },
-        });
+        );
 
         if (periodicConfig === undefined) {
             return {
@@ -54,21 +47,16 @@ export const periodicInfo = async (
             };
         }
 
-        const rooms = await createQueryBuilder(RoomPeriodicModel)
-            .select(["room_status", "begin_time", "end_time", "fake_room_uuid"])
-            .where(
-                `periodic_uuid = :periodicUUID
-                AND room_status IN (:...roomStatus)
-                AND is_delete = false`,
-                {
-                    periodicUUID,
-                    roomStatus: [RoomStatus.Pending, RoomStatus.Running],
-                },
-            )
-            .getRawMany<Rooms>();
+        const rooms = await RoomPeriodicDAO().find(
+            ["room_status", "begin_time", "end_time", "fake_room_uuid"],
+            {
+                periodic_uuid: periodicUUID,
+                room_status: In([RoomStatus.Pending, RoomStatus.Running]),
+            },
+        );
 
         // only in the case of very boundary, will come here
-        if (rooms === undefined || rooms.length === 0) {
+        if (rooms.length === 0) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.CanRetry,
@@ -135,5 +123,3 @@ interface PeriodicInfoResponse {
         roomStatus: RoomStatus;
     }>;
 }
-
-type Rooms = Pick<RoomPeriodicModel, "room_status" | "begin_time" | "end_time" | "fake_room_uuid">;

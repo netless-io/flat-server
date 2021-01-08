@@ -1,11 +1,9 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { getConnection, getRepository } from "typeorm";
+import { getConnection } from "typeorm";
 import { Status } from "../../../../Constants";
-import { RoomModel } from "../../../model/room/Room";
 import { RoomStatus } from "../Constants";
-import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
-import { RoomPeriodicModel } from "../../../model/room/RoomPeriodic";
 import { ErrorCode } from "../../../../ErrorCode";
+import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../dao";
 
 export const running = async (
     req: PatchRequest<{
@@ -16,12 +14,8 @@ export const running = async (
     const { userUUID } = req.user;
 
     try {
-        const roomInfo = await getRepository(RoomModel).findOne({
-            select: ["room_status", "owner_uuid", "periodic_uuid"],
-            where: {
-                room_uuid: roomUUID,
-                is_delete: false,
-            },
+        const roomInfo = await RoomDAO().findOne(["room_status", "owner_uuid", "periodic_uuid"], {
+            room_uuid: roomUUID,
         });
 
         if (roomInfo === undefined) {
@@ -58,50 +52,42 @@ export const running = async (
             const commands: Promise<unknown>[] = [];
 
             const beginTime = new Date();
+
             commands.push(
-                t
-                    .createQueryBuilder()
-                    .update(RoomModel)
-                    .set({
+                RoomDAO(t).update(
+                    {
                         room_status: RoomStatus.Running,
                         begin_time: beginTime,
-                    })
-                    .where({
+                    },
+                    {
                         room_uuid: roomUUID,
-                        is_delete: false,
-                    })
-                    .execute(),
+                    },
+                ),
             );
 
             if (roomInfo.periodic_uuid !== "") {
                 commands.push(
-                    t
-                        .createQueryBuilder()
-                        .update(RoomPeriodicConfigModel)
-                        .set({
+                    RoomPeriodicConfigDAO(t).update(
+                        {
                             periodic_status: RoomStatus.Running,
-                        })
-                        .where({
+                        },
+                        {
                             periodic_uuid: roomInfo.periodic_uuid,
                             periodic_status: RoomStatus.Pending,
-                            is_delete: false,
-                        })
-                        .execute(),
+                        },
+                    ),
                 );
 
                 commands.push(
-                    t
-                        .createQueryBuilder()
-                        .update(RoomPeriodicModel)
-                        .set({
+                    RoomPeriodicDAO(t).update(
+                        {
                             room_status: RoomStatus.Running,
                             begin_time: beginTime,
-                        })
-                        .where({
+                        },
+                        {
                             fake_room_uuid: roomUUID,
-                            is_delete: false,
-                        })
-                        .execute(),
+                        },
+                    ),
                 );
             }
 

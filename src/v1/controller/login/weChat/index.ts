@@ -6,13 +6,12 @@ import { getAccessTokenURL, getUserInfoURL } from "../../../utils/WeChatURL";
 import { AccessToken, UserInfo } from "../../../types/WeChatResponse";
 import { FastifyReply } from "fastify";
 import { FastifySchema, PatchRequest } from "../../../types/Server";
-import { UserModel } from "../../../model/user/User";
 import { v4 } from "uuid";
 import { LoginPlatform, Sex } from "../Constants";
-import { getConnection, getRepository } from "typeorm";
-import { UserWeChatModel } from "../../../model/user/WeChat";
+import { getConnection } from "typeorm";
 import { RedisKey } from "../../../../utils/Redis";
 import { ErrorCode } from "../../../../ErrorCode";
+import { UserDAO, UserWeChatDAO } from "../../../dao";
 
 export const callback = async (
     req: PatchRequest<{
@@ -57,12 +56,8 @@ export const callback = async (
         const userInfoURL = getUserInfoURL(accessToken.access_token, accessToken.openid);
         const weChatUserInfo = await wechatRequest<UserInfo>(userInfoURL);
 
-        const getUserInfoByUserWeChat = await getRepository(UserWeChatModel).findOne({
-            select: ["user_uuid", "user_name"],
-
-            where: {
-                open_uuid: weChatUserInfo.openid,
-            },
+        const getUserInfoByUserWeChat = await UserWeChatDAO().findOne(["user_uuid", "user_name"], {
+            open_uuid: weChatUserInfo.openid,
         });
 
         let userUUID = "";
@@ -71,7 +66,7 @@ export const callback = async (
 
             await getConnection()
                 .transaction(async t => {
-                    const createUser = t.insert(UserModel, {
+                    const createUser = UserDAO(t).insert({
                         user_name: weChatUserInfo.nickname,
                         user_uuid: userUUID,
                         // TODO need upload headimgurl to remote oss server
@@ -82,7 +77,7 @@ export const callback = async (
                         last_login_platform: LoginPlatform.WeChat,
                     });
 
-                    const createUserWeChat = t.insert(UserWeChatModel, {
+                    const createUserWeChat = UserWeChatDAO(t).insert({
                         user_uuid: userUUID,
                         open_uuid: weChatUserInfo.openid,
                         union_uuid: weChatUserInfo.unionid,
@@ -101,19 +96,18 @@ export const callback = async (
 
             // wechat name update
             if (weChatUserInfo.nickname !== user_name) {
-                getRepository(UserWeChatModel)
-                    .createQueryBuilder()
-                    .update()
-                    .set({
-                        user_name: weChatUserInfo.nickname,
-                    })
-                    .where({
-                        user_uuid: userUUID,
-                    })
-                    .execute()
+                UserWeChatDAO()
+                    .update(
+                        {
+                            user_name: weChatUserInfo.nickname,
+                        },
+                        {
+                            user_uuid: userUUID,
+                        },
+                    )
                     .catch(e => {
-                        console.error("update wechat nickname failed");
                         console.error(e);
+                        console.error("update wechat nickname failed");
                     });
             }
         }
@@ -126,11 +120,8 @@ export const callback = async (
 
         await redisService.del(RedisKey.weChatAuthUUID(uuid));
 
-        const getUserInfoByUser = await getRepository(UserModel).findOne({
-            select: ["user_name", "sex", "avatar_url"],
-            where: {
-                user_uuid: userUUID,
-            },
+        const getUserInfoByUser = await UserDAO().findOne(["user_name", "sex", "avatar_url"], {
+            user_uuid: userUUID,
         });
 
         const { user_name, avatar_url, sex } = getUserInfoByUser!;

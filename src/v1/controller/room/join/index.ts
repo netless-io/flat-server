@@ -1,11 +1,10 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { getRepository } from "typeorm";
 import { Status } from "../../../../Constants";
 import { joinOrdinary } from "./Ordinary";
 import { joinPeriodic } from "./Periodic";
-import { RoomPeriodicConfigModel } from "../../../model/room/RoomPeriodicConfig";
 import { JoinResponse } from "./Type";
 import { ErrorCode } from "../../../../ErrorCode";
+import { RoomPeriodicConfigDAO } from "../../../dao";
 
 export const join = async (
     req: PatchRequest<{
@@ -16,11 +15,8 @@ export const join = async (
     const { userUUID } = req.user;
 
     try {
-        const uuidIsPeriodicUUID = await getRepository(RoomPeriodicConfigModel).findOne({
-            select: ["id"],
-            where: {
-                periodic_uuid: roomUUID,
-            },
+        const uuidIsPeriodicUUID = await RoomPeriodicConfigDAO().findOne(["id"], {
+            periodic_uuid: roomUUID,
         });
 
         if (uuidIsPeriodicUUID) {

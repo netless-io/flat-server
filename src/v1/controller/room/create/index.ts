@@ -2,15 +2,13 @@ import { DocsType, RoomStatus, RoomType } from "../Constants";
 import { Docs } from "../Types";
 import { Status } from "../../../../Constants";
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { RoomModel } from "../../../model/room/Room";
 import { v4 } from "uuid";
 import { compareDesc, subMinutes, toDate } from "date-fns/fp";
-import { RoomDocModel } from "../../../model/room/RoomDoc";
 import { getConnection } from "typeorm";
-import { RoomUserModel } from "../../../model/room/RoomUser";
 import cryptoRandomString from "crypto-random-string";
 import { whiteboardCreateRoom } from "../../../utils/Whiteboard";
 import { ErrorCode } from "../../../../ErrorCode";
+import { RoomDAO, RoomDocDAO, RoomUserDAO } from "../../../dao";
 
 export const create = async (
     req: PatchRequest<{
@@ -47,7 +45,7 @@ export const create = async (
             end_time: "0",
         };
 
-        const roomUserData: Pick<RoomUserModel, "rtc_uid" | "room_uuid" | "user_uuid"> = {
+        const roomUserData = {
             room_uuid: roomData.room_uuid,
             user_uuid: userUUID,
             rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
@@ -56,9 +54,9 @@ export const create = async (
         await getConnection().transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
-            commands.push(t.insert(RoomModel, roomData));
+            commands.push(RoomDAO(t).insert(roomData));
 
-            commands.push(t.insert(RoomUserModel, roomUserData));
+            commands.push(RoomUserDAO(t).insert(roomUserData));
 
             if (docs) {
                 const roomDocData = docs.map(({ uuid, type }) => {
@@ -70,7 +68,7 @@ export const create = async (
                         is_preload: true,
                     };
                 });
-                commands.push(t.insert(RoomDocModel, roomDocData));
+                commands.push(RoomDocDAO(t).insert(roomDocData));
             }
 
             await Promise.all(commands);
