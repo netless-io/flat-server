@@ -11,6 +11,7 @@ import { stopped, stoppedSchemaType } from "./update/Stopped";
 import { join, joinSchemaType } from "./join";
 import { cancelPeriodic, cancelPeriodicSchemaType } from "./cancel/Periodic";
 import { periodicSubRoomInfo, periodicSubRoomInfoSchemaType } from "./info/PeriodicSubRoom";
+import { paused, pausedSchemaType } from "./update/Paused";
 
 export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
@@ -75,6 +76,13 @@ export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
         handler: running,
         auth: true,
         schema: runningSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "room/update/paused",
+        handler: paused,
+        auth: true,
+        schema: pausedSchemaType,
     }),
     Object.freeze({
         method: "post",
