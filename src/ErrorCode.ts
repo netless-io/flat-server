@@ -4,22 +4,20 @@ export enum ErrorCode {
     CurrentProcessFailed, // current processing failed
     CanRetry, // you can try again
     NotPermission, // insufficient permissions
-
     NeedLoginAgain, // user need login in again
     UnsupportedPlatform, // Unsupported login platform
-
     SituationHasChanged, // the situation has changed and new data needs to be retrieved (in classroom: exit, not in classroom: refresh)
-
-    RedisSetDataFailed, // redis set data failed
-
     JWTSignFailed, // jwt sign failed
 
-    RoomNotFound, // room not found,
+    RedisSetDataFailed = 200000, // redis set data failed
+
+    RoomNotFound = 300000, // room not found
     RoomIsEnded, // room has been ended
-    UserNotInRoom, // user is not in this room
     RoomIsRunning, // room status is running
-    PeriodicNotFound, // room not found
+    UserNotInRoom, // user is not in this room
+
+    PeriodicNotFound = 400000, // room not found
     PeriodicIsEnded, // room has been ended
 
-    UserNotFound, // user not found
+    UserNotFound = 500000, // user not found
 }
