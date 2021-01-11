@@ -27,7 +27,15 @@ export const ordinaryInfo = async (
         }
 
         const roomInfo = await RoomDAO().findOne(
-            ["title", "begin_time", "end_time", "room_type", "room_status", "owner_uuid"],
+            [
+                "title",
+                "begin_time",
+                "end_time",
+                "room_type",
+                "room_status",
+                "owner_uuid",
+                "periodic_uuid",
+            ],
             {
                 room_uuid: roomUUID,
             },
@@ -37,6 +45,14 @@ export const ordinaryInfo = async (
             return {
                 status: Status.Failed,
                 code: ErrorCode.RoomNotFound,
+            };
+        }
+
+        // in order to ensure the uniformity of the API, this API does not allow to view the details of sub-rooms under periodic
+        if (roomInfo.periodic_uuid !== "") {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.NotPermission,
             };
         }
 
