@@ -22,7 +22,7 @@ export const ordinaryInfo = async (
         if (checkUserExistRoom === undefined) {
             return {
                 status: Status.Failed,
-                code: ErrorCode.NotPermission,
+                code: ErrorCode.RoomNotFound,
             };
         }
 

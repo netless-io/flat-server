@@ -28,6 +28,7 @@ export const stopped = async (
             ["room_status", "owner_uuid", "periodic_uuid", "whiteboard_room_uuid"],
             {
                 room_uuid: roomUUID,
+                owner_uuid: userUUID,
             },
         );
 
@@ -35,14 +36,6 @@ export const stopped = async (
             return {
                 status: Status.Failed,
                 code: ErrorCode.RoomNotFound,
-            };
-        }
-
-        // only the room owner can call this API
-        if (roomInfo.owner_uuid !== userUUID) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.NotPermission,
             };
         }
 

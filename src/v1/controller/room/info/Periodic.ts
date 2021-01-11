@@ -22,7 +22,7 @@ export const periodicInfo = async (
         if (checkUserExistPeriodicRoom === undefined) {
             return {
                 status: Status.Failed,
-                code: ErrorCode.NotPermission,
+                code: ErrorCode.PeriodicNotFound,
             };
         }
 
