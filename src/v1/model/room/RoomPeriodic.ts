@@ -45,7 +45,7 @@ export class RoomPeriodicModel extends Content {
     @Index("room_periodic_room_status_index")
     @Column({
         type: "enum",
-        enum: [RoomStatus.Pending, RoomStatus.Running, RoomStatus.Stopped],
+        enum: [RoomStatus.Idle, RoomStatus.Started, RoomStatus.Paused, RoomStatus.Stopped],
         comment: "current room status",
     })
     room_status: RoomStatus;

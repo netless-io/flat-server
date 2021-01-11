@@ -5,6 +5,7 @@ import { RoomStatus } from "../Constants";
 import { whiteboardBanRoom } from "../../../utils/Whiteboard";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomUserDAO } from "../../../dao";
+import { roomIsRunning } from "../../../utils/Room";
 
 export const cancelOrdinary = async (
     req: PatchRequest<{
@@ -37,7 +38,7 @@ export const cancelOrdinary = async (
         }
 
         // the owner of the room cannot delete this lesson while the room is running
-        if (roomInfo.owner_uuid === userUUID && roomInfo.room_status === RoomStatus.Running) {
+        if (roomInfo.owner_uuid === userUUID && roomIsRunning(roomInfo.room_status)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.SituationHasChanged,
@@ -54,7 +55,7 @@ export const cancelOrdinary = async (
                 }),
             );
 
-            if (roomInfo.owner_uuid === userUUID && roomInfo.room_status === RoomStatus.Pending) {
+            if (roomInfo.owner_uuid === userUUID && roomInfo.room_status === RoomStatus.Idle) {
                 commands.push(
                     RoomDAO(t).remove({
                         room_uuid: roomUUID,

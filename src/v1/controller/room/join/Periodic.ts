@@ -1,6 +1,6 @@
-import { getConnection, In } from "typeorm";
+import { getConnection, In, Not } from "typeorm";
 import { Status } from "../../../../Constants";
-import { RoomStatus } from "../Constants";
+import { PeriodicStatus, RoomStatus } from "../Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
 import cryptoRandomString from "crypto-random-string";
 import { JoinResponse } from "./Type";
@@ -24,7 +24,7 @@ export const joinPeriodic = async (
         };
     }
 
-    if (roomPeriodicConfig.periodic_status === RoomStatus.Stopped) {
+    if (roomPeriodicConfig.periodic_status === PeriodicStatus.Stopped) {
         return {
             status: Status.Failed,
             code: ErrorCode.PeriodicIsEnded,
@@ -35,7 +35,7 @@ export const joinPeriodic = async (
         ["room_uuid", "whiteboard_room_uuid", "owner_uuid", "room_status", "room_type"],
         {
             periodic_uuid: periodicUUID,
-            room_status: In([RoomStatus.Pending, RoomStatus.Running]),
+            room_status: Not(In([RoomStatus.Stopped])),
         },
     );
 

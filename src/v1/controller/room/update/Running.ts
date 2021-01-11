@@ -1,9 +1,10 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { getConnection } from "typeorm";
 import { Status } from "../../../../Constants";
-import { RoomStatus } from "../Constants";
+import { PeriodicStatus, RoomStatus } from "../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../dao";
+import { roomIsRunning } from "../../../utils/Room";
 
 export const running = async (
     req: PatchRequest<{
@@ -34,7 +35,7 @@ export const running = async (
         }
 
         // if the room is running, return
-        if (roomInfo.room_status === RoomStatus.Running) {
+        if (roomIsRunning(roomInfo.room_status)) {
             return {
                 status: Status.Success,
                 data: {},
@@ -56,7 +57,7 @@ export const running = async (
             commands.push(
                 RoomDAO(t).update(
                     {
-                        room_status: RoomStatus.Running,
+                        room_status: RoomStatus.Idle,
                         begin_time: beginTime,
                     },
                     {
@@ -69,11 +70,11 @@ export const running = async (
                 commands.push(
                     RoomPeriodicConfigDAO(t).update(
                         {
-                            periodic_status: RoomStatus.Running,
+                            periodic_status: PeriodicStatus.Started,
                         },
                         {
                             periodic_uuid: roomInfo.periodic_uuid,
-                            periodic_status: RoomStatus.Pending,
+                            periodic_status: PeriodicStatus.Idle,
                         },
                     ),
                 );
@@ -81,7 +82,7 @@ export const running = async (
                 commands.push(
                     RoomPeriodicDAO(t).update(
                         {
-                            room_status: RoomStatus.Running,
+                            room_status: RoomStatus.Started,
                             begin_time: beginTime,
                         },
                         {
