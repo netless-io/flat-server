@@ -36,8 +36,23 @@ export const DAOImplement: DAO<Model> = model => {
                     where: noDelete(where),
                 });
             },
-            insert: (data, ignore) => {
-                if (ignore) {
+            insert: (data, flag) => {
+                if (typeof flag === "object") {
+                    const keys = Object.keys(flag);
+
+                    return managerOrRepo
+                        .createQueryBuilder()
+                        .insert()
+                        .orUpdate({
+                            columns: keys,
+                        })
+                        .setParameters(flag)
+                        .into(model)
+                        .values(data)
+                        .execute();
+                }
+
+                if (flag) {
                     return managerOrRepo
                         .createQueryBuilder()
                         .insert()
