@@ -39,7 +39,9 @@ export const joinOrdinary = async (roomUUID: string, userUUID: string): Response
             user_uuid: userUUID,
             rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
         },
-        true,
+        {
+            is_delete: false,
+        },
     );
 
     return {
