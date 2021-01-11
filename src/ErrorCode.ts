@@ -6,7 +6,6 @@ export enum ErrorCode {
     NotPermission, // insufficient permissions
     NeedLoginAgain, // user need login in again
     UnsupportedPlatform, // Unsupported login platform
-    SituationHasChanged, // the situation has changed and new data needs to be retrieved (in classroom: exit, not in classroom: refresh)
     JWTSignFailed, // jwt sign failed
 
     RedisSetDataFailed = 200000, // redis set data failed
