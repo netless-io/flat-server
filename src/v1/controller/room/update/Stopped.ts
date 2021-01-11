@@ -1,7 +1,7 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { getConnection, MoreThanOrEqual } from "typeorm";
 import { Status } from "../../../../Constants";
-import { RoomStatus } from "../Constants";
+import { PeriodicStatus, RoomStatus } from "../Constants";
 import { addMinutes } from "date-fns/fp";
 import { whiteboardBanRoom, whiteboardCreateRoom } from "../../../utils/Whiteboard";
 import cryptoRandomString from "crypto-random-string";
@@ -13,6 +13,7 @@ import {
     RoomPeriodicUserDAO,
     RoomUserDAO,
 } from "../../../dao";
+import { roomIsRunning } from "../../../utils/Room";
 
 export const stopped = async (
     req: PatchRequest<{
@@ -45,7 +46,7 @@ export const stopped = async (
             };
         }
 
-        if (roomInfo.room_status !== RoomStatus.Running) {
+        if (!roomIsRunning(roomInfo.room_status)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.SituationHasChanged,
@@ -89,7 +90,7 @@ export const stopped = async (
                         ["begin_time", "end_time", "fake_room_uuid", "room_type"],
                         {
                             periodic_uuid,
-                            room_status: RoomStatus.Pending,
+                            room_status: RoomStatus.Idle,
                             end_time: MoreThanOrEqual(addMinutes(1, new Date())),
                         },
                         ["end_time", "ASC"],
@@ -121,7 +122,7 @@ export const stopped = async (
                                 owner_uuid: userUUID,
                                 title: roomPeriodicConfig.title,
                                 room_type,
-                                room_status: RoomStatus.Pending,
+                                room_status: RoomStatus.Idle,
                                 room_uuid: fake_room_uuid,
                                 whiteboard_room_uuid: await whiteboardCreateRoom(
                                     roomPeriodicConfig.title,
@@ -155,7 +156,7 @@ export const stopped = async (
                         commands.push(
                             RoomPeriodicConfigDAO(t).update(
                                 {
-                                    periodic_status: RoomStatus.Stopped,
+                                    periodic_status: PeriodicStatus.Stopped,
                                 },
                                 {
                                     periodic_uuid: roomInfo.periodic_uuid,

@@ -1,4 +1,4 @@
-import { DocsType, RoomStatus, RoomType, Week } from "../Constants";
+import { DocsType, PeriodicStatus, RoomStatus, RoomType, Week } from "../Constants";
 import { Periodic, Docs } from "../Types";
 import { Status } from "../../../../Constants";
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
@@ -95,7 +95,7 @@ export const schedule = async (
                 periodic_uuid: periodicUUID,
                 fake_room_uuid: v4(),
                 room_type: type,
-                room_status: RoomStatus.Pending,
+                room_status: RoomStatus.Idle,
                 begin_time: start,
                 end_time: end,
             };
@@ -110,7 +110,7 @@ export const schedule = async (
                 commands.push(
                     RoomPeriodicConfigDAO(t).insert({
                         owner_uuid: userUUID,
-                        periodic_status: RoomStatus.Pending,
+                        periodic_status: PeriodicStatus.Idle,
                         title,
                         rate: periodic.rate || 0,
                         end_time: periodic.endTime || "0",
@@ -134,7 +134,7 @@ export const schedule = async (
                         owner_uuid: userUUID,
                         title,
                         room_type: type,
-                        room_status: RoomStatus.Pending,
+                        room_status: RoomStatus.Idle,
                         room_uuid: roomData[0].fake_room_uuid,
                         whiteboard_room_uuid: await whiteboardCreateRoom(title),
                         begin_time: roomData[0].begin_time,

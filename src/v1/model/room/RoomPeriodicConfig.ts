@@ -1,6 +1,6 @@
 import { Column, Entity, Index } from "typeorm";
 import { Content } from "../Content";
-import { RoomStatus } from "../../controller/room/Constants";
+import { PeriodicStatus } from "../../controller/room/Constants";
 
 @Entity({
     name: "room_periodic_configs",
@@ -43,10 +43,10 @@ export class RoomPeriodicConfigModel extends Content {
     @Index("rooms_periodic_status_index")
     @Column({
         type: "enum",
-        enum: [RoomStatus.Pending, RoomStatus.Running, RoomStatus.Stopped],
-        comment: "current room status",
+        enum: [PeriodicStatus.Idle, PeriodicStatus.Started, PeriodicStatus.Stopped],
+        comment: "current periodic status",
     })
-    periodic_status: RoomStatus;
+    periodic_status: PeriodicStatus;
 
     @Index("periodic_configs_is_delete_index")
     @Column({

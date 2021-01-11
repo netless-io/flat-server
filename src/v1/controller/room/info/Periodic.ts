@@ -1,7 +1,7 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { In } from "typeorm";
+import { In, Not } from "typeorm";
 import { Status } from "../../../../Constants";
-import { RoomStatus } from "../Constants";
+import { PeriodicStatus, RoomStatus } from "../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomPeriodicConfigDAO, RoomPeriodicDAO, RoomPeriodicUserDAO } from "../../../dao";
 
@@ -40,7 +40,7 @@ export const periodicInfo = async (
             };
         }
 
-        if (periodicConfig.periodic_status === RoomStatus.Stopped) {
+        if (periodicConfig.periodic_status === PeriodicStatus.Stopped) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.PeriodicIsEnded,
@@ -51,7 +51,7 @@ export const periodicInfo = async (
             ["room_status", "begin_time", "end_time", "fake_room_uuid"],
             {
                 periodic_uuid: periodicUUID,
-                room_status: In([RoomStatus.Pending, RoomStatus.Running]),
+                room_status: Not(In([RoomStatus.Stopped])),
             },
         );
 

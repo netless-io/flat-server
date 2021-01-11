@@ -10,6 +10,7 @@ import {
     RoomPeriodicUserDAO,
     RoomUserDAO,
 } from "../../../dao";
+import { roomIsRunning } from "../../../utils/Room";
 
 export const cancelPeriodic = async (
     req: PatchRequest<{
@@ -56,7 +57,7 @@ export const cancelPeriodic = async (
         }
 
         // room status is running, owner can't cancel current room
-        if (roomInfo.owner_uuid === userUUID && roomInfo.room_status === RoomStatus.Running) {
+        if (roomInfo.owner_uuid === userUUID && roomIsRunning(roomInfo.room_status)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.RoomIsRunning,
@@ -73,7 +74,7 @@ export const cancelPeriodic = async (
                 }),
             );
 
-            if (roomInfo.owner_uuid === userUUID && roomInfo.room_status === RoomStatus.Pending) {
+            if (roomInfo.owner_uuid === userUUID && roomInfo.room_status === RoomStatus.Idle) {
                 commands.push(
                     RoomDAO(t).remove({
                         room_uuid: roomInfo.room_uuid,

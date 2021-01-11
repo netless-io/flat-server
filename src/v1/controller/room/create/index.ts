@@ -38,7 +38,7 @@ export const create = async (
             owner_uuid: userUUID,
             title,
             room_type: type,
-            room_status: RoomStatus.Pending,
+            room_status: RoomStatus.Idle,
             room_uuid: roomUUID,
             whiteboard_room_uuid: await whiteboardCreateRoom(title),
             begin_time: toDate(beginTime),
