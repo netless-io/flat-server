@@ -50,7 +50,7 @@ export const started = async (
             commands.push(
                 RoomDAO(t).update(
                     {
-                        room_status: RoomStatus.Idle,
+                        room_status: RoomStatus.Started,
                         begin_time: beginTime,
                     },
                     {
