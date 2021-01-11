@@ -42,7 +42,7 @@ export const stopped = async (
         if (!roomIsRunning(roomInfo.room_status)) {
             return {
                 status: Status.Failed,
-                code: ErrorCode.SituationHasChanged,
+                code: ErrorCode.RoomNotIsRunning,
             };
         }
 
