@@ -18,7 +18,7 @@ export const list = async (
     const whereMap = {
         all: {
             sql: `ru.user_uuid = :userUUID
-                AND r.room_status NOT IN (:...roomStatus)
+                AND r.room_status NOT IN (:...notRoomStatus)
                 AND ru.is_delete = false
                 AND r.is_delete = false`,
             params: {
@@ -29,7 +29,7 @@ export const list = async (
         today: {
             sql: `ru.user_uuid = :userUUID
                 AND DATE(r.begin_time) = CURDATE()
-                AND r.room_status NOT IN (:...roomStatus)
+                AND r.room_status NOT IN (:...notRoomStatus)
                 AND ru.is_delete = false
                 AND r.is_delete = false`,
             params: {
@@ -39,7 +39,7 @@ export const list = async (
         },
         periodic: {
             sql: `ru.user_uuid = :userUUID
-                AND r.room_status NOT IN (:...roomStatus)
+                AND r.room_status NOT IN (:...notRoomStatus)
                 AND length(r.periodic_uuid) <> 0
                 AND ru.is_delete = false
                 AND r.is_delete = false`,
