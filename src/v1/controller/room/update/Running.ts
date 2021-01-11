@@ -17,20 +17,13 @@ export const running = async (
     try {
         const roomInfo = await RoomDAO().findOne(["room_status", "owner_uuid", "periodic_uuid"], {
             room_uuid: roomUUID,
+            owner_uuid: userUUID,
         });
 
         if (roomInfo === undefined) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.RoomNotFound,
-            };
-        }
-
-        // only the room owner can call this API
-        if (roomInfo.owner_uuid !== userUUID) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.NotPermission,
             };
         }
 
