@@ -5,7 +5,7 @@ import { list, listSchemaType } from "./list";
 import { userInfo, userInfoSchemaType } from "./info/Users";
 import { ordinaryInfo, OrdinaryInfoSchemaType } from "./info/Ordinary";
 import { periodicInfo, periodicInfoSchemaType } from "./info/Periodic";
-import { running, runningSchemaType } from "./update/Running";
+import { started, startedSchemaType } from "./update/Started";
 import { cancelOrdinary, cancelOrdinarySchemaType } from "./cancel/Ordinary";
 import { stopped, stoppedSchemaType } from "./update/Stopped";
 import { join, joinSchemaType } from "./join";
@@ -72,10 +72,10 @@ export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
     }),
     Object.freeze({
         method: "post",
-        path: "room/update/running",
-        handler: running,
+        path: "room/update/started",
+        handler: started,
         auth: true,
-        schema: runningSchemaType,
+        schema: startedSchemaType,
     }),
     Object.freeze({
         method: "post",
