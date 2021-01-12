@@ -1,19 +1,12 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { getConnection, MoreThanOrEqual } from "typeorm";
+import { getConnection } from "typeorm";
 import { Status } from "../../../../Constants";
 import { PeriodicStatus, RoomStatus } from "../Constants";
-import { addMinutes } from "date-fns/fp";
-import { whiteboardBanRoom, whiteboardCreateRoom } from "../../../utils/Whiteboard";
-import cryptoRandomString from "crypto-random-string";
+import { whiteboardBanRoom } from "../../../utils/Whiteboard";
 import { ErrorCode } from "../../../../ErrorCode";
-import {
-    RoomDAO,
-    RoomPeriodicConfigDAO,
-    RoomPeriodicDAO,
-    RoomPeriodicUserDAO,
-    RoomUserDAO,
-} from "../../../dao";
+import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../dao";
 import { roomIsRunning } from "../utils/Room";
+import { getNextRoomPeriodicInfo, updateNextRoomPeriodicInfo } from "../../../service/Periodic";
 
 export const stopped = async (
     req: PatchRequest<{
@@ -46,7 +39,7 @@ export const stopped = async (
             };
         }
 
-        const { periodic_uuid } = roomInfo;
+        const { periodic_uuid: periodicUUID } = roomInfo;
 
         await getConnection().transaction(
             async (t): Promise<void> => {
@@ -66,7 +59,7 @@ export const stopped = async (
                     ),
                 );
 
-                if (periodic_uuid !== "") {
+                if (periodicUUID !== "") {
                     commands.push(
                         RoomPeriodicDAO(t).update(
                             {
@@ -79,21 +72,13 @@ export const stopped = async (
                         ),
                     );
 
-                    const nextRoomPeriodicInfo = await RoomPeriodicDAO().findOne(
-                        ["begin_time", "end_time", "fake_room_uuid", "room_type"],
-                        {
-                            periodic_uuid,
-                            room_status: RoomStatus.Idle,
-                            end_time: MoreThanOrEqual(addMinutes(1, new Date())),
-                        },
-                        ["end_time", "ASC"],
-                    );
+                    const nextRoomPeriodicInfo = await getNextRoomPeriodicInfo(periodicUUID);
 
                     if (nextRoomPeriodicInfo) {
                         const roomPeriodicConfig = await RoomPeriodicConfigDAO().findOne(
                             ["title"],
                             {
-                                periodic_uuid,
+                                periodic_uuid: periodicUUID,
                             },
                         );
 
@@ -102,49 +87,15 @@ export const stopped = async (
                             throw new Error("Enter a special boundary situation");
                         }
 
-                        const {
-                            room_type,
-                            fake_room_uuid,
-                            begin_time,
-                            end_time,
-                        } = nextRoomPeriodicInfo;
-
-                        commands.push(
-                            roomDAO.insert({
-                                periodic_uuid: periodic_uuid,
-                                owner_uuid: userUUID,
+                        commands.concat(
+                            await updateNextRoomPeriodicInfo({
+                                transaction: t,
+                                periodicUUID,
+                                userUUID,
                                 title: roomPeriodicConfig.title,
-                                room_type,
-                                room_status: RoomStatus.Idle,
-                                room_uuid: fake_room_uuid,
-                                whiteboard_room_uuid: await whiteboardCreateRoom(
-                                    roomPeriodicConfig.title,
-                                ),
-                                begin_time,
-                                end_time,
+                                ...nextRoomPeriodicInfo,
                             }),
                         );
-
-                        const periodicRoomAllUsers = await RoomPeriodicUserDAO().find(
-                            ["user_uuid"],
-                            {
-                                periodic_uuid,
-                            },
-                        );
-
-                        const transformRoomUser = periodicRoomAllUsers.map(({ user_uuid }) => {
-                            return {
-                                room_uuid: fake_room_uuid,
-                                user_uuid: user_uuid,
-                                rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
-                            };
-                        });
-
-                        /**
-                         * TODO: when the number exceeds 500, there will be performance problems
-                         * Combining RoomUser and RoomPeriodicUsers should solve this potential problem
-                         */
-                        commands.push(RoomUserDAO(t).insert(transformRoomUser));
                     } else {
                         commands.push(
                             RoomPeriodicConfigDAO(t).update(
@@ -152,7 +103,7 @@ export const stopped = async (
                                     periodic_status: PeriodicStatus.Stopped,
                                 },
                                 {
-                                    periodic_uuid: roomInfo.periodic_uuid,
+                                    periodic_uuid: periodicUUID,
                                 },
                             ),
                         );
