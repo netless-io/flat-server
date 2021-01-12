@@ -4,7 +4,7 @@ import { Status } from "../../../../Constants";
 import { PeriodicStatus, RoomStatus } from "../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../dao";
-import { roomIsRunning } from "../../../utils/Room";
+import { roomIsRunning } from "../utils/Room";
 
 export const started = async (
     req: PatchRequest<{

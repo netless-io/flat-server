@@ -13,7 +13,7 @@ import {
     RoomPeriodicUserDAO,
     RoomUserDAO,
 } from "../../../dao";
-import { roomIsRunning } from "../../../utils/Room";
+import { roomIsRunning } from "../utils/Room";
 
 export const stopped = async (
     req: PatchRequest<{
