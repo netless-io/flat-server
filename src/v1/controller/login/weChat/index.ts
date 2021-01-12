@@ -30,6 +30,7 @@ export const callback = async (
     const socket = socketNamespaces[SocketNsp.Login].sockets.get(socketID);
 
     if (typeof socket === "undefined") {
+        console.error(`wechat login socket id does not exist ${socketID}`);
         return;
     }
 
@@ -40,7 +41,7 @@ export const callback = async (
     const result = await redisService.get(RedisKey.weChatAuthUUID(uuid));
 
     if (result === null) {
-        console.error(`uuid verification failed, current uuid: ${code}`);
+        console.error(`uuid verification failed, current code: ${code}, current uuid: ${uuid}`);
         socket.emit(WeChatSocketEvents.LoginStatus, {
             status: Status.AuthFailed,
             code: ErrorCode.ParamsCheckFailed,
