@@ -13,7 +13,7 @@ import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
 import { RoomDocModel } from "../model/room/RoomDoc";
 import { RoomPeriodicUserModel } from "../model/room/RoomPeriodicUser";
 
-type Where<M> = {
+export type Where<M> = {
     [key in keyof M]?: M[key] | FindOperator<M[key]>;
 };
 
