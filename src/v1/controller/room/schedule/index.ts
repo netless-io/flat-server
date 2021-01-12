@@ -113,7 +113,9 @@ export const schedule = async (
                         periodic_status: PeriodicStatus.Idle,
                         title,
                         rate: periodic.rate || 0,
-                        end_time: periodic.endTime || "0",
+                        end_time: periodic.endTime
+                            ? toDate(periodic.endTime)
+                            : new Date("1999-12-31T16:00:00Z"),
                         periodic_uuid: periodicUUID,
                     }),
                 );
