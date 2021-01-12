@@ -6,6 +6,7 @@ import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../dao";
 import { roomIsRunning } from "../utils/Room";
 import { getNextRoomPeriodicInfo, updateNextRoomPeriodicInfo } from "../../../service/Periodic";
 import { PeriodicStatus } from "../Constants";
+import { whiteboardBanRoom } from "../../../utils/Whiteboard";
 
 export const cancelPeriodicSubRoom = async (
     req: PatchRequest<{
@@ -42,11 +43,14 @@ export const cancelPeriodicSubRoom = async (
             };
         }
 
-        const roomInfo = await RoomDAO().findOne(["room_status", "owner_uuid"], {
-            periodic_uuid: periodicUUID,
-            room_uuid: roomUUID,
-            owner_uuid: userUUID,
-        });
+        const roomInfo = await RoomDAO().findOne(
+            ["room_status", "owner_uuid", "whiteboard_room_uuid"],
+            {
+                periodic_uuid: periodicUUID,
+                room_uuid: roomUUID,
+                owner_uuid: userUUID,
+            },
+        );
 
         // room status is running, owner can't cancel current room
         if (roomInfo && roomIsRunning(roomInfo.room_status)) {
@@ -75,8 +79,6 @@ export const cancelPeriodicSubRoom = async (
 
                 const nextRoomPeriodicInfo = await getNextRoomPeriodicInfo(periodicUUID, roomUUID);
 
-                console.log(nextRoomPeriodicInfo);
-
                 if (nextRoomPeriodicInfo) {
                     commands.push(
                         ...(await updateNextRoomPeriodicInfo({
@@ -102,7 +104,9 @@ export const cancelPeriodicSubRoom = async (
             }
 
             await Promise.all(commands);
-            // qing qiu
+            if (roomInfo) {
+                await whiteboardBanRoom(roomInfo.whiteboard_room_uuid);
+            }
         });
 
         return {
