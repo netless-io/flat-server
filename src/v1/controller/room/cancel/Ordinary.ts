@@ -5,7 +5,7 @@ import { RoomStatus } from "../Constants";
 import { whiteboardBanRoom } from "../../../utils/Whiteboard";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomUserDAO } from "../../../dao";
-import { roomIsRunning } from "../../../utils/Room";
+import { roomIsRunning } from "../utils/Room";
 
 export const cancelOrdinary = async (
     req: PatchRequest<{

@@ -10,7 +10,7 @@ import {
     RoomPeriodicUserDAO,
     RoomUserDAO,
 } from "../../../dao";
-import { roomIsRunning } from "../../../utils/Room";
+import { roomIsRunning } from "../utils/Room";
 
 export const cancelPeriodic = async (
     req: PatchRequest<{

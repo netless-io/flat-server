@@ -1,4 +1,4 @@
-import { RoomStatus } from "../controller/room/Constants";
+import { RoomStatus } from "../Constants";
 
 export const roomIsRunning = (roomStatus: RoomStatus): boolean => {
     return [RoomStatus.Paused, RoomStatus.Started].includes(roomStatus);
