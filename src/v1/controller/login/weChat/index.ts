@@ -1,4 +1,4 @@
-import redisService from "../../../service/RedisService";
+import redisService from "../../../thirdPartyService/RedisService";
 import { socketNamespaces } from "../../../store/SocketNamespaces";
 import { SocketNsp, Status, WeChatSocketEvents } from "../../../../Constants";
 import { wechatRequest } from "../../../utils/WeChatRequest";
