@@ -1,4 +1,4 @@
-import redisService from "../../../service/RedisService";
+import redisService from "../../../thirdPartyService/RedisService";
 import { Status, WeChatSocketEvents } from "../../../../Constants";
 import { IOSocket } from "../../../types/Server";
 import { JSONSchemaType } from "ajv/dist/types/json-schema";

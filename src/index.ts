@@ -6,7 +6,7 @@ import { Server, Status } from "./Constants";
 import { v1RegisterHTTP, v1RegisterWs } from "./v1";
 import jwtVerify from "./v1/plugins/JWT";
 import { ajvSelfPlugin } from "./plugins/Ajv";
-import { orm } from "./v1/service/TypeORMService";
+import { orm } from "./v1/thirdPartyService/TypeORMService";
 import { ErrorCode } from "./ErrorCode";
 
 const socketServer = new socketIO.Server();

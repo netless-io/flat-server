@@ -1,4 +1,4 @@
-import redisService from "../../service/RedisService";
+import redisService from "../../thirdPartyService/RedisService";
 import { Status } from "../../../Constants";
 import { renewAccessToken } from "../../utils/WeChatURL";
 import { wechatRequest } from "../../utils/WeChatRequest";
