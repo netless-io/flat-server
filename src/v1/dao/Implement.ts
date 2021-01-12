@@ -12,7 +12,9 @@ export const DAOImplement: DAO<Model> = model => {
                     return getRepository(model)
                         .createQueryBuilder()
                         .select(select)
-                        .where(where)
+                        .where({
+                            ...noDelete(where),
+                        })
                         .orderBy(order[0], order[1])
                         .getRawMany();
                 }
@@ -27,7 +29,9 @@ export const DAOImplement: DAO<Model> = model => {
                     return getRepository(model)
                         .createQueryBuilder()
                         .select(select)
-                        .where(where)
+                        .where({
+                            ...noDelete(where),
+                        })
                         .orderBy(order[0], order[1])
                         .getRawOne();
                 }
