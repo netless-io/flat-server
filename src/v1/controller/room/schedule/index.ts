@@ -3,7 +3,13 @@ import { Periodic, Docs } from "../Types";
 import { Status } from "../../../../Constants";
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { v4 } from "uuid";
-import { compareDesc, differenceInMilliseconds, subMinutes, toDate } from "date-fns/fp";
+import {
+    compareDesc,
+    differenceInCalendarDays,
+    differenceInMilliseconds,
+    subMinutes,
+    toDate,
+} from "date-fns/fp";
 import { dateIntervalByRate, dateIntervalByWeek, DateIntervalResult } from "../utils/DateInterval";
 import { getConnection } from "typeorm";
 import cryptoRandomString from "crypto-random-string";
@@ -56,6 +62,19 @@ export const schedule = async (
                 status: Status.Failed,
                 code: ErrorCode.ParamsCheckFailed,
             };
+        }
+    }
+
+    // check periodic.endTime
+    {
+        if (periodic?.endTime) {
+            // endTime(day) > periodic.endTime(day)
+            if (differenceInCalendarDays(endTime)(periodic.endTime) < 0) {
+                return {
+                    status: Status.Failed,
+                    code: ErrorCode.ParamsCheckFailed,
+                };
+            }
         }
     }
 
