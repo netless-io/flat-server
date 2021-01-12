@@ -134,7 +134,7 @@ export const schedule = async (
                         rate: periodic.rate || 0,
                         end_time: periodic.endTime
                             ? toDate(periodic.endTime)
-                            : new Date("1999-12-31T16:00:00Z"),
+                            : dates[dates.length - 1].end,
                         periodic_uuid: periodicUUID,
                     }),
                 );

@@ -69,7 +69,7 @@ export const periodicInfo = async (
                 periodic: {
                     ownerUUID: periodicConfig.owner_uuid,
                     // choose one of end_time and rate
-                    endTime: periodicConfig.rate === 0 ? periodicConfig.end_time : "",
+                    endTime: periodicConfig.end_time,
                     rate: periodicConfig.rate,
                 },
                 rooms: rooms.map(({ fake_room_uuid, begin_time, end_time, room_status }) => {
