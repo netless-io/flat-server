@@ -39,7 +39,7 @@ export const stopped = async (
             };
         }
 
-        const { periodic_uuid: periodicUUID } = roomInfo;
+        const { periodic_uuid } = roomInfo;
 
         await getConnection().transaction(
             async (t): Promise<void> => {
@@ -59,7 +59,7 @@ export const stopped = async (
                     ),
                 );
 
-                if (periodicUUID !== "") {
+                if (periodic_uuid !== "") {
                     commands.push(
                         RoomPeriodicDAO(t).update(
                             {
@@ -72,13 +72,13 @@ export const stopped = async (
                         ),
                     );
 
-                    const nextRoomPeriodicInfo = await getNextRoomPeriodicInfo(periodicUUID);
+                    const nextRoomPeriodicInfo = await getNextRoomPeriodicInfo(periodic_uuid);
 
                     if (nextRoomPeriodicInfo) {
                         const roomPeriodicConfig = await RoomPeriodicConfigDAO().findOne(
                             ["title", "room_type"],
                             {
-                                periodic_uuid: periodicUUID,
+                                periodic_uuid,
                             },
                         );
 
@@ -91,8 +91,8 @@ export const stopped = async (
                         commands.concat(
                             await updateNextRoomPeriodicInfo({
                                 transaction: t,
-                                periodicUUID,
-                                userUUID,
+                                periodic_uuid,
+                                user_uuid: userUUID,
                                 title,
                                 room_type,
                                 ...nextRoomPeriodicInfo,
@@ -105,7 +105,7 @@ export const stopped = async (
                                     periodic_status: PeriodicStatus.Stopped,
                                 },
                                 {
-                                    periodic_uuid: periodicUUID,
+                                    periodic_uuid,
                                 },
                             ),
                         );
