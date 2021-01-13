@@ -1,6 +1,6 @@
 import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
 import { RoomDAO, RoomPeriodicDAO, RoomPeriodicUserDAO, RoomUserDAO } from "../dao";
-import { RoomStatus } from "../controller/room/Constants";
+import { RoomStatus, RoomType } from "../controller/room/Constants";
 import { MoreThanOrEqual, Not } from "typeorm";
 import { addMinutes } from "date-fns/fp";
 import { EntityManager } from "typeorm/entity-manager/EntityManager";
@@ -45,7 +45,7 @@ export const updateNextRoomPeriodicInfo = async ({
     begin_time: RoomPeriodicModel["begin_time"];
     end_time: RoomPeriodicModel["end_time"];
     fake_room_uuid: RoomPeriodicModel["fake_room_uuid"];
-    room_type: RoomPeriodicModel["room_type"];
+    room_type: RoomType;
 }): Promise<Promise<unknown>[]> => {
     const commands: Promise<unknown>[] = [];
 
