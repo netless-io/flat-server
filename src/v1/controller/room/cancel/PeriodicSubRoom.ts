@@ -17,7 +17,7 @@ export const cancelPeriodicSubRoom = async (
     const { userUUID } = req.user;
 
     try {
-        const periodicConfig = await RoomPeriodicConfigDAO().findOne(["title"], {
+        const periodicConfig = await RoomPeriodicConfigDAO().findOne(["title", "room_type"], {
             periodic_uuid: periodicUUID,
             owner_uuid: userUUID,
         });
@@ -29,7 +29,7 @@ export const cancelPeriodicSubRoom = async (
             };
         }
 
-        const { title } = periodicConfig;
+        const { title, room_type } = periodicConfig;
 
         const checkRoomInPeriodic = await RoomPeriodicDAO().findOne(["id"], {
             periodic_uuid: periodicUUID,
@@ -86,6 +86,7 @@ export const cancelPeriodicSubRoom = async (
                             periodicUUID,
                             userUUID,
                             title,
+                            room_type,
                             ...nextRoomPeriodicInfo,
                         })),
                     );

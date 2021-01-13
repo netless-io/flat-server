@@ -31,7 +31,7 @@ export const periodicSubRoomInfo = async (
         }
 
         const roomPeriodicInfo = await RoomPeriodicDAO().findOne(
-            ["room_status", "begin_time", "end_time", "room_type"],
+            ["room_status", "begin_time", "end_time"],
             {
                 fake_room_uuid: roomUUID,
             },
@@ -44,11 +44,14 @@ export const periodicSubRoomInfo = async (
             };
         }
 
-        const { room_status, begin_time, end_time, room_type } = roomPeriodicInfo;
+        const { room_status, begin_time, end_time } = roomPeriodicInfo;
 
-        const periodicConfigInfo = await RoomPeriodicConfigDAO().findOne(["title", "owner_uuid"], {
-            periodic_uuid: periodicUUID,
-        });
+        const periodicConfigInfo = await RoomPeriodicConfigDAO().findOne(
+            ["title", "owner_uuid", "room_type"],
+            {
+                periodic_uuid: periodicUUID,
+            },
+        );
 
         if (periodicConfigInfo === undefined) {
             return {
@@ -57,7 +60,7 @@ export const periodicSubRoomInfo = async (
             };
         }
 
-        const { title, owner_uuid } = periodicConfigInfo;
+        const { title, owner_uuid, room_type } = periodicConfigInfo;
 
         const docs = (
             await RoomDocDAO().find(["doc_type", "doc_uuid", "is_preload"], {

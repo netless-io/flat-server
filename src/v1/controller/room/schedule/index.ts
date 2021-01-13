@@ -113,7 +113,6 @@ export const schedule = async (
             return {
                 periodic_uuid: periodicUUID,
                 fake_room_uuid: v4(),
-                room_type: type,
                 room_status: RoomStatus.Idle,
                 begin_time: start,
                 end_time: end,
@@ -135,6 +134,7 @@ export const schedule = async (
                         end_time: periodic.endTime
                             ? toDate(periodic.endTime)
                             : dates[dates.length - 1].end,
+                        room_type: type,
                         periodic_uuid: periodicUUID,
                     }),
                 );
