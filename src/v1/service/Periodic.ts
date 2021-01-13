@@ -30,8 +30,8 @@ export const getNextRoomPeriodicInfo = async (
 
 export const updateNextRoomPeriodicInfo = async ({
     transaction,
-    periodicUUID,
-    userUUID,
+    periodic_uuid,
+    user_uuid,
     title,
     begin_time,
     end_time,
@@ -39,8 +39,8 @@ export const updateNextRoomPeriodicInfo = async ({
     room_type,
 }: {
     transaction: EntityManager;
-    periodicUUID: string;
-    userUUID: string;
+    periodic_uuid: string;
+    user_uuid: string;
     title: string;
     begin_time: RoomPeriodicModel["begin_time"];
     end_time: RoomPeriodicModel["end_time"];
@@ -51,8 +51,8 @@ export const updateNextRoomPeriodicInfo = async ({
 
     commands.push(
         RoomDAO(transaction).insert({
-            periodic_uuid: periodicUUID,
-            owner_uuid: userUUID,
+            periodic_uuid,
+            owner_uuid: user_uuid,
             title,
             room_type,
             room_status: RoomStatus.Idle,
@@ -64,7 +64,7 @@ export const updateNextRoomPeriodicInfo = async ({
     );
 
     const periodicRoomAllUsers = await RoomPeriodicUserDAO().find(["user_uuid"], {
-        periodic_uuid: periodicUUID,
+        periodic_uuid,
     });
 
     const transformRoomUser = periodicRoomAllUsers.map(({ user_uuid }) => {

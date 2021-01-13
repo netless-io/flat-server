@@ -83,8 +83,8 @@ export const cancelPeriodicSubRoom = async (
                     commands.push(
                         ...(await updateNextRoomPeriodicInfo({
                             transaction: t,
-                            periodicUUID,
-                            userUUID,
+                            periodic_uuid: periodicUUID,
+                            user_uuid: userUUID,
                             title,
                             room_type,
                             ...nextRoomPeriodicInfo,
