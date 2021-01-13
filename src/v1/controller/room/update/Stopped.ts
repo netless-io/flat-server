@@ -76,7 +76,7 @@ export const stopped = async (
 
                     if (nextRoomPeriodicInfo) {
                         const roomPeriodicConfig = await RoomPeriodicConfigDAO().findOne(
-                            ["title"],
+                            ["title", "room_type"],
                             {
                                 periodic_uuid: periodicUUID,
                             },
@@ -87,12 +87,14 @@ export const stopped = async (
                             throw new Error("Enter a special boundary situation");
                         }
 
+                        const { title, room_type } = roomPeriodicConfig;
                         commands.concat(
                             await updateNextRoomPeriodicInfo({
                                 transaction: t,
                                 periodicUUID,
                                 userUUID,
-                                title: roomPeriodicConfig.title,
+                                title,
+                                room_type,
                                 ...nextRoomPeriodicInfo,
                             }),
                         );

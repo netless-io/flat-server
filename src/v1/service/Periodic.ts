@@ -11,9 +11,7 @@ import { Where } from "../dao/Type";
 export const getNextRoomPeriodicInfo = async (
     periodicUUID: string,
     excludeRoomUUID?: string,
-): Promise<
-    Pick<RoomPeriodicModel, "begin_time" | "end_time" | "fake_room_uuid" | "room_type"> | undefined
-> => {
+): Promise<Pick<RoomPeriodicModel, "begin_time" | "end_time" | "fake_room_uuid"> | undefined> => {
     const where: Where<RoomPeriodicModel> = {
         periodic_uuid: periodicUUID,
         room_status: RoomStatus.Idle,
@@ -24,11 +22,10 @@ export const getNextRoomPeriodicInfo = async (
         where.fake_room_uuid = Not(excludeRoomUUID);
     }
 
-    return await RoomPeriodicDAO().findOne(
-        ["begin_time", "end_time", "fake_room_uuid", "room_type"],
-        where,
-        ["end_time", "ASC"],
-    );
+    return await RoomPeriodicDAO().findOne(["begin_time", "end_time", "fake_room_uuid"], where, [
+        "end_time",
+        "ASC",
+    ]);
 };
 
 export const updateNextRoomPeriodicInfo = async ({
