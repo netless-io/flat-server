@@ -1,6 +1,6 @@
-import { ax } from "./Axios";
+import { ax } from "../../Axios";
 import { shuntCreateRoomURL } from "./WhiteboardURL";
-import { createWhiteboardSDKToken } from "../../utils/NetlessToken";
+import { createWhiteboardSDKToken } from "../../../../utils/NetlessToken";
 import { AxiosResponse } from "axios";
 
 /**

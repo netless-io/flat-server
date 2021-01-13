@@ -4,7 +4,7 @@ import { RoomStatus, RoomType } from "../controller/room/Constants";
 import { MoreThanOrEqual, Not } from "typeorm";
 import { addMinutes } from "date-fns/fp";
 import { EntityManager } from "typeorm/entity-manager/EntityManager";
-import { whiteboardCreateRoom } from "../utils/Whiteboard";
+import { whiteboardCreateRoom } from "../utils/request/whiteboard/Whiteboard";
 import cryptoRandomString from "crypto-random-string";
 import { Where } from "../dao/Type";
 
