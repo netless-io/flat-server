@@ -2,7 +2,7 @@ import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { getConnection } from "typeorm";
 import { Status } from "../../../../Constants";
 import { RoomStatus } from "../Constants";
-import { whiteboardBanRoom } from "../../../utils/Whiteboard";
+import { whiteboardBanRoom } from "../../../utils/request/whiteboard/Whiteboard";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomUserDAO } from "../../../dao";
 import { roomIsRunning } from "../utils/Room";

@@ -6,7 +6,7 @@ import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../dao";
 import { roomIsRunning } from "../utils/Room";
 import { getNextRoomPeriodicInfo, updateNextRoomPeriodicInfo } from "../../../service/Periodic";
 import { PeriodicStatus } from "../Constants";
-import { whiteboardBanRoom } from "../../../utils/Whiteboard";
+import { whiteboardBanRoom } from "../../../utils/request/whiteboard/Whiteboard";
 
 export const cancelPeriodicSubRoom = async (
     req: PatchRequest<{

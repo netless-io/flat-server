@@ -6,7 +6,7 @@ import { v4 } from "uuid";
 import { addHours, compareDesc, subMinutes, toDate } from "date-fns/fp";
 import { getConnection } from "typeorm";
 import cryptoRandomString from "crypto-random-string";
-import { whiteboardCreateRoom } from "../../../utils/Whiteboard";
+import { whiteboardCreateRoom } from "../../../utils/request/whiteboard/Whiteboard";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomDocDAO, RoomUserDAO } from "../../../dao";
 

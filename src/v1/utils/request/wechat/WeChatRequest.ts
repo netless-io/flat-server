@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { ax } from "./Axios";
+import { ax } from "../../Axios";
 
 export const wechatRequest = async <T>(url: string): Promise<T> => {
     const response: AxiosResponse<T | WeChatRequestFailed> = await ax.get(url);

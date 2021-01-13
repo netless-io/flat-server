@@ -1,7 +1,7 @@
 import redisService from "../../thirdPartyService/RedisService";
 import { Status } from "../../../Constants";
-import { renewAccessToken } from "../../utils/WeChatURL";
-import { wechatRequest } from "../../utils/WeChatRequest";
+import { renewAccessToken } from "../../utils/request/wechat/WeChatURL";
+import { wechatRequest } from "../../utils/request/wechat/WeChatRequest";
 import { RefreshToken } from "../../types/WeChatResponse";
 import { PatchRequest, Response } from "../../types/Server";
 import { LoginPlatform, Sex } from "./Constants";

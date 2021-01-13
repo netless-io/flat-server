@@ -1,8 +1,8 @@
 import redisService from "../../../thirdPartyService/RedisService";
 import { socketNamespaces } from "../../../store/SocketNamespaces";
 import { SocketNsp, Status, WeChatSocketEvents } from "../../../../Constants";
-import { wechatRequest } from "../../../utils/WeChatRequest";
-import { getAccessTokenURL, getUserInfoURL } from "../../../utils/WeChatURL";
+import { wechatRequest } from "../../../utils/request/wechat/WeChatRequest";
+import { getAccessTokenURL, getUserInfoURL } from "../../../utils/request/wechat/WeChatURL";
 import { AccessToken, UserInfo } from "../../../types/WeChatResponse";
 import { FastifyReply } from "fastify";
 import { FastifySchema, PatchRequest } from "../../../types/Server";

@@ -13,7 +13,7 @@ import {
 import { dateIntervalByRate, dateIntervalByWeek, DateIntervalResult } from "../utils/DateInterval";
 import { getConnection } from "typeorm";
 import cryptoRandomString from "crypto-random-string";
-import { whiteboardCreateRoom } from "../../../utils/Whiteboard";
+import { whiteboardCreateRoom } from "../../../utils/request/whiteboard/Whiteboard";
 import { ErrorCode } from "../../../../ErrorCode";
 import {
     RoomDAO,

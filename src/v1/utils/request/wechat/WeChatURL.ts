@@ -1,4 +1,4 @@
-import { WeChat } from "../../Constants";
+import { WeChat } from "../../../../Constants";
 
 export const getAccessTokenURL = (code: string): string => {
     return `https://api.weixin.qq.com/sns/oauth2/access_token?appid=${WeChat.APP_ID}&secret=${WeChat.APP_SECRET}&code=${code}&grant_type=authorization_code`;
