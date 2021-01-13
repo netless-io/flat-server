@@ -27,7 +27,7 @@ export const periodicInfo = async (
         }
 
         const periodicConfig = await RoomPeriodicConfigDAO().findOne(
-            ["end_time", "rate", "owner_uuid", "periodic_status"],
+            ["end_time", "rate", "owner_uuid", "periodic_status", "room_type"],
             {
                 periodic_uuid: periodicUUID,
             },
@@ -68,7 +68,7 @@ export const periodicInfo = async (
             data: {
                 periodic: {
                     ownerUUID: periodicConfig.owner_uuid,
-                    // choose one of end_time and rate
+                    roomType: periodicConfig.room_type,
                     endTime: periodicConfig.end_time,
                     rate: periodicConfig.rate,
                 },
@@ -113,7 +113,8 @@ export const periodicInfoSchemaType: FastifySchema<{
 interface PeriodicInfoResponse {
     periodic: {
         ownerUUID: string;
-        endTime: string | Date;
+        roomType: string;
+        endTime: Date;
         rate: number;
     };
     rooms: Array<{
