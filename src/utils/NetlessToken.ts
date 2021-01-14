@@ -79,7 +79,7 @@ const sdkToken = createToken<SdkTokenTags>(TokenPrefix.SDK);
 
 const roomToken = createToken<RoomTokenTags>(TokenPrefix.ROOM);
 
-export const createWhiteboardSDKToken = (lifespan = 0): string => {
+export const createWhiteboardSDKToken = (lifespan = 1000 * 60 * 10): string => {
     return sdkToken(Netless.ACCESS_KEY, Netless.SECRET_ACCESS_KEY, lifespan, {
         role: TokenRole.Admin,
     });
