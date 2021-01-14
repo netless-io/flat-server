@@ -30,7 +30,8 @@ export const getRTCToken = async (roomUUID: string, rtcUID: number): Promise<str
 
     if (rtcToken === null) {
         rtcToken = generateRTCToken(roomUUID, rtcUID);
-        await RedisService.set(rtcKey, rtcToken, 60 * 60 * 24);
+        // 23 hour 59 minute
+        await RedisService.set(rtcKey, rtcToken, 60 * 60 * 24 - 60);
     }
 
     return rtcToken;
@@ -42,7 +43,7 @@ export const getRTMToken = async (userUUID: string): Promise<string> => {
 
     if (rtmToken === null) {
         rtmToken = generateRTMToken(userUUID);
-        await RedisService.set(rtmKey, rtmToken, 60 * 60 * 24);
+        await RedisService.set(rtmKey, rtmToken, 60 * 60 * 24 - 60);
     }
 
     return rtmToken;
