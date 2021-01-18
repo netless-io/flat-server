@@ -13,6 +13,11 @@ import { cancelPeriodic, cancelPeriodicSchemaType } from "./cancel/Periodic";
 import { periodicSubRoomInfo, periodicSubRoomInfoSchemaType } from "./info/PeriodicSubRoom";
 import { paused, pausedSchemaType } from "./update/Paused";
 import { cancelPeriodicSubRoom, cancelPeriodicSubRoomSchemaType } from "./cancel/PeriodicSubRoom";
+import { recordAcquire, recordAcquireSchemaType } from "./record/Acquire";
+import { recordStarted, recordStartedSchemaType } from "./record/Started";
+import { recordQuery, recordQuerySchemaType } from "./record/Query";
+import { recordStopped, recordStoppedSchemaType } from "./record/Stopped";
+import { recordUpdateLayout, recordUpdateLayoutSchemaType } from "./record/UpdateLayout";
 
 export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
@@ -112,5 +117,40 @@ export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
         handler: cancelPeriodicSubRoom,
         auth: true,
         schema: cancelPeriodicSubRoomSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "room/record/acquire",
+        handler: recordAcquire,
+        auth: true,
+        schema: recordAcquireSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "room/record/started",
+        handler: recordStarted,
+        auth: true,
+        schema: recordStartedSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "room/record/query",
+        handler: recordQuery,
+        auth: true,
+        schema: recordQuerySchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "room/record/update-layout",
+        handler: recordUpdateLayout,
+        auth: true,
+        schema: recordUpdateLayoutSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "room/record/stopped",
+        handler: recordStopped,
+        auth: true,
+        schema: recordStoppedSchemaType,
     }),
 ]);
