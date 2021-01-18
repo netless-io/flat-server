@@ -43,7 +43,7 @@ import {
  *     { start: 2020-12-29T09:06:30.399Z, end: 2020-12-29T09:51:30.399Z }
  * ]
  */
-export const dateIntervalByWeek = ({
+export const dateIntervalByEndTime = ({
     start,
     end,
     endDate,
