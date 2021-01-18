@@ -43,6 +43,8 @@ type Update<M> = (setData: QueryDeepPartialEntity<M>, where: Where<M>) => Promis
 
 type Remove<M> = (where: Where<M>) => Promise<UpdateResult>;
 
+type Count<M> = (where: Where<M>) => Promise<number>;
+
 export type Model =
     | UserModel
     | UserWeChatModel
@@ -64,4 +66,5 @@ export type DAO<T extends Model> = (
     remove: Remove<T>;
     update: Update<T>;
     insert: Insert<T>;
+    count: Count<T>;
 };
