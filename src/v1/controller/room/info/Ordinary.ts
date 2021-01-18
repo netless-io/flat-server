@@ -10,7 +10,7 @@ export const ordinaryInfo = async (
         Body: OrdinaryInfoBody;
     }>,
 ): Response<OrdinaryInfoResponse> => {
-    const { roomUUID } = req.body;
+    const { roomUUID, needDocs } = req.body;
     const { userUUID } = req.user;
 
     try {
@@ -48,25 +48,19 @@ export const ordinaryInfo = async (
             };
         }
 
-        // in order to ensure the uniformity of the API, this API does not allow to view the details of sub-rooms under periodic
-        if (roomInfo.periodic_uuid !== "") {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.NotPermission,
-            };
-        }
-
-        const docs = (
-            await RoomDocDAO().find(["doc_type", "doc_uuid", "is_preload"], {
-                room_uuid: roomUUID,
-            })
-        ).map(({ doc_type, doc_uuid, is_preload }) => {
-            return {
-                docType: doc_type,
-                docUUID: doc_uuid,
-                isPreload: is_preload,
-            };
-        });
+        const docs = needDocs
+            ? (
+                  await RoomDocDAO().find(["doc_type", "doc_uuid", "is_preload"], {
+                      room_uuid: roomUUID,
+                  })
+              ).map(({ doc_type, doc_uuid, is_preload }) => {
+                  return {
+                      docType: doc_type,
+                      docUUID: doc_uuid,
+                      isPreload: is_preload,
+                  };
+              })
+            : [];
 
         return {
             status: Status.Success,
@@ -95,6 +89,7 @@ export const ordinaryInfo = async (
 
 interface OrdinaryInfoBody {
     roomUUID: string;
+    needDocs: boolean;
 }
 
 export const OrdinaryInfoSchemaType: FastifySchema<{
@@ -107,6 +102,9 @@ export const OrdinaryInfoSchemaType: FastifySchema<{
             roomUUID: {
                 type: "string",
                 format: "uuid-v4",
+            },
+            needDocs: {
+                type: "boolean",
             },
         },
     },
