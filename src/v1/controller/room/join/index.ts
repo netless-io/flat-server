@@ -11,18 +11,18 @@ export const join = async (
         Body: JoinBody;
     }>,
 ): Response<JoinResponse> => {
-    const { roomUUID } = req.body;
+    const { uuid } = req.body;
     const { userUUID } = req.user;
 
     try {
         const uuidIsPeriodicUUID = await RoomPeriodicConfigDAO().findOne(["id"], {
-            periodic_uuid: roomUUID,
+            periodic_uuid: uuid,
         });
 
         if (uuidIsPeriodicUUID) {
-            return await joinPeriodic(roomUUID, userUUID);
+            return await joinPeriodic(uuid, userUUID);
         } else {
-            return await joinOrdinary(roomUUID, userUUID);
+            return await joinOrdinary(uuid, userUUID);
         }
     } catch (e) {
         console.error(e);
@@ -34,7 +34,7 @@ export const join = async (
 };
 
 interface JoinBody {
-    roomUUID: string;
+    uuid: string;
 }
 
 export const joinSchemaType: FastifySchema<{
@@ -42,9 +42,9 @@ export const joinSchemaType: FastifySchema<{
 }> = {
     body: {
         type: "object",
-        required: ["roomUUID"],
+        required: ["uuid"],
         properties: {
-            roomUUID: {
+            uuid: {
                 type: "string",
                 format: "uuid-v4",
             },
