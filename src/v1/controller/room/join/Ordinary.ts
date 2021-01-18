@@ -10,7 +10,7 @@ import { RoomDAO, RoomUserDAO } from "../../../dao";
 
 export const joinOrdinary = async (roomUUID: string, userUUID: string): Response<JoinResponse> => {
     const roomInfo = await RoomDAO().findOne(
-        ["room_status", "whiteboard_room_uuid", "periodic_uuid", "room_type"],
+        ["room_status", "whiteboard_room_uuid", "periodic_uuid", "room_type", "owner_uuid"],
         {
             room_uuid: roomUUID,
         },
@@ -31,18 +31,33 @@ export const joinOrdinary = async (roomUUID: string, userUUID: string): Response
     }
 
     const { whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
-    const rtcUID = cryptoRandomString({ length: 6, type: "numeric" });
+    let rtcUID: string;
 
-    await RoomUserDAO().insert(
-        {
+    if (roomInfo.owner_uuid === userUUID) {
+        const roomUserInfo = await RoomUserDAO().findOne(["rtc_uid"], {
             room_uuid: roomUUID,
             user_uuid: userUUID,
-            rtc_uid: rtcUID,
-        },
-        {
-            is_delete: false,
-        },
-    );
+        });
+
+        if (roomUserInfo === undefined) {
+            throw new Error("When getting the rtcUID of the owner, the result does not exist");
+        }
+
+        rtcUID = roomUserInfo.rtc_uid;
+    } else {
+        rtcUID = cryptoRandomString({ length: 6, type: "numeric" });
+
+        await RoomUserDAO().insert(
+            {
+                room_uuid: roomUUID,
+                user_uuid: userUUID,
+                rtc_uid: rtcUID,
+            },
+            {
+                is_delete: false,
+            },
+        );
+    }
 
     return {
         status: Status.Success,

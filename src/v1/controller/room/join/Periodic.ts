@@ -13,9 +13,12 @@ export const joinPeriodic = async (
     periodicUUID: string,
     userUUID: string,
 ): Response<JoinResponse> => {
-    const roomPeriodicConfig = await RoomPeriodicConfigDAO().findOne(["periodic_status"], {
-        periodic_uuid: periodicUUID,
-    });
+    const roomPeriodicConfig = await RoomPeriodicConfigDAO().findOne(
+        ["periodic_status", "owner_uuid"],
+        {
+            periodic_uuid: periodicUUID,
+        },
+    );
 
     if (roomPeriodicConfig === undefined) {
         return {
@@ -48,38 +51,56 @@ export const joinPeriodic = async (
     }
 
     const { room_uuid: roomUUID, whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
-    const rtcUID = cryptoRandomString({ length: 6, type: "numeric" });
+    let rtcUID: string;
 
-    await getConnection().transaction(async t => {
-        const commands: Promise<unknown>[] = [];
+    if (roomPeriodicConfig.owner_uuid === userUUID) {
+        const roomUserInfo = await RoomUserDAO().findOne(["rtc_uid"], {
+            room_uuid: roomUUID,
+            user_uuid: userUUID,
+        });
 
-        commands.push(
-            RoomUserDAO(t).insert(
-                {
-                    room_uuid: roomUUID,
-                    user_uuid: userUUID,
-                    rtc_uid: rtcUID,
-                },
-                {
-                    is_delete: false,
-                },
-            ),
-        );
+        if (roomUserInfo === undefined) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.CanRetry,
+            };
+        }
 
-        commands.push(
-            RoomPeriodicUserDAO(t).insert(
-                {
-                    periodic_uuid: periodicUUID,
-                    user_uuid: userUUID,
-                },
-                {
-                    is_delete: false,
-                },
-            ),
-        );
+        rtcUID = roomUserInfo.rtc_uid;
+    } else {
+        rtcUID = cryptoRandomString({ length: 6, type: "numeric" });
 
-        return await Promise.all(commands);
-    });
+        await getConnection().transaction(async t => {
+            const commands: Promise<unknown>[] = [];
+
+            commands.push(
+                RoomUserDAO(t).insert(
+                    {
+                        room_uuid: roomUUID,
+                        user_uuid: userUUID,
+                        rtc_uid: rtcUID,
+                    },
+                    {
+                        is_delete: false,
+                    },
+                ),
+            );
+
+            commands.push(
+                RoomPeriodicUserDAO(t).insert(
+                    {
+                        periodic_uuid: periodicUUID,
+                        user_uuid: userUUID,
+                    },
+                    {
+                        is_delete: false,
+                    },
+                ),
+            );
+
+            return await Promise.all(commands);
+        });
+    }
 
     return {
         status: Status.Success,
