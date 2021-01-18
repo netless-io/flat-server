@@ -10,7 +10,11 @@ import {
     subMinutes,
     toDate,
 } from "date-fns/fp";
-import { dateIntervalByRate, dateIntervalByWeek, DateIntervalResult } from "../utils/DateInterval";
+import {
+    dateIntervalByRate,
+    dateIntervalByEndTime,
+    DateIntervalResult,
+} from "../utils/DateInterval";
 import { getConnection } from "typeorm";
 import cryptoRandomString from "crypto-random-string";
 import { whiteboardCreateRoom } from "../../../utils/request/whiteboard/Whiteboard";
@@ -99,7 +103,7 @@ export const schedule = async (
                 weeks: periodic.weeks,
             });
         } else {
-            dates = dateIntervalByWeek({
+            dates = dateIntervalByEndTime({
                 start: beginDateTime,
                 end: endDateTime,
                 endDate: toDate(periodic.endTime as number),
