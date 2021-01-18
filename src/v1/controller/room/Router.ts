@@ -5,13 +5,13 @@ import { list, listSchemaType } from "./list";
 import { userInfo, userInfoSchemaType } from "./info/Users";
 import { ordinaryInfo, OrdinaryInfoSchemaType } from "./info/Ordinary";
 import { periodicInfo, periodicInfoSchemaType } from "./info/Periodic";
-import { started, startedSchemaType } from "./update/Started";
+import { started, startedSchemaType } from "./update-status/Started";
 import { cancelOrdinary, cancelOrdinarySchemaType } from "./cancel/Ordinary";
-import { stopped, stoppedSchemaType } from "./update/Stopped";
+import { stopped, stoppedSchemaType } from "./update-status/Stopped";
 import { join, joinSchemaType } from "./join";
 import { cancelPeriodic, cancelPeriodicSchemaType } from "./cancel/Periodic";
 import { periodicSubRoomInfo, periodicSubRoomInfoSchemaType } from "./info/PeriodicSubRoom";
-import { paused, pausedSchemaType } from "./update/Paused";
+import { paused, pausedSchemaType } from "./update-status/Paused";
 import { cancelPeriodicSubRoom, cancelPeriodicSubRoomSchemaType } from "./cancel/PeriodicSubRoom";
 import { recordAcquire, recordAcquireSchemaType } from "./record/Acquire";
 import { recordStarted, recordStartedSchemaType } from "./record/Started";
@@ -79,21 +79,21 @@ export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
     }),
     Object.freeze({
         method: "post",
-        path: "room/update/started",
+        path: "room/update-status/started",
         handler: started,
         auth: true,
         schema: startedSchemaType,
     }),
     Object.freeze({
         method: "post",
-        path: "room/update/paused",
+        path: "room/update-status/paused",
         handler: paused,
         auth: true,
         schema: pausedSchemaType,
     }),
     Object.freeze({
         method: "post",
-        path: "room/update/stopped",
+        path: "room/update-status/stopped",
         handler: stopped,
         auth: true,
         schema: stoppedSchemaType,
