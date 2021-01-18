@@ -10,7 +10,7 @@ const generateRTCToken = (title: string, uid: number): string => {
         title,
         uid,
         RtcRole.PUBLISHER,
-        0,
+        Math.floor(Date.now() / 1000) + 60 * 60 * 24,
     );
 };
 
