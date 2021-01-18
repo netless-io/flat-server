@@ -85,6 +85,9 @@ export const periodicSubRoomInfo = async (
                     roomStatus: room_status,
                     ownerUUID: owner_uuid,
                 },
+                count: await RoomPeriodicDAO().count({
+                    periodic_uuid: periodicUUID,
+                }),
                 docs,
             },
         };
@@ -130,6 +133,7 @@ interface PeriodicSubRoomInfoResponse {
         roomStatus: RoomStatus;
         ownerUUID: string;
     };
+    count: number;
     docs: Array<{
         docType: DocsType;
         docUUID: string;
