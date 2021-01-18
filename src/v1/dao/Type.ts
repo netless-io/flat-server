@@ -12,6 +12,7 @@ import { RoomPeriodicConfigModel } from "../model/room/RoomPeriodicConfig";
 import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
 import { RoomDocModel } from "../model/room/RoomDoc";
 import { RoomPeriodicUserModel } from "../model/room/RoomPeriodicUser";
+import { RoomRecordModel } from "../model/room/RoomRecord";
 
 export type Where<M> = {
     [key in keyof M]?: M[key] | FindOperator<M[key]>;
@@ -50,7 +51,8 @@ export type Model =
     | RoomPeriodicConfigModel
     | RoomPeriodicModel
     | RoomDocModel
-    | RoomPeriodicUserModel;
+    | RoomPeriodicUserModel
+    | RoomRecordModel;
 
 export type DAO<T extends Model> = (
     model: EntityTarget<T>,

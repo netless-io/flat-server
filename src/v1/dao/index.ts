@@ -8,6 +8,7 @@ import { RoomPeriodicConfigModel } from "../model/room/RoomPeriodicConfig";
 import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
 import { RoomDocModel } from "../model/room/RoomDoc";
 import { RoomPeriodicUserModel } from "../model/room/RoomPeriodicUser";
+import { RoomRecordModel } from "../model/room/RoomRecord";
 
 export const UserDAO = DAOImplement(UserModel) as ReturnType<DAO<UserModel>>;
 
@@ -30,3 +31,5 @@ export const RoomDocDAO = DAOImplement(RoomDocModel) as ReturnType<DAO<RoomDocMo
 export const RoomPeriodicUserDAO = DAOImplement(RoomPeriodicUserModel) as ReturnType<
     DAO<RoomPeriodicUserModel>
 >;
+
+export const RoomRecordDAO = DAOImplement(RoomRecordModel) as ReturnType<DAO<RoomRecordModel>>;
