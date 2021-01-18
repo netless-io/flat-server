@@ -11,6 +11,8 @@ declare namespace NodeJS {
 
         AGORA_APP_ID: string;
         AGORA_APP_CERTIFICATE: string;
+        AGORA_RESTFUL_ID: string;
+        AGORA_RESTFUL_SECRET: string;
 
         REDIS_HOST: string;
         REDIS_PORT: string;

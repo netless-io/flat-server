@@ -31,6 +31,8 @@ export const WeChat = {
 export const Agora = {
     APP_ID: process.env.AGORA_APP_ID,
     APP_CERTIFICATE: process.env.AGORA_APP_CERTIFICATE,
+    RESTFUL_ID: process.env.AGORA_RESTFUL_ID,
+    RESTFUL_SECRET: process.env.AGORA_RESTFUL_SECRET,
 };
 
 export const JWT = {
