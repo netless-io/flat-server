@@ -25,7 +25,7 @@ export const recordInfo = async (
             };
         }
 
-        const roomInfo = await RoomDAO().findOne(["room_status", "room_type"], {
+        const roomInfo = await RoomDAO().findOne(["room_status", "room_type", "title"], {
             room_uuid: roomUUID,
         });
 
@@ -57,6 +57,7 @@ export const recordInfo = async (
         return {
             status: Status.Success,
             data: {
+                title: roomInfo.title,
                 roomType: roomInfo.room_type,
                 recordInfo: roomRecordInfo.map(({ begin_time, end_time, agora_sid }) => ({
                     beginTime: begin_time.toISOString(),
@@ -94,6 +95,7 @@ export const recordInfoSchemaType: FastifySchema<{
 };
 
 interface RecordInfoResponse {
+    title: string;
     roomType: RoomType;
     recordInfo: Array<{
         beginTime: string;
