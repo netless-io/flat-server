@@ -128,7 +128,7 @@ export const schedule = async (
                         rate: periodic.rate || 0,
                         end_time: periodic.endTime
                             ? toDate(periodic.endTime)
-                            : dates[dates.length - 1].end,
+                            : dates[dates.length - 1].start,
                         room_type: type,
                         periodic_uuid: periodicUUID,
                     }),
