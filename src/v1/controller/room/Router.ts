@@ -19,6 +19,7 @@ import { recordQuery, recordQuerySchemaType } from "./record/Query";
 import { recordStopped, recordStoppedSchemaType } from "./record/Stopped";
 import { recordUpdateLayout, recordUpdateLayoutSchemaType } from "./record/UpdateLayout";
 import { recordInfo, recordInfoSchemaType } from "./record/Info";
+import { updateOrdinary, updateOrdinarySchemaType } from "./update/Ordinary";
 
 export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
@@ -97,6 +98,13 @@ export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
         handler: stopped,
         auth: true,
         schema: stoppedSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "room/update/ordinary",
+        handler: updateOrdinary,
+        auth: true,
+        schema: updateOrdinarySchemaType,
     }),
     Object.freeze({
         method: "post",
