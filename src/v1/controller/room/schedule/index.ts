@@ -3,13 +3,7 @@ import { Periodic, Docs } from "../Types";
 import { Status } from "../../../../Constants";
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { v4 } from "uuid";
-import {
-    compareDesc,
-    differenceInCalendarDays,
-    differenceInMilliseconds,
-    subMinutes,
-    toDate,
-} from "date-fns/fp";
+import { differenceInCalendarDays, toDate } from "date-fns/fp";
 import {
     dateIntervalByRate,
     dateIntervalByEndTime,
@@ -27,6 +21,11 @@ import {
     RoomPeriodicUserDAO,
     RoomUserDAO,
 } from "../../../dao";
+import {
+    beginTimeLessEndTime,
+    beginTimeLessRedundancyOneMinute,
+    timeIntervalLessFifteenMinute,
+} from "../utils/CheckTime";
 
 export const schedule = async (
     req: PatchRequest<{
@@ -38,30 +37,22 @@ export const schedule = async (
 
     // check beginTime and endTime
     {
-        // Because network transmission will consume a little time, there is 1 minute redundancy
-        const redundancyTime = subMinutes(Date.now(), 1);
-        // beginTime >= redundancyTime
-        // creation room time cannot be less than current time
-        if (compareDesc(beginTime)(redundancyTime) === -1) {
+        if (beginTimeLessRedundancyOneMinute(beginTime)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.ParamsCheckFailed,
             };
         }
 
-        const result = compareDesc(endTime)(beginTime);
-        // endTime < beginTime
-        // the end time cannot be less than the creation time
-        if (result === -1) {
+        if (beginTimeLessEndTime(beginTime, endTime)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.ParamsCheckFailed,
             };
         }
 
-        // endTime - beginTime < 15m
         // the interval between the start time and the end time must be greater than 15 minutes
-        if (differenceInMilliseconds(beginTime, endTime) < 1000 * 60 * 15) {
+        if (timeIntervalLessFifteenMinute(beginTime, endTime)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.ParamsCheckFailed,

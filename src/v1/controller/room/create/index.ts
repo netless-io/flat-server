@@ -3,12 +3,13 @@ import { Docs } from "../Types";
 import { Status } from "../../../../Constants";
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { v4 } from "uuid";
-import { addHours, compareDesc, subMinutes, toDate } from "date-fns/fp";
+import { addHours, toDate } from "date-fns/fp";
 import { getConnection } from "typeorm";
 import cryptoRandomString from "crypto-random-string";
 import { whiteboardCreateRoom } from "../../../utils/request/whiteboard/Whiteboard";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomDocDAO, RoomUserDAO } from "../../../dao";
+import { beginTimeLessRedundancyOneMinute } from "../utils/CheckTime";
 
 export const create = async (
     req: PatchRequest<{
@@ -18,12 +19,8 @@ export const create = async (
     const { title, type, beginTime, docs } = req.body;
     const { userUUID } = req.user;
 
-    // check beginTime and endTime
     {
-        // Because network transmission will consume a little time, there is 1 minute redundancy
-        const redundancyTime = subMinutes(Date.now(), 1);
-        // beginTime >= redundancyTime
-        if (compareDesc(beginTime)(redundancyTime) === -1) {
+        if (beginTimeLessRedundancyOneMinute(beginTime)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.ParamsCheckFailed,
