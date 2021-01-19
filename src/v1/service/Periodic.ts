@@ -1,7 +1,7 @@
 import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
 import { RoomDAO, RoomPeriodicDAO, RoomPeriodicUserDAO, RoomUserDAO } from "../dao";
 import { RoomStatus, RoomType } from "../controller/room/Constants";
-import { MoreThanOrEqual, Not } from "typeorm";
+import { MoreThanOrEqual } from "typeorm";
 import { addMinutes } from "date-fns/fp";
 import { EntityManager } from "typeorm/entity-manager/EntityManager";
 import { whiteboardCreateRoom } from "../utils/request/whiteboard/Whiteboard";
@@ -10,22 +10,18 @@ import { Where } from "../dao/Type";
 
 export const getNextRoomPeriodicInfo = async (
     periodicUUID: string,
-    excludeRoomUUID?: string,
+    where?: Where<RoomPeriodicModel>,
 ): Promise<Pick<RoomPeriodicModel, "begin_time" | "end_time" | "fake_room_uuid"> | undefined> => {
-    const where: Where<RoomPeriodicModel> = {
-        periodic_uuid: periodicUUID,
-        room_status: RoomStatus.Idle,
-        end_time: MoreThanOrEqual(addMinutes(1, new Date())),
-    };
-
-    if (excludeRoomUUID) {
-        where.fake_room_uuid = Not(excludeRoomUUID);
-    }
-
-    return await RoomPeriodicDAO().findOne(["begin_time", "end_time", "fake_room_uuid"], where, [
-        "end_time",
-        "ASC",
-    ]);
+    return await RoomPeriodicDAO().findOne(
+        ["begin_time", "end_time", "fake_room_uuid"],
+        {
+            periodic_uuid: periodicUUID,
+            room_status: RoomStatus.Idle,
+            begin_time: MoreThanOrEqual(addMinutes(1, new Date())),
+            ...where,
+        },
+        ["begin_time", "ASC"],
+    );
 };
 
 export const updateNextRoomPeriodicInfo = async ({

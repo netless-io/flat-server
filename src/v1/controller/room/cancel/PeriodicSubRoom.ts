@@ -1,7 +1,7 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
-import { getConnection } from "typeorm";
+import { getConnection, Not } from "typeorm";
 import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../dao";
 import { roomIsRunning } from "../utils/Room";
 import { getNextRoomPeriodicInfo, updateNextRoomPeriodicInfo } from "../../../service/Periodic";
@@ -77,7 +77,9 @@ export const cancelPeriodicSubRoom = async (
                     }),
                 );
 
-                const nextRoomPeriodicInfo = await getNextRoomPeriodicInfo(periodicUUID, roomUUID);
+                const nextRoomPeriodicInfo = await getNextRoomPeriodicInfo(periodicUUID, {
+                    fake_room_uuid: Not(roomUUID),
+                });
 
                 if (nextRoomPeriodicInfo) {
                     commands.push(
