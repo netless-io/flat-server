@@ -39,7 +39,7 @@ export const create = async (
             room_uuid: roomUUID,
             whiteboard_room_uuid: await whiteboardCreateRoom(title),
             begin_time: toDate(beginTime),
-            end_time: addHours(1, Date.now()),
+            end_time: addHours(1, beginTime),
         };
 
         const roomUserData = {
