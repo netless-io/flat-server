@@ -265,10 +265,10 @@ export const scheduleSchemaType: FastifySchema<{
                 },
                 oneOf: [
                     {
-                        required: ["weeks", "endTime"],
+                        required: ["endTime"],
                     },
                     {
-                        required: ["weeks", "rate"],
+                        required: ["rate"],
                     },
                 ],
             },
