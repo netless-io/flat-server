@@ -1,5 +1,5 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { Status } from "../../../../Constants";
+import { Agora, Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomRecordDAO, RoomUserDAO } from "../../../dao";
 import { RoomStatus, RoomType } from "../Constants";
@@ -63,6 +63,7 @@ export const recordInfo = async (
                     beginTime: begin_time.toISOString(),
                     endTime: end_time.toISOString(),
                     agoraSID: agora_sid,
+                    videoURL: `${Agora.OSS_PREFIX}/${Agora.OSS_FOLDER}/${agora_sid}_${roomUUID}.m3u8`,
                 })),
             },
         };
