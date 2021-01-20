@@ -15,10 +15,17 @@ export const beginTimeLessEndTime = (beginTime: number, endTime: number): boolea
     return compareDesc(endTime)(beginTime) === -1;
 };
 
-const timeIntervalLessMinute = (beginTime: number, endTime: number, minute: number): boolean => {
-    return differenceInMilliseconds(beginTime, endTime) < minute;
+const timeIntervalLessThanOrEqualMinute = (
+    beginTime: number,
+    endTime: number,
+    minute: number,
+): boolean => {
+    return differenceInMilliseconds(beginTime, endTime) <= minute;
 };
 
-export const timeIntervalLessFifteenMinute = (beginTime: number, endTime: number): boolean => {
-    return timeIntervalLessMinute(beginTime, endTime, 1000 * 60 * 15);
+export const timeIntervalLessThanOrEqualFifteenMinute = (
+    beginTime: number,
+    endTime: number,
+): boolean => {
+    return timeIntervalLessThanOrEqualMinute(beginTime, endTime, 1000 * 60 * 15);
 };

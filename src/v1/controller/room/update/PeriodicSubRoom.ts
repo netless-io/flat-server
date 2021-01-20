@@ -8,7 +8,7 @@ import { compareDesc, toDate } from "date-fns/fp";
 import {
     beginTimeLessEndTime,
     beginTimeLessRedundancyOneMinute,
-    timeIntervalLessFifteenMinute,
+    timeIntervalLessThanOrEqualFifteenMinute,
 } from "../utils/CheckTime";
 
 export const updatePeriodicSubRoom = async (
@@ -66,7 +66,7 @@ export const updatePeriodicSubRoom = async (
                 };
             }
 
-            if (timeIntervalLessFifteenMinute(beginTime, endTime)) {
+            if (timeIntervalLessThanOrEqualFifteenMinute(beginTime, endTime)) {
                 return {
                     status: Status.Failed,
                     code: ErrorCode.ParamsCheckFailed,
