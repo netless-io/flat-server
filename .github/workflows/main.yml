@@ -69,6 +69,4 @@ jobs:
         script: |
           docker pull $DOCKERHUB_USERNAME/flat-server:latest
           docker rm -f flat-server
-          env > ./env_file
-          docker run -dit -p 80:80 --name flat-server --env-file ./env_file $DOCKERHUB_USERNAME/flat-server:latest
-          rm -rf ./env_file
+          docker run -dit -p 80:80 --name flat-server -e SERVER_PORT="$SERVER_PORT" -e WECHAT_APP_ID="$WECHAT_APP_ID" -e WECHAT_APP_SECRET="$WECHAT_APP_SECRET" -e REDIS_HOST="$REDIS_HOST" -e REDIS_PORT="$REDIS_PORT" -e REDIS_PASSWORD="$REDIS_PASSWORD" -e REDIS_DB="$REDIS_DB" -e MYSQL_HOST="$MYSQL_HOST" -e MYSQL_USER="$MYSQL_USER" -e MYSQL_PORT="$MYSQL_PORT" -e MYSQL_PASSWORD="$MYSQL_PASSWORD" -e MYSQL_DB="$MYSQL_DB" -e AGORA_APP_ID="$AGORA_APP_ID" -e AGORA_APP_CERTIFICATE="$AGORA_APP_CERTIFICATE" -e JWT_SECRET="$JWT_SECRET" -e JWT_ALGORITHMS="$JWT_ALGORITHMS" -e NETLESS_ACCESS_KEY="$NETLESS_ACCESS_KEY" -e NETLESS_SECRET_ACCESS_KEY="$NETLESS_SECRET_ACCESS_KEY" -e AGORA_RESTFUL_ID="$AGORA_RESTFUL_ID" -e AGORA_RESTFUL_SECRET="$AGORA_RESTFUL_SECRET" $DOCKERHUB_USERNAME/flat-server:latest
