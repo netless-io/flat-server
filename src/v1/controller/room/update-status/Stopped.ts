@@ -41,6 +41,18 @@ export const stopped = async (
 
         const { periodic_uuid } = roomInfo;
 
+        const periodicRoomInfo = await RoomPeriodicDAO().findOne(["begin_time"], {
+            periodic_uuid: periodic_uuid,
+            fake_room_uuid: roomUUID,
+        });
+
+        if (periodicRoomInfo === undefined) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.RoomNotFound,
+            };
+        }
+
         await getConnection().transaction(
             async (t): Promise<void> => {
                 const commands: Promise<unknown>[] = [];
@@ -72,7 +84,10 @@ export const stopped = async (
                         ),
                     );
 
-                    const nextRoomPeriodicInfo = await getNextRoomPeriodicInfo(periodic_uuid);
+                    const nextRoomPeriodicInfo = await getNextRoomPeriodicInfo(
+                        periodic_uuid,
+                        periodicRoomInfo.begin_time,
+                    );
 
                     if (nextRoomPeriodicInfo) {
                         const roomPeriodicConfig = await RoomPeriodicConfigDAO().findOne(

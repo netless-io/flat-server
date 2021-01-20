@@ -1,24 +1,21 @@
 import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
 import { RoomDAO, RoomPeriodicDAO, RoomPeriodicUserDAO, RoomUserDAO } from "../dao";
 import { RoomStatus, RoomType } from "../controller/room/Constants";
-import { MoreThanOrEqual } from "typeorm";
-import { addMinutes } from "date-fns/fp";
+import { MoreThan } from "typeorm";
 import { EntityManager } from "typeorm/entity-manager/EntityManager";
 import { whiteboardCreateRoom } from "../utils/request/whiteboard/Whiteboard";
 import cryptoRandomString from "crypto-random-string";
-import { Where } from "../dao/Type";
 
 export const getNextRoomPeriodicInfo = async (
     periodicUUID: string,
-    where?: Where<RoomPeriodicModel>,
+    beginTime: Date,
 ): Promise<Pick<RoomPeriodicModel, "begin_time" | "end_time" | "fake_room_uuid"> | undefined> => {
     return await RoomPeriodicDAO().findOne(
         ["begin_time", "end_time", "fake_room_uuid"],
         {
             periodic_uuid: periodicUUID,
             room_status: RoomStatus.Idle,
-            begin_time: MoreThanOrEqual(addMinutes(1, new Date())),
-            ...where,
+            begin_time: MoreThan(beginTime),
         },
         ["begin_time", "ASC"],
     );
