@@ -4,7 +4,7 @@ import { ErrorCode } from "../../../../ErrorCode";
 import { Status } from "../../../../Constants";
 import { RoomStatus } from "../Constants";
 import { getConnection, LessThanOrEqual, MoreThanOrEqual } from "typeorm";
-import { addMinutes, compareDesc, toDate } from "date-fns/fp";
+import { compareDesc, toDate } from "date-fns/fp";
 import {
     beginTimeLessEndTime,
     beginTimeLessRedundancyOneMinute,
@@ -58,13 +58,6 @@ export const updatePeriodicSubRoom = async (
 
     // legality of detection time
     {
-        if (isChangeBeginTime && beginTimeLessRedundancyOneMinute(beginTime)) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.ParamsCheckFailed,
-            };
-        }
-
         if (isChangeBeginTime || isChangeEndTime) {
             if (beginTimeLessEndTime(beginTime, endTime)) {
                 return {
@@ -126,8 +119,7 @@ export const updatePeriodicSubRoom = async (
             }
         } else {
             // if it is the first room, it must be later than the current time
-            // beginTime < currentTime(one minute of redundancy)
-            if (compareDesc(beginTime, addMinutes(1, new Date())) === -1) {
+            if (beginTimeLessRedundancyOneMinute(beginTime)) {
                 return {
                     status: Status.Failed,
                     code: ErrorCode.ParamsCheckFailed,
