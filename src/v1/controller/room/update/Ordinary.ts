@@ -11,7 +11,7 @@ import { toDate } from "date-fns/fp";
 import {
     beginTimeLessEndTime,
     beginTimeLessRedundancyOneMinute,
-    timeIntervalLessFifteenMinute,
+    timeIntervalLessThanOrEqualFifteenMinute,
 } from "../utils/CheckTime";
 
 export const updateOrdinary = async (
@@ -37,7 +37,7 @@ export const updateOrdinary = async (
             };
         }
 
-        if (timeIntervalLessFifteenMinute(beginTime, endTime)) {
+        if (timeIntervalLessThanOrEqualFifteenMinute(beginTime, endTime)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.ParamsCheckFailed,

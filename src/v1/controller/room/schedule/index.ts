@@ -24,7 +24,7 @@ import {
 import {
     beginTimeLessEndTime,
     beginTimeLessRedundancyOneMinute,
-    timeIntervalLessFifteenMinute,
+    timeIntervalLessThanOrEqualFifteenMinute,
 } from "../utils/CheckTime";
 
 export const schedule = async (
@@ -52,7 +52,7 @@ export const schedule = async (
         }
 
         // the interval between the start time and the end time must be greater than 15 minutes
-        if (timeIntervalLessFifteenMinute(beginTime, endTime)) {
+        if (timeIntervalLessThanOrEqualFifteenMinute(beginTime, endTime)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.ParamsCheckFailed,
