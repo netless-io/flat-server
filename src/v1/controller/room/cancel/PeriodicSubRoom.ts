@@ -1,7 +1,7 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
-import { getConnection, Not } from "typeorm";
+import { getConnection } from "typeorm";
 import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../dao";
 import { roomIsRunning } from "../utils/Room";
 import { getNextRoomPeriodicInfo, updateNextRoomPeriodicInfo } from "../../../service/Periodic";
@@ -31,12 +31,12 @@ export const cancelPeriodicSubRoom = async (
 
         const { title, room_type } = periodicConfig;
 
-        const checkRoomInPeriodic = await RoomPeriodicDAO().findOne(["id"], {
+        const periodicRoomInfo = await RoomPeriodicDAO().findOne(["begin_time"], {
             periodic_uuid: periodicUUID,
             fake_room_uuid: roomUUID,
         });
 
-        if (checkRoomInPeriodic === undefined) {
+        if (periodicRoomInfo === undefined) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.RoomNotFound,
@@ -77,9 +77,10 @@ export const cancelPeriodicSubRoom = async (
                     }),
                 );
 
-                const nextRoomPeriodicInfo = await getNextRoomPeriodicInfo(periodicUUID, {
-                    fake_room_uuid: Not(roomUUID),
-                });
+                const nextRoomPeriodicInfo = await getNextRoomPeriodicInfo(
+                    periodicUUID,
+                    periodicRoomInfo.begin_time,
+                );
 
                 if (nextRoomPeriodicInfo) {
                     commands.push(
