@@ -8,13 +8,14 @@ import {
     RoomPeriodicDAO,
     RoomPeriodicUserDAO,
 } from "../../../dao";
+import { LessThan, MoreThan } from "typeorm";
 
 export const periodicSubRoomInfo = async (
     req: PatchRequest<{
         Body: PeriodicSubRoomInfoBody;
     }>,
 ): Response<PeriodicSubRoomInfoResponse> => {
-    const { periodicUUID, roomUUID } = req.body;
+    const { periodicUUID, roomUUID, needOtherRoomTimeInfo } = req.body;
     const { userUUID } = req.user;
 
     try {
@@ -74,6 +75,48 @@ export const periodicSubRoomInfo = async (
             };
         });
 
+        const {
+            previousPeriodicRoomBeginTime,
+            nextPeriodicRoomEndTime,
+        } = await (async (): Promise<{
+            previousPeriodicRoomBeginTime: string;
+            nextPeriodicRoomEndTime: string;
+        }> => {
+            if (userUUID !== periodicConfigInfo.owner_uuid || !needOtherRoomTimeInfo) {
+                return {
+                    previousPeriodicRoomBeginTime: "",
+                    nextPeriodicRoomEndTime: "",
+                };
+            }
+
+            const previousPeriodicRoom = await RoomPeriodicDAO().findOne(
+                ["begin_time"],
+                {
+                    periodic_uuid: periodicUUID,
+                    begin_time: LessThan(roomPeriodicInfo.begin_time),
+                },
+                ["begin_time", "DESC"],
+            );
+
+            const nextPeriodicRoom = await RoomPeriodicDAO().findOne(
+                ["end_time"],
+                {
+                    periodic_uuid: periodicUUID,
+                    begin_time: MoreThan(roomPeriodicInfo.begin_time),
+                },
+                ["begin_time", "ASC"],
+            );
+
+            return {
+                previousPeriodicRoomBeginTime: previousPeriodicRoom
+                    ? previousPeriodicRoom.begin_time.toISOString()
+                    : "",
+                nextPeriodicRoomEndTime: nextPeriodicRoom
+                    ? nextPeriodicRoom.end_time.toISOString()
+                    : "",
+            };
+        })();
+
         return {
             status: Status.Success,
             data: {
@@ -85,6 +128,8 @@ export const periodicSubRoomInfo = async (
                     roomStatus: room_status,
                     ownerUUID: owner_uuid,
                 },
+                previousPeriodicRoomBeginTime,
+                nextPeriodicRoomEndTime,
                 count: await RoomPeriodicDAO().count({
                     periodic_uuid: periodicUUID,
                 }),
@@ -103,6 +148,7 @@ export const periodicSubRoomInfo = async (
 interface PeriodicSubRoomInfoBody {
     roomUUID: string;
     periodicUUID: string;
+    needOtherRoomTimeInfo?: boolean;
 }
 
 export const periodicSubRoomInfoSchemaType: FastifySchema<{
@@ -120,6 +166,10 @@ export const periodicSubRoomInfoSchemaType: FastifySchema<{
                 type: "string",
                 format: "uuid-v4",
             },
+            needOtherRoomTimeInfo: {
+                type: "boolean",
+                nullable: true,
+            },
         },
     },
 };
@@ -133,6 +183,8 @@ interface PeriodicSubRoomInfoResponse {
         roomStatus: RoomStatus;
         ownerUUID: string;
     };
+    previousPeriodicRoomBeginTime: string;
+    nextPeriodicRoomEndTime: string;
     count: number;
     docs: Array<{
         docType: DocsType;
