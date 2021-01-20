@@ -3,7 +3,7 @@ import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../dao";
 import { ErrorCode } from "../../../../ErrorCode";
 import { Status } from "../../../../Constants";
 import { RoomStatus } from "../Constants";
-import { getConnection, LessThanOrEqual, MoreThanOrEqual } from "typeorm";
+import { getConnection, LessThan, MoreThan } from "typeorm";
 import { compareDesc, toDate } from "date-fns/fp";
 import {
     beginTimeLessEndTime,
@@ -75,43 +75,20 @@ export const updatePeriodicSubRoom = async (
         }
     }
 
-    // the modified end time must be later than the begin time of the next room
-    if (isChangeEndTime) {
-        const nextPeriodicRoom = await RoomPeriodicDAO().findOne(
+    // the modified begin time cannot be earlier than the begin time of the previous room
+    if (isChangeBeginTime) {
+        const previousPeriodicRoom = await RoomPeriodicDAO().findOne(
             ["begin_time"],
             {
                 periodic_uuid: periodicUUID,
-                begin_time: MoreThanOrEqual(periodicRoomInfo.end_time),
+                begin_time: LessThan(periodicRoomInfo.begin_time),
             },
-            ["begin_time", "ASC"],
-        );
-
-        if (
-            nextPeriodicRoom !== undefined &&
-            // nextPeriodicRoom.begin_time <= endTime
-            compareDesc(nextPeriodicRoom.begin_time, endTime) !== 1
-        ) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.ParamsCheckFailed,
-            };
-        }
-    }
-
-    // the modified begin time cannot be earlier than the end time of the previous room
-    if (isChangeBeginTime) {
-        const previousPeriodicRoom = await RoomPeriodicDAO().findOne(
-            ["end_time"],
-            {
-                periodic_uuid: periodicUUID,
-                end_time: LessThanOrEqual(periodicRoomInfo.begin_time),
-            },
-            ["begin_time", "ASC"],
+            ["begin_time", "DESC"],
         );
 
         if (previousPeriodicRoom !== undefined) {
             // beginTime <= previousPeriodicRoom.begin_time
-            if (compareDesc(beginTime, previousPeriodicRoom.end_time) !== 0) {
+            if (compareDesc(beginTime, previousPeriodicRoom.begin_time) !== 0) {
                 return {
                     status: Status.Failed,
                     code: ErrorCode.ParamsCheckFailed,
@@ -125,6 +102,29 @@ export const updatePeriodicSubRoom = async (
                     code: ErrorCode.ParamsCheckFailed,
                 };
             }
+        }
+    }
+
+    // the modified end time must be later than the end time of the next room
+    if (isChangeEndTime) {
+        const nextPeriodicRoom = await RoomPeriodicDAO().findOne(
+            ["end_time"],
+            {
+                periodic_uuid: periodicUUID,
+                begin_time: MoreThan(periodicRoomInfo.begin_time),
+            },
+            ["begin_time", "ASC"],
+        );
+
+        if (
+            nextPeriodicRoom !== undefined &&
+            // nextPeriodicRoom.end_time <= endTime
+            compareDesc(nextPeriodicRoom.end_time, endTime) !== 1
+        ) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.ParamsCheckFailed,
+            };
         }
     }
 
