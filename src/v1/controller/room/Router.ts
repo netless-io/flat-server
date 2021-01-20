@@ -21,6 +21,7 @@ import { recordUpdateLayout, recordUpdateLayoutSchemaType } from "./record/Updat
 import { recordInfo, recordInfoSchemaType } from "./record/Info";
 import { updateOrdinary, updateOrdinarySchemaType } from "./update/Ordinary";
 import { cancelHistory, cancelHistorySchemaType } from "./cancel/History";
+import { updatePeriodicSubRoom, updatePeriodicSubRoomSchemaType } from "./update/PeriodicSubRoom";
 
 export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
@@ -106,6 +107,13 @@ export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
         handler: updateOrdinary,
         auth: true,
         schema: updateOrdinarySchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "room/update/periodic-sub-room",
+        handler: updatePeriodicSubRoom,
+        auth: true,
+        schema: updatePeriodicSubRoomSchemaType,
     }),
     Object.freeze({
         method: "post",
