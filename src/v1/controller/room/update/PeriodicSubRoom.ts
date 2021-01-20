@@ -89,7 +89,7 @@ export const updatePeriodicSubRoom = async (
         if (
             nextPeriodicRoom !== undefined &&
             // nextPeriodicRoom.begin_time < endTime
-            compareDesc(nextPeriodicRoom.begin_time, endTime) === -1
+            compareDesc(nextPeriodicRoom.begin_time, endTime) !== 1
         ) {
             return {
                 status: Status.Failed,
@@ -110,8 +110,8 @@ export const updatePeriodicSubRoom = async (
         );
 
         if (previousPeriodicRoom !== undefined) {
-            // beginTime < previousPeriodicRoom.begin_time
-            if (compareDesc(beginTime, previousPeriodicRoom.end_time) === -1) {
+            // beginTime <= previousPeriodicRoom.begin_time
+            if (compareDesc(beginTime, previousPeriodicRoom.end_time) !== 0) {
                 return {
                     status: Status.Failed,
                     code: ErrorCode.ParamsCheckFailed,
