@@ -18,11 +18,11 @@ import {
 } from "../../../dao";
 import { calculatePeriodicDates, checkPeriodicTime } from "../utils/Periodic";
 
-export const schedule = async (
+export const createPeriodic = async (
     req: PatchRequest<{
-        Body: ScheduleBody;
+        Body: CreatePeriodicBody;
     }>,
-): Response<ScheduleResponse> => {
+): Response<CreatePeriodicResponse> => {
     const { title, type, beginTime, endTime, periodic, docs } = req.body;
     const { userUUID } = req.user;
 
@@ -91,7 +91,7 @@ export const schedule = async (
             {
                 commands.push(
                     RoomDAO(t).insert({
-                        periodic_uuid: typeof periodic !== "undefined" ? periodicUUID : "",
+                        periodic_uuid: periodicUUID,
                         owner_uuid: userUUID,
                         title,
                         room_type: type,
@@ -141,7 +141,7 @@ export const schedule = async (
     }
 };
 
-interface ScheduleBody {
+interface CreatePeriodicBody {
     title: string;
     type: RoomType;
     beginTime: number;
@@ -150,8 +150,8 @@ interface ScheduleBody {
     docs?: Docs[];
 }
 
-export const scheduleSchemaType: FastifySchema<{
-    body: ScheduleBody;
+export const createPeriodicSchemaType: FastifySchema<{
+    body: CreatePeriodicBody;
 }> = {
     body: {
         type: "object",
@@ -198,7 +198,7 @@ export const scheduleSchemaType: FastifySchema<{
                     rate: {
                         type: "integer",
                         maximum: 50,
-                        minimum: -1,
+                        minimum: 1,
                         nullable: true,
                     },
                     endTime: {
@@ -238,4 +238,4 @@ export const scheduleSchemaType: FastifySchema<{
     },
 };
 
-interface ScheduleResponse {}
+interface CreatePeriodicResponse {}

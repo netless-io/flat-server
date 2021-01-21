@@ -15,11 +15,11 @@ import {
     timeIntervalLessThanOrEqualFifteenMinute,
 } from "../utils/CheckTime";
 
-export const create = async (
+export const createOrdinary = async (
     req: PatchRequest<{
-        Body: CreateBody;
+        Body: CreateOrdinaryBody;
     }>,
-): Response<CreateResponse> => {
+): Response<CreateOrdinaryResponse> => {
     const { title, type, beginTime, endTime, docs } = req.body;
     const { userUUID } = req.user;
 
@@ -106,7 +106,7 @@ export const create = async (
     }
 };
 
-interface CreateBody {
+interface CreateOrdinaryBody {
     title: string;
     type: RoomType;
     beginTime: number;
@@ -114,8 +114,8 @@ interface CreateBody {
     docs?: Docs[];
 }
 
-export const createSchemaType: FastifySchema<{
-    body: CreateBody;
+export const createOrdinarySchemaType: FastifySchema<{
+    body: CreateOrdinaryBody;
 }> = {
     body: {
         type: "object",
@@ -160,6 +160,6 @@ export const createSchemaType: FastifySchema<{
     },
 };
 
-interface CreateResponse {
+interface CreateOrdinaryResponse {
     roomUUID: string;
 }
