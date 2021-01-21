@@ -4,11 +4,6 @@ import { Status } from "../../../../Constants";
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { v4 } from "uuid";
 import { differenceInCalendarDays, toDate } from "date-fns/fp";
-import {
-    dateIntervalByRate,
-    dateIntervalByEndTime,
-    DateIntervalResult,
-} from "../utils/DateInterval";
 import { getConnection } from "typeorm";
 import cryptoRandomString from "crypto-random-string";
 import { whiteboardCreateRoom } from "../../../utils/request/whiteboard/Whiteboard";
@@ -21,11 +16,7 @@ import {
     RoomPeriodicUserDAO,
     RoomUserDAO,
 } from "../../../dao";
-import {
-    beginTimeLessEndTime,
-    beginTimeLessRedundancyOneMinute,
-    timeIntervalLessThanOrEqualFifteenMinute,
-} from "../utils/CheckTime";
+import { calculatePeriodicDates, checkPeriodicTime } from "../utils/Periodic";
 
 export const schedule = async (
     req: PatchRequest<{
@@ -35,29 +26,11 @@ export const schedule = async (
     const { title, type, beginTime, endTime, periodic, docs } = req.body;
     const { userUUID } = req.user;
 
-    // check beginTime and endTime
-    {
-        if (beginTimeLessRedundancyOneMinute(beginTime)) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.ParamsCheckFailed,
-            };
-        }
-
-        if (beginTimeLessEndTime(beginTime, endTime)) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.ParamsCheckFailed,
-            };
-        }
-
-        // the interval between the start time and the end time must be greater than 15 minutes
-        if (timeIntervalLessThanOrEqualFifteenMinute(beginTime, endTime)) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.ParamsCheckFailed,
-            };
-        }
+    if (checkPeriodicTime(beginTime, endTime)) {
+        return {
+            status: Status.Failed,
+            code: ErrorCode.ParamsCheckFailed,
+        };
     }
 
     // check periodic.endTime
@@ -74,26 +47,7 @@ export const schedule = async (
     }
 
     try {
-        const beginDateTime = toDate(beginTime);
-        const endDateTime = toDate(endTime);
-
-        let dates: DateIntervalResult[];
-
-        if (typeof periodic.rate === "number") {
-            dates = dateIntervalByRate({
-                start: beginDateTime,
-                end: endDateTime,
-                rate: periodic.rate,
-                weeks: periodic.weeks,
-            });
-        } else {
-            dates = dateIntervalByEndTime({
-                start: beginDateTime,
-                end: endDateTime,
-                endDate: toDate(periodic.endTime as number),
-                weeks: periodic.weeks,
-            });
-        }
+        const dates = calculatePeriodicDates(beginTime, endTime, periodic);
 
         const periodicUUID = v4();
 
