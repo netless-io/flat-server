@@ -61,5 +61,3 @@ export enum WeChatSocketEvents {
 export enum SocketNsp {
     Login = "Login",
 }
-
-export const DefaultDatetime = new Date("2000-01-01T00:00:00.000Z");

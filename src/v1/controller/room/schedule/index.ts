@@ -62,7 +62,7 @@ export const schedule = async (
 
     // check periodic.endTime
     {
-        if (periodic?.endTime) {
+        if (periodic.endTime) {
             // endTime(day) > periodic.endTime(day)
             if (differenceInCalendarDays(endTime)(periodic.endTime) < 0) {
                 return {
@@ -79,14 +79,7 @@ export const schedule = async (
 
         let dates: DateIntervalResult[];
 
-        if (typeof periodic === "undefined") {
-            dates = [
-                {
-                    start: beginDateTime,
-                    end: endDateTime,
-                },
-            ];
-        } else if (typeof periodic.rate === "number") {
+        if (typeof periodic.rate === "number") {
             dates = dateIntervalByRate({
                 start: beginDateTime,
                 end: endDateTime,
@@ -117,30 +110,28 @@ export const schedule = async (
         await getConnection().transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
-            if (typeof periodic !== "undefined") {
-                commands.push(RoomPeriodicDAO(t).insert(roomData));
+            commands.push(RoomPeriodicDAO(t).insert(roomData));
 
-                commands.push(
-                    RoomPeriodicConfigDAO(t).insert({
-                        owner_uuid: userUUID,
-                        periodic_status: PeriodicStatus.Idle,
-                        title,
-                        rate: periodic.rate || 0,
-                        end_time: periodic.endTime
-                            ? toDate(periodic.endTime)
-                            : dates[dates.length - 1].start,
-                        room_type: type,
-                        periodic_uuid: periodicUUID,
-                    }),
-                );
+            commands.push(
+                RoomPeriodicConfigDAO(t).insert({
+                    owner_uuid: userUUID,
+                    periodic_status: PeriodicStatus.Idle,
+                    title,
+                    rate: periodic.rate || 0,
+                    end_time: periodic.endTime
+                        ? toDate(periodic.endTime)
+                        : dates[dates.length - 1].start,
+                    room_type: type,
+                    periodic_uuid: periodicUUID,
+                }),
+            );
 
-                commands.push(
-                    RoomPeriodicUserDAO(t).insert({
-                        periodic_uuid: periodicUUID,
-                        user_uuid: userUUID,
-                    }),
-                );
-            }
+            commands.push(
+                RoomPeriodicUserDAO(t).insert({
+                    periodic_uuid: periodicUUID,
+                    user_uuid: userUUID,
+                }),
+            );
 
             // take the first lesson of the periodic room
             {
@@ -201,7 +192,7 @@ interface ScheduleBody {
     type: RoomType;
     beginTime: number;
     endTime: number;
-    periodic?: Periodic;
+    periodic: Periodic;
     docs?: Docs[];
 }
 
@@ -210,7 +201,7 @@ export const scheduleSchemaType: FastifySchema<{
 }> = {
     body: {
         type: "object",
-        required: ["title", "type", "beginTime", "endTime"],
+        required: ["title", "type", "beginTime", "endTime", "periodic"],
         properties: {
             title: {
                 type: "string",
@@ -231,7 +222,6 @@ export const scheduleSchemaType: FastifySchema<{
             periodic: {
                 type: "object",
                 required: ["weeks"],
-                nullable: true,
                 properties: {
                     weeks: {
                         type: "array",

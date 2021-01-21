@@ -9,14 +9,18 @@ import cryptoRandomString from "crypto-random-string";
 import { whiteboardCreateRoom } from "../../../utils/request/whiteboard/Whiteboard";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomDocDAO, RoomUserDAO } from "../../../dao";
-import { beginTimeLessRedundancyOneMinute } from "../utils/CheckTime";
+import {
+    beginTimeLessEndTime,
+    beginTimeLessRedundancyOneMinute,
+    timeIntervalLessThanOrEqualFifteenMinute,
+} from "../utils/CheckTime";
 
 export const create = async (
     req: PatchRequest<{
         Body: CreateBody;
     }>,
 ): Response<CreateResponse> => {
-    const { title, type, beginTime, docs } = req.body;
+    const { title, type, beginTime, endTime, docs } = req.body;
     const { userUUID } = req.user;
 
     {
@@ -25,6 +29,22 @@ export const create = async (
                 status: Status.Failed,
                 code: ErrorCode.ParamsCheckFailed,
             };
+        }
+
+        if (endTime) {
+            if (beginTimeLessEndTime(beginTime, endTime)) {
+                return {
+                    status: Status.Failed,
+                    code: ErrorCode.ParamsCheckFailed,
+                };
+            }
+
+            if (timeIntervalLessThanOrEqualFifteenMinute(beginTime, endTime)) {
+                return {
+                    status: Status.Failed,
+                    code: ErrorCode.ParamsCheckFailed,
+                };
+            }
         }
     }
 
@@ -39,7 +59,7 @@ export const create = async (
             room_uuid: roomUUID,
             whiteboard_room_uuid: await whiteboardCreateRoom(title),
             begin_time: toDate(beginTime),
-            end_time: addHours(1, beginTime),
+            end_time: endTime ? toDate(endTime) : addHours(1, beginTime),
         };
 
         const roomUserData = {
@@ -90,6 +110,7 @@ interface CreateBody {
     title: string;
     type: RoomType;
     beginTime: number;
+    endTime?: number;
     docs?: Docs[];
 }
 
@@ -111,6 +132,11 @@ export const createSchemaType: FastifySchema<{
             beginTime: {
                 type: "integer",
                 format: "unix-timestamp",
+            },
+            endTime: {
+                type: "integer",
+                format: "unix-timestamp",
+                nullable: true,
             },
             docs: {
                 type: "array",
