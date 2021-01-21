@@ -70,7 +70,7 @@ export const periodicInfo = async (
                     ownerUUID: periodicConfig.owner_uuid,
                     roomType: periodicConfig.room_type,
                     endTime: periodicConfig.end_time,
-                    rate: periodicConfig.rate,
+                    rate: periodicConfig.rate || null,
                 },
                 rooms: rooms.map(({ fake_room_uuid, begin_time, end_time, room_status }) => {
                     return {
@@ -115,7 +115,7 @@ interface PeriodicInfoResponse {
         ownerUUID: string;
         roomType: string;
         endTime: Date;
-        rate: number;
+        rate: number | null;
     };
     rooms: Array<{
         roomUUID: string;
