@@ -4,8 +4,7 @@ import { RoomUserModel } from "../../../model/room/RoomUser";
 import { RoomModel } from "../../../model/room/Room";
 import { UserModel } from "../../../model/user/User";
 import { ListType, RoomStatus } from "../Constants";
-import { DefaultDatetime, Status } from "../../../../Constants";
-import { isEqual } from "date-fns/fp";
+import { Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 
 export const list = async (
@@ -83,11 +82,11 @@ export const list = async (
         const resp: ListResponse = rooms.map((room: Room) => {
             return {
                 roomUUID: room.room_uuid,
-                periodicUUID: room.periodic_uuid,
+                periodicUUID: room.periodic_uuid || null,
                 ownerUUID: room.owner_uuid,
                 title: room.title,
                 beginTime: room.begin_time.toISOString(),
-                endTime: isEqual(room.end_time)(DefaultDatetime) ? "" : room.end_time.toISOString(),
+                endTime: room.end_time.toISOString(),
                 roomStatus: room.room_status,
                 ownerName: room.owner_user_name,
             };
@@ -143,7 +142,7 @@ export const listSchemaType: FastifySchema<{
 
 type ListResponse = Array<{
     roomUUID: string;
-    periodicUUID: string;
+    periodicUUID: string | null;
     ownerUUID: string;
     title: string;
     beginTime: string;

@@ -1,6 +1,5 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { DefaultDatetime, Status } from "../../../../Constants";
-import { isEqual } from "date-fns/fp";
+import { Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { DocsType, RoomStatus, RoomType } from "../Constants";
 import { RoomDAO, RoomDocDAO, RoomUserDAO } from "../../../dao";
@@ -68,9 +67,7 @@ export const ordinaryInfo = async (
                 roomInfo: {
                     title: roomInfo.title,
                     beginTime: roomInfo.begin_time,
-                    endTime: isEqual(roomInfo.end_time)(DefaultDatetime)
-                        ? ""
-                        : roomInfo.end_time.toISOString(),
+                    endTime: roomInfo.end_time.toISOString(),
                     roomType: roomInfo.room_type,
                     roomStatus: roomInfo.room_status,
                     ownerUUID: roomInfo.owner_uuid,
