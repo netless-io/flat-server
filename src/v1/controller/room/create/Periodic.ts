@@ -26,7 +26,7 @@ export const createPeriodic = async (
     const { title, type, beginTime, endTime, periodic, docs } = req.body;
     const { userUUID } = req.user;
 
-    if (checkPeriodicTime(beginTime, endTime)) {
+    if (!checkPeriodicTime(beginTime, endTime)) {
         return {
             status: Status.Failed,
             code: ErrorCode.ParamsCheckFailed,
