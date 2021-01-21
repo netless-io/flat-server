@@ -1,6 +1,6 @@
 import { FastifyRoutes } from "../../types/Server";
-import { create, createSchemaType } from "./create";
-import { schedule, scheduleSchemaType } from "./schedule";
+import { createOrdinary, createOrdinarySchemaType } from "./create/Ordinary";
+import { createPeriodic, createPeriodicSchemaType } from "./create/Periodic";
 import { list, listSchemaType } from "./list";
 import { userInfo, userInfoSchemaType } from "./info/Users";
 import { ordinaryInfo, OrdinaryInfoSchemaType } from "./info/Ordinary";
@@ -26,17 +26,17 @@ import { updatePeriodicSubRoom, updatePeriodicSubRoomSchemaType } from "./update
 export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
         method: "post",
-        path: "room/create",
-        handler: create,
+        path: "room/create/ordinary",
+        handler: createOrdinary,
         auth: true,
-        schema: createSchemaType,
+        schema: createOrdinarySchemaType,
     }),
     Object.freeze({
         method: "post",
-        path: "room/schedule",
-        handler: schedule,
+        path: "room/create/periodic",
+        handler: createPeriodic,
         auth: true,
-        schema: scheduleSchemaType,
+        schema: createPeriodicSchemaType,
     }),
     Object.freeze({
         method: "post",
