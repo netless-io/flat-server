@@ -1,14 +1,13 @@
 import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
 import { Status } from "../../../../../Constants";
 import { ErrorCode } from "../../../../../ErrorCode";
-import { RoomDAO, RoomRecordDAO } from "../../../../dao";
+import { RoomDAO } from "../../../../dao";
 import { roomIsRunning } from "../../utils/Room";
 import {
     AgoraCloudRecordParamsType,
     AgoraCloudRecordQueryResponse,
 } from "../../../../utils/request/agora/Types";
 import { agoraCloudRecordQueryRequest } from "../../../../utils/request/agora/Agora";
-import { getConnection } from "typeorm";
 
 export const recordAgoraQuery = async (
     req: PatchRequest<{
@@ -38,25 +37,10 @@ export const recordAgoraQuery = async (
             };
         }
 
-        let agoraResponse: AgoraCloudRecordQueryResponse<"string" | "json" | undefined>;
-        await getConnection().transaction(async t => {
-            // if the teacher is disconnected unexpectedly, the last query time will be used as the end time
-            // no need to care when agora's service is closed. When no query request is sent for a period of time, agora will automatically consider it to be over
-            await RoomRecordDAO(t).update(
-                {
-                    end_time: new Date(),
-                },
-                {
-                    agora_sid: agoraParams.sid,
-                },
-            );
-
-            agoraResponse = await agoraCloudRecordQueryRequest(agoraParams);
-        });
+        const agoraResponse = await agoraCloudRecordQueryRequest(agoraParams);
 
         return {
             status: Status.Success,
-            // @ts-ignore
             data: agoraResponse,
         };
     } catch (e) {
