@@ -5,14 +5,8 @@ import { Status } from "../../../../Constants";
 import { DocsType, RoomStatus, RoomType } from "../Constants";
 import { getConnection, In } from "typeorm";
 import { Docs } from "../Types";
-import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
-import { RoomDocModel } from "../../../model/room/RoomDoc";
 import { toDate } from "date-fns/fp";
-import {
-    beginTimeLessEndTime,
-    beginTimeLessRedundancyOneMinute,
-    timeIntervalLessThanOrEqualFifteenMinute,
-} from "../utils/CheckTime";
+import { checkUpdateBeginAndEndTime, docsDiff } from "./Utils";
 
 export const updateOrdinary = async (
     req: PatchRequest<{
@@ -22,30 +16,7 @@ export const updateOrdinary = async (
     const { roomUUID, beginTime, endTime, title, type, docs } = req.body;
     const { userUUID } = req.user;
 
-    {
-        if (beginTimeLessRedundancyOneMinute(beginTime)) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.ParamsCheckFailed,
-            };
-        }
-
-        if (beginTimeLessEndTime(beginTime, endTime)) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.ParamsCheckFailed,
-            };
-        }
-
-        if (timeIntervalLessThanOrEqualFifteenMinute(beginTime, endTime)) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.ParamsCheckFailed,
-            };
-        }
-    }
-
-    const roomInfo = await RoomDAO().findOne(["room_status"], {
+    const roomInfo = await RoomDAO().findOne(["room_status", "begin_time", "end_time"], {
         room_uuid: roomUUID,
         owner_uuid: userUUID,
     });
@@ -64,40 +35,20 @@ export const updateOrdinary = async (
         };
     }
 
+    if (!checkUpdateBeginAndEndTime(beginTime, endTime, roomInfo)) {
+        return {
+            status: Status.Failed,
+            code: ErrorCode.ParamsCheckFailed,
+        };
+    }
+
     const roomDocs = await RoomDocDAO().find(["doc_uuid"], {
         room_uuid: roomUUID,
     });
 
-    const docsUUIDInDB = roomDocs.map(doc => doc.doc_uuid);
-    const docsUUIDInParams = docs.map(doc => doc.uuid);
-
-    // roomDocs = [1, 2, 3, 4]
-    // docsUUIDInParams = [1, 2]
-    // => [3, 4]
-    const willRemoveDocs = docsUUIDInDB.filter(uuid => {
-        return !docsUUIDInParams.includes(uuid);
+    const { willAddDocs, willRemoveDocs } = docsDiff(roomDocs, docs, {
+        room_uuid: roomUUID,
     });
-
-    // docs = [1, 2, 3, 4]
-    // docsUUIDInDB = [1,2]
-    // => [3, 4]
-    const willAddDocs: QueryDeepPartialEntity<RoomDocModel>[] = (() => {
-        const result: QueryDeepPartialEntity<RoomDocModel>[] = [];
-
-        docs.forEach(({ uuid, type }) => {
-            if (!docsUUIDInDB.includes(uuid)) {
-                result.push({
-                    doc_type: type,
-                    doc_uuid: uuid,
-                    room_uuid: roomUUID,
-                    periodic_uuid: "",
-                    is_preload: false,
-                });
-            }
-        });
-
-        return result;
-    })();
 
     try {
         await getConnection().transaction(async t => {
