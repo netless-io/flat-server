@@ -25,13 +25,11 @@ export class RoomRecordModel extends Content {
     })
     end_time: Date;
 
-    @Index("room_records_agora_sid_uindex", {
-        unique: true,
-    })
     @Column({
         // 8 more bits for redundancy
         length: 40,
         comment: "agora record id",
+        default: "",
     })
     agora_sid: string;
 
