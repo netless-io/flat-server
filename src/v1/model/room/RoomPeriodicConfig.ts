@@ -27,6 +27,20 @@ export class RoomPeriodicConfigModel extends Content {
     title: string;
 
     @Column({
+        type: "datetime",
+        precision: 3,
+        comment: "room origin begin time",
+    })
+    room_origin_begin_time: Date;
+
+    @Column({
+        type: "datetime",
+        precision: 3,
+        comment: "room origin end time",
+    })
+    room_origin_end_time: Date;
+
+    @Column({
         type: "tinyint",
         precision: 3,
         comment: "periodic rate (max 50)",

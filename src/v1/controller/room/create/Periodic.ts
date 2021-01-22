@@ -71,6 +71,8 @@ export const createPeriodic = async (
                     owner_uuid: userUUID,
                     periodic_status: PeriodicStatus.Idle,
                     title,
+                    room_origin_begin_time: toDate(beginTime),
+                    room_origin_end_time: toDate(endTime),
                     rate: periodic.rate || 0,
                     end_time: periodic.endTime
                         ? toDate(periodic.endTime)
