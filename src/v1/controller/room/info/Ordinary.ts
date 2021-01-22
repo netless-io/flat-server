@@ -13,12 +13,12 @@ export const ordinaryInfo = async (
     const { userUUID } = req.user;
 
     try {
-        const checkUserExistRoom = await RoomUserDAO().findOne(["id"], {
+        const roomUserInfo = await RoomUserDAO().findOne(["id"], {
             user_uuid: userUUID,
             room_uuid: roomUUID,
         });
 
-        if (checkUserExistRoom === undefined) {
+        if (roomUserInfo === undefined) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.RoomNotFound,

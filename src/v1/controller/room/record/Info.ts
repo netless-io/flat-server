@@ -13,12 +13,12 @@ export const recordInfo = async (
     const { userUUID } = req.user;
 
     try {
-        const checkUserExistRoom = await RoomUserDAO().findOne(["id"], {
+        const roomUserInfo = await RoomUserDAO().findOne(["id"], {
             room_uuid: roomUUID,
             user_uuid: userUUID,
         });
 
-        if (checkUserExistRoom === undefined) {
+        if (roomUserInfo === undefined) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.RoomNotFound,

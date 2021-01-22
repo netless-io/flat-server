@@ -4,7 +4,7 @@ import { ErrorCode } from "../../../../ErrorCode";
 import { getConnection } from "typeorm";
 import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../dao";
 import { roomIsRunning } from "../utils/Room";
-import { getNextRoomPeriodicInfo, updateNextRoomPeriodicInfo } from "../../../service/Periodic";
+import { getNextPeriodicRoomInfo, updateNextPeriodicRoomInfo } from "../../../service/Periodic";
 import { PeriodicStatus } from "../Constants";
 import { whiteboardBanRoom } from "../../../utils/request/whiteboard/Whiteboard";
 
@@ -77,14 +77,14 @@ export const cancelPeriodicSubRoom = async (
                     }),
                 );
 
-                const nextRoomPeriodicInfo = await getNextRoomPeriodicInfo(
+                const nextRoomPeriodicInfo = await getNextPeriodicRoomInfo(
                     periodicUUID,
                     periodicRoomInfo.begin_time,
                 );
 
                 if (nextRoomPeriodicInfo) {
                     commands.push(
-                        ...(await updateNextRoomPeriodicInfo({
+                        ...(await updateNextPeriodicRoomInfo({
                             transaction: t,
                             periodic_uuid: periodicUUID,
                             user_uuid: userUUID,

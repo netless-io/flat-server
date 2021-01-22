@@ -13,21 +13,21 @@ export const joinPeriodic = async (
     periodicUUID: string,
     userUUID: string,
 ): Response<JoinResponse> => {
-    const roomPeriodicConfig = await RoomPeriodicConfigDAO().findOne(
+    const periodicRoomConfig = await RoomPeriodicConfigDAO().findOne(
         ["periodic_status", "owner_uuid"],
         {
             periodic_uuid: periodicUUID,
         },
     );
 
-    if (roomPeriodicConfig === undefined) {
+    if (periodicRoomConfig === undefined) {
         return {
             status: Status.Failed,
             code: ErrorCode.PeriodicNotFound,
         };
     }
 
-    if (roomPeriodicConfig.periodic_status === PeriodicStatus.Stopped) {
+    if (periodicRoomConfig.periodic_status === PeriodicStatus.Stopped) {
         return {
             status: Status.Failed,
             code: ErrorCode.PeriodicIsEnded,
@@ -53,7 +53,7 @@ export const joinPeriodic = async (
     const { room_uuid: roomUUID, whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
     let rtcUID: string;
 
-    if (roomPeriodicConfig.owner_uuid === userUUID) {
+    if (periodicRoomConfig.owner_uuid === userUUID) {
         const roomUserInfo = await RoomUserDAO().findOne(["rtc_uid"], {
             room_uuid: roomUUID,
             user_uuid: userUUID,
