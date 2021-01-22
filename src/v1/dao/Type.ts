@@ -21,7 +21,10 @@ export type Where<M> = {
 type Find<M> = <T extends keyof M>(
     select: T[],
     where: Where<M>,
-    order?: [T, "ASC" | "DESC"],
+    config?: {
+        order?: [T, "ASC" | "DESC"];
+        distinct?: boolean;
+    },
 ) => Promise<Pick<M, T>[]>;
 
 type FindOne<M> = <T extends keyof M>(
