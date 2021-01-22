@@ -50,7 +50,7 @@ export const updateNextPeriodicRoomInfo = async ({
             room_type,
             room_status: RoomStatus.Idle,
             room_uuid: fake_room_uuid,
-            whiteboard_room_uuid: await whiteboardCreateRoom(title),
+            whiteboard_room_uuid: await whiteboardCreateRoom(),
             begin_time,
             end_time,
         }),
