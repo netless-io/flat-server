@@ -68,13 +68,18 @@ export const DAOImplement: DAO<Model> = model => {
 
                 return managerOrRepo.insert(model, data);
             },
-            update: (setData, where) => {
-                return managerOrRepo
+            update: (setData, where, order, limit) => {
+                const result = managerOrRepo
                     .createQueryBuilder()
                     .update(model)
                     .set(setData)
-                    .where(noDelete(where))
-                    .execute();
+                    .where(noDelete(where));
+
+                if (order && limit) {
+                    return result.orderBy(order[0], order[1]).limit(limit).execute();
+                }
+
+                return result.execute();
             },
             remove: where => {
                 return managerOrRepo

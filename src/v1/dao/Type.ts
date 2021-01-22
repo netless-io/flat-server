@@ -39,7 +39,12 @@ type Insert<M> = (
           },
 ) => Promise<InsertResult>;
 
-type Update<M> = (setData: QueryDeepPartialEntity<M>, where: Where<M>) => Promise<UpdateResult>;
+type Update<M> = (
+    setData: QueryDeepPartialEntity<M>,
+    where: Where<M>,
+    order?: [keyof M, "ASC" | "DESC"],
+    limit?: number,
+) => Promise<UpdateResult>;
 
 type Remove<M> = (where: Where<M>) => Promise<UpdateResult>;
 
