@@ -172,6 +172,14 @@ export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
     }),
     Object.freeze({
         method: "post",
+        path: "room/record/update-end-time",
+        // the logic here is consistent with room/record/stopped
+        handler: recordStopped,
+        auth: true,
+        schema: recordStoppedSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
         path: "room/record/agora/acquire",
         handler: recordAgoraAcquire,
         auth: true,
