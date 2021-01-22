@@ -19,33 +19,33 @@ export const periodicSubRoomInfo = async (
     const { userUUID } = req.user;
 
     try {
-        const checkUserInPeriodicRoom = await RoomPeriodicUserDAO().findOne(["id"], {
+        const periodicRoomUserInfo = await RoomPeriodicUserDAO().findOne(["id"], {
             periodic_uuid: periodicUUID,
             user_uuid: userUUID,
         });
 
-        if (checkUserInPeriodicRoom === undefined) {
+        if (periodicRoomUserInfo === undefined) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.PeriodicNotFound,
             };
         }
 
-        const roomPeriodicInfo = await RoomPeriodicDAO().findOne(
+        const periodicRoomInfo = await RoomPeriodicDAO().findOne(
             ["room_status", "begin_time", "end_time"],
             {
                 fake_room_uuid: roomUUID,
             },
         );
 
-        if (roomPeriodicInfo === undefined) {
+        if (periodicRoomInfo === undefined) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.PeriodicNotFound,
             };
         }
 
-        const { room_status, begin_time, end_time } = roomPeriodicInfo;
+        const { room_status, begin_time, end_time } = periodicRoomInfo;
 
         const periodicConfigInfo = await RoomPeriodicConfigDAO().findOne(
             ["title", "owner_uuid", "room_type"],
@@ -93,7 +93,7 @@ export const periodicSubRoomInfo = async (
                 ["begin_time"],
                 {
                     periodic_uuid: periodicUUID,
-                    begin_time: LessThan(roomPeriodicInfo.begin_time),
+                    begin_time: LessThan(periodicRoomInfo.begin_time),
                 },
                 ["begin_time", "DESC"],
             );
@@ -102,7 +102,7 @@ export const periodicSubRoomInfo = async (
                 ["end_time"],
                 {
                     periodic_uuid: periodicUUID,
-                    begin_time: MoreThan(roomPeriodicInfo.begin_time),
+                    begin_time: MoreThan(periodicRoomInfo.begin_time),
                 },
                 ["begin_time", "ASC"],
             );

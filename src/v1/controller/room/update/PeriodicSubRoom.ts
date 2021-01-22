@@ -19,12 +19,12 @@ export const updatePeriodicSubRoom = async (
     const { periodicUUID, roomUUID, beginTime, endTime } = req.body;
     const { userUUID } = req.user;
 
-    const checkUserIsOwner = await RoomPeriodicConfigDAO().findOne(["id"], {
+    const periodicRoomConfig = await RoomPeriodicConfigDAO().findOne(["id"], {
         periodic_uuid: periodicUUID,
         owner_uuid: userUUID,
     });
 
-    if (checkUserIsOwner === undefined) {
+    if (periodicRoomConfig === undefined) {
         return {
             status: Status.Failed,
             code: ErrorCode.PeriodicNotFound,

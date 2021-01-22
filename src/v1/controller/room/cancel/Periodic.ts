@@ -21,12 +21,12 @@ export const cancelPeriodic = async (
     const { userUUID } = req.user;
 
     try {
-        const checkUserInPeriodicRoom = await RoomPeriodicUserDAO().findOne(["id"], {
+        const periodicRoomUserInfo = await RoomPeriodicUserDAO().findOne(["id"], {
             periodic_uuid: periodicUUID,
             user_uuid: userUUID,
         });
 
-        if (checkUserInPeriodicRoom === undefined) {
+        if (periodicRoomUserInfo === undefined) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.PeriodicNotFound,

@@ -6,7 +6,7 @@ import { EntityManager } from "typeorm/entity-manager/EntityManager";
 import { whiteboardCreateRoom } from "../utils/request/whiteboard/Whiteboard";
 import cryptoRandomString from "crypto-random-string";
 
-export const getNextRoomPeriodicInfo = async (
+export const getNextPeriodicRoomInfo = async (
     periodicUUID: string,
     beginTime: Date,
 ): Promise<Pick<RoomPeriodicModel, "begin_time" | "end_time" | "fake_room_uuid"> | undefined> => {
@@ -21,7 +21,7 @@ export const getNextRoomPeriodicInfo = async (
     );
 };
 
-export const updateNextRoomPeriodicInfo = async ({
+export const updateNextPeriodicRoomInfo = async ({
     transaction,
     periodic_uuid,
     user_uuid,

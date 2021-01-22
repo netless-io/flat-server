@@ -6,7 +6,7 @@ import { whiteboardBanRoom } from "../../../utils/request/whiteboard/Whiteboard"
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../dao";
 import { roomIsRunning } from "../utils/Room";
-import { getNextRoomPeriodicInfo, updateNextRoomPeriodicInfo } from "../../../service/Periodic";
+import { getNextPeriodicRoomInfo, updateNextPeriodicRoomInfo } from "../../../service/Periodic";
 import { RoomPeriodicModel } from "../../../model/room/RoomPeriodic";
 
 export const stopped = async (
@@ -89,13 +89,13 @@ export const stopped = async (
                         ),
                     );
 
-                    const nextRoomPeriodicInfo = await getNextRoomPeriodicInfo(
+                    const nextRoomPeriodicInfo = await getNextPeriodicRoomInfo(
                         periodic_uuid,
                         periodicRoomInfo.begin_time,
                     );
 
                     if (nextRoomPeriodicInfo) {
-                        const roomPeriodicConfig = await RoomPeriodicConfigDAO().findOne(
+                        const periodicRoomConfig = await RoomPeriodicConfigDAO().findOne(
                             ["title", "room_type"],
                             {
                                 periodic_uuid,
@@ -103,13 +103,13 @@ export const stopped = async (
                         );
 
                         // unless you encounter special boundary conditions, you will not get here
-                        if (roomPeriodicConfig === undefined) {
+                        if (periodicRoomConfig === undefined) {
                             throw new Error("Enter a special boundary situation");
                         }
 
-                        const { title, room_type } = roomPeriodicConfig;
+                        const { title, room_type } = periodicRoomConfig;
                         commands.concat(
-                            await updateNextRoomPeriodicInfo({
+                            await updateNextPeriodicRoomInfo({
                                 transaction: t,
                                 periodic_uuid,
                                 user_uuid: userUUID,
