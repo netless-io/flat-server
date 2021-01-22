@@ -1,11 +1,12 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { createQueryBuilder } from "typeorm";
+import { createQueryBuilder, In } from "typeorm";
 import { RoomUserModel } from "../../../model/room/RoomUser";
 import { RoomModel } from "../../../model/room/Room";
 import { UserModel } from "../../../model/user/User";
 import { ListType, RoomStatus } from "../Constants";
 import { Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
+import { RoomRecordDAO } from "../../../dao";
 
 export const list = async (
     req: PatchRequest<{
@@ -92,6 +93,28 @@ export const list = async (
             };
         });
 
+        if (type === ListType.History) {
+            const roomsUUID = rooms.map((room: Room) => room.room_uuid);
+
+            const roomRecordInfo = await RoomRecordDAO().find(
+                ["room_uuid"],
+                {
+                    room_uuid: In(roomsUUID),
+                },
+                {
+                    distinct: true,
+                },
+            );
+
+            roomRecordInfo.forEach(record => {
+                resp.forEach(room => {
+                    if (room.roomUUID === record.room_uuid) {
+                        room.hasRecord = true;
+                    }
+                });
+            });
+        }
+
         return {
             status: Status.Success,
             data: resp,
@@ -149,6 +172,7 @@ type ListResponse = Array<{
     endTime: string;
     roomStatus: RoomStatus;
     ownerName: string;
+    hasRecord?: boolean;
 }>;
 
 interface Room {
