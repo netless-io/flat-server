@@ -16,7 +16,8 @@ import {
     RoomPeriodicUserDAO,
     RoomUserDAO,
 } from "../../../dao";
-import { calculatePeriodicDates, checkPeriodicTime } from "../utils/Periodic";
+import { calculatePeriodicDates } from "../utils/Periodic";
+import { checkBeginAndEndTime } from "../utils/CheckTime";
 
 export const createPeriodic = async (
     req: PatchRequest<{
@@ -26,7 +27,7 @@ export const createPeriodic = async (
     const { title, type, beginTime, endTime, periodic, docs } = req.body;
     const { userUUID } = req.user;
 
-    if (!checkPeriodicTime(beginTime, endTime)) {
+    if (!checkBeginAndEndTime(beginTime, endTime)) {
         return {
             status: Status.Failed,
             code: ErrorCode.ParamsCheckFailed,
