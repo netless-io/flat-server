@@ -1,18 +1,18 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { Status } from "../../../../Constants";
-import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO } from "../../../dao";
-import { roomIsRunning } from "../utils/Room";
-import { agoraCloudRecordAcquireRequest } from "../../../utils/request/agora/Agora";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Status } from "../../../../../Constants";
+import { ErrorCode } from "../../../../../ErrorCode";
+import { RoomDAO } from "../../../../dao";
+import { roomIsRunning } from "../../utils/Room";
+import { agoraCloudRecordAcquireRequest } from "../../../../utils/request/agora/Agora";
 import {
     AgoraCloudRecordAcquireRequestBody,
     AgoraCloudRecordAcquireResponse,
-} from "../../../utils/request/agora/Types";
-import { getCloudRecordData } from "../utils/Agora";
+} from "../../../../utils/request/agora/Types";
+import { getCloudRecordData } from "../../utils/Agora";
 
-export const recordAcquire = async (
+export const recordAgoraAcquire = async (
     req: PatchRequest<{
-        Body: RecordAcquireBody;
+        Body: RecordAgoraAcquireBody;
     }>,
 ): Response<AgoraCloudRecordAcquireResponse> => {
     const { roomUUID, agoraData } = req.body;
@@ -59,13 +59,13 @@ export const recordAcquire = async (
     }
 };
 
-interface RecordAcquireBody {
+interface RecordAgoraAcquireBody {
     roomUUID: string;
     agoraData: AgoraCloudRecordAcquireRequestBody;
 }
 
-export const recordAcquireSchemaType: FastifySchema<{
-    body: RecordAcquireBody;
+export const recordAgoraAcquireSchemaType: FastifySchema<{
+    body: RecordAgoraAcquireBody;
 }> = {
     body: {
         type: "object",

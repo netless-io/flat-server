@@ -1,19 +1,19 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { Status } from "../../../../Constants";
-import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO } from "../../../dao";
-import { roomIsRunning } from "../utils/Room";
-import { agoraCloudRecordUpdateLayoutRequest } from "../../../utils/request/agora/Agora";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Status } from "../../../../../Constants";
+import { ErrorCode } from "../../../../../ErrorCode";
+import { RoomDAO } from "../../../../dao";
+import { roomIsRunning } from "../../utils/Room";
+import { agoraCloudRecordUpdateLayoutRequest } from "../../../../utils/request/agora/Agora";
 import {
     AgoraCloudRecordParamsType,
     AgoraCloudRecordUpdateLayoutRequestBody,
     AgoraCloudRecordUpdateLayoutResponse,
-} from "../../../utils/request/agora/Types";
-import { getCloudRecordData } from "../utils/Agora";
+} from "../../../../utils/request/agora/Types";
+import { getCloudRecordData } from "../../utils/Agora";
 
-export const recordUpdateLayout = async (
+export const recordAgoraUpdateLayout = async (
     req: PatchRequest<{
-        Body: RecordUpdateLayoutBody;
+        Body: RecordAgoraUpdateLayoutBody;
     }>,
 ): Response<AgoraCloudRecordUpdateLayoutResponse> => {
     const { roomUUID, agoraParams, agoraData } = req.body;
@@ -60,14 +60,14 @@ export const recordUpdateLayout = async (
     }
 };
 
-interface RecordUpdateLayoutBody {
+interface RecordAgoraUpdateLayoutBody {
     roomUUID: string;
     agoraParams: AgoraCloudRecordParamsType;
     agoraData: AgoraCloudRecordUpdateLayoutRequestBody;
 }
 
-export const recordUpdateLayoutSchemaType: FastifySchema<{
-    body: RecordUpdateLayoutBody;
+export const recordAgoraUpdateLayoutSchemaType: FastifySchema<{
+    body: RecordAgoraUpdateLayoutBody;
 }> = {
     body: {
         type: "object",
