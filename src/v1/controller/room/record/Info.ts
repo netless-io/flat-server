@@ -62,8 +62,9 @@ export const recordInfo = async (
                 recordInfo: roomRecordInfo.map(({ begin_time, end_time, agora_sid }) => ({
                     beginTime: begin_time.toISOString(),
                     endTime: end_time.toISOString(),
-                    agoraSID: agora_sid,
-                    videoURL: `${Agora.OSS_PREFIX}/${Agora.OSS_FOLDER}/${agora_sid}_${roomUUID}.m3u8`,
+                    videoURL: agora_sid
+                        ? `${Agora.OSS_PREFIX}/${Agora.OSS_FOLDER}/${agora_sid}_${roomUUID}.m3u8`
+                        : "",
                 })),
             },
         };
@@ -101,6 +102,6 @@ interface RecordInfoResponse {
     recordInfo: Array<{
         beginTime: string;
         endTime: string;
-        agoraSID: string;
+        videoURL: string;
     }>;
 }
