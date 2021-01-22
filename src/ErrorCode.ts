@@ -20,6 +20,7 @@ export enum ErrorCode {
 
     PeriodicNotFound = 400000, // room not found
     PeriodicIsEnded, // room has been ended
+    PeriodicSubRoomHasRunning, // periodic sub room has running
 
     UserNotFound = 500000, // user not found
 
