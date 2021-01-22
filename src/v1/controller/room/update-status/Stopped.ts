@@ -7,6 +7,7 @@ import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../dao";
 import { roomIsRunning } from "../utils/Room";
 import { getNextRoomPeriodicInfo, updateNextRoomPeriodicInfo } from "../../../service/Periodic";
+import { RoomPeriodicModel } from "../../../model/room/RoomPeriodic";
 
 export const stopped = async (
     req: PatchRequest<{
@@ -41,16 +42,20 @@ export const stopped = async (
 
         const { periodic_uuid } = roomInfo;
 
-        const periodicRoomInfo = await RoomPeriodicDAO().findOne(["begin_time"], {
-            periodic_uuid: periodic_uuid,
-            fake_room_uuid: roomUUID,
-        });
+        let periodicRoomInfo: Pick<RoomPeriodicModel, "begin_time">;
+        if (periodic_uuid !== "") {
+            // @ts-ignore
+            periodicRoomInfo = await RoomPeriodicDAO().findOne(["begin_time"], {
+                periodic_uuid: periodic_uuid,
+                fake_room_uuid: roomUUID,
+            });
 
-        if (periodicRoomInfo === undefined) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.RoomNotFound,
-            };
+            if (periodicRoomInfo === undefined) {
+                return {
+                    status: Status.Failed,
+                    code: ErrorCode.RoomNotFound,
+                };
+            }
         }
 
         await getConnection().transaction(
