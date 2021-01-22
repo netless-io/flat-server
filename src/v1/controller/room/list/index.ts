@@ -96,22 +96,20 @@ export const list = async (
         if (type === ListType.History) {
             const roomsUUID = rooms.map((room: Room) => room.room_uuid);
 
-            const roomRecordInfo = await RoomRecordDAO().find(
-                ["room_uuid"],
-                {
-                    room_uuid: In(roomsUUID),
-                },
-                {
-                    distinct: true,
-                },
-            );
+            const roomRecordUUIDs = (
+                await RoomRecordDAO().find(
+                    ["room_uuid"],
+                    {
+                        room_uuid: In(roomsUUID),
+                    },
+                    {
+                        distinct: true,
+                    },
+                )
+            ).map(record => record.room_uuid);
 
-            roomRecordInfo.forEach(record => {
-                resp.forEach(room => {
-                    if (room.roomUUID === record.room_uuid) {
-                        room.hasRecord = true;
-                    }
-                });
+            resp.forEach(room => {
+                room.hasRecord = roomRecordUUIDs.includes(room.roomUUID);
             });
         }
 
