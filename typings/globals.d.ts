@@ -13,6 +13,13 @@ declare namespace NodeJS {
         AGORA_APP_CERTIFICATE: string;
         AGORA_RESTFUL_ID: string;
         AGORA_RESTFUL_SECRET: string;
+        AGORA_OSS_VENDOR: `${number}`;
+        AGORA_OSS_ACCESS_KEY_ID: string;
+        AGORA_OSS_ACCESS_KEY_SECRET: string;
+        AGORA_OSS_REGION: `${number}`;
+        AGORA_OSS_BUCKET: string;
+        AGORA_OSS_FOLDER: string;
+        AGORA_OSS_PREFIX: string;
 
         REDIS_HOST: string;
         REDIS_PORT: string;

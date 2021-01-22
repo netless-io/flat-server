@@ -1,5 +1,5 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { Status } from "../../../../Constants";
+import { Agora, Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomRecordDAO } from "../../../dao";
 import { roomIsRunning } from "../utils/Room";
@@ -50,6 +50,14 @@ export const recordStarted = async (
                 clientRequest: {
                     ...agoraData.clientRequest,
                     token,
+                    storageConfig: {
+                        vendor: Number(Agora.OSS_VENDOR),
+                        region: Number(Agora.OSS_REGION),
+                        bucket: Agora.OSS_BUCKET,
+                        accessKey: Agora.OSS_ACCESS_KEY_ID,
+                        secretKey: Agora.OSS_ACCESS_KEY_SECRET,
+                        fileNamePrefix: [Agora.OSS_FOLDER],
+                    },
                 },
             });
 
