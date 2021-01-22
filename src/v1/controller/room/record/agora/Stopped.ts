@@ -1,20 +1,21 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { Status } from "../../../../Constants";
-import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO, RoomRecordDAO } from "../../../dao";
-import { roomIsRunning } from "../utils/Room";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Status } from "../../../../../Constants";
+import { ErrorCode } from "../../../../../ErrorCode";
+import { RoomDAO, RoomRecordDAO } from "../../../../dao";
+import { roomIsRunning } from "../../utils/Room";
 import {
     AgoraCloudRecordParamsType,
-    AgoraCloudRecordQueryResponse,
-} from "../../../utils/request/agora/Types";
-import { agoraCloudRecordQueryRequest } from "../../../utils/request/agora/Agora";
+    AgoraCloudRecordStoppedResponse,
+} from "../../../../utils/request/agora/Types";
+import { agoraCloudRecordStoppedRequest } from "../../../../utils/request/agora/Agora";
 import { getConnection } from "typeorm";
+import { getCloudRecordData } from "../../utils/Agora";
 
-export const recordQuery = async (
+export const recordAgoraStopped = async (
     req: PatchRequest<{
-        Body: RecordQueryBody;
+        Body: RecordAgoraStoppedBody;
     }>,
-): Response<AgoraCloudRecordQueryResponse<"string" | "json" | undefined>> => {
+): Response<AgoraCloudRecordStoppedResponse> => {
     const { roomUUID, agoraParams } = req.body;
     const { userUUID } = req.user;
 
@@ -38,10 +39,8 @@ export const recordQuery = async (
             };
         }
 
-        let agoraResponse: AgoraCloudRecordQueryResponse<"string" | "json" | undefined>;
+        let agoraResponse: AgoraCloudRecordStoppedResponse;
         await getConnection().transaction(async t => {
-            // if the teacher is disconnected unexpectedly, the last query time will be used as the end time
-            // no need to care when agora's service is closed. When no query request is sent for a period of time, agora will automatically consider it to be over
             await RoomRecordDAO(t).update(
                 {
                     end_time: new Date(),
@@ -51,7 +50,13 @@ export const recordQuery = async (
                 },
             );
 
-            agoraResponse = await agoraCloudRecordQueryRequest(agoraParams);
+            const { uid, cname } = await getCloudRecordData(roomUUID, false);
+
+            agoraResponse = await agoraCloudRecordStoppedRequest(agoraParams, {
+                uid,
+                cname,
+                clientRequest: {},
+            });
         });
 
         return {
@@ -68,13 +73,13 @@ export const recordQuery = async (
     }
 };
 
-interface RecordQueryBody {
+interface RecordAgoraStoppedBody {
     roomUUID: string;
     agoraParams: AgoraCloudRecordParamsType;
 }
 
-export const recordQuerySchemaType: FastifySchema<{
-    body: RecordQueryBody;
+export const recordAgoraStoppedSchemaType: FastifySchema<{
+    body: RecordAgoraStoppedBody;
 }> = {
     body: {
         type: "object",

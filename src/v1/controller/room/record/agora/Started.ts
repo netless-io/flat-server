@@ -1,20 +1,20 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { Agora, Status } from "../../../../Constants";
-import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO, RoomRecordDAO } from "../../../dao";
-import { roomIsRunning } from "../utils/Room";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Agora, Status } from "../../../../../Constants";
+import { ErrorCode } from "../../../../../ErrorCode";
+import { RoomDAO, RoomRecordDAO } from "../../../../dao";
+import { roomIsRunning } from "../../utils/Room";
 import {
     AgoraCloudRecordParamsBaseType,
     AgoraCloudRecordStartedRequestBody,
     AgoraCloudRecordStartedResponse,
-} from "../../../utils/request/agora/Types";
-import { agoraCloudRecordStartedRequest } from "../../../utils/request/agora/Agora";
+} from "../../../../utils/request/agora/Types";
+import { agoraCloudRecordStartedRequest } from "../../../../utils/request/agora/Agora";
 import { getConnection } from "typeorm";
-import { getCloudRecordData } from "../utils/Agora";
+import { getCloudRecordData } from "../../utils/Agora";
 
-export const recordStarted = async (
+export const recordAgoraStarted = async (
     req: PatchRequest<{
-        Body: RecordStartedBody;
+        Body: RecordAgoraStartedBody;
     }>,
 ): Response<AgoraCloudRecordStartedResponse> => {
     const { roomUUID, agoraParams, agoraData } = req.body;
@@ -84,14 +84,14 @@ export const recordStarted = async (
     }
 };
 
-interface RecordStartedBody {
+interface RecordAgoraStartedBody {
     roomUUID: string;
     agoraParams: AgoraCloudRecordParamsBaseType;
     agoraData: AgoraCloudRecordStartedRequestBody;
 }
 
-export const recordStartedSchemaType: FastifySchema<{
-    body: RecordStartedBody;
+export const recordAgoraStartedSchemaType: FastifySchema<{
+    body: RecordAgoraStartedBody;
 }> = {
     body: {
         type: "object",

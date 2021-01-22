@@ -13,11 +13,14 @@ import { cancelPeriodic, cancelPeriodicSchemaType } from "./cancel/Periodic";
 import { periodicSubRoomInfo, periodicSubRoomInfoSchemaType } from "./info/PeriodicSubRoom";
 import { paused, pausedSchemaType } from "./updateStatus/Paused";
 import { cancelPeriodicSubRoom, cancelPeriodicSubRoomSchemaType } from "./cancel/PeriodicSubRoom";
-import { recordAcquire, recordAcquireSchemaType } from "./record/Acquire";
-import { recordStarted, recordStartedSchemaType } from "./record/Started";
-import { recordQuery, recordQuerySchemaType } from "./record/Query";
-import { recordStopped, recordStoppedSchemaType } from "./record/Stopped";
-import { recordUpdateLayout, recordUpdateLayoutSchemaType } from "./record/UpdateLayout";
+import { recordAgoraAcquire, recordAgoraAcquireSchemaType } from "./record/agora/Acquire";
+import { recordAgoraStarted, recordAgoraStartedSchemaType } from "./record/agora/Started";
+import { recordAgoraQuery, recordAgoraQuerySchemaType } from "./record/agora/Query";
+import { recordAgoraStopped, recordAgoraStoppedSchemaType } from "./record/agora/Stopped";
+import {
+    recordAgoraUpdateLayout,
+    recordAgoraUpdateLayoutSchemaType,
+} from "./record/agora/UpdateLayout";
 import { recordInfo, recordInfoSchemaType } from "./record/Info";
 import { updateOrdinary, updateOrdinarySchemaType } from "./update/Ordinary";
 import { cancelHistory, cancelHistorySchemaType } from "./cancel/History";
@@ -154,37 +157,37 @@ export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
         method: "post",
         path: "room/record/acquire",
-        handler: recordAcquire,
+        handler: recordAgoraAcquire,
         auth: true,
-        schema: recordAcquireSchemaType,
+        schema: recordAgoraAcquireSchemaType,
     }),
     Object.freeze({
         method: "post",
         path: "room/record/started",
-        handler: recordStarted,
+        handler: recordAgoraStarted,
         auth: true,
-        schema: recordStartedSchemaType,
+        schema: recordAgoraStartedSchemaType,
     }),
     Object.freeze({
         method: "post",
         path: "room/record/query",
-        handler: recordQuery,
+        handler: recordAgoraQuery,
         auth: true,
-        schema: recordQuerySchemaType,
+        schema: recordAgoraQuerySchemaType,
     }),
     Object.freeze({
         method: "post",
         path: "room/record/update-layout",
-        handler: recordUpdateLayout,
+        handler: recordAgoraUpdateLayout,
         auth: true,
-        schema: recordUpdateLayoutSchemaType,
+        schema: recordAgoraUpdateLayoutSchemaType,
     }),
     Object.freeze({
         method: "post",
         path: "room/record/stopped",
-        handler: recordStopped,
+        handler: recordAgoraStopped,
         auth: true,
-        schema: recordStoppedSchemaType,
+        schema: recordAgoraStoppedSchemaType,
     }),
     Object.freeze({
         method: "post",
