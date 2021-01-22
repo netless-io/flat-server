@@ -57,7 +57,7 @@ export const createOrdinary = async (
             room_type: type,
             room_status: RoomStatus.Idle,
             room_uuid: roomUUID,
-            whiteboard_room_uuid: await whiteboardCreateRoom(title),
+            whiteboard_room_uuid: await whiteboardCreateRoom(),
             begin_time: toDate(beginTime),
             end_time: endTime ? toDate(endTime) : addHours(1, beginTime),
         };

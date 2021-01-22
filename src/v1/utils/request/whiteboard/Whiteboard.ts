@@ -5,17 +5,15 @@ import { AxiosResponse } from "axios";
 
 /**
  * whiteboard create room api
- * @param {string} name - room name (max length: 2048)
  * @param {number} limit - (default: 0 = no limit)
  * @return {string} whiteboard room uuid, not room model's room_uuid
  */
-export const whiteboardCreateRoom = async (name: string, limit = 0): Promise<string> => {
+export const whiteboardCreateRoom = async (limit = 0): Promise<string> => {
     const {
         data: { uuid },
     } = await ax.post<Room>(
         shuntCreateRoomURL,
         {
-            name,
             isRecord: true,
             limit,
         },

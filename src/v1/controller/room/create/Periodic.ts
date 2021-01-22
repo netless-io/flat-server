@@ -100,7 +100,7 @@ export const createPeriodic = async (
                         room_type: type,
                         room_status: RoomStatus.Idle,
                         room_uuid: roomData[0].fake_room_uuid,
-                        whiteboard_room_uuid: await whiteboardCreateRoom(title),
+                        whiteboard_room_uuid: await whiteboardCreateRoom(),
                         begin_time: roomData[0].begin_time,
                         end_time: roomData[0].end_time,
                     }),

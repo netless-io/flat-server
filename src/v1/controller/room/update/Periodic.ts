@@ -168,7 +168,7 @@ export const updatePeriodic = async (
                     room_type: type,
                     room_status: RoomStatus.Idle,
                     room_uuid: willAddRoom[0].fake_room_uuid,
-                    whiteboard_room_uuid: await whiteboardCreateRoom(title),
+                    whiteboard_room_uuid: await whiteboardCreateRoom(),
                     begin_time: willAddRoom[0].begin_time,
                     end_time: willAddRoom[0].end_time,
                 }),
