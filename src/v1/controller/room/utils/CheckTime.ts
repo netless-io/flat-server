@@ -29,3 +29,20 @@ export const timeIntervalLessThanOrEqualFifteenMinute = (
 ): boolean => {
     return timeIntervalLessThanOrEqualMinute(beginTime, endTime, 1000 * 60 * 15);
 };
+
+export const checkBeginAndEndTime = (beginTime: number, endTime: number): boolean => {
+    if (beginTimeLessRedundancyOneMinute(beginTime)) {
+        return false;
+    }
+
+    if (beginTimeLessEndTime(beginTime, endTime)) {
+        return false;
+    }
+
+    // the interval between the start time and the end time must be greater than 15 minutes
+    if (timeIntervalLessThanOrEqualFifteenMinute(beginTime, endTime)) {
+        return false;
+    }
+
+    return true;
+};
