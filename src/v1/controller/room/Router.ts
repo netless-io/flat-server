@@ -27,6 +27,7 @@ import { cancelHistory, cancelHistorySchemaType } from "./cancel/History";
 import { updatePeriodicSubRoom, updatePeriodicSubRoomSchemaType } from "./update/PeriodicSubRoom";
 import { updatePeriodic, updatePeriodicSchemaType } from "./update/Periodic";
 import { recordStarted, recordStartedSchemaType } from "./record/Started";
+import { recordStopped, recordStoppedSchemaType } from "./record/Stopped";
 
 export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
@@ -161,6 +162,13 @@ export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
         handler: recordStarted,
         auth: true,
         schema: recordStartedSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "room/record/stopped",
+        handler: recordStopped,
+        auth: true,
+        schema: recordStoppedSchemaType,
     }),
     Object.freeze({
         method: "post",
