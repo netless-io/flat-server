@@ -64,6 +64,7 @@ export const joinOrdinary = async (roomUUID: string, userUUID: string): Response
         data: {
             roomType: roomInfo.room_type,
             roomUUID: roomUUID,
+            ownerUUID: roomInfo.owner_uuid,
             whiteboardRoomToken: createWhiteboardRoomToken(whiteboardRoomUUID),
             whiteboardRoomUUID: whiteboardRoomUUID,
             rtcUID: Number(rtcUID),
