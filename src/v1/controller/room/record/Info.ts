@@ -3,6 +3,8 @@ import { Agora, Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomRecordDAO, RoomUserDAO } from "../../../dao";
 import { RoomStatus, RoomType } from "../Constants";
+import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
+import { getRTMToken } from "../../../utils/AgoraToken";
 
 export const recordInfo = async (
     req: PatchRequest<{
@@ -25,9 +27,12 @@ export const recordInfo = async (
             };
         }
 
-        const roomInfo = await RoomDAO().findOne(["room_status", "room_type", "title"], {
-            room_uuid: roomUUID,
-        });
+        const roomInfo = await RoomDAO().findOne(
+            ["room_status", "whiteboard_room_uuid", "room_type", "title", "owner_uuid"],
+            {
+                room_uuid: roomUUID,
+            },
+        );
 
         if (roomInfo === undefined) {
             return {
@@ -54,11 +59,24 @@ export const recordInfo = async (
             };
         }
 
+        const {
+            title,
+            owner_uuid: ownerUUID,
+            room_type: roomType,
+            whiteboard_room_uuid: whiteboardRoomUUID,
+        } = roomInfo;
+
         return {
             status: Status.Success,
             data: {
-                title: roomInfo.title,
-                roomType: roomInfo.room_type,
+                title,
+                ownerUUID,
+                roomType,
+                whiteboardRoomUUID,
+                whiteboardRoomToken: createWhiteboardRoomToken(whiteboardRoomUUID, {
+                    readonly: true,
+                }),
+                rtmToken: await getRTMToken(userUUID),
                 recordInfo: roomRecordInfo.map(({ begin_time, end_time, agora_sid }) => ({
                     beginTime: begin_time.toISOString(),
                     endTime: end_time.toISOString(),
@@ -98,7 +116,11 @@ export const recordInfoSchemaType: FastifySchema<{
 
 interface RecordInfoResponse {
     title: string;
+    ownerUUID: string;
     roomType: RoomType;
+    whiteboardRoomToken: string;
+    whiteboardRoomUUID: string;
+    rtmToken: string;
     recordInfo: Array<{
         beginTime: string;
         endTime: string;
