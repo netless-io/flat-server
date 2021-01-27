@@ -85,10 +85,13 @@ export const createWhiteboardSDKToken = (lifespan = 1000 * 60 * 10): string => {
     });
 };
 
-export const createWhiteboardRoomToken = (whiteboardRoomUUID: string, lifespan = 0): string => {
+export const createWhiteboardRoomToken = (
+    whiteboardRoomUUID: string,
+    { readonly = false, lifespan = 0 }: { readonly?: boolean; lifespan?: number } = {},
+): string => {
     return roomToken(Netless.ACCESS_KEY, Netless.SECRET_ACCESS_KEY, lifespan, {
         uuid: whiteboardRoomUUID,
-        role: TokenRole.Writer,
+        role: readonly ? TokenRole.Reader : TokenRole.Writer,
     });
 };
 
