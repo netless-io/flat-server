@@ -66,8 +66,8 @@ export const ordinaryInfo = async (
             data: {
                 roomInfo: {
                     title: roomInfo.title,
-                    beginTime: roomInfo.begin_time,
-                    endTime: roomInfo.end_time.toISOString(),
+                    beginTime: roomInfo.begin_time.valueOf(),
+                    endTime: roomInfo.end_time.valueOf(),
                     roomType: roomInfo.room_type,
                     roomStatus: roomInfo.room_status,
                     ownerUUID: roomInfo.owner_uuid,
@@ -110,8 +110,8 @@ export const OrdinaryInfoSchemaType: FastifySchema<{
 interface OrdinaryInfoResponse {
     roomInfo: {
         title: string;
-        beginTime: Date;
-        endTime: string;
+        beginTime: number;
+        endTime: number;
         roomType: RoomType;
         roomStatus: RoomStatus;
         ownerUUID: string;

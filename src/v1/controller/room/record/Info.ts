@@ -78,8 +78,8 @@ export const recordInfo = async (
                 }),
                 rtmToken: await getRTMToken(userUUID),
                 recordInfo: roomRecordInfo.map(({ begin_time, end_time, agora_sid }) => ({
-                    beginTime: begin_time.toISOString(),
-                    endTime: end_time.toISOString(),
+                    beginTime: begin_time.valueOf(),
+                    endTime: end_time.valueOf(),
                     videoURL: agora_sid
                         ? `${Agora.OSS_PREFIX}/${Agora.OSS_FOLDER}/${agora_sid}_${roomUUID}.m3u8`
                         : "",
@@ -122,8 +122,8 @@ interface RecordInfoResponse {
     whiteboardRoomUUID: string;
     rtmToken: string;
     recordInfo: Array<{
-        beginTime: string;
-        endTime: string;
+        beginTime: number;
+        endTime: number;
         videoURL: string;
     }>;
 }

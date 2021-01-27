@@ -79,13 +79,13 @@ export const periodicSubRoomInfo = async (
             previousPeriodicRoomBeginTime,
             nextPeriodicRoomEndTime,
         } = await (async (): Promise<{
-            previousPeriodicRoomBeginTime: string;
-            nextPeriodicRoomEndTime: string;
+            previousPeriodicRoomBeginTime: number | null;
+            nextPeriodicRoomEndTime: number | null;
         }> => {
             if (userUUID !== periodicConfigInfo.owner_uuid || !needOtherRoomTimeInfo) {
                 return {
-                    previousPeriodicRoomBeginTime: "",
-                    nextPeriodicRoomEndTime: "",
+                    previousPeriodicRoomBeginTime: null,
+                    nextPeriodicRoomEndTime: null,
                 };
             }
 
@@ -109,11 +109,11 @@ export const periodicSubRoomInfo = async (
 
             return {
                 previousPeriodicRoomBeginTime: previousPeriodicRoom
-                    ? previousPeriodicRoom.begin_time.toISOString()
-                    : "",
+                    ? previousPeriodicRoom.begin_time.valueOf()
+                    : null,
                 nextPeriodicRoomEndTime: nextPeriodicRoom
-                    ? nextPeriodicRoom.end_time.toISOString()
-                    : "",
+                    ? nextPeriodicRoom.end_time.valueOf()
+                    : null,
             };
         })();
 
@@ -122,8 +122,8 @@ export const periodicSubRoomInfo = async (
             data: {
                 roomInfo: {
                     title,
-                    beginTime: begin_time,
-                    endTime: end_time,
+                    beginTime: begin_time.valueOf(),
+                    endTime: end_time.valueOf(),
                     roomType: room_type,
                     roomStatus: room_status,
                     ownerUUID: owner_uuid,
@@ -177,14 +177,14 @@ export const periodicSubRoomInfoSchemaType: FastifySchema<{
 interface PeriodicSubRoomInfoResponse {
     roomInfo: {
         title: string;
-        beginTime: Date;
-        endTime: Date;
+        beginTime: number;
+        endTime: number;
         roomType: RoomType;
         roomStatus: RoomStatus;
         ownerUUID: string;
     };
-    previousPeriodicRoomBeginTime: string;
-    nextPeriodicRoomEndTime: string;
+    previousPeriodicRoomBeginTime: number | null;
+    nextPeriodicRoomEndTime: number | null;
     count: number;
     docs: Array<{
         docType: DocsType;
