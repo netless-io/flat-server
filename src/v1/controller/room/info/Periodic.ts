@@ -69,14 +69,14 @@ export const periodicInfo = async (
                 periodic: {
                     ownerUUID: periodicConfig.owner_uuid,
                     roomType: periodicConfig.room_type,
-                    endTime: periodicConfig.end_time,
+                    endTime: periodicConfig.end_time.valueOf(),
                     rate: periodicConfig.rate || null,
                 },
                 rooms: rooms.map(({ fake_room_uuid, begin_time, end_time, room_status }) => {
                     return {
                         roomUUID: fake_room_uuid,
-                        beginTime: begin_time,
-                        endTime: end_time,
+                        beginTime: begin_time.valueOf(),
+                        endTime: end_time.valueOf(),
                         roomStatus: room_status,
                     };
                 }),
@@ -114,13 +114,13 @@ interface PeriodicInfoResponse {
     periodic: {
         ownerUUID: string;
         roomType: string;
-        endTime: Date;
+        endTime: number;
         rate: number | null;
     };
     rooms: Array<{
         roomUUID: string;
-        beginTime: Date;
-        endTime: Date;
+        beginTime: number;
+        endTime: number;
         roomStatus: RoomStatus;
     }>;
 }

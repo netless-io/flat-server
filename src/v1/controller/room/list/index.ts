@@ -86,8 +86,8 @@ export const list = async (
                 periodicUUID: room.periodic_uuid || null,
                 ownerUUID: room.owner_uuid,
                 title: room.title,
-                beginTime: room.begin_time.toISOString(),
-                endTime: room.end_time.toISOString(),
+                beginTime: room.begin_time.valueOf(),
+                endTime: room.end_time.valueOf(),
                 roomStatus: room.room_status,
                 ownerName: room.owner_user_name,
             };
@@ -166,8 +166,8 @@ type ListResponse = Array<{
     periodicUUID: string | null;
     ownerUUID: string;
     title: string;
-    beginTime: string;
-    endTime: string;
+    beginTime: number;
+    endTime: number;
     roomStatus: RoomStatus;
     ownerName: string;
     hasRecord?: boolean;
