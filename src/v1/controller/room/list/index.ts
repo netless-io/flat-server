@@ -3,7 +3,7 @@ import { createQueryBuilder, In } from "typeorm";
 import { RoomUserModel } from "../../../model/room/RoomUser";
 import { RoomModel } from "../../../model/room/Room";
 import { UserModel } from "../../../model/user/User";
-import { ListType, RoomStatus } from "../Constants";
+import { ListType, RoomStatus, RoomType } from "../Constants";
 import { Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomRecordDAO } from "../../../dao";
@@ -65,6 +65,7 @@ export const list = async (
             .addSelect("r.title", "title")
             .addSelect("r.room_uuid", "room_uuid")
             .addSelect("r.periodic_uuid", "periodic_uuid")
+            .addSelect("r.room_type", "room_type")
             .addSelect("r.begin_time", "begin_time")
             .addSelect("r.end_time", "end_time")
             .addSelect("r.owner_uuid", "owner_uuid")
@@ -85,6 +86,7 @@ export const list = async (
                 roomUUID: room.room_uuid,
                 periodicUUID: room.periodic_uuid || null,
                 ownerUUID: room.owner_uuid,
+                roomType: room.room_type,
                 title: room.title,
                 beginTime: room.begin_time.toISOString(),
                 endTime: room.end_time.toISOString(),
@@ -164,6 +166,7 @@ export const listSchemaType: FastifySchema<{
 type ListResponse = Array<{
     roomUUID: string;
     periodicUUID: string | null;
+    roomType: RoomType;
     ownerUUID: string;
     title: string;
     beginTime: string;
@@ -177,6 +180,7 @@ interface Room {
     room_uuid: string;
     periodic_uuid: string;
     owner_uuid: string;
+    room_type: RoomType;
     title: string;
     begin_time: Date;
     end_time: Date;
