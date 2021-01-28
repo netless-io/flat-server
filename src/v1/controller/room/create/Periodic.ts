@@ -74,6 +74,7 @@ export const createPeriodic = async (
                     title,
                     room_origin_begin_time: toDate(beginTime),
                     room_origin_end_time: toDate(endTime),
+                    weeks: periodic.weeks.join(","),
                     rate: periodic.rate || 0,
                     end_time: periodic.endTime
                         ? toDate(periodic.endTime)
