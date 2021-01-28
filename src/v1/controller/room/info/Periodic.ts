@@ -1,7 +1,7 @@
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { In, Not } from "typeorm";
 import { Status } from "../../../../Constants";
-import { PeriodicStatus, RoomStatus } from "../Constants";
+import { PeriodicStatus, RoomStatus, Week } from "../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomPeriodicConfigDAO, RoomPeriodicDAO, RoomPeriodicUserDAO } from "../../../dao";
 
@@ -27,7 +27,7 @@ export const periodicInfo = async (
         }
 
         const periodicConfig = await RoomPeriodicConfigDAO().findOne(
-            ["end_time", "rate", "owner_uuid", "periodic_status", "room_type"],
+            ["end_time", "rate", "owner_uuid", "periodic_status", "room_type", "title", "weeks"],
             {
                 periodic_uuid: periodicUUID,
             },
@@ -40,7 +40,17 @@ export const periodicInfo = async (
             };
         }
 
-        if (periodicConfig.periodic_status === PeriodicStatus.Stopped) {
+        const {
+            title,
+            rate,
+            end_time,
+            owner_uuid,
+            room_type,
+            periodic_status,
+            weeks,
+        } = periodicConfig;
+
+        if (periodic_status === PeriodicStatus.Stopped) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.PeriodicIsEnded,
@@ -67,10 +77,12 @@ export const periodicInfo = async (
             status: Status.Success,
             data: {
                 periodic: {
-                    ownerUUID: periodicConfig.owner_uuid,
-                    roomType: periodicConfig.room_type,
-                    endTime: periodicConfig.end_time.valueOf(),
-                    rate: periodicConfig.rate || null,
+                    ownerUUID: owner_uuid,
+                    roomType: room_type,
+                    endTime: end_time.valueOf(),
+                    rate: rate || null,
+                    title,
+                    weeks: weeks.split(",").map(week => Number(week)) as Week[],
                 },
                 rooms: rooms.map(({ fake_room_uuid, begin_time, end_time, room_status }) => {
                     return {
@@ -116,6 +128,8 @@ interface PeriodicInfoResponse {
         roomType: string;
         endTime: number;
         rate: number | null;
+        title: string;
+        weeks: Week[];
     };
     rooms: Array<{
         roomUUID: string;

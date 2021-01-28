@@ -41,6 +41,12 @@ export class RoomPeriodicConfigModel extends Content {
     room_origin_end_time: Date;
 
     @Column({
+        length: 13,
+        comment: "periodic week",
+    })
+    weeks: string;
+
+    @Column({
         type: "tinyint",
         precision: 3,
         comment: "periodic rate (max 50)",
