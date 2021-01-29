@@ -74,7 +74,12 @@ export const DAOImplement: DAO<Model> = model => {
                         .execute();
                 }
 
-                return managerOrRepo.insert(model, data);
+                return managerOrRepo
+                    .createQueryBuilder()
+                    .insert()
+                    .into(model)
+                    .values(data)
+                    .execute();
             },
             update: (setData, where, order, limit) => {
                 const result = managerOrRepo
