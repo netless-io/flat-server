@@ -2,7 +2,7 @@ import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { DocsType, RoomStatus, RoomType } from "../Constants";
-import { RoomDAO, RoomDocDAO, RoomUserDAO } from "../../../dao";
+import { RoomDAO, RoomDocDAO, RoomUserDAO, UserDAO } from "../../../dao";
 
 export const ordinaryInfo = async (
     req: PatchRequest<{
@@ -26,15 +26,7 @@ export const ordinaryInfo = async (
         }
 
         const roomInfo = await RoomDAO().findOne(
-            [
-                "title",
-                "begin_time",
-                "end_time",
-                "room_type",
-                "room_status",
-                "owner_uuid",
-                "periodic_uuid",
-            ],
+            ["title", "begin_time", "end_time", "room_type", "room_status", "owner_uuid"],
             {
                 room_uuid: roomUUID,
             },
@@ -44,6 +36,19 @@ export const ordinaryInfo = async (
             return {
                 status: Status.Failed,
                 code: ErrorCode.RoomNotFound,
+            };
+        }
+
+        const { title, begin_time, end_time, room_type, room_status, owner_uuid } = roomInfo;
+
+        const userInfo = await UserDAO().findOne(["user_name"], {
+            user_uuid: owner_uuid,
+        });
+
+        if (userInfo === undefined) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.UserNotFound,
             };
         }
 
@@ -65,12 +70,13 @@ export const ordinaryInfo = async (
             status: Status.Success,
             data: {
                 roomInfo: {
-                    title: roomInfo.title,
-                    beginTime: roomInfo.begin_time.valueOf(),
-                    endTime: roomInfo.end_time.valueOf(),
-                    roomType: roomInfo.room_type,
-                    roomStatus: roomInfo.room_status,
-                    ownerUUID: roomInfo.owner_uuid,
+                    title,
+                    beginTime: begin_time.valueOf(),
+                    endTime: end_time.valueOf(),
+                    roomType: room_type,
+                    roomStatus: room_status,
+                    ownerUUID: owner_uuid,
+                    ownerUserName: userInfo.user_name,
                 },
                 docs,
             },
@@ -115,6 +121,7 @@ interface OrdinaryInfoResponse {
         roomType: RoomType;
         roomStatus: RoomStatus;
         ownerUUID: string;
+        ownerUserName: string;
     };
     docs: Array<{
         docType: DocsType;
