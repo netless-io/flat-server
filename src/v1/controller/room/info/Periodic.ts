@@ -3,7 +3,7 @@ import { In, Not } from "typeorm";
 import { Status } from "../../../../Constants";
 import { PeriodicStatus, RoomStatus, Week } from "../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomPeriodicConfigDAO, RoomPeriodicDAO, RoomPeriodicUserDAO } from "../../../dao";
+import { RoomPeriodicConfigDAO, RoomPeriodicDAO, RoomPeriodicUserDAO, UserDAO } from "../../../dao";
 
 export const periodicInfo = async (
     req: PatchRequest<{
@@ -50,6 +50,17 @@ export const periodicInfo = async (
             weeks,
         } = periodicConfig;
 
+        const userInfo = await UserDAO().findOne(["user_name"], {
+            user_uuid: owner_uuid,
+        });
+
+        if (userInfo === undefined) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.UserNotFound,
+            };
+        }
+
         if (periodic_status === PeriodicStatus.Stopped) {
             return {
                 status: Status.Failed,
@@ -78,6 +89,7 @@ export const periodicInfo = async (
             data: {
                 periodic: {
                     ownerUUID: owner_uuid,
+                    ownerUserName: userInfo.user_name,
                     roomType: room_type,
                     endTime: end_time.valueOf(),
                     rate: rate || null,
@@ -125,6 +137,7 @@ export const periodicInfoSchemaType: FastifySchema<{
 interface PeriodicInfoResponse {
     periodic: {
         ownerUUID: string;
+        ownerUserName: string;
         roomType: string;
         endTime: number;
         rate: number | null;
