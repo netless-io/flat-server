@@ -53,19 +53,12 @@ export const joinPeriodic = async (
     const { room_uuid: roomUUID, whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
     let rtcUID: string;
 
-    if (periodicRoomConfig.owner_uuid === userUUID) {
-        const roomUserInfo = await RoomUserDAO().findOne(["rtc_uid"], {
-            room_uuid: roomUUID,
-            user_uuid: userUUID,
-        });
+    const roomUserInfo = await RoomUserDAO().findOne(["rtc_uid"], {
+        room_uuid: roomUUID,
+        user_uuid: userUUID,
+    });
 
-        if (roomUserInfo === undefined) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.CanRetry,
-            };
-        }
-
+    if (roomUserInfo !== undefined) {
         rtcUID = roomUserInfo.rtc_uid;
     } else {
         rtcUID = cryptoRandomString({ length: 6, type: "numeric" });
