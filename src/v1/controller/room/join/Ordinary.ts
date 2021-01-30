@@ -33,16 +33,12 @@ export const joinOrdinary = async (roomUUID: string, userUUID: string): Response
     const { whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
     let rtcUID: string;
 
-    if (roomInfo.owner_uuid === userUUID) {
-        const roomUserInfo = await RoomUserDAO().findOne(["rtc_uid"], {
-            room_uuid: roomUUID,
-            user_uuid: userUUID,
-        });
+    const roomUserInfo = await RoomUserDAO().findOne(["rtc_uid"], {
+        room_uuid: roomUUID,
+        user_uuid: userUUID,
+    });
 
-        if (roomUserInfo === undefined) {
-            throw new Error("When getting the rtcUID of the owner, the result does not exist");
-        }
-
+    if (roomUserInfo !== undefined) {
         rtcUID = roomUserInfo.rtc_uid;
     } else {
         rtcUID = cryptoRandomString({ length: 6, type: "numeric" });
