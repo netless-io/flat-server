@@ -12,7 +12,7 @@ import { DocsType, RoomStatus, RoomType, Week } from "../Constants";
 import { getConnection, In } from "typeorm";
 import { Docs, Periodic } from "../Types";
 import { checkUpdateBeginAndEndTime, docsDiff } from "./Utils";
-import { compareDesc, differenceInCalendarDays } from "date-fns/fp";
+import { compareDesc, differenceInCalendarDays, toDate } from "date-fns/fp";
 import { v4 } from "uuid";
 import { calculatePeriodicDates } from "../utils/Periodic";
 import {
@@ -129,9 +129,9 @@ export const updatePeriodic = async (
             commands.push(
                 RoomPeriodicConfigDAO(t).update(
                     {
-                        room_origin_begin_time: beginTime,
-                        room_origin_end_time: endTime,
-                        end_time: periodic.endTime || end_time,
+                        room_origin_begin_time: toDate(beginTime),
+                        room_origin_end_time: toDate(endTime),
+                        end_time: periodic.endTime ? toDate(periodic.endTime) : end_time,
                         rate: periodic.rate || rate,
                         title,
                         room_type: type,
