@@ -37,8 +37,8 @@ export const createPeriodic = async (
     // check periodic.endTime
     {
         if (periodic.endTime) {
-            // endTime(day) > periodic.endTime(day)
-            if (differenceInCalendarDays(endTime)(periodic.endTime) < 0) {
+            // beginTime(day) > periodic.endTime(day)
+            if (differenceInCalendarDays(beginTime)(periodic.endTime) < 0) {
                 return {
                     status: Status.Failed,
                     code: ErrorCode.ParamsCheckFailed,
