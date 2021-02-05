@@ -8,7 +8,7 @@ import {
     RoomPeriodicDAO,
     RoomPeriodicUserDAO,
 } from "../../../dao";
-import { LessThan, MoreThan } from "typeorm";
+import { LessThan, MoreThan, Not } from "typeorm";
 
 export const periodicSubRoomInfo = async (
     req: PatchRequest<{
@@ -132,6 +132,7 @@ export const periodicSubRoomInfo = async (
                 nextPeriodicRoomEndTime,
                 count: await RoomPeriodicDAO().count({
                     periodic_uuid: periodicUUID,
+                    room_status: Not(RoomStatus.Stopped),
                 }),
                 docs,
             },
