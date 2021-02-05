@@ -106,7 +106,7 @@ export const DAOImplement: DAO<Model> = model => {
             },
             count: where => {
                 return getRepository(model).count({
-                    where,
+                    where: noDelete(where),
                 });
             },
         };
