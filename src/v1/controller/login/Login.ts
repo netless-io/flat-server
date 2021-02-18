@@ -44,7 +44,7 @@ export const login = async (req: PatchRequest): Response<LoginResponse> => {
             console.error((e as Error).message);
             return {
                 status: Status.AuthFailed,
-                code: ErrorCode.CanRetry,
+                code: ErrorCode.ServerFail,
             };
         }
 
