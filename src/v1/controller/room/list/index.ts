@@ -15,53 +15,9 @@ export const list = async (
     }>,
 ): Response<ListResponse> => {
     const { type } = req.params;
-    const whereMap = {
-        all: {
-            sql: `ru.user_uuid = :userUUID
-                AND r.room_status NOT IN (:...notRoomStatus)
-                AND ru.is_delete = false
-                AND r.is_delete = false`,
-            params: {
-                userUUID: req.user.userUUID,
-                notRoomStatus: [RoomStatus.Stopped],
-            },
-        },
-        today: {
-            sql: `ru.user_uuid = :userUUID
-                AND DATE(r.begin_time) = CURDATE()
-                AND r.room_status NOT IN (:...notRoomStatus)
-                AND ru.is_delete = false
-                AND r.is_delete = false`,
-            params: {
-                userUUID: req.user.userUUID,
-                notRoomStatus: [RoomStatus.Stopped],
-            },
-        },
-        periodic: {
-            sql: `ru.user_uuid = :userUUID
-                AND r.room_status NOT IN (:...notRoomStatus)
-                AND length(r.periodic_uuid) <> 0
-                AND ru.is_delete = false
-                AND r.is_delete = false`,
-            params: {
-                userUUID: req.user.userUUID,
-                notRoomStatus: [RoomStatus.Stopped],
-            },
-        },
-        history: {
-            sql: `ru.user_uuid = :userUUID
-                AND r.room_status IN (:...roomStatus)
-                AND ru.is_delete = false
-                AND r.is_delete = false`,
-            params: {
-                userUUID: req.user.userUUID,
-                roomStatus: [RoomStatus.Stopped],
-            },
-        },
-    };
 
     try {
-        const rooms = await createQueryBuilder(RoomUserModel, "ru")
+        let queryBuilder = createQueryBuilder(RoomUserModel, "ru")
             .addSelect("r.title", "title")
             .addSelect("r.room_uuid", "room_uuid")
             .addSelect("r.periodic_uuid", "periodic_uuid")
@@ -72,11 +28,69 @@ export const list = async (
             .addSelect("r.room_status", "room_status")
             .addSelect("u.user_name", "owner_user_name")
             .innerJoin(RoomModel, "r", "ru.room_uuid = r.room_uuid")
-            .innerJoin(UserModel, "u", "u.user_uuid = r.owner_uuid")
-            .where(whereMap[type].sql, whereMap[type].params)
-            .orderBy({
-                "r.begin_time": "ASC",
-            })
+            .innerJoin(UserModel, "u", "u.user_uuid = r.owner_uuid");
+
+        switch (type) {
+            case ListType.All: {
+                queryBuilder = queryBuilder.where(
+                    `ru.user_uuid = :userUUID
+                    AND r.room_status <> :notRoomStatus
+                    AND ru.is_delete = false
+                    AND r.is_delete = false`,
+                    {
+                        userUUID: req.user.userUUID,
+                        notRoomStatus: RoomStatus.Stopped,
+                    },
+                );
+                break;
+            }
+            case ListType.Today: {
+                queryBuilder = queryBuilder.where(
+                    `ru.user_uuid = :userUUID
+                    AND r.room_status <> :notRoomStatus
+                    AND ru.is_delete = false
+                    AND r.is_delete = false`,
+                    {
+                        userUUID: req.user.userUUID,
+                        notRoomStatus: RoomStatus.Stopped,
+                    },
+                );
+                break;
+            }
+            case ListType.Periodic: {
+                queryBuilder = queryBuilder.where(
+                    `ru.user_uuid = :userUUID
+                    AND r.room_status <> :notRoomStatus
+                    AND length(r.periodic_uuid) <> 0
+                    AND ru.is_delete = false
+                    AND r.is_delete = false`,
+                    {
+                        userUUID: req.user.userUUID,
+                        notRoomStatus: RoomStatus.Stopped,
+                    },
+                );
+                break;
+            }
+            case ListType.History: {
+                queryBuilder = queryBuilder.where(
+                    `ru.user_uuid = :userUUID
+                    AND r.room_status = :roomStatus
+                    AND ru.is_delete = false
+                    AND r.is_delete = false`,
+                    {
+                        userUUID: req.user.userUUID,
+                        roomStatus: RoomStatus.Stopped,
+                    },
+                );
+                break;
+            }
+        }
+
+        queryBuilder = queryBuilder.orderBy({
+            "r.begin_time": type === ListType.History ? "DESC" : "ASC",
+        });
+
+        const rooms = await queryBuilder
             .offset((req.query.page - 1) * 50)
             .limit(50)
             .getRawMany();
