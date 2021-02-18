@@ -80,7 +80,7 @@ export const periodicInfo = async (
         if (rooms.length === 0) {
             return {
                 status: Status.Failed,
-                code: ErrorCode.CanRetry,
+                code: ErrorCode.ServerFail,
             };
         }
 

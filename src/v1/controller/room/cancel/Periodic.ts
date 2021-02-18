@@ -52,7 +52,7 @@ export const cancelPeriodic = async (
         if (roomInfo === undefined) {
             return {
                 status: Status.Failed,
-                code: ErrorCode.CanRetry,
+                code: ErrorCode.ServerFail,
             };
         }
 

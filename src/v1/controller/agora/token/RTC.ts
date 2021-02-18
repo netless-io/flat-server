@@ -20,7 +20,7 @@ export const generateRTC = async (
     if (roomUserInfo === undefined) {
         return {
             status: Status.Failed,
-            code: ErrorCode.UserNotInRoom,
+            code: ErrorCode.RoomNotFound,
         };
     }
 

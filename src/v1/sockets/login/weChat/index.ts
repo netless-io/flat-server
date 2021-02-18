@@ -14,7 +14,7 @@ export const weChat = async (socket: IOSocket, data: AuthID): Promise<void> => {
         console.error(`set redis key: ${uuid} failed`);
         socket.emit(WeChatSocketEvents.AuthID, {
             status: Status.Failed,
-            code: ErrorCode.RedisSetDataFailed,
+            code: ErrorCode.ServerFail,
         });
     } else {
         socket.emit(WeChatSocketEvents.AuthID, {
