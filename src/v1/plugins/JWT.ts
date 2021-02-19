@@ -1,8 +1,9 @@
 import fp from "fastify-plugin";
 import jwt from "fastify-jwt";
-import { JWT, Server } from "../../Constants";
+import { JWT, Server, Status } from "../../Constants";
 import { Algorithm } from "jsonwebtoken";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { ErrorCode } from "../../ErrorCode";
 
 export default fp(
     async (fastify): Promise<void> => {
@@ -19,7 +20,11 @@ export default fp(
             try {
                 await request.jwtVerify();
             } catch (err) {
-                void reply.send(err);
+                console.error(err);
+                void reply.send({
+                    status: Status.Failed,
+                    code: ErrorCode.JWTSignFailed,
+                });
             }
         });
     },
