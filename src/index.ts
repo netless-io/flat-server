@@ -20,14 +20,14 @@ const app = fastify({
 
 app.setErrorHandler((error, _request, reply) => {
     if (error.validation) {
-        void reply.send({
+        void reply.status(200).send({
             status: Status.Failed,
             code: ErrorCode.ParamsCheckFailed,
         });
     }
 
     console.error(error);
-    void reply.send({
+    void reply.status(500).send({
         status: Status.Failed,
         code: ErrorCode.ServerFail,
     });
