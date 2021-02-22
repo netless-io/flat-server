@@ -47,6 +47,7 @@ export const list = async (
             case ListType.Today: {
                 queryBuilder = queryBuilder.where(
                     `ru.user_uuid = :userUUID
+                    AND DATE(r.begin_time) = CURDATE()
                     AND r.room_status <> :notRoomStatus
                     AND ru.is_delete = false
                     AND r.is_delete = false`,
