@@ -88,7 +88,7 @@ export const updatePeriodicSubRoom = async (
 
         if (previousPeriodicRoom !== undefined) {
             // beginTime <= previousPeriodicRoom.begin_time
-            if (compareDesc(beginTime, previousPeriodicRoom.begin_time) !== 0) {
+            if (compareDesc(beginTime, previousPeriodicRoom.begin_time) !== 1) {
                 return {
                     status: Status.Failed,
                     code: ErrorCode.ParamsCheckFailed,
