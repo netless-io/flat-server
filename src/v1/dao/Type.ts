@@ -13,6 +13,9 @@ import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
 import { RoomDocModel } from "../model/room/RoomDoc";
 import { RoomPeriodicUserModel } from "../model/room/RoomPeriodicUser";
 import { RoomRecordModel } from "../model/room/RoomRecord";
+import { CloudStorageUsersModel } from "../model/cloudStorage/CloudStorageUsers";
+import { CloudStorageUserFilesModel } from "../model/cloudStorage/CloudStorageUserFiles";
+import { CloudStorageFilesModel } from "../model/cloudStorage/CloudStorageFiles";
 
 export type Where<M> = {
     [key in keyof M]?: M[key] | FindOperator<M[key]>;
@@ -62,7 +65,10 @@ export type Model =
     | RoomPeriodicModel
     | RoomDocModel
     | RoomPeriodicUserModel
-    | RoomRecordModel;
+    | RoomRecordModel
+    | CloudStorageFilesModel
+    | CloudStorageUserFilesModel
+    | CloudStorageUsersModel;
 
 export type DAO<T extends Model> = (
     model: EntityTarget<T>,
