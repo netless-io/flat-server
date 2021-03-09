@@ -46,7 +46,6 @@ export const joinSchemaType: FastifySchema<{
         properties: {
             uuid: {
                 type: "string",
-                format: "uuid-v4",
             },
         },
     },
