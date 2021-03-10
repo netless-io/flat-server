@@ -13,7 +13,7 @@ import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
 import { RoomDocModel } from "../model/room/RoomDoc";
 import { RoomPeriodicUserModel } from "../model/room/RoomPeriodicUser";
 import { RoomRecordModel } from "../model/room/RoomRecord";
-import { CloudStorageUsersModel } from "../model/cloudStorage/CloudStorageUsers";
+import { CloudStorageConfigModel } from "../model/cloudStorage/CloudStorageConfig";
 import { CloudStorageUserFilesModel } from "../model/cloudStorage/CloudStorageUserFiles";
 import { CloudStorageFilesModel } from "../model/cloudStorage/CloudStorageFiles";
 
@@ -68,7 +68,7 @@ export type Model =
     | RoomRecordModel
     | CloudStorageFilesModel
     | CloudStorageUserFilesModel
-    | CloudStorageUsersModel;
+    | CloudStorageConfigModel;
 
 export type DAO<T extends Model> = (
     model: EntityTarget<T>,

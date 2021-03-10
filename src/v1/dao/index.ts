@@ -11,7 +11,7 @@ import { RoomPeriodicUserModel } from "../model/room/RoomPeriodicUser";
 import { RoomRecordModel } from "../model/room/RoomRecord";
 import { CloudStorageFilesModel } from "../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../model/cloudStorage/CloudStorageUserFiles";
-import { CloudStorageUsersModel } from "../model/cloudStorage/CloudStorageUsers";
+import { CloudStorageConfigModel } from "../model/cloudStorage/CloudStorageConfig";
 
 export const UserDAO = DAOImplement(UserModel) as ReturnType<DAO<UserModel>>;
 
@@ -45,6 +45,6 @@ export const CloudStorageFilesDAO = DAOImplement(CloudStorageFilesModel) as Retu
     DAO<CloudStorageFilesModel>
 >;
 
-export const CloudStorageUserDAO = DAOImplement(CloudStorageUsersModel) as ReturnType<
-    DAO<CloudStorageUsersModel>
+export const CloudStorageUserDAO = DAOImplement(CloudStorageConfigModel) as ReturnType<
+    DAO<CloudStorageConfigModel>
 >;
