@@ -2,10 +2,10 @@ import { Column, Entity, Index } from "typeorm";
 import { Content } from "../Content";
 
 @Entity({
-    name: "cloud_storage_users",
+    name: "cloud_storage_configs",
 })
-export class CloudStorageUsersModel extends Content {
-    @Index("cloud_storage_users_user_uuid_uindex", {
+export class CloudStorageConfigsModel extends Content {
+    @Index("cloud_storage_configs_user_uuid_uindex", {
         unique: true,
     })
     @Column({
@@ -19,5 +19,5 @@ export class CloudStorageUsersModel extends Content {
         default: 0,
         comment: "total cloud storage of a user (bytes)",
     })
-    total_usage: BigInt;
+    total_usage: string;
 }
