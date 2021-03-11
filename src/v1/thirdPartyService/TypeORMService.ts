@@ -1,14 +1,17 @@
-import { isDev, MySQL } from "../../Constants";
 import { createConnection } from "typeorm";
+import { CloudStorageConfigsModel } from "../model/cloudStorage/CloudStorageConfigs";
+import { CloudStorageFilesModel } from "../model/cloudStorage/CloudStorageFiles";
+import { CloudStorageUserFilesModel } from "../model/cloudStorage/CloudStorageUserFiles";
+import { isDev, MySQL } from "../../Constants";
 import { RoomModel } from "../model/room/Room";
-import { RoomUserModel } from "../model/room/RoomUser";
-import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
 import { RoomDocModel } from "../model/room/RoomDoc";
-import { UserModel } from "../model/user/User";
-import { UserWeChatModel } from "../model/user/WeChat";
+import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
 import { RoomPeriodicConfigModel } from "../model/room/RoomPeriodicConfig";
 import { RoomPeriodicUserModel } from "../model/room/RoomPeriodicUser";
 import { RoomRecordModel } from "../model/room/RoomRecord";
+import { RoomUserModel } from "../model/room/RoomUser";
+import { UserModel } from "../model/user/User";
+import { UserWeChatModel } from "../model/user/WeChat";
 
 export const orm = createConnection({
     type: "mysql",
@@ -27,6 +30,9 @@ export const orm = createConnection({
         RoomDocModel,
         RoomPeriodicUserModel,
         RoomRecordModel,
+        CloudStorageConfigsModel,
+        CloudStorageFilesModel,
+        CloudStorageUserFilesModel,
     ],
     timezone: "Z",
     logging: isDev ? "all" : false,
