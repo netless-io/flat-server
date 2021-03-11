@@ -18,4 +18,10 @@ export class CloudStorageUserFilesModel extends Content {
         length: 40,
     })
     user_uuid: string;
+
+    @Index("cloud_storage_user_files_is_delete_index")
+    @Column({
+        default: false,
+    })
+    is_delete: boolean;
 }
