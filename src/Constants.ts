@@ -52,6 +52,16 @@ export const Netless = {
     SECRET_ACCESS_KEY: process.env.NETLESS_SECRET_ACCESS_KEY,
 };
 
+export const AlibabaCloud = {
+    OSS_ACCESS_KEY: process.env.ALIBABA_CLOUD_OSS_ACCESS_KEY,
+    OSS_SECRET_ACCESS_KEY: process.env.ALIBABA_CLOUD_OSS_SECRET_ACCESS_KEY,
+    OSS_ROLE_ARN: process.env.ALIBABA_CLOUD_OSS_ROLE_ARN,
+    OSS_POLICY: process.env.ALIBABA_CLOUD_OSS_POLICY,
+    OSS_SESSION_NAME: process.env.ALIBABA_CLOUD_OSS_SESSION_NAME,
+    OSS_BUCKET: process.env.ALIBABA_CLOUD_OSS_REGION,
+    OSS_REGION: process.env.ALIBABA_CLOUD_OSS_BUCKET,
+};
+
 export enum Status {
     NoLogin = -1,
     Success,
