@@ -45,6 +45,6 @@ export const CloudStorageFilesDAO = DAOImplement(CloudStorageFilesModel) as Retu
     DAO<CloudStorageFilesModel>
 >;
 
-export const CloudStorageUserDAO = DAOImplement(CloudStorageConfigsModel) as ReturnType<
+export const CloudStorageConfigsDAO = DAOImplement(CloudStorageConfigsModel) as ReturnType<
     DAO<CloudStorageConfigsModel>
 >;
