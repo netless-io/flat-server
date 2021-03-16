@@ -36,14 +36,6 @@ const stringify = (object: StrByObj): string => {
         .map(key => {
             const value = object[key];
 
-            if (value === undefined) {
-                return "";
-            }
-
-            if (value === null) {
-                return "null";
-            }
-
             return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
         })
         .join("&");
