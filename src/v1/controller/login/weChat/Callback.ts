@@ -1,17 +1,16 @@
+import { PatchRequest } from "../../../types/Server";
+import { JSONSchemaType } from "ajv/dist/types/json-schema";
 import redisService from "../../../thirdPartyService/RedisService";
-import { socketNamespaces } from "../../../store/SocketNamespaces";
-import { SocketNsp, Status, WeChatSocketEvents } from "../../../../Constants";
-import { wechatRequest } from "../../../utils/request/wechat/WeChatRequest";
-import { getAccessTokenURL, getUserInfoURL } from "../../../utils/request/wechat/WeChatURL";
-import { AccessToken, UserInfo } from "../../../types/WeChatResponse";
-import { FastifyReply } from "fastify";
-import { FastifySchema, PatchRequest } from "../../../types/Server";
-import { v4 } from "uuid";
-import { LoginPlatform, Sex } from "../Constants";
-import { getConnection } from "typeorm";
 import { RedisKey } from "../../../../utils/Redis";
-import { ErrorCode } from "../../../../ErrorCode";
+import { FastifyReply } from "fastify";
+import { getAccessTokenURL, getUserInfoURL } from "../../../utils/request/wechat/WeChatURL";
+import { wechatRequest } from "../../../utils/request/wechat/WeChatRequest";
+import { AccessToken, UserInfo } from "../../../types/WeChatResponse";
 import { UserDAO, UserWeChatDAO } from "../../../dao";
+import { v4 } from "uuid";
+import { getConnection } from "typeorm";
+import { LoginPlatform, Sex } from "../Constants";
+import { AuthValue } from "./Constants";
 
 export const callback = async (
     req: PatchRequest<{
@@ -24,29 +23,17 @@ export const callback = async (
     });
     void reply.send();
 
-    const { state: uuid, code } = req.query;
-    const { socketID } = req.params as CallbackParams;
+    const { state: authID, code } = req.query;
 
-    const socket = socketNamespaces[SocketNsp.Login].sockets.get(socketID);
+    const result = await redisService.get(RedisKey.weChatAuthUUID(authID));
 
-    if (typeof socket === "undefined") {
-        console.error(`wechat login socket id does not exist ${socketID}`);
-        return;
-    }
-
-    socket.emit(WeChatSocketEvents.LoginStatus, {
-        status: Status.Process,
-    });
-
-    const result = await redisService.get(RedisKey.weChatAuthUUID(uuid));
-
-    if (result === null) {
-        console.error(`uuid verification failed, current code: ${code}, current uuid: ${uuid}`);
-        socket.emit(WeChatSocketEvents.LoginStatus, {
-            status: Status.AuthFailed,
-            code: ErrorCode.ParamsCheckFailed,
-        });
-
+    if (result !== AuthValue.Process) {
+        console.error(`uuid verification failed, current code: ${code}, current uuid: ${authID}`);
+        await redisService.set(
+            RedisKey.weChatAuthUUID(authID),
+            AuthValue.ParamsCheckFailed,
+            60 * 60,
+        );
         return;
     }
 
@@ -119,8 +106,6 @@ export const callback = async (
             60 * 60 * 24 * 29,
         );
 
-        await redisService.del(RedisKey.weChatAuthUUID(uuid));
-
         const getUserInfoByUser = await UserDAO().findOne(["user_name", "sex", "avatar_url"], {
             user_uuid: userUUID,
         });
@@ -132,33 +117,36 @@ export const callback = async (
                 userUUID,
                 loginSource: LoginPlatform.WeChat,
             },
-            (err: any, token: any) => {
+            (err: any, token: any): void => {
                 if (err) {
                     console.error(err.message);
-                    socket.emit(WeChatSocketEvents.LoginStatus, {
-                        status: Status.AuthFailed,
-                        code: ErrorCode.JWTSignFailed,
-                    });
+                    void redisService.set(
+                        RedisKey.weChatAuthUUID(authID),
+                        AuthValue.JWTSignFailed,
+                        60 * 60,
+                    );
                 } else {
-                    socket.emit(WeChatSocketEvents.LoginStatus, {
-                        status: Status.Success,
-                        data: {
+                    void redisService.set(
+                        RedisKey.weChatAuthUUID(authID),
+                        JSON.stringify({
                             name: user_name,
                             sex,
                             avatar: avatar_url,
                             userUUID,
                             token,
-                        },
-                    });
+                        }),
+                        60 * 60,
+                    );
                 }
             },
         );
     } catch (e: unknown) {
         console.error(e);
-        socket.emit(WeChatSocketEvents.LoginStatus, {
-            status: Status.AuthFailed,
-            code: ErrorCode.CurrentProcessFailed,
-        });
+        await redisService.set(
+            RedisKey.weChatAuthUUID(authID),
+            AuthValue.CurrentProcessFailed,
+            60 * 60,
+        );
     }
 };
 
@@ -167,33 +155,15 @@ interface CallbackQuery {
     code: string;
 }
 
-interface CallbackParams {
-    socketID: string;
-}
-
-export const callbackSchemaType: FastifySchema<{
-    querystring: CallbackQuery;
-    params: CallbackParams;
-}> = {
-    querystring: {
-        type: "object",
-        required: ["code", "state"],
-        properties: {
-            code: {
-                type: "string",
-            },
-            state: {
-                type: "string",
-            },
+export const callbackSchemaType: JSONSchemaType<CallbackQuery> = {
+    type: "object",
+    required: ["state", "code"],
+    properties: {
+        state: {
+            type: "string",
         },
-    },
-    params: {
-        type: "object",
-        required: ["socketID"],
-        properties: {
-            socketID: {
-                type: "string",
-            },
+        code: {
+            type: "string",
         },
     },
 };

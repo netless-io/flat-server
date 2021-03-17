@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { JSONSchemaType } from "ajv/dist/types/json-schema";
-import { Status, WeChatSocketEvents } from "../../Constants";
+import { Status } from "../../Constants";
 import { ErrorCode } from "../../ErrorCode";
 
 export interface PatchRequest<T = any> extends FastifyRequest<T> {
@@ -47,19 +47,3 @@ export type Response<T = any> = Promise<
           data: T;
       }
 >;
-
-export type IOServer = import("socket.io").Server;
-export type IOSocket = import("socket.io").Socket;
-export type IONsp = import("socket.io").Namespace;
-export interface IORoutes {
-    readonly nsp: string;
-    readonly subs: {
-        readonly eventName: WeChatSocketEvents;
-        readonly handle: (socket: IOSocket, data: any) => any;
-        readonly schema: any;
-    }[];
-}
-
-export type SocketNamespaces = {
-    [key in IORoutes["nsp"]]: IONsp;
-};

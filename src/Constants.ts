@@ -59,12 +59,3 @@ export enum Status {
     Process,
     AuthFailed,
 }
-
-export enum WeChatSocketEvents {
-    AuthID = "WeChat/AuthID",
-    LoginStatus = "WeChat/LoginStatus",
-}
-
-export enum SocketNsp {
-    Login = "Login",
-}
