@@ -4,7 +4,7 @@ import { Status } from "../../../../../Constants";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { CloudStorageConfigsDAO } from "../../../../dao";
 import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
-import { aliyunGetSTSToken } from "../../../../utils/request/aliyun/Aliyun";
+import { alibabaCloudGetSTSToken } from "../../../../utils/request/alibabaCloud/alibabaCloud";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 
@@ -41,7 +41,7 @@ export const alibabaCloudUploadStart = async (
             status: Status.Success,
             data: {
                 fileUUID,
-                stsToken: await aliyunGetSTSToken(),
+                stsToken: await alibabaCloudGetSTSToken(),
             },
         };
     } catch (err) {
