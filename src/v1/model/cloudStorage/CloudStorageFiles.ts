@@ -54,12 +54,14 @@ export class CloudStorageFilesModel extends Content {
     @Column({
         length: 40,
         comment: "netless conversion task uuid v1",
+        default: "",
     })
     task_uuid: string;
 
     @Column({
         length: 256,
         comment: "generated from sdk token and task uuid",
+        default: "",
     })
     task_token: string;
 

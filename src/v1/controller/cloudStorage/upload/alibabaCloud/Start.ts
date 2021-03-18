@@ -13,13 +13,30 @@ export const alibabaCloudUploadStart = async (
         Body: AlibabaCloudUploadStartBody;
     }>,
 ): Response<AlibabaCloudUploadStartResponse> => {
-    const { fileName, fileSize } = req.body;
+    const { fileUUID, fileName, fileSize } = req.body;
     const { userUUID } = req.user;
+
+    if (fileUUID) {
+        try {
+            const isFileExist = await RedisService.get(
+                RedisKey.cloudStorageFileInfo(userUUID, fileUUID),
+            );
+            if (isFileExist) {
+                return {
+                    status: Status.Failed,
+                    code: ErrorCode.FileExists,
+                };
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
 
     try {
         const cloudStorageConfig = await CloudStorageConfigsDAO().findOne(["total_usage"], {
             user_uuid: userUUID,
         });
+
         const totalUsage = (Number(cloudStorageConfig?.total_usage) || 0) + fileSize;
 
         // total_usage size limit to 2GB
@@ -34,7 +51,7 @@ export const alibabaCloudUploadStart = async (
 
         await RedisService.set(
             RedisKey.cloudStorageFileInfo(userUUID, fileUUID),
-            JSON.stringify({ fileName, fileSize }),
+            fileName,
             60 * 60,
         );
         return {
@@ -54,6 +71,7 @@ export const alibabaCloudUploadStart = async (
 };
 
 interface AlibabaCloudUploadStartBody {
+    fileUUID?: string;
     fileName: string;
     fileSize: number;
 }
@@ -65,6 +83,11 @@ export const alibabaCloudUploadStartSchemaType: FastifySchema<{
         type: "object",
         required: ["fileName", "fileSize"],
         properties: {
+            fileUUID: {
+                type: "string",
+                format: "uuid-v4",
+                nullable: true,
+            },
             fileName: {
                 type: "string",
                 maxLength: 30,
