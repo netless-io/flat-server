@@ -20,4 +20,10 @@ export class CloudStorageConfigsModel extends Content {
         comment: "total cloud storage of a user (bytes)",
     })
     total_usage: string;
+
+    @Index("cloud_storage_configs_is_delete_index")
+    @Column({
+        default: false,
+    })
+    is_delete: boolean;
 }
