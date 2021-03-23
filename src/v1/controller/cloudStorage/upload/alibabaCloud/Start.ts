@@ -2,11 +2,11 @@ import { Credentials } from "ali-oss";
 import { v4 } from "uuid";
 import { Status } from "../../../../../Constants";
 import { ErrorCode } from "../../../../../ErrorCode";
-import { CloudStorageConfigsDAO } from "../../../../dao";
 import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
 import { alibabaCloudGetSTSToken } from "./Utils";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
+import { checkTotalUsage } from "../Utils";
 
 export const alibabaCloudUploadStart = async (
     req: PatchRequest<{
@@ -17,13 +17,9 @@ export const alibabaCloudUploadStart = async (
     const { userUUID } = req.user;
 
     try {
-        const cloudStorageConfig = await CloudStorageConfigsDAO().findOne(["total_usage"], {
-            user_uuid: userUUID,
-        });
-        const totalUsage = (Number(cloudStorageConfig?.total_usage) || 0) + fileSize;
+        const { fail } = await checkTotalUsage(userUUID, fileSize);
 
-        // total_usage size limit to 2GB
-        if (totalUsage > 1024 * 1024 * 1024 * 2) {
+        if (fail) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.NotEnoughTotalUsage,
@@ -37,6 +33,7 @@ export const alibabaCloudUploadStart = async (
             JSON.stringify({ fileName, fileSize }),
             60 * 60,
         );
+
         return {
             status: Status.Success,
             data: {
