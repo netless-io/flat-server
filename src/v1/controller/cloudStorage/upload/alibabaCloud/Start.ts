@@ -21,6 +21,8 @@ export const alibabaCloudUploadStart = async (
         {
             const unfinishedUploadFile = await RedisService.scan(
                 RedisKey.cloudStorageFileInfo(userUUID, "*"),
+                CloudStorage.CONCURRENT + 1,
+                true,
             );
 
             if (unfinishedUploadFile.length > CloudStorage.CONCURRENT) {
