@@ -53,6 +53,8 @@ export const Netless = {
 };
 
 export const CloudStorage = {
+    // default: 500M
+    SINGLE_FILE_SIZE: Number(process.env.CLOUD_STORAGE_SINGLE_FILE_SIZE) || 524288000,
     // default: 2G
     TOTAL_SIZE: Number(process.env.CLOUD_STORAGE_TOTAL_SIZE) || 2147483648,
 };

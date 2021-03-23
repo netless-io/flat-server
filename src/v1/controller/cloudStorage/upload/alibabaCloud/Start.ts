@@ -6,7 +6,7 @@ import { FastifySchema, PatchRequest, Response } from "../../../../types/Server"
 import { alibabaCloudGetSTSToken } from "./Utils";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
-import { checkTotalUsage } from "../Utils";
+import { checkTotalUsage, fileSizeTooBig } from "../Utils";
 
 export const alibabaCloudUploadStart = async (
     req: PatchRequest<{
@@ -17,13 +17,23 @@ export const alibabaCloudUploadStart = async (
     const { userUUID } = req.user;
 
     try {
-        const { fail } = await checkTotalUsage(userUUID, fileSize);
+        // check file size and total usage
+        {
+            if (fileSizeTooBig(fileSize)) {
+                return {
+                    status: Status.Failed,
+                    code: ErrorCode.FileSizeTooBig,
+                };
+            }
 
-        if (fail) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.NotEnoughTotalUsage,
-            };
+            const { fail } = await checkTotalUsage(userUUID, fileSize);
+
+            if (fail) {
+                return {
+                    status: Status.Failed,
+                    code: ErrorCode.NotEnoughTotalUsage,
+                };
+            }
         }
 
         const fileUUID = v4();

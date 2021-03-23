@@ -23,6 +23,7 @@ export enum ErrorCode {
     RecordNotFound = 500000, // record info not found
 
     FileNotFound = 600000, // file info not found
+    FileSizeTooBig, // single file size too big
     FileExists, // file already exists
 
     NotEnoughTotalUsage = 700000, // not enough TotalUsage

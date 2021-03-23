@@ -41,6 +41,7 @@ declare namespace NodeJS {
         OSS_ACCESS_KEY_ID: string;
         OSS_ACCESS_KEY_SECRET: string;
 
+        CLOUD_STORAGE_SINGLE_FILE_SIZE: string;
         CLOUD_STORAGE_TOTAL_SIZE: string;
 
         ALIBABA_CLOUD_OSS_ACCESS_KEY: string;
