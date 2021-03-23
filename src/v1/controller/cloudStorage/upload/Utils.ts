@@ -14,8 +14,7 @@ export const checkTotalUsage = async (
     const totalUsage = (Number(cloudStorageConfigInfo?.total_usage) || 0) + currentFileSize;
 
     return {
-        // total_usage size limit to 2GB
-        fail: totalUsage > 1024 * 1024 * 1024 * 2,
+        fail: totalUsage > CloudStorage.TOTAL_SIZE,
         totalUsage,
     };
 };
