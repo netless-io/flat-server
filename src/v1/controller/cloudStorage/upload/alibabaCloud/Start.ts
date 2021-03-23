@@ -4,7 +4,7 @@ import { Status } from "../../../../../Constants";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { CloudStorageConfigsDAO } from "../../../../dao";
 import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
-import { alibabaCloudGetSTSToken } from "../../../../utils/request/alibabaCloud/alibabaCloud";
+import { alibabaCloudGetSTSToken } from "./Utils";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 
