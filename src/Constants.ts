@@ -52,6 +52,11 @@ export const Netless = {
     SECRET_ACCESS_KEY: process.env.NETLESS_SECRET_ACCESS_KEY,
 };
 
+export const CloudStorage = {
+    // default: 2G
+    TOTAL_SIZE: Number(process.env.CLOUD_STORAGE_TOTAL_SIZE) || 2147483648,
+};
+
 export const AlibabaCloud = {
     OSS_ACCESS_KEY: process.env.ALIBABA_CLOUD_OSS_ACCESS_KEY,
     OSS_SECRET_ACCESS_KEY: process.env.ALIBABA_CLOUD_OSS_SECRET_ACCESS_KEY,
