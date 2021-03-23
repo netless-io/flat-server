@@ -34,32 +34,28 @@ export class CloudStorageFilesModel extends Content {
     file_url: string;
 
     @Column({
-        type: "json",
-        comment: "file convert result info",
-    })
-    convert_result: string[];
-
-    @Column({
         type: "enum",
         enum: [
-            FileConvertStep.Pending,
+            FileConvertStep.None,
             FileConvertStep.Converting,
             FileConvertStep.Done,
             FileConvertStep.Failed,
         ],
-        default: FileConvertStep.Pending,
+        default: FileConvertStep.None,
     })
     convert_step: FileConvertStep;
 
     @Column({
         length: 40,
         comment: "netless conversion task uuid v1",
+        default: "",
     })
     task_uuid: string;
 
     @Column({
         length: 256,
         comment: "generated from sdk token and task uuid",
+        default: "",
     })
     task_token: string;
 
