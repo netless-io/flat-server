@@ -49,6 +49,7 @@ export const alibabaCloudUploadStart = async (
             }
         }
 
+        const stsToken = await alibabaCloudGetSTSToken();
         const fileUUID = v4();
 
         await RedisService.set(
@@ -61,7 +62,7 @@ export const alibabaCloudUploadStart = async (
             status: Status.Success,
             data: {
                 fileUUID,
-                stsToken: await alibabaCloudGetSTSToken(),
+                stsToken,
             },
         };
     } catch (err) {
