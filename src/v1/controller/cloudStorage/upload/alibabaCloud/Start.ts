@@ -1,6 +1,6 @@
 import { Credentials } from "ali-oss";
 import { v4 } from "uuid";
-import { Status } from "../../../../../Constants";
+import { CloudStorage, Status } from "../../../../../Constants";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
 import { alibabaCloudGetSTSToken } from "./Utils";
@@ -17,8 +17,19 @@ export const alibabaCloudUploadStart = async (
     const { userUUID } = req.user;
 
     try {
-        // check file size and total usage
+        // check upload concurrent and file size and total usage
         {
+            const unfinishedUploadFile = await RedisService.scan(
+                RedisKey.cloudStorageFileInfo(userUUID, "*"),
+            );
+
+            if (unfinishedUploadFile.length > CloudStorage.CONCURRENT) {
+                return {
+                    status: Status.Failed,
+                    code: ErrorCode.UploadConcurrentLimit,
+                };
+            }
+
             if (fileSizeTooBig(fileSize)) {
                 return {
                     status: Status.Failed,
