@@ -16,6 +16,8 @@ export const alibabaCloudUploadStart = async (
     const { fileName, fileSize } = req.body;
     const { userUUID } = req.user;
 
+    const fileUUID = v4();
+
     try {
         // check upload concurrent and file size and total usage
         {
@@ -49,8 +51,6 @@ export const alibabaCloudUploadStart = async (
             }
         }
 
-        const fileUUID = v4();
-
         await RedisService.set(
             RedisKey.cloudStorageFileInfo(userUUID, fileUUID),
             fileName,
@@ -65,6 +65,8 @@ export const alibabaCloudUploadStart = async (
             },
         };
     } catch (err) {
+        void RedisService.del(RedisKey.cloudStorageFileInfo(userUUID, fileUUID)).catch(() => {});
+
         console.error(err);
         return {
             status: Status.Failed,
