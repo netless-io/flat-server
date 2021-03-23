@@ -28,6 +28,33 @@ class RedisService {
     public async del(key: string): Promise<void> {
         await this.client.del(key);
     }
+
+    public async scan(
+        match: string,
+        count = 100,
+        totalCount: boolean | number = false,
+    ): Promise<string[]> {
+        const stream = this.client.scanStream({
+            match,
+            count,
+        });
+
+        const realCount = typeof totalCount === "boolean" ? count : totalCount;
+
+        let result: string[] = [];
+
+        for await (const item of stream) {
+            result = result.concat(item as string);
+
+            if (totalCount && result.length >= realCount) {
+                result.splice(realCount);
+                break;
+            }
+        }
+
+        stream.destroy();
+        return Array.from(new Set(result));
+    }
 }
 
 export default new RedisService();

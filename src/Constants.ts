@@ -53,6 +53,8 @@ export const Netless = {
 };
 
 export const CloudStorage = {
+    // upload concurrent (default: 3)
+    CONCURRENT: Number(process.env.CLOUD_STORAGE_CONCURRENT) || 3,
     // default: 500M
     SINGLE_FILE_SIZE: Number(process.env.CLOUD_STORAGE_SINGLE_FILE_SIZE) || 524288000,
     // default: 2G
