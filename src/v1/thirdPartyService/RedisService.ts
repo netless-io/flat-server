@@ -47,7 +47,7 @@ class RedisService {
             result = result.concat(item as string);
 
             if (totalCount && result.length >= realCount) {
-                result.splice(count);
+                result.splice(realCount);
                 break;
             }
         }
