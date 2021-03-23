@@ -5,5 +5,5 @@ export const RedisKey = {
         `agora:rtc:room:${roomUUID}:uid:${uid}`,
     agoraRTMUserToken: (userUUID: string): string => `agora:rtm:userUUID:${userUUID}`,
     cloudStorageFileInfo: (userUUID: string, fileUUID: string): string =>
-        `cloudStorage:${userUUID}:${fileUUID}`,
+        `cloudStorage:alibabaCloud:${userUUID}:${fileUUID}`,
 };

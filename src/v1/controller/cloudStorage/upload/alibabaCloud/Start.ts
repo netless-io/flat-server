@@ -30,7 +30,7 @@ export const alibabaCloudUploadStart = async (
 
         await RedisService.set(
             RedisKey.cloudStorageFileInfo(userUUID, fileUUID),
-            JSON.stringify({ fileName, fileSize }),
+            fileName,
             60 * 60,
         );
 
