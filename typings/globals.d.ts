@@ -44,6 +44,7 @@ declare namespace NodeJS {
         CLOUD_STORAGE_SINGLE_FILE_SIZE: string;
         CLOUD_STORAGE_TOTAL_SIZE: string;
         CLOUD_STORAGE_CONCURRENT: string;
+        CLOUD_STORAGE_PREFIX_PATH: string;
         CLOUD_STORAGE_ALLOW_FILE_SUFFIX: string;
 
         ALIBABA_CLOUD_OSS_ACCESS_KEY: string;

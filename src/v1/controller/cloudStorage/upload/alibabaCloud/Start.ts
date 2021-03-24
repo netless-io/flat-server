@@ -1,9 +1,8 @@
-import { Credentials } from "ali-oss";
 import { v4 } from "uuid";
 import { CloudStorage, Status } from "../../../../../Constants";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
-import { alibabaCloudGetSTSToken } from "./Utils";
+import { getFilePath, policyTemplate } from "./Utils";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { checkTotalUsage } from "../Utils";
@@ -42,8 +41,9 @@ export const alibabaCloudUploadStart = async (
             }
         }
 
-        const stsToken = await alibabaCloudGetSTSToken();
         const fileUUID = v4();
+        const filePath = getFilePath(fileName, fileUUID);
+        const { policy, signature } = policyTemplate(filePath, fileSize);
 
         await RedisService.set(
             RedisKey.cloudStorageFileInfo(userUUID, fileUUID),
@@ -55,7 +55,9 @@ export const alibabaCloudUploadStart = async (
             status: Status.Success,
             data: {
                 fileUUID,
-                stsToken,
+                filePath,
+                policy,
+                signature,
             },
         };
     } catch (err) {
@@ -95,5 +97,7 @@ export const alibabaCloudUploadStartSchemaType: FastifySchema<{
 
 interface AlibabaCloudUploadStartResponse {
     fileUUID: string;
-    stsToken: Credentials;
+    filePath: string;
+    policy: string;
+    signature: string;
 }
