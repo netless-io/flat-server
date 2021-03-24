@@ -25,7 +25,7 @@ export const policyTemplate = (
             {
                 bucket: AlibabaCloud.OSS_BUCKET,
             },
-            ["content-length-range", 0, fileSize],
+            ["content-length-range", fileSize, fileSize],
             ["eq", "$key", filePath],
         ],
     });
