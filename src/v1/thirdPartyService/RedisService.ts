@@ -43,17 +43,24 @@ class RedisService {
 
         let result: string[] = [];
 
-        for await (const item of stream) {
-            result = result.concat(item as string);
+        return new Promise((resolve, reject) => {
+            stream.on("data", data => {
+                result = result.concat(data as string);
 
-            if (totalCount && result.length >= realCount) {
-                result.splice(realCount);
-                break;
-            }
-        }
+                if (totalCount && result.length >= realCount) {
+                    result.splice(realCount);
+                    stream.destroy();
+                }
+            });
 
-        stream.destroy();
-        return Array.from(new Set(result));
+            stream.on("close", () => {
+                resolve(Array.from(new Set(result)));
+            });
+            stream.on("end", () => {
+                resolve(Array.from(new Set(result)));
+            });
+            stream.on("error", reject);
+        });
     }
 }
 
