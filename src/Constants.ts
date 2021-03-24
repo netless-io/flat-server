@@ -59,6 +59,8 @@ export const CloudStorage = {
     SINGLE_FILE_SIZE: Number(process.env.CLOUD_STORAGE_SINGLE_FILE_SIZE) || 524288000,
     // default: 2G
     TOTAL_SIZE: Number(process.env.CLOUD_STORAGE_TOTAL_SIZE) || 2147483648,
+    // oss prefix path (default: cloud-storage)
+    PREFIX_PATH: process.env.CLOUD_STORAGE_PREFIX_PATH || "cloud-storage",
     // allow upload file type
     ALLOW_FILE_SUFFIX: process.env.CLOUD_STORAGE_ALLOW_FILE_SUFFIX
         ? process.env.CLOUD_STORAGE_ALLOW_FILE_SUFFIX.split(",").map(suffix => suffix.trim())
