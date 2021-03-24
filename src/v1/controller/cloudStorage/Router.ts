@@ -1,4 +1,5 @@
 import { FastifyRoutes } from "../../types/Server";
+import { cloudStorageList, cloudStorageListSchemaType } from "./list";
 import {
     alibabaCloudUploadStart,
     alibabaCloudUploadStartSchemaType,
@@ -11,5 +12,12 @@ export const httpCloudStorage: Readonly<FastifyRoutes[]> = Object.freeze([
         handler: alibabaCloudUploadStart,
         auth: true,
         schema: alibabaCloudUploadStartSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "cloud-storage/list",
+        handler: cloudStorageList,
+        auth: true,
+        schema: cloudStorageListSchemaType,
     }),
 ]);

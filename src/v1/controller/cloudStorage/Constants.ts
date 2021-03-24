@@ -1,6 +1,6 @@
 export enum FileConvertStep {
-    Pending = "Pending",
-    Converting = "Coverting",
+    None = "None",
+    Converting = "Converting",
     Done = "Done",
     Failed = "Failed",
 }
