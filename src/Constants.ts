@@ -59,6 +59,10 @@ export const CloudStorage = {
     SINGLE_FILE_SIZE: Number(process.env.CLOUD_STORAGE_SINGLE_FILE_SIZE) || 524288000,
     // default: 2G
     TOTAL_SIZE: Number(process.env.CLOUD_STORAGE_TOTAL_SIZE) || 2147483648,
+    // allow upload file type
+    ALLOW_FILE_SUFFIX: process.env.CLOUD_STORAGE_ALLOW_FILE_SUFFIX
+        ? process.env.CLOUD_STORAGE_ALLOW_FILE_SUFFIX.split(",").map(suffix => suffix.trim())
+        : ["ppt", "pptx", "doc", "docx", "pdf", "png", "jpg", "jpeg", "gif"],
 };
 
 export const AlibabaCloud = {
