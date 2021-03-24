@@ -6,7 +6,7 @@ import { FastifySchema, PatchRequest, Response } from "../../../../types/Server"
 import { alibabaCloudGetSTSToken } from "./Utils";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
-import { checkTotalUsage, fileSizeTooBig } from "../Utils";
+import { checkTotalUsage } from "../Utils";
 
 export const alibabaCloudUploadStart = async (
     req: PatchRequest<{
@@ -29,13 +29,6 @@ export const alibabaCloudUploadStart = async (
                 return {
                     status: Status.Failed,
                     code: ErrorCode.UploadConcurrentLimit,
-                };
-            }
-
-            if (fileSizeTooBig(fileSize)) {
-                return {
-                    status: Status.Failed,
-                    code: ErrorCode.FileSizeTooBig,
                 };
             }
 
@@ -91,7 +84,9 @@ export const alibabaCloudUploadStartSchemaType: FastifySchema<{
                 maxLength: 30,
             },
             fileSize: {
-                type: "integer",
+                type: "number",
+                minimum: 1,
+                maximum: CloudStorage.SINGLE_FILE_SIZE,
             },
         },
     },

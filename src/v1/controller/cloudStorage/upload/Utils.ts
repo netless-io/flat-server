@@ -1,10 +1,6 @@
 import { CloudStorageConfigsDAO } from "../../../dao";
 import { CloudStorage } from "../../../../Constants";
 
-export const fileSizeTooBig = (currentFileSize: number): boolean => {
-    return currentFileSize > CloudStorage.SINGLE_FILE_SIZE;
-};
-
 export const checkTotalUsage = async (
     userUUID: string,
     currentFileSize: number,
