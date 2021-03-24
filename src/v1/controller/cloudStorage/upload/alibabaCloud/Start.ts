@@ -25,7 +25,7 @@ export const alibabaCloudUploadStart = async (
                 true,
             );
 
-            if (unfinishedUploadFile.length > CloudStorage.CONCURRENT) {
+            if (unfinishedUploadFile.length >= CloudStorage.CONCURRENT) {
                 return {
                     status: Status.Failed,
                     code: ErrorCode.UploadConcurrentLimit,
