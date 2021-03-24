@@ -8,10 +8,8 @@ import path from "path";
  * @param {string} filePath - limit the file path that can only be uploaded
  * @param {number} fileSize - limit the size of uploaded file
  * @param {number} [expiration = 120] - expiration time(unit: minutes)
- * @link https://www.alibabacloud.com/help/doc-detail/31988.htm?spm=a2c63.p38356.b99.1062.4aad372caCcaoQ
- * @link https://help.aliyun.com/document_detail/31978.html?spm=a2c4g.11186623.6.1690.2d51abefIf0dn3
- * @see [English Document]{@link https://www.alibabacloud.com/help/doc-detail/31988.htm?spm=a2c63.p38356.b99.1062.4aad372caCcaoQ}
- * @see [Chinese Document]{@link https://help.aliyun.com/document_detail/31978.html?spm=a2c4g.11186623.6.1690.2d51abefIf0dn3}
+ * @see [English Document]{@link https://www.alibabacloud.com/help/doc-detail/31988.htm}
+ * @see [Chinese Document]{@link https://help.aliyun.com/document_detail/31978.html}
  */
 export const policyTemplate = (
     filePath: string,
