@@ -88,6 +88,7 @@ export const alibabaCloudUploadStartSchemaType: FastifySchema<{
         properties: {
             fileName: {
                 type: "string",
+                format: "file-suffix",
                 maxLength: 30,
             },
             fileSize: {
