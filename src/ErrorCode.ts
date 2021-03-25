@@ -30,4 +30,6 @@ export enum ErrorCode {
 
     FileIsConverted = 800000,
     FileConvertFailed, // file convert failed
+    FileIsConverting, // file is converting
+    FileIsConvertWaiting, // file convert is in waiting status
 }

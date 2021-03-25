@@ -10,6 +10,7 @@ import {
     alibabaCloudUploadFinish,
     alibabaCloudUploadFinishSchemaType,
 } from "./upload/alibabaCloud/Finish";
+import { fileConvertFinish, fileConvertFinishSchemaType } from "./convert/Finish";
 
 export const httpCloudStorage: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
@@ -46,5 +47,12 @@ export const httpCloudStorage: Readonly<FastifyRoutes[]> = Object.freeze([
         handler: fileConvertStart,
         auth: true,
         schema: fileConvertStartSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "cloud-storage/convert/finish",
+        handler: fileConvertFinish,
+        auth: true,
+        schema: fileConvertFinishSchemaType,
     }),
 ]);
