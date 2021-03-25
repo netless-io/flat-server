@@ -5,15 +5,12 @@ import {
     alibabaCloudUploadStart,
     alibabaCloudUploadStartSchemaType,
 } from "./upload/alibabaCloud/Start";
+import {
+    alibabaCloudUploadFinish,
+    alibabaCloudUploadFinishSchemaType,
+} from "./upload/alibabaCloud/Finish";
 
 export const httpCloudStorage: Readonly<FastifyRoutes[]> = Object.freeze([
-    Object.freeze({
-        method: "post",
-        path: "cloud-storage/alibaba-cloud/upload/start",
-        handler: alibabaCloudUploadStart,
-        auth: true,
-        schema: alibabaCloudUploadStartSchemaType,
-    }),
     Object.freeze({
         method: "post",
         path: "cloud-storage/list",
@@ -27,5 +24,19 @@ export const httpCloudStorage: Readonly<FastifyRoutes[]> = Object.freeze([
         handler: cloudStorageRename,
         auth: true,
         schema: cloudStorageRenameSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "cloud-storage/alibaba-cloud/upload/start",
+        handler: alibabaCloudUploadStart,
+        auth: true,
+        schema: alibabaCloudUploadStartSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "cloud-storage/alibaba-cloud/upload/finish",
+        handler: alibabaCloudUploadFinish,
+        auth: true,
+        schema: alibabaCloudUploadFinishSchemaType,
     }),
 ]);
