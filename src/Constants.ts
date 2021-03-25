@@ -70,8 +70,6 @@ export const CloudStorage = {
 export const AlibabaCloud = {
     OSS_ACCESS_KEY: process.env.ALIBABA_CLOUD_OSS_ACCESS_KEY,
     OSS_ACCESS_KEY_SECRET: process.env.ALIBABA_CLOUD_OSS_ACCESS_KEY_SECRET,
-    OSS_ROLE_ARN: process.env.ALIBABA_CLOUD_OSS_ROLE_ARN,
-    OSS_SESSION_NAME: process.env.ALIBABA_CLOUD_OSS_SESSION_NAME,
     OSS_BUCKET: process.env.ALIBABA_CLOUD_OSS_BUCKET,
     OSS_REGION: process.env.ALIBABA_CLOUD_OSS_REGION,
 };

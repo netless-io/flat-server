@@ -2,6 +2,7 @@ import { addMinutes } from "date-fns/fp";
 import { AlibabaCloud, CloudStorage } from "../../../../../Constants";
 import crypto from "crypto";
 import path from "path";
+import OSS from "ali-oss";
 
 /**
  * alibaba cloud oss policy template
@@ -45,3 +46,30 @@ export const policyTemplate = (
 export const getFilePath = (fileName: string, fileUUID: string): string => {
     return `${CloudStorage.PREFIX_PATH}/${fileUUID}${path.extname(fileName)}`;
 };
+
+export const getOSSFileURLPath = (filePath: string): string => {
+    return `https://${AlibabaCloud.OSS_BUCKET}.${AlibabaCloud.OSS_REGION}.aliyuncs.com/${filePath}`;
+};
+
+const ossClient = new OSS({
+    bucket: AlibabaCloud.OSS_BUCKET,
+    region: AlibabaCloud.OSS_REGION,
+    accessKeyId: AlibabaCloud.OSS_ACCESS_KEY,
+    accessKeySecret: AlibabaCloud.OSS_ACCESS_KEY_SECRET,
+});
+
+/**
+ * determine if an Object exists in the Bucket
+ * fill in the full path of the Object without the Bucket name
+ * @param {string} fullPath - file path
+ * @see [English Document]{@link https://www.alibabacloud.com/help/doc-detail/111392.htm}
+ * @see [Chinese Document]{@link https://help.aliyun.com/document_detail/111392.html}
+ */
+export async function getOSSFileSize(fullPath: string): Promise<number> {
+    try {
+        const fileInfo = await ossClient.head(fullPath);
+        return Number((fileInfo.res.headers as any)["content-length"]);
+    } catch {
+        return NaN;
+    }
+}
