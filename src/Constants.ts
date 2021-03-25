@@ -52,6 +52,28 @@ export const Netless = {
     SECRET_ACCESS_KEY: process.env.NETLESS_SECRET_ACCESS_KEY,
 };
 
+export const CloudStorage = {
+    // upload concurrent (default: 3)
+    CONCURRENT: Number(process.env.CLOUD_STORAGE_CONCURRENT) || 3,
+    // default: 500M
+    SINGLE_FILE_SIZE: Number(process.env.CLOUD_STORAGE_SINGLE_FILE_SIZE) || 524288000,
+    // default: 2G
+    TOTAL_SIZE: Number(process.env.CLOUD_STORAGE_TOTAL_SIZE) || 2147483648,
+    // oss prefix path (default: cloud-storage)
+    PREFIX_PATH: process.env.CLOUD_STORAGE_PREFIX_PATH || "cloud-storage",
+    // allow upload file type
+    ALLOW_FILE_SUFFIX: process.env.CLOUD_STORAGE_ALLOW_FILE_SUFFIX
+        ? process.env.CLOUD_STORAGE_ALLOW_FILE_SUFFIX.split(",").map(suffix => suffix.trim())
+        : ["ppt", "pptx", "doc", "docx", "pdf", "png", "jpg", "jpeg", "gif"],
+};
+
+export const AlibabaCloud = {
+    OSS_ACCESS_KEY: process.env.ALIBABA_CLOUD_OSS_ACCESS_KEY,
+    OSS_ACCESS_KEY_SECRET: process.env.ALIBABA_CLOUD_OSS_ACCESS_KEY_SECRET,
+    OSS_BUCKET: process.env.ALIBABA_CLOUD_OSS_BUCKET,
+    OSS_REGION: process.env.ALIBABA_CLOUD_OSS_REGION,
+};
+
 export enum Status {
     NoLogin = -1,
     Success,

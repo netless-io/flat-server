@@ -37,5 +37,19 @@ declare namespace NodeJS {
 
         NETLESS_ACCESS_KEY: string;
         NETLESS_SECRET_ACCESS_KEY: string;
+
+        OSS_ACCESS_KEY_ID: string;
+        OSS_ACCESS_KEY_SECRET: string;
+
+        CLOUD_STORAGE_SINGLE_FILE_SIZE: string;
+        CLOUD_STORAGE_TOTAL_SIZE: string;
+        CLOUD_STORAGE_CONCURRENT: string;
+        CLOUD_STORAGE_PREFIX_PATH: string;
+        CLOUD_STORAGE_ALLOW_FILE_SUFFIX: string;
+
+        ALIBABA_CLOUD_OSS_ACCESS_KEY: string;
+        ALIBABA_CLOUD_OSS_ACCESS_KEY_SECRET: string;
+        ALIBABA_CLOUD_OSS_BUCKET: string;
+        ALIBABA_CLOUD_OSS_REGION: string;
     }
 }

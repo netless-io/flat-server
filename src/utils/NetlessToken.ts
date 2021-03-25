@@ -15,6 +15,7 @@ export enum TokenRole {
 export enum TokenPrefix {
     SDK = "NETLESSSDK_",
     ROOM = "NETLESSROOM_",
+    TASK = "NETLESSTASK_",
 }
 
 const bufferToBase64 = (buffer: Buffer): string => {
@@ -71,6 +72,8 @@ const sdkToken = createToken<SdkTokenTags>(TokenPrefix.SDK);
 
 const roomToken = createToken<RoomTokenTags>(TokenPrefix.ROOM);
 
+const taskToken = createToken<RoomTokenTags>(TokenPrefix.TASK);
+
 export const createWhiteboardSDKToken = (lifespan = 1000 * 60 * 10): string => {
     return sdkToken(Netless.ACCESS_KEY, Netless.SECRET_ACCESS_KEY, lifespan, {
         role: TokenRole.Admin,
@@ -84,6 +87,16 @@ export const createWhiteboardRoomToken = (
     return roomToken(Netless.ACCESS_KEY, Netless.SECRET_ACCESS_KEY, lifespan, {
         uuid: whiteboardRoomUUID,
         role: readonly ? TokenRole.Reader : TokenRole.Writer,
+    });
+};
+
+export const createWhiteboardTaskToken = (
+    whiteboardTaskUUID: string,
+    { lifespan = 0 }: { lifespan?: number } = {},
+): string => {
+    return taskToken(Netless.ACCESS_KEY, Netless.SECRET_ACCESS_KEY, lifespan, {
+        uuid: whiteboardTaskUUID,
+        role: TokenRole.Reader,
     });
 };
 

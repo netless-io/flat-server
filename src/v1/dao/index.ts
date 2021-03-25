@@ -9,6 +9,9 @@ import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
 import { RoomDocModel } from "../model/room/RoomDoc";
 import { RoomPeriodicUserModel } from "../model/room/RoomPeriodicUser";
 import { RoomRecordModel } from "../model/room/RoomRecord";
+import { CloudStorageFilesModel } from "../model/cloudStorage/CloudStorageFiles";
+import { CloudStorageUserFilesModel } from "../model/cloudStorage/CloudStorageUserFiles";
+import { CloudStorageConfigsModel } from "../model/cloudStorage/CloudStorageConfigs";
 
 export const UserDAO = DAOImplement(UserModel) as ReturnType<DAO<UserModel>>;
 
@@ -33,3 +36,15 @@ export const RoomPeriodicUserDAO = DAOImplement(RoomPeriodicUserModel) as Return
 >;
 
 export const RoomRecordDAO = DAOImplement(RoomRecordModel) as ReturnType<DAO<RoomRecordModel>>;
+
+export const CloudStorageUserFilesDAO = DAOImplement(CloudStorageUserFilesModel) as ReturnType<
+    DAO<CloudStorageUserFilesModel>
+>;
+
+export const CloudStorageFilesDAO = DAOImplement(CloudStorageFilesModel) as ReturnType<
+    DAO<CloudStorageFilesModel>
+>;
+
+export const CloudStorageConfigsDAO = DAOImplement(CloudStorageConfigsModel) as ReturnType<
+    DAO<CloudStorageConfigsModel>
+>;

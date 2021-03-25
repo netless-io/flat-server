@@ -21,4 +21,10 @@ export enum ErrorCode {
     UserNotFound = 400000, // user not found
 
     RecordNotFound = 500000, // record info not found
+
+    UploadConcurrentLimit = 700000,
+    NotEnoughTotalUsage, // not enough total usage
+    FileSizeTooBig, // single file size too big
+    FileNotFound, // file info not found
+    FileExists, // file already exists
 }
