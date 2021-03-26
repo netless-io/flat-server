@@ -38,6 +38,7 @@ export const cloudStorageList = async (
             .addSelect("f.convert_step", "convert_step")
             .addSelect("f.task_uuid", "task_uuid")
             .addSelect("f.task_token", "task_token")
+            .addSelect("f.created_at", "create_at")
             .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
             .where(
                 `fc.user_uuid = :userUUID
@@ -61,6 +62,7 @@ export const cloudStorageList = async (
                 convertStep: file.convert_step,
                 taskUUID: file.task_uuid,
                 taskToken: file.task_token,
+                createAt: file.create_at.valueOf(),
             };
         });
 
@@ -110,6 +112,7 @@ interface CloudStorageListResponse {
         convertStep: FileConvertStep;
         taskUUID: string;
         taskToken: string;
+        createAt: number;
     }>;
 }
 
@@ -121,4 +124,5 @@ interface CloudStorageFile {
     convert_step: FileConvertStep;
     task_uuid: string;
     task_token: string;
+    create_at: Date;
 }
