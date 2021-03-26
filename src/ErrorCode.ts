@@ -27,4 +27,9 @@ export enum ErrorCode {
     FileSizeTooBig, // single file size too big
     FileNotFound, // file info not found
     FileExists, // file already exists
+
+    FileIsConverted = 800000,
+    FileConvertFailed, // file convert failed
+    FileIsConverting, // file is converting
+    FileIsConvertWaiting, // file convert is in waiting status
 }
