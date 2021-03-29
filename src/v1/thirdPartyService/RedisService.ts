@@ -29,6 +29,27 @@ class RedisService {
         await this.client.del(key);
     }
 
+    public async hmset(key: string, value: Record<string, string>, expire?: number): Promise<void> {
+        await this.client.hmset(key, value);
+
+        if (expire) {
+            await this.client.expire(key, expire);
+        }
+    }
+
+    public hmget(key: string, field: string): Promise<string | null>;
+    public hmget(key: string, field: string[]): Promise<Array<string | null>>;
+    public async hmget(
+        key: string,
+        field: string | string[],
+    ): Promise<string | null | Array<string | null>> {
+        if (typeof field === "string") {
+            return (await this.client.hmget(key, [field]))[0];
+        }
+
+        return await this.client.hmget(key, field);
+    }
+
     public async scan(
         match: string,
         count = 100,

@@ -65,11 +65,11 @@ const ossClient = new OSS({
  * @see [English Document]{@link https://www.alibabacloud.com/help/doc-detail/111392.htm}
  * @see [Chinese Document]{@link https://help.aliyun.com/document_detail/111392.html}
  */
-export async function getOSSFileSize(fullPath: string): Promise<number> {
+export async function isExistObject(fullPath: string): Promise<boolean> {
     try {
-        const fileInfo = await ossClient.head(fullPath);
-        return Number((fileInfo.res.headers as any)["content-length"]);
+        await ossClient.head(fullPath);
+        return true;
     } catch {
-        return NaN;
+        return false;
     }
 }

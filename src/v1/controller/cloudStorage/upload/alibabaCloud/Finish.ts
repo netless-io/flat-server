@@ -10,7 +10,7 @@ import { ErrorCode } from "../../../../../ErrorCode";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { checkTotalUsage } from "../Utils";
-import { getFilePath, getOSSFileSize, getOSSFileURLPath } from "./Utils";
+import { getFilePath, isExistObject, getOSSFileURLPath } from "./Utils";
 
 export const alibabaCloudUploadFinish = async (
     req: PatchRequest<{
@@ -21,9 +21,15 @@ export const alibabaCloudUploadFinish = async (
     const { userUUID } = req.user;
 
     try {
-        const fileName = await RedisService.get(RedisKey.cloudStorageFileInfo(userUUID, fileUUID));
+        const fileInfo = await RedisService.hmget(
+            RedisKey.cloudStorageFileInfo(userUUID, fileUUID),
+            ["fileName", "fileSize"],
+        );
 
-        if (!fileName) {
+        const fileName = fileInfo[0];
+        const fileSize = Number(fileInfo[1]);
+
+        if (!fileName || Number.isNaN(fileSize)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.FileNotFound,
@@ -32,14 +38,7 @@ export const alibabaCloudUploadFinish = async (
 
         const fullPath = getFilePath(fileName, fileUUID);
 
-        const fileSize = await getOSSFileSize(fullPath);
-
-        if (Number.isNaN(fileSize)) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.FileNotFound,
-            };
-        }
+        await isExistObject(fullPath);
 
         const { fail, totalUsage } = await checkTotalUsage(userUUID, fileSize);
 

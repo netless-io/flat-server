@@ -18,22 +18,37 @@ export const alibabaCloudUploadStart = async (
     try {
         // check upload concurrent and file size and total usage
         {
-            const unfinishedUploadFile = await RedisService.scan(
+            const uploadingFiles = await RedisService.scan(
                 RedisKey.cloudStorageFileInfo(userUUID, "*"),
                 CloudStorage.CONCURRENT + 1,
                 true,
             );
 
-            if (unfinishedUploadFile.length >= CloudStorage.CONCURRENT) {
+            if (uploadingFiles.length >= CloudStorage.CONCURRENT) {
                 return {
                     status: Status.Failed,
                     code: ErrorCode.UploadConcurrentLimit,
                 };
             }
 
-            const { fail } = await checkTotalUsage(userUUID, fileSize);
+            const { totalUsage, fail } = await checkTotalUsage(userUUID, fileSize);
 
             if (fail) {
+                return {
+                    status: Status.Failed,
+                    code: ErrorCode.NotEnoughTotalUsage,
+                };
+            }
+
+            const uploadingFileTotalSize = await uploadingFiles.reduce(async (accP, current) => {
+                const accFileSize = await accP;
+
+                const currentFileSize = await RedisService.hmget(current, "fileSize");
+
+                return accFileSize + (Number(currentFileSize) || 0);
+            }, Promise.resolve(totalUsage));
+
+            if (uploadingFileTotalSize > CloudStorage.TOTAL_SIZE) {
                 return {
                     status: Status.Failed,
                     code: ErrorCode.NotEnoughTotalUsage,
@@ -45,9 +60,12 @@ export const alibabaCloudUploadStart = async (
         const filePath = getFilePath(fileName, fileUUID);
         const { policy, signature } = policyTemplate(filePath, fileSize);
 
-        await RedisService.set(
+        await RedisService.hmset(
             RedisKey.cloudStorageFileInfo(userUUID, fileUUID),
-            fileName,
+            {
+                fileName,
+                fileSize: String(fileSize),
+            },
             60 * 60,
         );
 
