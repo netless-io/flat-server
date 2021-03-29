@@ -6,6 +6,7 @@ import OSS from "ali-oss";
 
 /**
  * alibaba cloud oss policy template
+ * @param {string} fileName - file name to restrict download
  * @param {string} filePath - limit the file path that can only be uploaded
  * @param {number} fileSize - limit the size of uploaded file
  * @param {number} [expiration = 120] - expiration time(unit: minutes)
@@ -13,6 +14,7 @@ import OSS from "ali-oss";
  * @see [Chinese Document]{@link https://help.aliyun.com/document_detail/31978.html}
  */
 export const policyTemplate = (
+    fileName: string,
     filePath: string,
     fileSize: number,
     expiration = 60 * 2,
@@ -20,6 +22,7 @@ export const policyTemplate = (
     policy: string;
     signature: string;
 } => {
+    const encodeFileName = encodeURIComponent(fileName);
     const policyString = JSON.stringify({
         expiration: addMinutes(expiration)(new Date()).toISOString(),
         conditions: [
@@ -28,6 +31,11 @@ export const policyTemplate = (
             },
             ["content-length-range", fileSize, fileSize],
             ["eq", "$key", filePath],
+            [
+                "eq",
+                "$Content-Disposition",
+                `attachment; filename="${encodeFileName}"; filename*=UTF-8''${encodeFileName}`,
+            ],
         ],
     });
 
