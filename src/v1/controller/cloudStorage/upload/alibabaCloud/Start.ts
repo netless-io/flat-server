@@ -58,7 +58,7 @@ export const alibabaCloudUploadStart = async (
 
         const fileUUID = v4();
         const filePath = getFilePath(fileName, fileUUID);
-        const { policy, signature } = policyTemplate(filePath, fileSize);
+        const { policy, signature } = policyTemplate(fileName, filePath, fileSize);
 
         await RedisService.hmset(
             RedisKey.cloudStorageFileInfo(userUUID, fileUUID),
