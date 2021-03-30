@@ -1,6 +1,8 @@
 # flat-server
 
-此项目是 [flat-desktop](https://github.com/netless-io/flat-desktop) 所搭配使用的 `Node.js` 后端
+此项目是 [flat](https://github.com/netless-io/flat) 所搭配使用的 `Node.js` 后端
+
+主要是用于接收 _flat_ 的请求做出相关的操作(登陆、创建房间等)
 
 ### 开发
 
@@ -11,9 +13,14 @@
 
 关于 _.env.*_ 命名可参看: [Files under version control](https://github.com/kerimdzhanov/dotenv-flow#files-under-version-control)
 
-其值可参考: [搭建指南](#搭建指南)
+你可以 <kbd>Fork</kbd> 此项目，然后在 `https://github.com/你的用户名/flat-server/settings/secrets/actions` 中添加一些私有变量。
 
-然后在其项目根目录执行:
+> `DOCKERHUB_*`、`SSH_*` 不需要填写到 _.env.*_ 文件里，他们应该填写到 _github action secrets_ 里。
+> 所以如果你在开发环境时，是不需要关心 `DOCKERHUB_*`、`SSH_*` 的。
+
+其值可参考: [环境变量值参考](#环境变量值参考)
+
+如果你想在本地运行，那么你应该这么做（当然前提是你已经设置好 _.env.*_）:
 
 ```shell
 yarn install --frozen-lockfile
@@ -21,14 +28,60 @@ yarn run start
 
 # 打开另一个终端
 node ./dist/index.js
+# 如果你成功的启动，那么控制台应该会出现: ready on http://0.0.0.0:80
 ```
 
-### 搭建指南
+### 配置 MySQL、Redis
 
-你可以 <kbd>Fork</kbd> 此项目，然后在 `https://github.com/你的用户名/flat-server/settings/secrets/actions` 中添加一些私有变量。
+如果您正在在本地进行开发，暂时不想连接到远程的 MySQL 或 Redis 时。那么您需要做的第一件事就是 安装一个 _Docker_
 
-> `DOCKERHUB_*`、`SSH_*` 不需要填写到 _.env.*_ 文件里，他们应该填写到 _github action secrets_ 里。
-> 所以如果你在开发环境时，是不需要关心 `DOCKERHUB_*`、`SSH_*` 的。
+如果您已经安装好 _Docker_ 了，那么接下来就应该找到你觉得合适的位置，创建一个文件夹，比如: `mkdir -p ~/Data/Docker/MySQL ~/Data/Docker/Redis`
+
+> 当你按照下面的文档配置好 MySQL、Redis 时，记得要和 _.env.*_ 里的内容一致
+
+如果你完全按照下面的流程做，那么你的 _.env.*_ 配置中的 _MySQL_ 和 _Redis_，看起来应该是这样:
+
+```ini
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+REDIS_PASSWORD=你的自定义 Redis 密码
+REDIS_DB=0(你也可以选择其他的 db)
+
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=你的自定义 MySQL 密码
+MYSQL_DB=你自定义的表名(推荐是: flat_server)
+```
+
+#### MySQL
+
+现在你只需要在你的控制台中输入: 
+
+```shell
+cd ~/Data/Docker/MySQL
+docker run -dit -p 3306:3306 --name mysql --restart always -v `pwd`/data:/var/lib/mysql -v `pwd`/conf.d:/etc/mysql/conf.d -e MYSQL_ROOT_PASSWORD=你在env里MYSQL_PASSWORD所填写的值  mysql
+docker exec -it mysql bash
+mysql -uroot -p你在env里MYSQL_PASSWORD所填写的值
+CREATE DATABASE 你在env里MYSQL_DB所填写的值;
+```
+
+然后在项目里的 `src/v1/thirdPartyService/TypeORMService.ts` 里，添加: `synchronize: true`，然后重新执行 `node ./dist/index.js`，就可以了。
+
+执行完成后，记得删除 `synchronize: true`，这个属性只有你修改了数据库字段信息的时候才会需要。
+
+这个选项是为了同步 数据库表、字段到你的数据库里
+
+#### Redis
+
+打开控制台输入:
+
+```shell
+cd ~/Data/Docker/Redis
+docker run -dit -p 6379:6379 --name redis -v `pwd`/data:/data -v `pwd`/conf:/usr/local/etc/redis --restart always redis --requirepass "你在env里REDIS_PASSWORD所填写的值"
+```
+
+### 环境变量值参考
 
 其中变量列表为:
 
