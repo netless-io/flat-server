@@ -4,10 +4,11 @@ import { Content } from "../Content";
 @Entity({
     name: "cloud_storage_user_files",
 })
+@Index("cloud_storage_user_files_file_uuid_user_uuid_uindex", ["file_uuid", "user_uuid"], {
+    unique: true,
+})
 export class CloudStorageUserFilesModel extends Content {
-    @Index("cloud_storage_user_files_file_uuid_uindex", {
-        unique: true,
-    })
+    @Index("cloud_storage_user_files_file_uuid_index")
     @Column({
         length: 40,
     })
