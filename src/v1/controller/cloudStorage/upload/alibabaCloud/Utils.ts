@@ -51,11 +51,12 @@ export const getOSSFileURLPath = (filePath: string): string => {
     return `https://${AlibabaCloud.OSS_BUCKET}.${AlibabaCloud.OSS_REGION}.aliyuncs.com/${filePath}`;
 };
 
-const ossClient = new OSS({
+export const ossClient = new OSS({
     bucket: AlibabaCloud.OSS_BUCKET,
     region: AlibabaCloud.OSS_REGION,
     accessKeyId: AlibabaCloud.OSS_ACCESS_KEY,
     accessKeySecret: AlibabaCloud.OSS_ACCESS_KEY_SECRET,
+    secure: true,
 });
 
 /**
