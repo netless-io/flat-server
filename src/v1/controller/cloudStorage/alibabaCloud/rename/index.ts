@@ -1,14 +1,14 @@
 import path from "path";
 import { getConnection } from "typeorm";
-import { Status } from "../../../../Constants";
-import { ErrorCode } from "../../../../ErrorCode";
-import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../dao";
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { getDisposition, getFilePath, ossClient } from "../upload/alibabaCloud/Utils";
+import { Status } from "../../../../../Constants";
+import { ErrorCode } from "../../../../../ErrorCode";
+import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { getDisposition, getFilePath, ossClient } from "../Utils";
 
-export const cloudStorageRename = async (
-    req: PatchRequest<{ Body: CloudStorageRenameBody }>,
-): Response<CloudStorageRenameResponse> => {
+export const alibabaCloudRename = async (
+    req: PatchRequest<{ Body: AlibabaCloudRenameBody }>,
+): Response<AlibabaCloudRenameResponse> => {
     const { fileUUID, fileName } = req.body;
     const { userUUID } = req.user;
 
@@ -72,13 +72,13 @@ export const cloudStorageRename = async (
     }
 };
 
-interface CloudStorageRenameBody {
+interface AlibabaCloudRenameBody {
     fileUUID: string;
     fileName: string;
 }
 
 export const cloudStorageRenameSchemaType: FastifySchema<{
-    body: CloudStorageRenameBody;
+    body: AlibabaCloudRenameBody;
 }> = {
     body: {
         type: "object",
@@ -97,4 +97,4 @@ export const cloudStorageRenameSchemaType: FastifySchema<{
     },
 };
 
-interface CloudStorageRenameResponse {}
+interface AlibabaCloudRenameResponse {}

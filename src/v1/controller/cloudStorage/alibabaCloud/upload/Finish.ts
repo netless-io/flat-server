@@ -9,8 +9,8 @@ import { Status } from "../../../../../Constants";
 import { ErrorCode } from "../../../../../ErrorCode";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
-import { checkTotalUsage } from "../Utils";
-import { getFilePath, isExistObject, getOSSFileURLPath } from "./Utils";
+import { checkTotalUsage } from "./Utils";
+import { getFilePath, isExistObject, getOSSFileURLPath } from "../Utils";
 
 export const alibabaCloudUploadFinish = async (
     req: PatchRequest<{

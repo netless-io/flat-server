@@ -1,33 +1,19 @@
 import { FastifyRoutes } from "../../types/Server";
 import { fileConvertStart, fileConvertStartSchemaType } from "./convert/Start";
 import { cloudStorageList, cloudStorageListSchemaType } from "./list";
-import { cloudStorageRename, cloudStorageRenameSchemaType } from "./rename";
+import { alibabaCloudRename, cloudStorageRenameSchemaType } from "./alibabaCloud/rename";
 import {
     alibabaCloudUploadStart,
     alibabaCloudUploadStartSchemaType,
-} from "./upload/alibabaCloud/Start";
+} from "./alibabaCloud/upload/Start";
 import {
     alibabaCloudUploadFinish,
     alibabaCloudUploadFinishSchemaType,
-} from "./upload/alibabaCloud/Finish";
+} from "./alibabaCloud/upload/Finish";
 import { fileConvertFinish, fileConvertFinishSchemaType } from "./convert/Finish";
 import { alibabaCloudRemoveFile, alibabaCloudRemoveFileSchemaType } from "./alibabaCloud/remove";
 
 export const httpCloudStorage: Readonly<FastifyRoutes[]> = Object.freeze([
-    Object.freeze({
-        method: "post",
-        path: "cloud-storage/list",
-        handler: cloudStorageList,
-        auth: true,
-        schema: cloudStorageListSchemaType,
-    }),
-    Object.freeze({
-        method: "post",
-        path: "cloud-storage/rename",
-        handler: cloudStorageRename,
-        auth: true,
-        schema: cloudStorageRenameSchemaType,
-    }),
     Object.freeze({
         method: "post",
         path: "cloud-storage/alibaba-cloud/upload/start",
@@ -41,6 +27,20 @@ export const httpCloudStorage: Readonly<FastifyRoutes[]> = Object.freeze([
         handler: alibabaCloudUploadFinish,
         auth: true,
         schema: alibabaCloudUploadFinishSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "cloud-storage/alibaba-cloud/rename",
+        handler: alibabaCloudRename,
+        auth: true,
+        schema: cloudStorageRenameSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "cloud-storage/alibaba-cloud/remove",
+        handler: alibabaCloudRemoveFile,
+        auth: true,
+        schema: alibabaCloudRemoveFileSchemaType,
     }),
     Object.freeze({
         method: "post",
@@ -58,9 +58,9 @@ export const httpCloudStorage: Readonly<FastifyRoutes[]> = Object.freeze([
     }),
     Object.freeze({
         method: "post",
-        path: "cloud-storage/alibaba-cloud/remove",
-        handler: alibabaCloudRemoveFile,
+        path: "cloud-storage/list",
+        handler: cloudStorageList,
         auth: true,
-        schema: alibabaCloudRemoveFileSchemaType,
+        schema: cloudStorageListSchemaType,
     }),
 ]);

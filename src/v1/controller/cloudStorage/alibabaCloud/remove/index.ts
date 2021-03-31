@@ -9,7 +9,7 @@ import {
 import { CloudStorageFilesModel } from "../../../../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../../../../model/cloudStorage/CloudStorageUserFiles";
 import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
-import { getFilePath, ossClient } from "../../upload/alibabaCloud/Utils";
+import { getFilePath, ossClient } from "../Utils";
 
 export const alibabaCloudRemoveFile = async (
     req: PatchRequest<{
