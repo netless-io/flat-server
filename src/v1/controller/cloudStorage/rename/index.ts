@@ -36,11 +36,17 @@ export const cloudStorageRename = async (
             };
         }
 
+        if (path.extname(fileName) !== path.extname(fileInfo.file_name)) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.ParamsCheckFailed,
+            };
+        }
+
         await getConnection().transaction(async t => {
-            const fileSuffix = path.extname(fileInfo.file_name);
             await CloudStorageFilesDAO(t).update(
                 {
-                    file_name: `${fileName}${fileSuffix}`,
+                    file_name: fileName,
                 },
                 {
                     file_uuid: fileUUID,
@@ -84,6 +90,7 @@ export const cloudStorageRenameSchemaType: FastifySchema<{
             },
             fileName: {
                 type: "string",
+                format: "file-suffix",
                 maxLength: 50,
             },
         },
