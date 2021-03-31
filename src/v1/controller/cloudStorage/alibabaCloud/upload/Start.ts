@@ -2,10 +2,10 @@ import { v4 } from "uuid";
 import { CloudStorage, Status } from "../../../../../Constants";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
-import { getFilePath, policyTemplate } from "./Utils";
+import { getFilePath, policyTemplate } from "../Utils";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
-import { checkTotalUsage } from "../Utils";
+import { checkTotalUsage } from "./Utils";
 
 export const alibabaCloudUploadStart = async (
     req: PatchRequest<{

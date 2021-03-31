@@ -1,5 +1,5 @@
 import { addMinutes } from "date-fns/fp";
-import { AlibabaCloud, CloudStorage } from "../../../../../Constants";
+import { AlibabaCloud, CloudStorage } from "../../../../Constants";
 import crypto from "crypto";
 import path from "path";
 import OSS from "ali-oss";
