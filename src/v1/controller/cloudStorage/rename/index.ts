@@ -37,28 +37,20 @@ export const cloudStorageRename = async (
         }
 
         await getConnection().transaction(async t => {
-            const commands: Promise<unknown>[] = [];
-
             const fileSuffix = path.extname(fileInfo.file_name);
-            commands.push(
-                CloudStorageFilesDAO(t).update(
-                    {
-                        file_name: `${fileName}${fileSuffix}`,
-                    },
-                    {
-                        file_uuid: fileUUID,
-                    },
-                ),
+            await CloudStorageFilesDAO(t).update(
+                {
+                    file_name: `${fileName}${fileSuffix}`,
+                },
+                {
+                    file_uuid: fileUUID,
+                },
             );
 
             const filePath = getFilePath(fileName, fileUUID);
-            commands.push(
-                ossClient.copy(filePath, filePath, {
-                    headers: { "Content-Disposition": getDisposition(fileName) },
-                }),
-            );
-
-            await Promise.all(commands);
+            await ossClient.copy(filePath, filePath, {
+                headers: { "Content-Disposition": getDisposition(fileName) },
+            });
         });
 
         return {
