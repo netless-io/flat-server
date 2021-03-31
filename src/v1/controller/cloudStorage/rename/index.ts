@@ -3,7 +3,7 @@ import { Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../dao";
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { getFilePath, ossClient } from "../upload/alibabaCloud/Utils";
+import { getDisposition, getFilePath, ossClient } from "../upload/alibabaCloud/Utils";
 
 export const cloudStorageRename = async (
     req: PatchRequest<{ Body: CloudStorageRenameBody }>,
@@ -47,10 +47,8 @@ export const cloudStorageRename = async (
         );
 
         const filePath = getFilePath(fileName, fileUUID);
-        const encodeFileName = encodeURIComponent(fileName);
-        const disposition = `attachment; filename="${encodeFileName}"; filename*=UTF-8''${encodeFileName}`;
         await ossClient.copy(filePath, filePath, {
-            headers: { "Content-Disposition": disposition },
+            headers: { "Content-Disposition": getDisposition(fileName) },
         });
 
         return {

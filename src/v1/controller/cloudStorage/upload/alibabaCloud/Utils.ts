@@ -4,6 +4,11 @@ import crypto from "crypto";
 import path from "path";
 import OSS from "ali-oss";
 
+export function getDisposition(fileName: string): string {
+    const encodeFileName = encodeURIComponent(fileName);
+    return `attachment; filename="${encodeFileName}"; filename*=UTF-8''${encodeFileName}`;
+}
+
 /**
  * alibaba cloud oss policy template
  * @param {string} fileName - file name to restrict download
@@ -22,7 +27,6 @@ export const policyTemplate = (
     policy: string;
     signature: string;
 } => {
-    const encodeFileName = encodeURIComponent(fileName);
     const policyString = JSON.stringify({
         expiration: addMinutes(expiration)(new Date()).toISOString(),
         conditions: [
@@ -31,11 +35,7 @@ export const policyTemplate = (
             },
             ["content-length-range", fileSize, fileSize],
             ["eq", "$key", filePath],
-            [
-                "eq",
-                "$Content-Disposition",
-                `attachment; filename="${encodeFileName}"; filename*=UTF-8''${encodeFileName}`,
-            ],
+            ["eq", "$Content-Disposition", getDisposition(fileName)],
         ],
     });
 
