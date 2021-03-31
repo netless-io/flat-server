@@ -1,4 +1,5 @@
 import path from "path";
+import { getConnection } from "typeorm";
 import { Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../dao";
@@ -35,20 +36,29 @@ export const cloudStorageRename = async (
             };
         }
 
-        const fileSuffix = path.extname(fileInfo.file_name);
+        await getConnection().transaction(async t => {
+            const commands: Promise<unknown>[] = [];
 
-        await CloudStorageFilesDAO().update(
-            {
-                file_name: `${fileName}${fileSuffix}`,
-            },
-            {
-                file_uuid: fileUUID,
-            },
-        );
+            const fileSuffix = path.extname(fileInfo.file_name);
+            commands.push(
+                CloudStorageFilesDAO(t).update(
+                    {
+                        file_name: `${fileName}${fileSuffix}`,
+                    },
+                    {
+                        file_uuid: fileUUID,
+                    },
+                ),
+            );
 
-        const filePath = getFilePath(fileName, fileUUID);
-        await ossClient.copy(filePath, filePath, {
-            headers: { "Content-Disposition": getDisposition(fileName) },
+            const filePath = getFilePath(fileName, fileUUID);
+            commands.push(
+                ossClient.copy(filePath, filePath, {
+                    headers: { "Content-Disposition": getDisposition(fileName) },
+                }),
+            );
+
+            await Promise.all(commands);
         });
 
         return {
