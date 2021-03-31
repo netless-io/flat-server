@@ -84,7 +84,6 @@ export const cloudStorageRenameSchemaType: FastifySchema<{
             },
             fileName: {
                 type: "string",
-                format: "file-suffix",
                 maxLength: 50,
             },
         },
