@@ -1,8 +1,10 @@
 import path from "path";
+import { getConnection } from "typeorm";
 import { Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../dao";
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import { getDisposition, getFilePath, ossClient } from "../upload/alibabaCloud/Utils";
 
 export const cloudStorageRename = async (
     req: PatchRequest<{ Body: CloudStorageRenameBody }>,
@@ -34,16 +36,22 @@ export const cloudStorageRename = async (
             };
         }
 
-        const fileSuffix = path.extname(fileInfo.file_name);
+        await getConnection().transaction(async t => {
+            const fileSuffix = path.extname(fileInfo.file_name);
+            await CloudStorageFilesDAO(t).update(
+                {
+                    file_name: `${fileName}${fileSuffix}`,
+                },
+                {
+                    file_uuid: fileUUID,
+                },
+            );
 
-        await CloudStorageFilesDAO().update(
-            {
-                file_name: `${fileName}${fileSuffix}`,
-            },
-            {
-                file_uuid: fileUUID,
-            },
-        );
+            const filePath = getFilePath(fileName, fileUUID);
+            await ossClient.copy(filePath, filePath, {
+                headers: { "Content-Disposition": getDisposition(fileName) },
+            });
+        });
 
         return {
             status: Status.Success,
