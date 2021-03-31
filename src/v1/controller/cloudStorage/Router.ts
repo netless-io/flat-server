@@ -12,6 +12,7 @@ import {
 } from "./alibabaCloud/upload/Finish";
 import { fileConvertFinish, fileConvertFinishSchemaType } from "./convert/Finish";
 import { alibabaCloudRemoveFile, alibabaCloudRemoveFileSchemaType } from "./alibabaCloud/remove";
+import { uploadCancel, uploadCancelSchemaType } from "./upload/cancel";
 
 export const httpCloudStorage: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
@@ -62,5 +63,12 @@ export const httpCloudStorage: Readonly<FastifyRoutes[]> = Object.freeze([
         handler: cloudStorageList,
         auth: true,
         schema: cloudStorageListSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "cloud-storage/upload/cancel",
+        handler: uploadCancel,
+        auth: true,
+        schema: uploadCancelSchemaType,
     }),
 ]);
