@@ -1,9 +1,11 @@
-flat-server 是 [Flat 跨平台开源教室](https://github.com/netless-io/flat) 搭配使用的 `Node.js` 后端。主要是用于响应 Flat 前端的请求：
+# Flat Server
+
+项目 flat-server 是 [Agora Flat](https://github.com/netless-io/flat) 开源教室搭配使用的 `Node.js` 后端。主要是用于响应 Flat 前端的请求：
 
 
 ## 特性
 
-- 用户管理
+- 帐户系统
   - [x] 微信登陆
   - [ ] Github 登陆
   - [ ] 谷歌登陆
@@ -31,9 +33,8 @@ flat-server 是 [Flat 跨平台开源教室](https://github.com/netless-io/flat)
 
 ### 配置环境变量
 
-
-1. 创建两个文件 `config/.env.development.local` 和 `config/.env.production.local`
-1. 按照文件 `config/.env.default` 的格式添加环境变量。变量值含义参考下方[环境变量值参考](#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%80%BC%E5%8F%82%E8%80%83)。
+1. 创建两个文件 `config/.env.development.local` 和 `config/.env.production.local`。
+2. 按照文件 `config/.env.default` 的格式添加环境变量。
 
 - 环境变量值可参考下方: [环境变量值参考](#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%80%BC%E5%8F%82%E8%80%83)。
 - 关于 _.env.*_ 命名规范可参看: [Files under version control](https://github.com/kerimdzhanov/dotenv-flow#files-under-version-control)
@@ -41,21 +42,25 @@ flat-server 是 [Flat 跨平台开源教室](https://github.com/netless-io/flat)
 
 ### 配置 MySQL、Redis
 
-1. 如果没有远程的 MySQL 或 Redis ，请先在本地安装 _Docker。_
+1. 如果没有远程的 MySQL 和 Redis ，请先在本地安装 _Docker_。
 1. 安装好 _Docker_ 之后，选一个合适的位置创建一个文件夹，如: `mkdir -p ~/Data/Docker/MySQL ~/Data/Docker/Redis`
-1. 根据上一步 _.env.* _文件中_ _MySQL_ _和_ _Redis 相关的值来配置，比如以下方 _.env.*_ 配置为例：
+1. 根据上一步 _.env.*_ 文件中 MySQL 和 Redis 相关的值来配置，比如以下方 _.env.*_ 配置为例：
 
-```typescript
+```shell
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
-REDIS_PASSWORD=你的自定义 Redis 密码
-REDIS_DB=0(你也可以选择其他的 db)
+# 你的自定义 Redis 密码
+REDIS_PASSWORD=
+# 也可以选择其他的 db
+REDIS_DB=0
 
 MYSQL_HOST=127.0.0.1
 MYSQL_PORT=3306
 MYSQL_USER=root
-MYSQL_PASSWORD=你的自定义 MySQL 密码
-MYSQL_DB=你自定义的表名(推荐是: flat_server)
+# 你的自定义 MySQL 密码
+MYSQL_PASSWORD=
+# 或其它自定义的表名
+MYSQL_DB=flat_server
 ```
 
 
@@ -102,7 +107,7 @@ docker run -dit -p 6379:6379 --name redis -v `pwd`/data:/data -v `pwd`/conf:/usr
 
 本地开发不需要部署。如果需要上线，依据你习惯的方式部署，比如通过 Github Action：
 
-1. 如前面 fork 的仓库名为 `你的用户名/flat-server` 在 `https://github.com/你的用户名/flat-server/settings/secrets/actions` 中添加上面 .env.* 同样的内容。
+1. 如前面 fork 的仓库名为 `你的用户名/flat-server` 在 `https://github.com/你的用户名/flat-server/settings/secrets/actions` 中添加上面 _.env.*_ 同样的内容。
 2. 同时额外加上下方 [环境变量值参考](#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%80%BC%E5%8F%82%E8%80%83) 末尾的 `DOCKERHUB_*`、`SSH_*` 内容。
 
 
@@ -122,13 +127,13 @@ docker run -dit -p 6379:6379 --name redis -v `pwd`/data:/data -v `pwd`/conf:/usr
 | MYSQL_DB                            | MySQL 要连接的数据库名                 | 推荐: `flat_server`                           |
 | JWT_SECRET                          | JWT 秘钥                             |                                               |
 | JWT_ALGORITHMS                      | JWT 加密算法                          | 见: [Algorithms supported][jwt-crypto]        |
-| CLOUD_STORAGE_CONCURRENT            | 云存储(云盘)的并发量                    | 即: 同一时间只能上传多少个文件数(默认: 3)           |
-| CLOUD_STORAGE_SINGLE_FILE_SIZE      | 云存储(云盘)上传文件时，单个文件的最大大小 | 默认: 500M                                     |
-| CLOUD_STORAGE_TOTAL_SIZE            | 云存储(云盘)总量的最大大小              | 默认: 2G                                       |
-| CLOUD_STORAGE_PREFIX_PATH           | 云存储(云盘)上传路径的前缀              | 默认: cloud-storage，前后不能有 `/`               |
-| CLOUD_STORAGE_ALLOW_FILE_SUFFIX     | 云存储(云盘)支持上传的文件后缀           |                                                |
+| CLOUD_STORAGE_CONCURRENT            | 云盘同一时间上传文件数                  | 默认: `3`                                        |
+| CLOUD_STORAGE_SINGLE_FILE_SIZE      | 云盘上传单个文件大小最大值               | 默认: `524288000`（500M）                        |
+| CLOUD_STORAGE_TOTAL_SIZE            | 云盘总量最大值                         | 默认: `2147483648`（2G）                         |
+| CLOUD_STORAGE_PREFIX_PATH           | 云盘上传路径的前缀                      | 默认: `cloud-storage`，前后不能有 `/`              |
+| CLOUD_STORAGE_ALLOW_FILE_SUFFIX     | 云盘支持上传的文件扩展名                 | 默认：`ppt,pptx,doc,docx,pdf,png,jpg,jpeg,gif`  |
 | WECHAT_APP_ID                       | [微信开放平台][open-wechat] App ID    | 见 `网站应用` 里 `AppID`                          |
-| WECHAT_APP_SECRET                   | [微信开放平台][open-wechat] App 密钥   | 见 `网站应用` 里 `AppSecret`                       |
+| WECHAT_APP_SECRET                   | [微信开放平台][open-wechat] App 密钥   | 见 `网站应用` 里 `AppSecret`                      |
 | AGORA_APP_ID                        | Agora App ID                        | 用于 RTC 与 RTM。见: [Use an App ID for authentication][agora-app-id-auth]    |
 | AGORA_APP_CERTIFICATE               | Agora App Certificate               | 见: [Enable the App Certificate][agora-app-auth]             |
 | AGORA_RESTFUL_ID                    | Agora RESTful ID                    | 用于课程回放。见: [Restful Authentication][agora-restful-auth]            |
@@ -142,7 +147,7 @@ docker run -dit -p 6379:6379 --name redis -v `pwd`/data:/data -v `pwd`/conf:/usr
 | AGORA_OSS_PREFIX                    | Agora 云端录制 OSS 配置               |  同上                                            |
 | NETLESS_ACCESS_KEY                  | Netless 白板 AK                     | 见: [Projects and permissions][netless-auth]     |
 | NETLESS_SECRET_ACCESS_KEY           | Netless 白板 SK                     | 见: [Projects and permissions][netless-auth]     |
-| ALIBABA_CLOUD_OSS_ACCESS_KEY        | 阿里云 OSS AK                        | 用于存储多媒体课件资源。见: [访问秘钥][ali-secret]     |
+| ALIBABA_CLOUD_OSS_ACCESS_KEY        | 阿里云 OSS AK                        | 用于云盘，存储多媒体课件资源。见: [访问秘钥][ali-secret]|
 | ALIBABA_CLOUD_OSS_ACCESS_KEY_SECRET | 阿里云 OSS SK                        | 同上                                             |
 | ALIBABA_CLOUD_OSS_BUCKET            | 阿里云 OSS bucket                    | 见: [存储空间][ali-bucket]                         |
 | ALIBABA_CLOUD_OSS_REGION            | 阿里云 OSS region                    | 见: [地域][ali-region]                            |
