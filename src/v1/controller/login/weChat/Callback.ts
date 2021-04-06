@@ -45,7 +45,7 @@ export const callback = async (
         const weChatUserInfo = await wechatRequest<UserInfo>(userInfoURL);
 
         const getUserInfoByUserWeChat = await UserWeChatDAO().findOne(["user_uuid", "user_name"], {
-            open_uuid: weChatUserInfo.openid,
+            union_uuid: weChatUserInfo.unionid,
         });
 
         let userUUID = "";
