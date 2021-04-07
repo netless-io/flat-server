@@ -20,13 +20,11 @@ export const uploadCancel = async (
                 true,
             );
 
-            for (const key of uploadingFiles) {
-                await RedisService.del(key);
-            }
+            await RedisService.del(uploadingFiles);
         } else {
-            for (const fileUUID of fileUUIDs) {
-                await RedisService.del(RedisKey.cloudStorageFileInfo(userUUID, fileUUID));
-            }
+            await RedisService.del(
+                fileUUIDs.map(fileUUID => RedisKey.cloudStorageFileInfo(userUUID, fileUUID)),
+            );
         }
 
         return {

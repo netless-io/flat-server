@@ -25,8 +25,8 @@ class RedisService {
         return await this.client.get(key);
     }
 
-    public async del(key: string): Promise<void> {
-        await this.client.del(key);
+    public async del(key: string | string[]): Promise<void> {
+        await this.client.del(typeof key === "string" ? [key] : key);
     }
 
     public async hmset(key: string, value: Record<string, string>, expire?: number): Promise<void> {
