@@ -1,4 +1,4 @@
-import { Status } from "../../../../Constants";
+import { CloudStorage, Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RedisKey } from "../../../../utils/Redis";
 import RedisService from "../../../thirdPartyService/RedisService";
@@ -13,8 +13,20 @@ export const uploadCancel = async (
     const { userUUID } = req.user;
 
     try {
-        for (const fileUUID of fileUUIDs) {
-            await RedisService.del(RedisKey.cloudStorageFileInfo(userUUID, fileUUID));
+        if (typeof fileUUIDs === "undefined") {
+            const uploadingFiles = await RedisService.scan(
+                RedisKey.cloudStorageFileInfo(userUUID, "*"),
+                CloudStorage.CONCURRENT + 1,
+                true,
+            );
+
+            for (const key of uploadingFiles) {
+                await RedisService.del(key);
+            }
+        } else {
+            for (const fileUUID of fileUUIDs) {
+                await RedisService.del(RedisKey.cloudStorageFileInfo(userUUID, fileUUID));
+            }
         }
 
         return {
@@ -31,7 +43,7 @@ export const uploadCancel = async (
 };
 
 interface UploadCancelBody {
-    fileUUIDs: string[];
+    fileUUIDs?: string[];
 }
 
 export const uploadCancelSchemaType: FastifySchema<{
@@ -39,7 +51,7 @@ export const uploadCancelSchemaType: FastifySchema<{
 }> = {
     body: {
         type: "object",
-        required: ["fileUUIDs"],
+        required: [],
         properties: {
             fileUUIDs: {
                 type: "array",
@@ -47,6 +59,7 @@ export const uploadCancelSchemaType: FastifySchema<{
                     type: "string",
                     format: "uuid-v4",
                 },
+                nullable: true,
             },
         },
     },
