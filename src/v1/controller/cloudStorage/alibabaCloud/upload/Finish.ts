@@ -38,7 +38,12 @@ export const alibabaCloudUploadFinish = async (
 
         const fullPath = getFilePath(fileName, fileUUID);
 
-        await isExistObject(fullPath);
+        if (!(await isExistObject(fullPath))) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.FileNotFound,
+            };
+        }
 
         const { fail, totalUsage } = await checkTotalUsage(userUUID, fileSize);
 
