@@ -81,7 +81,10 @@ export const recordInfo = async (
                     beginTime: begin_time.valueOf(),
                     endTime: end_time.valueOf(),
                     videoURL: agora_sid
-                        ? `${Agora.OSS_PREFIX}/${Agora.OSS_FOLDER}/${agora_sid}_${roomUUID}.m3u8`
+                        ? `${Agora.OSS_PREFIX}/${Agora.OSS_FOLDER}/${roomUUID.replace(
+                              /-/g,
+                              "",
+                          )}/${agora_sid}_${roomUUID}.m3u8`
                         : "",
                 })),
             },

@@ -56,7 +56,7 @@ export const recordAgoraStarted = async (
                         bucket: Agora.OSS_BUCKET,
                         accessKey: Agora.OSS_ACCESS_KEY_ID,
                         secretKey: Agora.OSS_ACCESS_KEY_SECRET,
-                        fileNamePrefix: [Agora.OSS_FOLDER],
+                        fileNamePrefix: [Agora.OSS_FOLDER, roomUUID.replace(/-/g, "")],
                     },
                 },
             });
