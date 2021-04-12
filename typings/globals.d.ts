@@ -6,8 +6,10 @@ declare namespace NodeJS {
         NODE_ENV: "development" | "production";
         SERVER_PORT: string;
 
-        WECHAT_APP_ID: string;
-        WECHAT_APP_SECRET: string;
+        WEB_WECHAT_APP_ID: string;
+        WEB_WECHAT_APP_SECRET: string;
+        MOBILE_WECHAT_APP_ID: string;
+        MOBILE_WECHAT_APP_SECRET: string;
 
         AGORA_APP_ID: string;
         AGORA_APP_CERTIFICATE: string;

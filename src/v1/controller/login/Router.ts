@@ -1,8 +1,15 @@
-import { callback, callbackSchemaType } from "./weChat/Callback";
+import {
+    callback as webCallback,
+    callbackSchemaType as webCallbackSchemaType,
+} from "./weChat/web/Callback";
+import {
+    callback as mobileCallback,
+    callbackSchemaType as mobileCallbackSchemaType,
+} from "./weChat/mobile/Callback";
 import { setAuthID, setAuthIDSchemaType } from "./weChat/SetAuthID";
 import { login } from "./Login";
 import { FastifyRoutes } from "../../types/Server";
-import { wechatLoginProcess, wechatLoginProcessSchemaType } from "./weChat/Process";
+import { wechatLoginProcess, wechatLoginProcessSchemaType } from "./weChat/web/Process";
 
 export const httpLogin: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
@@ -15,19 +22,25 @@ export const httpLogin: Readonly<FastifyRoutes[]> = Object.freeze([
     }),
     Object.freeze({
         method: "get",
-        path: "login/weChat/callback",
-        handler: callback,
+        path: "login/weChat/web/callback",
+        handler: webCallback,
         skipAutoHandle: true,
         auth: false,
-        schema: callbackSchemaType,
+        schema: webCallbackSchemaType,
     }),
     Object.freeze({
         method: "post",
-        path: "login/weChat/process",
+        path: "login/weChat/web/process",
         handler: wechatLoginProcess,
-        skipAutoHandle: true,
         auth: false,
         schema: wechatLoginProcessSchemaType,
+    }),
+    Object.freeze({
+        method: "get",
+        path: "login/weChat/mobile/callback",
+        handler: mobileCallback,
+        auth: false,
+        schema: mobileCallbackSchemaType,
     }),
     Object.freeze({
         method: "post",

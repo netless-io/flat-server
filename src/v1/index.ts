@@ -32,7 +32,7 @@ export const v1RegisterHTTP = (server: FastifyInstance): void => {
                 // @ts-ignore
                 async (req: PatchRequest, reply): Promise<void> => {
                     // @ts-ignore
-                    const result = await handler(req);
+                    const result = await handler(req, reply);
 
                     return reply.send(result);
                 },

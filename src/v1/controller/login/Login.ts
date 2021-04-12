@@ -3,14 +3,19 @@ import { Status } from "../../../Constants";
 import { renewAccessToken } from "../../utils/request/wechat/WeChatURL";
 import { wechatRequest } from "../../utils/request/wechat/WeChatRequest";
 import { RefreshToken } from "../../types/WeChatResponse";
-import { PatchRequest, Response } from "../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../types/Server";
 import { LoginPlatform, Sex } from "./Constants";
 import { RedisKey } from "../../../utils/Redis";
 import { ErrorCode } from "../../../ErrorCode";
 import { UserDAO, UserWeChatDAO } from "../../dao";
 
-export const login = async (req: PatchRequest): Response<LoginResponse> => {
+export const login = async (
+    req: PatchRequest<{
+        Body: LoginBody;
+    }>,
+): Response<LoginResponse> => {
     const { userUUID, loginSource } = req.user;
+    const { type } = req.body;
 
     const userInfoInstance = await UserDAO().findOne(["user_name", "sex", "avatar_url"], {
         user_uuid: userUUID,
@@ -38,7 +43,7 @@ export const login = async (req: PatchRequest): Response<LoginResponse> => {
         }
 
         try {
-            const renewAccessTokenURL = renewAccessToken(refreshToken);
+            const renewAccessTokenURL = renewAccessToken(refreshToken, type.toUpperCase() as any);
             await wechatRequest<RefreshToken>(renewAccessTokenURL);
         } catch (e: unknown) {
             console.error((e as Error).message);
@@ -63,6 +68,25 @@ export const login = async (req: PatchRequest): Response<LoginResponse> => {
         status: Status.AuthFailed,
         code: ErrorCode.UnsupportedPlatform,
     };
+};
+
+interface LoginBody {
+    type: "web" | "mobile";
+}
+
+export const LoginSchemaType: FastifySchema<{
+    body: LoginBody;
+}> = {
+    body: {
+        type: "object",
+        required: ["type"],
+        properties: {
+            type: {
+                type: "string",
+                enum: ["web", "mobile"],
+            },
+        },
+    },
 };
 
 interface LoginResponse {

@@ -31,9 +31,7 @@ export interface FastifyRoutes {
     readonly method: "get" | "post";
     readonly skipAutoHandle?: true;
     readonly auth: boolean;
-    readonly handler:
-        | ((req: PatchRequest, reply: FastifyReply) => Promise<void>)
-        | ((req: PatchRequest) => Response);
+    readonly handler: (req: PatchRequest, reply: FastifyReply) => Promise<void> | Response;
     readonly schema?: any;
 }
 
