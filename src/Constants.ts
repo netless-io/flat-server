@@ -11,6 +11,7 @@ export const Server = {
 export const Redis = {
     HOST: process.env.REDIS_HOST,
     PORT: process.env.REDIS_PORT,
+    USERNAME: process.env.REDIS_USERNAME,
     PASSWORD: process.env.REDIS_PASSWORD,
     DB: process.env.REDIS_DB,
 };
