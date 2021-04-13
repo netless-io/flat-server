@@ -74,7 +74,7 @@ MYSQL_DB=flat_server
    mysql -uroot -p 你在env里MYSQL_PASSWORD所填写的值
    CREATE DATABASE 你在env里MYSQL_DB所填写的值;
    ```
-2. 在项目 `src/v1/thirdPartyService/TypeORMService.ts` 的 `createConnection` 配置参数对象中，添加属性: `synchronize: true`。这个选项是为了同步数据库表、字段到数据库中。
+2. 在项目 `src/v1/thirdPartyService/TypeORMService.ts` 的 `createConnection` 配置参数对象中，添加属性: `synchronize: true`。这个选项是为了同步数据库表、字段到数据库中。
 3. 执行 `node ./dist/index.js`。
 4. 执行完成后，删除 `synchronize: true`。这个属性只有修改了数据库字段信息的时候才会需要。
 
@@ -132,8 +132,10 @@ docker run -dit -p 6379:6379 --name redis -v `pwd`/data:/data -v `pwd`/conf:/usr
 | CLOUD_STORAGE_TOTAL_SIZE            | 云盘总量最大值                         | 默认: `2147483648`（2G）                         |
 | CLOUD_STORAGE_PREFIX_PATH           | 云盘上传路径的前缀                      | 默认: `cloud-storage`，前后不能有 `/`              |
 | CLOUD_STORAGE_ALLOW_FILE_SUFFIX     | 云盘支持上传的文件扩展名                 | 默认：`ppt,pptx,doc,docx,pdf,png,jpg,jpeg,gif`  |
-| WECHAT_APP_ID                       | [微信开放平台][open-wechat] App ID    | 见 `网站应用` 里 `AppID`                          |
-| WECHAT_APP_SECRET                   | [微信开放平台][open-wechat] App 密钥   | 见 `网站应用` 里 `AppSecret`                      |
+| WEB_WECHAT_APP_ID                   | [微信开放平台][open-wechat] App ID    | 见 `网站应用` 里 `AppID`                         |
+| WEB_WECHAT_APP_SECRET               | [微信开放平台][open-wechat] App 密钥   | 见 `网站应用` 里 `AppSecret`                     |
+| MOBILE_WECHAT_APP_ID                | [微信开放平台][open-wechat] App ID    | 见 `移动应用` 里 `AppID`                         |
+| MOBILE_WECHAT_APP_SECRET            | [微信开放平台][open-wechat] App 秘钥   | 见 `移动应用` 里 `AppSecret`                     |
 | AGORA_APP_ID                        | Agora App ID                        | 用于 RTC 与 RTM。见: [Use an App ID for authentication][agora-app-id-auth]    |
 | AGORA_APP_CERTIFICATE               | Agora App Certificate               | 见: [Enable the App Certificate][agora-app-auth]             |
 | AGORA_RESTFUL_ID                    | Agora RESTful ID                    | 用于课程回放。见: [Restful Authentication][agora-restful-auth]            |

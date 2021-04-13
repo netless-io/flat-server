@@ -24,8 +24,14 @@ export const MySQL = {
 };
 
 export const WeChat = {
-    APP_ID: process.env.WECHAT_APP_ID,
-    APP_SECRET: process.env.WECHAT_APP_SECRET,
+    WEB: {
+        APP_ID: process.env.WEB_WECHAT_APP_ID,
+        APP_SECRET: process.env.WEB_WECHAT_APP_SECRET,
+    },
+    MOBILE: {
+        APP_ID: process.env.MOBILE_WECHAT_APP_ID,
+        APP_SECRET: process.env.MOBILE_WECHAT_APP_SECRET,
+    },
 };
 
 export const Agora = {

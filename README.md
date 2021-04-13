@@ -133,8 +133,10 @@ Deployment is not needed for local development. If you want to bring the server 
 | CLOUD_STORAGE_TOTAL_SIZE            | Maximum Cloud Storage size of a user           | Default: `2147483648` (2G)                                                 |
 | CLOUD_STORAGE_PREFIX_PATH           | Cloud Storage upload path prefix               | Default: `cloud-storage` (No `/` prefix or suffix)                         |
 | CLOUD_STORAGE_ALLOW_FILE_SUFFIX     | Cloud Storage supported file extensions        | Default: `ppt,pptx,doc,docx,pdf,png,jpg,jpeg,gif`                          |
-| WECHAT_APP_ID                       | [Wechat Open Platform][open-wechat] App ID     |                                                                            |
-| WECHAT_APP_SECRET                   | [Wechat Open Platform][open-wechat] App Secret |                                                                            |
+| WEB_WECHAT_APP_ID                   | [Wechat Open Platform][open-wechat] App ID     |                                                                            |
+| WEB_WECHAT_APP_SECRET               | [Wechat Open Platform][open-wechat] App Secret |                                                                            |
+| MOBILE_WECHAT_APP_ID                | [Wechat Open Platform][open-wechat] App ID     |                                                                            |
+| MOBILE_WECHAT_APP_SECRET            | [Wechat Open Platform][open-wechat] App Secret |                                                                            |
 | AGORA_APP_ID                        | Agora App ID                                   | For RTC and RTM. See [Use an App ID for authentication][agora-app-id-auth] |
 | AGORA_APP_CERTIFICATE               | Agora App Certificate                          | See [Enable the App Certificate][agora-app-auth]                           |
 | AGORA_RESTFUL_ID                    | Agora RESTful ID                               | For classroom replaying. See [Restful Authentication][agora-restful-auth]  |

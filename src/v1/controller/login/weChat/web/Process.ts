@@ -1,11 +1,11 @@
-import { PatchRequest, Response } from "../../../types/Server";
+import { PatchRequest, Response } from "../../../../types/Server";
 import { JSONSchemaType } from "ajv/dist/types/json-schema";
-import redisService from "../../../thirdPartyService/RedisService";
-import { RedisKey } from "../../../../utils/Redis";
-import { Status } from "../../../../Constants";
-import { ErrorCode } from "../../../../ErrorCode";
-import { AuthValue } from "./Constants";
-import { Sex } from "../Constants";
+import redisService from "../../../../thirdPartyService/RedisService";
+import { RedisKey } from "../../../../../utils/Redis";
+import { Status } from "../../../../../Constants";
+import { ErrorCode } from "../../../../../ErrorCode";
+import { AuthValue } from "../Constants";
+import { Sex } from "../../Constants";
 
 export const wechatLoginProcess = async (
     req: PatchRequest<{
