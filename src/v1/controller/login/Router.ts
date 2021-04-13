@@ -7,7 +7,7 @@ import {
     callbackSchemaType as mobileCallbackSchemaType,
 } from "./weChat/mobile/Callback";
 import { setAuthID, setAuthIDSchemaType } from "./weChat/SetAuthID";
-import { login } from "./Login";
+import { login, loginSchemaType } from "./Login";
 import { FastifyRoutes } from "../../types/Server";
 import { wechatLoginProcess, wechatLoginProcessSchemaType } from "./weChat/web/Process";
 
@@ -47,5 +47,6 @@ export const httpLogin: Readonly<FastifyRoutes[]> = Object.freeze([
         path: "login",
         auth: true,
         handler: login,
+        schema: loginSchemaType,
     }),
 ]);

@@ -74,7 +74,7 @@ interface LoginBody {
     type: "web" | "mobile";
 }
 
-export const LoginSchemaType: FastifySchema<{
+export const loginSchemaType: FastifySchema<{
     body: LoginBody;
 }> = {
     body: {
