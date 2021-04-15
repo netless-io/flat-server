@@ -1,4 +1,4 @@
-# Flat Server
+# Agora Flat Server
 
 项目 flat-server 是 [Agora Flat](https://github.com/netless-io/flat) 开源教室搭配使用的 `Node.js` 后端。主要是用于响应 Flat 前端的请求：
 
@@ -14,7 +14,7 @@
   - [x] 周期性房间
 - [x] 互动白板、实时音视频（RTC）、即时消息（RTM）签名鉴权
 - [x] 云端录制回放
-- [ ] 多媒体课件云存储（云盘）
+- [x] 多媒体课件云存储（云盘）
 
 
 ## 本地开发
