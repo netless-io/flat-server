@@ -1,7 +1,8 @@
-# Flat Server
+# Agora Flat Server
 
 Project flat-server is a `Node.js` server for the [Agora Flat](https://github.com/netless-io/flat) open source classroom.
 
+[中文](https://github.com/netless-io/flat-server/blob/main/README-zh.md)
 
 ## Features
 
