@@ -15,7 +15,7 @@ Project flat-server is a `Node.js` server for the [Agora Flat](https://github.co
   - [x] Periodic rooms
 - [x] Signing tokens for Whiteboard, Real-time video/audio chat(RTC), Real-time messaging(RTM)
 - [x] Cloud recording and replaying
-- [ ] Cloud Storage for multi-media courseware
+- [x] Cloud Storage for multi-media courseware
 
 
 ## Develop Locally
