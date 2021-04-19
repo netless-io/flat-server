@@ -1,0 +1,4 @@
+apiVersion: v2
+name: flat-server
+description: flat-server
+version: 0.1.0

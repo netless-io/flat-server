@@ -8,6 +8,7 @@ class RedisService {
         this.client = new IORedis({
             host: Redis.HOST,
             port: Number(Redis.PORT),
+            username: Redis.USERNAME,
             password: Redis.PASSWORD,
             db: Number(Redis.DB),
         });

@@ -40,6 +40,10 @@ void app.register(cors, {
     maxAge: 100,
 });
 
+app.get("/health-check", async (_req, reply) => {
+    await reply.code(200).send();
+});
+
 void orm.then(() => {
     app.listen(Server.PORT, "0.0.0.0", (err, address) => {
         if (err) {

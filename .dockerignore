@@ -5,3 +5,10 @@ scripts
 .idea
 dist-test
 test
+helm
+docs
+.github
+.gitlab-ci.yml
+README-zh.md
+README.md
+
