@@ -12,7 +12,7 @@ import { RoomDAO, RoomDocDAO, RoomUserDAO } from "../../../dao";
 import {
     beginTimeLessEndTime,
     beginTimeLessRedundancyOneMinute,
-    timeIntervalLessThanOrEqualFifteenMinute,
+    timeIntervalLessThanFifteenMinute,
 } from "../utils/CheckTime";
 
 export const createOrdinary = async (
@@ -39,7 +39,7 @@ export const createOrdinary = async (
                 };
             }
 
-            if (timeIntervalLessThanOrEqualFifteenMinute(beginTime, endTime)) {
+            if (timeIntervalLessThanFifteenMinute(beginTime, endTime)) {
                 return {
                     status: Status.Failed,
                     code: ErrorCode.ParamsCheckFailed,

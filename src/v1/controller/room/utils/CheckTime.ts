@@ -20,13 +20,10 @@ const timeIntervalLessThanOrEqualMinute = (
     endTime: number,
     minute: number,
 ): boolean => {
-    return differenceInMilliseconds(beginTime, endTime) <= minute;
+    return differenceInMilliseconds(beginTime, endTime) < minute;
 };
 
-export const timeIntervalLessThanOrEqualFifteenMinute = (
-    beginTime: number,
-    endTime: number,
-): boolean => {
+export const timeIntervalLessThanFifteenMinute = (beginTime: number, endTime: number): boolean => {
     return timeIntervalLessThanOrEqualMinute(beginTime, endTime, 1000 * 60 * 15);
 };
 
@@ -40,7 +37,7 @@ export const checkBeginAndEndTime = (beginTime: number, endTime: number): boolea
     }
 
     // the interval between the start time and the end time must be greater than 15 minutes
-    if (timeIntervalLessThanOrEqualFifteenMinute(beginTime, endTime)) {
+    if (timeIntervalLessThanFifteenMinute(beginTime, endTime)) {
         return false;
     }
 
