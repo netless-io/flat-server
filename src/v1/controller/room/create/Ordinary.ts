@@ -11,7 +11,7 @@ import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomDocDAO, RoomUserDAO } from "../../../dao";
 import {
     beginTimeLessEndTime,
-    beginTimeLessRedundancyOneMinute,
+    beginTimeExceedRedundancyOneMinute,
     timeIntervalLessThanFifteenMinute,
 } from "../utils/CheckTime";
 
@@ -24,7 +24,7 @@ export const createOrdinary = async (
     const { userUUID } = req.user;
 
     {
-        if (beginTimeLessRedundancyOneMinute(beginTime)) {
+        if (beginTimeExceedRedundancyOneMinute(beginTime)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.ParamsCheckFailed,
