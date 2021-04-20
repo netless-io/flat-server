@@ -7,7 +7,7 @@ import { getConnection, LessThan, MoreThan } from "typeorm";
 import { compareDesc, toDate } from "date-fns/fp";
 import {
     beginTimeLessEndTime,
-    beginTimeLessRedundancyOneMinute,
+    beginTimeExceedRedundancyOneMinute,
     timeIntervalLessThanFifteenMinute,
 } from "../utils/CheckTime";
 
@@ -96,7 +96,7 @@ export const updatePeriodicSubRoom = async (
             }
         } else {
             // if it is the first room, it must be later than the current time
-            if (beginTimeLessRedundancyOneMinute(beginTime)) {
+            if (beginTimeExceedRedundancyOneMinute(beginTime)) {
                 return {
                     status: Status.Failed,
                     code: ErrorCode.ParamsCheckFailed,
