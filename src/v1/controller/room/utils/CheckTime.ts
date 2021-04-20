@@ -2,7 +2,7 @@ import { compareDesc, differenceInMilliseconds, subMinutes } from "date-fns/fp";
 
 export const beginTimeLessRedundancyOneMinute = (beginTime: number): boolean => {
     // because network transmission will consume a little time, there is 1 minute redundancy
-    const redundancyTime = subMinutes(Date.now(), 1);
+    const redundancyTime = subMinutes(1)(Date.now());
 
     // beginTime >= redundancyTime
     // creation room time cannot be less than current time
