@@ -6,6 +6,7 @@ import { v4 } from "uuid";
 import {
     createWhiteboardRoomToken,
     createWhiteboardSDKToken,
+    createWhiteboardTaskToken,
     TokenPrefix,
     TokenRole,
 } from "../../src/utils/NetlessToken";
@@ -106,5 +107,53 @@ describe("NetlessToken Utils", () => {
         expect(tokenObject.ak).equal(Netless.ACCESS_KEY);
         expect(tokenObject.uuid).equal(roomUUID);
         expect(tokenObject.role).equal(TokenRole.Writer);
+    });
+
+    it("createWhiteboardTaskToken", () => {
+        const roomUUID = v4();
+        const roomToken = createWhiteboardTaskToken(roomUUID, {
+            lifespan: 0,
+        });
+
+        expect(roomToken.startsWith(TokenPrefix.TASK)).true;
+
+        const realRoomToken = roomToken.slice(TokenPrefix.TASK.length);
+
+        const encodeRoomToken = Buffer.from(realRoomToken, "base64").toString();
+
+        const tokenObject = queryString.parse(encodeRoomToken) as Record<
+            "ak" | "nonce" | "role" | "sig" | "uuid",
+            string
+        >;
+
+        expect(Object.keys(tokenObject)).to.have.all.members([
+            "ak",
+            "nonce",
+            "role",
+            "sig",
+            "uuid",
+        ]);
+
+        expect(tokenObject.ak).equal(Netless.ACCESS_KEY);
+        expect(tokenObject.uuid).equal(roomUUID);
+        expect(tokenObject.role).equal(TokenRole.Reader);
+    });
+
+    it("createWhiteboardTaskToken default value", () => {
+        const roomUUID = v4();
+        const roomToken = createWhiteboardTaskToken(roomUUID);
+
+        const realRoomToken = roomToken.slice(TokenPrefix.TASK.length);
+
+        const encodeRoomToken = Buffer.from(realRoomToken, "base64").toString();
+
+        const tokenObject = queryString.parse(encodeRoomToken) as Record<
+            "ak" | "nonce" | "role" | "sig" | "uuid",
+            string
+        >;
+
+        expect(tokenObject.ak).equal(Netless.ACCESS_KEY);
+        expect(tokenObject.uuid).equal(roomUUID);
+        expect(tokenObject.role).equal(TokenRole.Reader);
     });
 });

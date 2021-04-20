@@ -11,6 +11,7 @@ describe("Redis Utils", () => {
             "wechatRefreshToken",
             "agoraRTCRoomUserToken",
             "agoraRTMUserToken",
+            "cloudStorageFileInfo",
         ]);
     });
 
@@ -42,6 +43,15 @@ describe("Redis Utils", () => {
 
         expect(RedisKey.agoraRTMUserToken(`${userUUID}`)).to.equal(
             `agora:rtm:userUUID:${userUUID}`,
+        );
+    });
+
+    it("cloudStorageFileInfo", () => {
+        const userUUID = v4();
+        const fileUUID = v4();
+
+        expect(RedisKey.cloudStorageFileInfo(userUUID, fileUUID)).to.equal(
+            `cloudStorage:${userUUID}:${fileUUID}`,
         );
     });
 });
