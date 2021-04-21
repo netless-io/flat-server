@@ -1,5 +1,5 @@
 import { Column, Entity, Index } from "typeorm";
-import { Gender, LoginPlatform } from "../../controller/login/Constants";
+import { Gender } from "../../controller/login/Constants";
 import { Content } from "../Content";
 
 @Entity({
@@ -35,12 +35,6 @@ export class UserModel extends Content {
         default: Gender.None,
     })
     gender: Gender;
-
-    @Column({
-        type: "enum",
-        enum: [LoginPlatform.WeChat, LoginPlatform.Google],
-    })
-    last_login_platform: LoginPlatform;
 
     @Index("users_is_delete_index")
     @Column({

@@ -57,7 +57,6 @@ export const registerOrLoginWechat = async (
                     // TODO need upload headimgurl to remote oss server
                     avatar_url: weChatUserInfo.headimgurl,
                     user_password: "",
-                    last_login_platform: LoginPlatform.WeChat,
                 });
 
                 const createUserWeChat = UserWeChatDAO(t).insert({
