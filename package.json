@@ -6,7 +6,8 @@
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack --watch --progress --config webpack/webpack.dev.js",
     "build": "cross-env NODE_ENV=production webpack --progress --config webpack/webpack.prod.js",
-    "test": "cross-env NODE_ENV=test webpack --progress --config webpack/webpack.test.js && nyc --reporter=html --reporter=text mocha ./dist-test/index.js"
+    "test": "cross-env NODE_ENV=test webpack --progress --config webpack/webpack.test.js && nyc --reporter=html --reporter=text mocha ./dist-test/index.js",
+    "lint": "lint-staged"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
@@ -15,6 +16,8 @@
     "@babel/plugin-transform-runtime": "^7.12.1",
     "@babel/preset-env": "^7.12.7",
     "@babel/preset-typescript": "^7.12.7",
+    "@commitlint/cli": "^12.1.1",
+    "@commitlint/config-angular": "^12.1.1",
     "@types/ali-oss": "^6.0.7",
     "@types/chai": "^4.2.15",
     "@types/ioredis": "^4.17.8",
@@ -68,16 +71,5 @@
     "retry-axios": "^2.4.0",
     "typeorm": "^0.2.29",
     "uuid": "^8.3.1"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.ts": [
-      "eslint --cache --fix",
-      "prettier --write"
-    ]
   }
 }
