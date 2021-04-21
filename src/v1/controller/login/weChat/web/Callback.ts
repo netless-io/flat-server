@@ -3,7 +3,6 @@ import { JSONSchemaType } from "ajv/dist/types/json-schema";
 import redisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { FastifyReply } from "fastify";
-import { AuthValue } from "../Constants";
 import { registerOrLoginWechat } from "../Utils";
 
 export const callback = async (
@@ -17,17 +16,13 @@ export const callback = async (
     });
     void reply.send();
 
-    const { state: authID, code } = req.query;
+    const { state: authUUID, code } = req.query;
 
     try {
-        await registerOrLoginWechat(code, authID, "WEB", reply);
+        await registerOrLoginWechat(code, authUUID, "WEB", reply);
     } catch (err: unknown) {
         console.error(err);
-        await redisService.set(
-            RedisKey.weChatAuthUUID(authID),
-            AuthValue.CurrentProcessFailed,
-            60 * 60,
-        );
+        await redisService.set(RedisKey.authFailed(authUUID), "", 60 * 60);
     }
 };
 
@@ -42,6 +37,7 @@ export const callbackSchemaType: JSONSchemaType<CallbackQuery> = {
     properties: {
         state: {
             type: "string",
+            format: "uuid-v4",
         },
         code: {
             type: "string",

@@ -7,7 +7,9 @@ import { v4 } from "uuid";
 describe("Redis Utils", () => {
     it("Match Redis Keys", () => {
         expect(Object.keys(RedisKey)).to.have.all.members([
-            "weChatAuthUUID",
+            "authUUID",
+            "authFailed",
+            "authUserInfo",
             "wechatRefreshToken",
             "agoraRTCRoomUserToken",
             "agoraRTMUserToken",
@@ -15,10 +17,22 @@ describe("Redis Utils", () => {
         ]);
     });
 
-    it("weChatAuthUUID", () => {
+    it("authUUID", () => {
         const uuid = v4();
 
-        expect(RedisKey.weChatAuthUUID(`${uuid}`)).to.equal(`weChat:auth:uuid:${uuid}`);
+        expect(RedisKey.authUUID(`${uuid}`)).to.equal(`auth:uuid:${uuid}`);
+    });
+
+    it("authFailed", () => {
+        const uuid = v4();
+
+        expect(RedisKey.authFailed(`${uuid}`)).to.equal(`auth:failed:${uuid}`);
+    });
+
+    it("authUserInfo", () => {
+        const uuid = v4();
+
+        expect(RedisKey.authUserInfo(`${uuid}`)).to.equal(`auth:userInfo:${uuid}`);
     });
 
     it("wechatRefreshToken", () => {

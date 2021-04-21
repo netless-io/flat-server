@@ -6,19 +6,25 @@ import {
     callback as mobileCallback,
     callbackSchemaType as mobileCallbackSchemaType,
 } from "./weChat/mobile/Callback";
-import { setAuthID, setAuthIDSchemaType } from "./weChat/SetAuthID";
+import { setAuthUUID, setAuthUUIDSchemaType } from "./SetAuthUUID";
 import { login, loginSchemaType } from "./Login";
 import { FastifyRoutes } from "../../types/Server";
-import { wechatLoginProcess, wechatLoginProcessSchemaType } from "./weChat/web/Process";
+import { loginProcess, loginProcessSchemaType } from "./Process";
 
 export const httpLogin: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
         method: "post",
-        path: "login/weChat/set-auth-id",
-        handler: setAuthID,
-        skipAutoHandle: true,
+        path: "login/set-auth-id",
+        handler: setAuthUUID,
         auth: false,
-        schema: setAuthIDSchemaType,
+        schema: setAuthUUIDSchemaType,
+    }),
+    Object.freeze({
+        method: "post",
+        path: "login/process",
+        handler: loginProcess,
+        auth: false,
+        schema: loginProcessSchemaType,
     }),
     Object.freeze({
         method: "get",
@@ -27,13 +33,6 @@ export const httpLogin: Readonly<FastifyRoutes[]> = Object.freeze([
         skipAutoHandle: true,
         auth: false,
         schema: webCallbackSchemaType,
-    }),
-    Object.freeze({
-        method: "post",
-        path: "login/weChat/web/process",
-        handler: wechatLoginProcess,
-        auth: false,
-        schema: wechatLoginProcessSchemaType,
     }),
     Object.freeze({
         method: "get",

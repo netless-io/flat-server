@@ -1,9 +1,6 @@
 import { PatchRequest, Response } from "../../../../types/Server";
 import { JSONSchemaType } from "ajv/dist/types/json-schema";
-import redisService from "../../../../thirdPartyService/RedisService";
-import { RedisKey } from "../../../../../utils/Redis";
 import { FastifyReply } from "fastify";
-import { AuthValue } from "../Constants";
 import { Status } from "../../../../../Constants";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { registerOrLoginWechat } from "../Utils";
@@ -14,17 +11,12 @@ export const callback = async (
     }>,
     reply: FastifyReply,
 ): Response<CallbackResponse> => {
-    const { state: authID, code } = req.query;
+    const { state: authUUID, code } = req.query;
 
     try {
-        return await registerOrLoginWechat(code, authID, "MOBILE", reply);
+        return await registerOrLoginWechat(code, authUUID, "MOBILE", reply);
     } catch (err: unknown) {
         console.error(err);
-        await redisService.set(
-            RedisKey.weChatAuthUUID(authID),
-            AuthValue.CurrentProcessFailed,
-            60 * 60,
-        );
 
         return {
             status: Status.Failed,
@@ -44,6 +36,7 @@ export const callbackSchemaType: JSONSchemaType<CallbackQuery> = {
     properties: {
         state: {
             type: "string",
+            format: "uuid-v4",
         },
         code: {
             type: "string",

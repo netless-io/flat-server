@@ -8,26 +8,21 @@ import { LoginPlatform } from "../Constants";
 import redisService from "../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import { FastifyReply } from "fastify";
-import { AuthValue } from "./Constants";
 import { Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { Response } from "../../../types/Server";
 
 export const registerOrLoginWechat = async (
     code: string,
-    authID: string,
+    authUUID: string,
     type: "WEB" | "MOBILE",
     reply: FastifyReply,
 ): Response<WeChatResponse> => {
-    const result = await redisService.get(RedisKey.weChatAuthUUID(authID));
+    const result = await redisService.get(RedisKey.authUUID(authUUID));
 
-    if (result !== AuthValue.Process) {
-        console.error(`uuid verification failed, current code: ${code}, current uuid: ${authID}`);
-        await redisService.set(
-            RedisKey.weChatAuthUUID(authID),
-            AuthValue.ParamsCheckFailed,
-            60 * 60,
-        );
+    if (result === null) {
+        console.error(`uuid verification failed, current code: ${code}, current uuid: ${authUUID}`);
+        await redisService.set(RedisKey.authFailed(authUUID), "", 60 * 60);
 
         return {
             status: Status.Failed,
@@ -114,7 +109,7 @@ export const registerOrLoginWechat = async (
         });
 
         await redisService.set(
-            RedisKey.weChatAuthUUID(authID),
+            RedisKey.authUserInfo(authUUID),
             JSON.stringify({
                 name: name,
                 avatar: avatar,
@@ -124,7 +119,7 @@ export const registerOrLoginWechat = async (
             60 * 60,
         );
     } catch (err) {
-        await redisService.set(RedisKey.weChatAuthUUID(authID), AuthValue.JWTSignFailed, 60 * 60);
+        await redisService.set(RedisKey.authFailed(authUUID), "", 60 * 60);
         throw err;
     }
 
