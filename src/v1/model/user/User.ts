@@ -1,5 +1,5 @@
 import { Column, Entity, Index } from "typeorm";
-import { LoginPlatform, Sex } from "../../controller/login/Constants";
+import { Gender, LoginPlatform } from "../../controller/login/Constants";
 import { Content } from "../Content";
 
 @Entity({
@@ -30,15 +30,11 @@ export class UserModel extends Content {
     avatar_url: string;
 
     @Column({
-        length: 20,
-    })
-    phone: string;
-
-    @Column({
         type: "enum",
-        enum: [Sex.Man, Sex.Woman],
+        enum: [Gender.Man, Gender.Woman, Gender.None],
+        default: Gender.None,
     })
-    sex: Sex;
+    gender: Gender;
 
     @Column({
         type: "enum",

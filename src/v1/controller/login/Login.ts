@@ -4,7 +4,7 @@ import { renewAccessToken } from "../../utils/request/wechat/WeChatURL";
 import { wechatRequest } from "../../utils/request/wechat/WeChatRequest";
 import { RefreshToken } from "../../types/WeChatResponse";
 import { FastifySchema, PatchRequest, Response } from "../../types/Server";
-import { LoginPlatform, Sex } from "./Constants";
+import { LoginPlatform } from "./Constants";
 import { RedisKey } from "../../../utils/Redis";
 import { ErrorCode } from "../../../ErrorCode";
 import { UserDAO, UserWeChatDAO } from "../../dao";
@@ -17,7 +17,7 @@ export const login = async (
     const { userUUID, loginSource } = req.user;
     const { type } = req.body;
 
-    const userInfoInstance = await UserDAO().findOne(["user_name", "sex", "avatar_url"], {
+    const userInfoInstance = await UserDAO().findOne(["user_name", "avatar_url"], {
         user_uuid: userUUID,
     });
 
@@ -57,7 +57,6 @@ export const login = async (
             status: Status.Success,
             data: {
                 name: userInfoInstance.user_name,
-                sex: userInfoInstance.sex,
                 avatar: userInfoInstance.avatar_url,
                 userUUID,
             },
@@ -91,7 +90,6 @@ export const loginSchemaType: FastifySchema<{
 
 interface LoginResponse {
     name: string;
-    sex: Sex;
     avatar: string;
     userUUID: string;
 }

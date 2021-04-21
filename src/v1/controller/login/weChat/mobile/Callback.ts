@@ -3,7 +3,6 @@ import { JSONSchemaType } from "ajv/dist/types/json-schema";
 import redisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { FastifyReply } from "fastify";
-import { Sex } from "../../Constants";
 import { AuthValue } from "../Constants";
 import { Status } from "../../../../../Constants";
 import { ErrorCode } from "../../../../../ErrorCode";
@@ -54,7 +53,6 @@ export const callbackSchemaType: JSONSchemaType<CallbackQuery> = {
 
 interface CallbackResponse {
     name: string;
-    sex: Sex;
     avatar: string;
     userUUID: string;
     token: string;
