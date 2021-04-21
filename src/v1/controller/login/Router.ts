@@ -14,7 +14,7 @@ import { loginProcess, loginProcessSchemaType } from "./Process";
 export const httpLogin: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
         method: "post",
-        path: "login/set-auth-id",
+        path: "login/set-auth-uuid",
         handler: setAuthUUID,
         auth: false,
         schema: setAuthUUIDSchemaType,
