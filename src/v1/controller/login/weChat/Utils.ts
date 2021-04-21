@@ -4,7 +4,7 @@ import { getAccessTokenURL, getUserInfoURL } from "../../../utils/request/wechat
 import { wechatRequest } from "../../../utils/request/wechat/WeChatRequest";
 import { AccessToken, UserInfo } from "../../../types/WeChatResponse";
 import { UserDAO, UserWeChatDAO } from "../../../dao";
-import { LoginPlatform, Sex } from "../Constants";
+import { LoginPlatform } from "../Constants";
 import redisService from "../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import { FastifyReply } from "fastify";
@@ -56,10 +56,7 @@ export const registerOrLoginWechat = async (
                     user_uuid: userUUID,
                     // TODO need upload headimgurl to remote oss server
                     avatar_url: weChatUserInfo.headimgurl,
-                    sex: weChatUserInfo.sex === 1 ? Sex.Man : Sex.Woman,
                     user_password: "",
-                    phone: "",
-                    last_login_platform: LoginPlatform.WeChat,
                 });
 
                 const createUserWeChat = UserWeChatDAO(t).insert({
@@ -103,11 +100,11 @@ export const registerOrLoginWechat = async (
         60 * 60 * 24 * 29,
     );
 
-    const getUserInfoByUser = await UserDAO().findOne(["user_name", "sex", "avatar_url"], {
+    const getUserInfoByUser = await UserDAO().findOne(["user_name", "avatar_url"], {
         user_uuid: userUUID,
     });
 
-    const { user_name: name, sex, avatar_url: avatar } = getUserInfoByUser!;
+    const { user_name: name, avatar_url: avatar } = getUserInfoByUser!;
 
     let token = "";
     try {
@@ -120,7 +117,6 @@ export const registerOrLoginWechat = async (
             RedisKey.weChatAuthUUID(authID),
             JSON.stringify({
                 name: name,
-                sex,
                 avatar: avatar,
                 userUUID,
                 token,
@@ -136,7 +132,6 @@ export const registerOrLoginWechat = async (
         status: Status.Success,
         data: {
             name,
-            sex,
             avatar,
             userUUID,
             token,
@@ -146,7 +141,6 @@ export const registerOrLoginWechat = async (
 
 interface WeChatResponse {
     name: string;
-    sex: Sex;
     avatar: string;
     userUUID: string;
     token: string;

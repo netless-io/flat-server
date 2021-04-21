@@ -5,7 +5,6 @@ import { RedisKey } from "../../../../../utils/Redis";
 import { Status } from "../../../../../Constants";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { AuthValue } from "../Constants";
-import { Sex } from "../../Constants";
 
 export const wechatLoginProcess = async (
     req: PatchRequest<{
@@ -18,7 +17,6 @@ export const wechatLoginProcess = async (
 
     const defaultResponse = {
         name: "",
-        sex: Sex.Woman,
         avatar: "",
         userUUID: "",
         token: "",
@@ -67,7 +65,6 @@ export const wechatLoginProcessSchemaType: JSONSchemaType<WechatLoginProcessBody
 
 type WechatLoginProcessResponse = {
     name: string;
-    sex: Sex;
     avatar: string;
     userUUID: string;
     token: string;
