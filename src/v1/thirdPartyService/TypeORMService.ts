@@ -37,6 +37,7 @@ export const orm = createConnection({
     timezone: "Z",
     logging: isDev ? "all" : false,
     maxQueryExecutionTime: isDev ? 1 : 1000,
+    charset: "utf8mb4_unicode_ci",
 }).catch(err => {
     console.error("Unable to connect to the database");
     console.error(err);
