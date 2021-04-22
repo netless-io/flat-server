@@ -1,9 +1,13 @@
+import { AxiosResponse } from "axios";
 import { Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { createWhiteboardTaskToken } from "../../../../utils/NetlessToken";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../dao";
 import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { whiteboardCreateConversionTask } from "../../../utils/request/whiteboard/Whiteboard";
+import {
+    TaskCreated,
+    whiteboardCreateConversionTask,
+} from "../../../utils/request/whiteboard/Whiteboard";
 import { FileConvertStep } from "../Constants";
 import { determineType, isConverting, isConvertDone, isConvertFailed } from "./Utils";
 
@@ -63,10 +67,19 @@ export const fileConvertStart = async (
         }
 
         const fileType = determineType(resource);
-        const result = await whiteboardCreateConversionTask({
-            resource,
-            type: fileType,
-        });
+        let result: AxiosResponse<TaskCreated>;
+        if (fileType === "dynamic") {
+            result = await whiteboardCreateConversionTask({
+                resource,
+                type: fileType,
+            });
+        } else {
+            result = await whiteboardCreateConversionTask({
+                resource,
+                type: fileType,
+                pack: true,
+            });
+        }
 
         const taskUUID = result.data.uuid;
         const taskToken = createWhiteboardTaskToken(taskUUID);
