@@ -87,7 +87,7 @@ interface CreateDynamicConversionTaskParams {
     preview?: boolean;
 }
 
-interface TaskCreated {
+export interface TaskCreated {
     uuid: string;
     type: "static" | "dynamic";
     status: "Waiting" | "Converting" | "Finished" | "Fail";
