@@ -7,12 +7,14 @@ stages:
     name: development
   only:
     - main
+    - merge_requests
 
 .prod: &PROD
   environment:
     name: production
   only:
     - stable
+    - merge_requests
 
 .docker_build: &DOCKER_BUILD
   stage: build_image
