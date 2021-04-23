@@ -1,5 +1,4 @@
-import { PatchRequest, Response } from "../../types/Server";
-import { JSONSchemaType } from "ajv/dist/types/json-schema";
+import { FastifySchema, PatchRequest, Response } from "../../types/Server";
 import RedisService from "../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../utils/Redis";
 import { Status } from "../../../Constants";
@@ -63,13 +62,17 @@ interface LoginProcessBody {
     authUUID: string;
 }
 
-export const loginProcessSchemaType: JSONSchemaType<LoginProcessBody> = {
-    type: "object",
-    required: ["authUUID"],
-    properties: {
-        authUUID: {
-            type: "string",
-            format: "uuid-v4",
+export const loginProcessSchemaType: FastifySchema<{
+    body: LoginProcessBody;
+}> = {
+    body: {
+        type: "object",
+        required: ["authUUID"],
+        properties: {
+            authUUID: {
+                type: "string",
+                format: "uuid-v4",
+            },
         },
     },
 };
