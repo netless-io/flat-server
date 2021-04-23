@@ -1,5 +1,4 @@
-import { PatchRequest } from "../../../../types/Server";
-import { JSONSchemaType } from "ajv/dist/types/json-schema";
+import { FastifySchema, PatchRequest } from "../../../../types/Server";
 import redisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { FastifyReply } from "fastify";
@@ -31,16 +30,20 @@ interface CallbackQuery {
     code: string;
 }
 
-export const callbackSchemaType: JSONSchemaType<CallbackQuery> = {
-    type: "object",
-    required: ["state", "code"],
-    properties: {
-        state: {
-            type: "string",
-            format: "uuid-v4",
-        },
-        code: {
-            type: "string",
+export const callbackSchemaType: FastifySchema<{
+    querystring: CallbackQuery;
+}> = {
+    querystring: {
+        type: "object",
+        required: ["state", "code"],
+        properties: {
+            state: {
+                type: "string",
+                format: "uuid-v4",
+            },
+            code: {
+                type: "string",
+            },
         },
     },
 };
