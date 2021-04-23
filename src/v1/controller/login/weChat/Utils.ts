@@ -4,13 +4,13 @@ import { getAccessTokenURL, getUserInfoURL } from "../../../utils/request/wechat
 import { wechatRequest } from "../../../utils/request/wechat/WeChatRequest";
 import { AccessToken, UserInfo } from "../../../types/WeChatResponse";
 import { UserDAO, UserWeChatDAO } from "../../../dao";
-import { LoginPlatform } from "../Constants";
 import redisService from "../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import { FastifyReply } from "fastify";
 import { Status } from "../../../../Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { Response } from "../../../types/Server";
+import { LoginPlatform } from "../../../Constants";
 
 export const registerOrLoginWechat = async (
     code: string,

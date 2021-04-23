@@ -6,6 +6,10 @@ import {
     callback as mobileCallback,
     callbackSchemaType as mobileCallbackSchemaType,
 } from "./weChat/mobile/Callback";
+import {
+    callback as githubCallback,
+    callbackSchemaType as githubCallbackSchemaType,
+} from "./github/Callback";
 import { setAuthUUID, setAuthUUIDSchemaType } from "./SetAuthUUID";
 import { login, loginSchemaType } from "./Login";
 import { FastifyRoutes } from "../../types/Server";
@@ -40,6 +44,13 @@ export const httpLogin: Readonly<FastifyRoutes[]> = Object.freeze([
         handler: mobileCallback,
         auth: false,
         schema: mobileCallbackSchemaType,
+    }),
+    Object.freeze({
+        method: "get",
+        path: "login/github/callback",
+        handler: githubCallback,
+        auth: false,
+        schema: githubCallbackSchemaType,
     }),
     Object.freeze({
         method: "post",
