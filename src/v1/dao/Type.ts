@@ -16,6 +16,7 @@ import { RoomRecordModel } from "../model/room/RoomRecord";
 import { CloudStorageConfigsModel } from "../model/cloudStorage/CloudStorageConfigs";
 import { CloudStorageUserFilesModel } from "../model/cloudStorage/CloudStorageUserFiles";
 import { CloudStorageFilesModel } from "../model/cloudStorage/CloudStorageFiles";
+import { UserGithubModel } from "../model/user/Github";
 
 export type Where<M> = {
     [key in keyof M]?: M[key] | FindOperator<M[key]>;
@@ -59,6 +60,7 @@ type Count<M> = (where: Where<M>) => Promise<number>;
 export type Model =
     | UserModel
     | UserWeChatModel
+    | UserGithubModel
     | RoomModel
     | RoomUserModel
     | RoomPeriodicConfigModel

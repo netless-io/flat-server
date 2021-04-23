@@ -11,6 +11,9 @@ declare namespace NodeJS {
         MOBILE_WECHAT_APP_ID: string;
         MOBILE_WECHAT_APP_SECRET: string;
 
+        GITHUB_CLIENT_ID: string;
+        GITHUB_CLIENT_SECRET: string;
+
         AGORA_APP_ID: string;
         AGORA_APP_CERTIFICATE: string;
         AGORA_RESTFUL_ID: string;

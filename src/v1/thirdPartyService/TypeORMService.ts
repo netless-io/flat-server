@@ -12,6 +12,7 @@ import { RoomRecordModel } from "../model/room/RoomRecord";
 import { RoomUserModel } from "../model/room/RoomUser";
 import { UserModel } from "../model/user/User";
 import { UserWeChatModel } from "../model/user/WeChat";
+import { UserGithubModel } from "../model/user/Github";
 
 export const orm = createConnection({
     type: "mysql",
@@ -23,6 +24,7 @@ export const orm = createConnection({
     entities: [
         UserModel,
         UserWeChatModel,
+        UserGithubModel,
         RoomModel,
         RoomUserModel,
         RoomPeriodicConfigModel,

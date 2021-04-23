@@ -35,6 +35,11 @@ export const WeChat = {
     },
 };
 
+export const Github = {
+    CLIENT_ID: process.env.GITHUB_CLIENT_ID,
+    CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+};
+
 export const Agora = {
     APP_ID: process.env.AGORA_APP_ID,
     APP_CERTIFICATE: process.env.AGORA_APP_CERTIFICATE,
