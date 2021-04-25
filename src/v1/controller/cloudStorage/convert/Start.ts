@@ -1,14 +1,14 @@
 import { AxiosResponse } from "axios";
-import { Status } from "../../../../Constants";
+import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { createWhiteboardTaskToken } from "../../../../utils/NetlessToken";
-import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../dao";
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
 import {
     TaskCreated,
     whiteboardCreateConversionTask,
-} from "../../../utils/request/whiteboard/Whiteboard";
-import { FileConvertStep } from "../Constants";
+} from "../../../utils/request/whiteboard/WhiteboardRequest";
+import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
 import { determineType, isConverting, isConvertDone, isConvertFailed } from "./Utils";
 
 export const fileConvertStart = async (

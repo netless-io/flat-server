@@ -1,5 +1,5 @@
-import { CloudStorageConfigsDAO } from "../../../../dao";
-import { CloudStorage } from "../../../../../Constants";
+import { CloudStorageConfigsDAO } from "../../../../../dao";
+import { CloudStorage } from "../../../../../constants/Process";
 
 export const checkTotalUsage = async (
     userUUID: string,

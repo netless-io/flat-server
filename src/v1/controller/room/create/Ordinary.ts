@@ -1,14 +1,14 @@
-import { DocsType, RoomStatus, RoomType } from "../Constants";
+import { DocsType, RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { Docs } from "../Types";
-import { Status } from "../../../../Constants";
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import { Status } from "../../../../constants/Project";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
 import { v4 } from "uuid";
 import { addHours, toDate } from "date-fns/fp";
 import { getConnection } from "typeorm";
 import cryptoRandomString from "crypto-random-string";
-import { whiteboardCreateRoom } from "../../../utils/request/whiteboard/Whiteboard";
+import { whiteboardCreateRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO, RoomDocDAO, RoomUserDAO } from "../../../dao";
+import { RoomDAO, RoomDocDAO, RoomUserDAO } from "../../../../dao";
 import {
     beginTimeLessEndTime,
     beginTimeExceedRedundancyOneMinute,

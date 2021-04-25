@@ -1,8 +1,8 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { Status } from "../../../../Constants";
-import { RoomStatus } from "../Constants";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Status } from "../../../../constants/Project";
+import { RoomStatus } from "../../../../model/room/Constants";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO, RoomUserDAO } from "../../../dao";
+import { RoomDAO, RoomUserDAO } from "../../../../dao";
 
 export const cancelHistory = async (
     req: PatchRequest<{

@@ -1,12 +1,12 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
 import { createQueryBuilder, In } from "typeorm";
-import { RoomUserModel } from "../../../model/room/RoomUser";
-import { RoomModel } from "../../../model/room/Room";
-import { UserModel } from "../../../model/user/User";
-import { ListType, RoomStatus, RoomType } from "../Constants";
-import { Status } from "../../../../Constants";
+import { RoomUserModel } from "../../../../model/room/RoomUser";
+import { RoomModel } from "../../../../model/room/Room";
+import { UserModel } from "../../../../model/user/User";
+import { ListType, RoomStatus, RoomType } from "../../../../model/room/Constants";
+import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomRecordDAO } from "../../../dao";
+import { RoomRecordDAO } from "../../../../dao";
 
 export const list = async (
     req: PatchRequest<{

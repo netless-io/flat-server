@@ -1,4 +1,4 @@
-import { Week } from "../Constants";
+import { Week } from "../../../../model/room/Constants";
 import {
     add,
     addDays,

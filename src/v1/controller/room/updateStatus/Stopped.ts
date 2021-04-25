@@ -1,13 +1,13 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
 import { getConnection } from "typeorm";
-import { Status } from "../../../../Constants";
-import { PeriodicStatus, RoomStatus } from "../Constants";
-import { whiteboardBanRoom } from "../../../utils/request/whiteboard/Whiteboard";
+import { Status } from "../../../../constants/Project";
+import { PeriodicStatus, RoomStatus } from "../../../../model/room/Constants";
+import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../dao";
+import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../../dao";
 import { roomIsRunning } from "../utils/Room";
 import { getNextPeriodicRoomInfo, updateNextPeriodicRoomInfo } from "../../../service/Periodic";
-import { RoomPeriodicModel } from "../../../model/room/RoomPeriodic";
+import { RoomPeriodicModel } from "../../../../model/room/RoomPeriodic";
 
 export const stopped = async (
     req: PatchRequest<{

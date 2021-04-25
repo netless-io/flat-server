@@ -1,8 +1,8 @@
-import { FastifyRoutes } from "../../types/Server";
+import { FastifyRoutes } from "../../../types/Server";
 import { generateRTC, generateRTCSchemaType } from "./token/RTC";
 import { generateRTM } from "./token/RTM";
 
-export const httpAgora: Readonly<FastifyRoutes[]> = Object.freeze([
+export const agoraRouters: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
         method: "post",
         path: "agora/token/generate/rtc",

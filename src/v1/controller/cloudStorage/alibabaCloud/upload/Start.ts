@@ -1,9 +1,11 @@
 import { v4 } from "uuid";
-import { CloudStorage, Status } from "../../../../../Constants";
+import { CloudStorage } from "../../../../../constants/Process";
+import { Status } from "../../../../../constants/Project";
+
 import { ErrorCode } from "../../../../../ErrorCode";
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../../../types/Server";
 import { getFilePath, policyTemplate } from "../Utils";
-import RedisService from "../../../../thirdPartyService/RedisService";
+import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { checkTotalUsage } from "./Utils";
 

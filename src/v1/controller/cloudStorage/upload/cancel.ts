@@ -1,8 +1,9 @@
-import { CloudStorage, Status } from "../../../../Constants";
+import { CloudStorage } from "../../../../constants/Process";
+import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RedisKey } from "../../../../utils/Redis";
-import RedisService from "../../../thirdPartyService/RedisService";
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import RedisService from "../../../../thirdPartyService/RedisService";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
 
 export const uploadCancel = async (
     req: PatchRequest<{

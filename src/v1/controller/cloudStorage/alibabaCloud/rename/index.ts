@@ -1,9 +1,9 @@
 import path from "path";
 import { getConnection } from "typeorm";
-import { Status } from "../../../../../Constants";
+import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
-import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../../dao";
+import { FastifySchema, PatchRequest, Response } from "../../../../../types/Server";
 import { getDisposition, getFilePath, ossClient } from "../Utils";
 
 export const alibabaCloudRename = async (

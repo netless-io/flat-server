@@ -1,14 +1,14 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
 import {
     RoomDAO,
     RoomDocDAO,
     RoomPeriodicConfigDAO,
     RoomPeriodicDAO,
     RoomUserDAO,
-} from "../../../dao";
+} from "../../../../dao";
 import { ErrorCode } from "../../../../ErrorCode";
-import { Status } from "../../../../Constants";
-import { DocsType, RoomStatus, RoomType, Week } from "../Constants";
+import { Status } from "../../../../constants/Project";
+import { DocsType, RoomStatus, RoomType, Week } from "../../../../model/room/Constants";
 import { getConnection, In } from "typeorm";
 import { Docs, Periodic } from "../Types";
 import { checkUpdateBeginAndEndTime, docsDiff } from "./Utils";
@@ -18,7 +18,7 @@ import { calculatePeriodicDates } from "../utils/Periodic";
 import {
     whiteboardBanRoom,
     whiteboardCreateRoom,
-} from "../../../utils/request/whiteboard/Whiteboard";
+} from "../../../utils/request/whiteboard/WhiteboardRequest";
 
 export const updatePeriodic = async (
     req: PatchRequest<{

@@ -1,6 +1,6 @@
 import { Column, Entity, Index } from "typeorm";
 import { Content } from "../Content";
-import { DocsType } from "../../controller/room/Constants";
+import { DocsType } from "./Constants";
 
 @Entity({
     name: "room_docs",

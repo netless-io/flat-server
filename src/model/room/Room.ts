@@ -1,4 +1,4 @@
-import { RoomStatus, RoomType } from "../../controller/room/Constants";
+import { RoomStatus, RoomType } from "./Constants";
 import { Column, Entity, Index } from "typeorm";
 import { Content } from "../Content";
 

@@ -1,7 +1,7 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { Status } from "../../../../Constants";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO, RoomRecordDAO } from "../../../dao";
+import { RoomDAO, RoomRecordDAO } from "../../../../dao";
 import { roomIsRunning } from "../utils/Room";
 
 export const recordStarted = async (

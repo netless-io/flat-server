@@ -1,4 +1,4 @@
-import { FileConvertStep } from "../Constants";
+import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
 
 export function determineType(resource: string): "static" | "dynamic" {
     return resource.endsWith(".pptx") ? "dynamic" : "static";

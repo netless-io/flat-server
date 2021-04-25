@@ -1,10 +1,10 @@
 import { FastifyInstance, RouteShorthandOptions } from "fastify";
-import { httpRoutes } from "./Routes";
-import { FastifyRoutes, FastifySchema, PatchRequest } from "./types/Server";
+import { httpRouters } from "./Routes";
+import { FastifyRoutes, FastifySchema, PatchRequest } from "../types/Server";
 
-export const v1RegisterHTTP = (server: FastifyInstance): void => {
+export const v1RegisterRouters = (server: FastifyInstance): void => {
     // @ts-ignore
-    httpRoutes.flat(Infinity).forEach((item: FastifyRoutes) => {
+    httpRouters.flat(Infinity).forEach((item: FastifyRoutes) => {
         const { method, path, handler, auth, schema, skipAutoHandle } = item;
 
         const serverOpts: ServerOpts = {};

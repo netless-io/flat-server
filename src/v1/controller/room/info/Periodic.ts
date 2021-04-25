@@ -1,9 +1,14 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
 import { In, Not } from "typeorm";
-import { Status } from "../../../../Constants";
-import { PeriodicStatus, RoomStatus, Week } from "../Constants";
+import { Status } from "../../../../constants/Project";
+import { PeriodicStatus, RoomStatus, Week } from "../../../../model/room/Constants";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomPeriodicConfigDAO, RoomPeriodicDAO, RoomPeriodicUserDAO, UserDAO } from "../../../dao";
+import {
+    RoomPeriodicConfigDAO,
+    RoomPeriodicDAO,
+    RoomPeriodicUserDAO,
+    UserDAO,
+} from "../../../../dao";
 
 export const periodicInfo = async (
     req: PatchRequest<{

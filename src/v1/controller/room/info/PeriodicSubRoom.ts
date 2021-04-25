@@ -1,13 +1,13 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { Status } from "../../../../Constants";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
-import { DocsType, RoomStatus, RoomType } from "../Constants";
+import { DocsType, RoomStatus, RoomType } from "../../../../model/room/Constants";
 import {
     RoomDocDAO,
     RoomPeriodicConfigDAO,
     RoomPeriodicDAO,
     RoomPeriodicUserDAO,
-} from "../../../dao";
+} from "../../../../dao";
 import { LessThan, MoreThan, Not } from "typeorm";
 
 export const periodicSubRoomInfo = async (

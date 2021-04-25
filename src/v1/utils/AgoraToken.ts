@@ -1,7 +1,7 @@
 import { RtcRole, RtcTokenBuilder, RtmRole, RtmTokenBuilder } from "agora-access-token";
-import { Agora } from "../../Constants";
+import { Agora } from "../../constants/Process";
 import { RedisKey } from "../../utils/Redis";
-import RedisService from "../thirdPartyService/RedisService";
+import RedisService from "../../thirdPartyService/RedisService";
 
 const generateRTCToken = (title: string, uid: number): string => {
     return RtcTokenBuilder.buildTokenWithUid(

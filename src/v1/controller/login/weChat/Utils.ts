@@ -1,16 +1,17 @@
 import { v4 } from "uuid";
 import { getConnection } from "typeorm";
-import { getAccessTokenURL, getUserInfoURL } from "../../../utils/request/wechat/WeChatURL";
-import { wechatRequest } from "../../../utils/request/wechat/WeChatRequest";
-import { AccessToken, UserInfo } from "../../../types/WeChatResponse";
-import { UserDAO, UserWeChatDAO } from "../../../dao";
-import redisService from "../../../thirdPartyService/RedisService";
+import { UserDAO, UserWeChatDAO } from "../../../../dao";
+import redisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import { FastifyReply } from "fastify";
-import { Status } from "../../../../Constants";
+import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
-import { Response } from "../../../types/Server";
-import { LoginPlatform } from "../../../Constants";
+import { Response } from "../../../../types/Server";
+import { LoginPlatform } from "../../../../constants/Project";
+import {
+    getWeChatAccessToken,
+    getWeChatUserInfo,
+} from "../../../utils/request/wechat/WeChatRequest";
 
 export const registerOrLoginWechat = async (
     code: string,
@@ -30,11 +31,9 @@ export const registerOrLoginWechat = async (
         };
     }
 
-    const accessTokenURL = getAccessTokenURL(code, type);
-    const accessToken = await wechatRequest<AccessToken>(accessTokenURL);
+    const accessToken = await getWeChatAccessToken(code, type);
 
-    const userInfoURL = getUserInfoURL(accessToken.access_token, accessToken.openid);
-    const weChatUserInfo = await wechatRequest<UserInfo>(userInfoURL);
+    const weChatUserInfo = await getWeChatUserInfo(accessToken.access_token, accessToken.openid);
 
     const getUserInfoByUserWeChat = await UserWeChatDAO().findOne(["user_uuid", "user_name"], {
         union_uuid: weChatUserInfo.unionid,

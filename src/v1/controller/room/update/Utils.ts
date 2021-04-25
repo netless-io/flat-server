@@ -1,5 +1,5 @@
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
-import { RoomDocModel } from "../../../model/room/RoomDoc";
+import { RoomDocModel } from "../../../../model/room/RoomDoc";
 import { Docs } from "../Types";
 import { compareDesc } from "date-fns/fp";
 import {

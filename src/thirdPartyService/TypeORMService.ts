@@ -2,7 +2,7 @@ import { createConnection } from "typeorm";
 import { CloudStorageConfigsModel } from "../model/cloudStorage/CloudStorageConfigs";
 import { CloudStorageFilesModel } from "../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../model/cloudStorage/CloudStorageUserFiles";
-import { isDev, MySQL } from "../../Constants";
+import { isDev, MySQL } from "../constants/Process";
 import { RoomModel } from "../model/room/Room";
 import { RoomDocModel } from "../model/room/RoomDoc";
 import { RoomPeriodicModel } from "../model/room/RoomPeriodic";

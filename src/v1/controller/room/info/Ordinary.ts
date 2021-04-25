@@ -1,8 +1,8 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { Status } from "../../../../Constants";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
-import { DocsType, RoomStatus, RoomType } from "../Constants";
-import { RoomDAO, RoomDocDAO, RoomUserDAO, UserDAO } from "../../../dao";
+import { DocsType, RoomStatus, RoomType } from "../../../../model/room/Constants";
+import { RoomDAO, RoomDocDAO, RoomUserDAO, UserDAO } from "../../../../dao";
 
 export const ordinaryInfo = async (
     req: PatchRequest<{

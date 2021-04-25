@@ -4,7 +4,7 @@ import { expect } from "chai";
 import Ajv from "ajv";
 import { ajvSelfPlugin } from "../../src/plugins/Ajv";
 import { v4 } from "uuid";
-import { CloudStorage } from "../../src/Constants";
+import { CloudStorage } from "../../src/constants/Process";
 
 describe("Ajv Plugin", () => {
     it("inject self plugin", () => {

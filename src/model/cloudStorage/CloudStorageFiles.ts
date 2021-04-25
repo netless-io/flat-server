@@ -1,6 +1,6 @@
 import { Column, Entity, Index } from "typeorm";
 import { Content } from "../Content";
-import { FileConvertStep } from "../../controller/cloudStorage/Constants";
+import { FileConvertStep } from "./Constants";
 
 @Entity({
     name: "cloud_storage_files",
