@@ -1,10 +1,10 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { Status } from "../../../../Constants";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Status } from "../../../../constants/Project";
 import { joinOrdinary } from "./Ordinary";
 import { joinPeriodic } from "./Periodic";
 import { JoinResponse } from "./Type";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomPeriodicConfigDAO } from "../../../dao";
+import { RoomPeriodicConfigDAO } from "../../../../dao";
 
 export const join = async (
     req: PatchRequest<{

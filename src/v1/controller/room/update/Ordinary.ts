@@ -1,8 +1,8 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { RoomDAO, RoomDocDAO } from "../../../dao";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { RoomDAO, RoomDocDAO } from "../../../../dao";
 import { ErrorCode } from "../../../../ErrorCode";
-import { Status } from "../../../../Constants";
-import { DocsType, RoomStatus, RoomType } from "../Constants";
+import { Status } from "../../../../constants/Project";
+import { DocsType, RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { getConnection, In } from "typeorm";
 import { Docs } from "../Types";
 import { toDate } from "date-fns/fp";

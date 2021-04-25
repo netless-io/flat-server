@@ -1,11 +1,12 @@
 import "reflect-metadata";
 import fastify from "fastify";
 import cors from "fastify-cors";
-import { Server, Status } from "./Constants";
-import { v1RegisterHTTP } from "./v1";
-import jwtVerify from "./v1/plugins/JWT";
+import { Server } from "./constants/Process";
+import { Status } from "./constants/Project";
+import { v1RegisterRouters } from "./v1";
+import jwtVerify from "./plugins/JWT";
 import { ajvSelfPlugin } from "./plugins/Ajv";
-import { orm } from "./v1/thirdPartyService/TypeORMService";
+import { orm } from "./thirdPartyService/TypeORMService";
 import { ErrorCode } from "./ErrorCode";
 
 const app = fastify({
@@ -31,7 +32,7 @@ app.setErrorHandler((error, _request, reply) => {
 });
 
 void app.register(jwtVerify).then(() => {
-    v1RegisterHTTP(app);
+    v1RegisterRouters(app);
 });
 
 void app.register(cors, {

@@ -1,4 +1,4 @@
-import { RoomType } from "../Constants";
+import { RoomType } from "../../../../model/room/Constants";
 
 export type JoinResponse = {
     roomType: RoomType;

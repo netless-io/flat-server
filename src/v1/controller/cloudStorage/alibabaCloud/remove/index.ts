@@ -1,14 +1,14 @@
 import { createQueryBuilder, getConnection, In } from "typeorm";
-import { Status } from "../../../../../Constants";
+import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import {
     CloudStorageConfigsDAO,
     CloudStorageUserFilesDAO,
     CloudStorageFilesDAO,
-} from "../../../../dao";
-import { CloudStorageFilesModel } from "../../../../model/cloudStorage/CloudStorageFiles";
-import { CloudStorageUserFilesModel } from "../../../../model/cloudStorage/CloudStorageUserFiles";
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+} from "../../../../../dao";
+import { CloudStorageFilesModel } from "../../../../../model/cloudStorage/CloudStorageFiles";
+import { CloudStorageUserFilesModel } from "../../../../../model/cloudStorage/CloudStorageUserFiles";
+import { FastifySchema, PatchRequest, Response } from "../../../../../types/Server";
 import { getFilePath, ossClient } from "../Utils";
 
 export const alibabaCloudRemoveFile = async (

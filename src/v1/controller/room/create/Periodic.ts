@@ -1,12 +1,18 @@
-import { DocsType, PeriodicStatus, RoomStatus, RoomType, Week } from "../Constants";
+import {
+    DocsType,
+    PeriodicStatus,
+    RoomStatus,
+    RoomType,
+    Week,
+} from "../../../../model/room/Constants";
 import { Periodic, Docs } from "../Types";
-import { Status } from "../../../../Constants";
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import { Status } from "../../../../constants/Project";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
 import { v4 } from "uuid";
 import { differenceInCalendarDays, toDate } from "date-fns/fp";
 import { getConnection } from "typeorm";
 import cryptoRandomString from "crypto-random-string";
-import { whiteboardCreateRoom } from "../../../utils/request/whiteboard/Whiteboard";
+import { whiteboardCreateRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { ErrorCode } from "../../../../ErrorCode";
 import {
     RoomDAO,
@@ -15,7 +21,7 @@ import {
     RoomPeriodicDAO,
     RoomPeriodicUserDAO,
     RoomUserDAO,
-} from "../../../dao";
+} from "../../../../dao";
 import { calculatePeriodicDates } from "../utils/Periodic";
 import { checkBeginAndEndTime } from "../utils/CheckTime";
 

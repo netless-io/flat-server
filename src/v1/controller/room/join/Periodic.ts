@@ -1,13 +1,13 @@
 import { getConnection, In, Not } from "typeorm";
-import { Status } from "../../../../Constants";
-import { PeriodicStatus, RoomStatus } from "../Constants";
+import { Status } from "../../../../constants/Project";
+import { PeriodicStatus, RoomStatus } from "../../../../model/room/Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
 import cryptoRandomString from "crypto-random-string";
 import { JoinResponse } from "./Type";
 import { getRTCToken, getRTMToken } from "../../../utils/AgoraToken";
 import { ErrorCode } from "../../../../ErrorCode";
-import { Response } from "../../../types/Server";
-import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicUserDAO, RoomUserDAO } from "../../../dao";
+import { Response } from "../../../../types/Server";
+import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicUserDAO, RoomUserDAO } from "../../../../dao";
 
 export const joinPeriodic = async (
     periodicUUID: string,

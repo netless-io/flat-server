@@ -1,4 +1,4 @@
-import { FastifyRoutes } from "../../types/Server";
+import { FastifyRoutes } from "../../../types/Server";
 import { createOrdinary, createOrdinarySchemaType } from "./create/Ordinary";
 import { createPeriodic, createPeriodicSchemaType } from "./create/Periodic";
 import { list, listSchemaType } from "./list";
@@ -29,7 +29,7 @@ import { updatePeriodic, updatePeriodicSchemaType } from "./update/Periodic";
 import { recordStarted, recordStartedSchemaType } from "./record/Started";
 import { recordStopped, recordStoppedSchemaType } from "./record/Stopped";
 
-export const httpRoom: Readonly<FastifyRoutes[]> = Object.freeze([
+export const roomRouters: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
         method: "post",
         path: "room/create/ordinary",

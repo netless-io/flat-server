@@ -1,7 +1,7 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
-import { Status } from "../../../../../Constants";
+import { FastifySchema, PatchRequest, Response } from "../../../../../types/Server";
+import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
-import { RoomDAO } from "../../../../dao";
+import { RoomDAO } from "../../../../../dao";
 import { roomIsRunning } from "../../utils/Room";
 import { agoraCloudRecordAcquireRequest } from "../../../../utils/request/agora/Agora";
 import {

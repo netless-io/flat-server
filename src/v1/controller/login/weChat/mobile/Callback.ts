@@ -1,6 +1,6 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../../../types/Server";
 import { FastifyReply } from "fastify";
-import { Status } from "../../../../../Constants";
+import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { registerOrLoginWechat } from "../Utils";
 

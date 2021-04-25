@@ -1,6 +1,5 @@
 import { AxiosResponse } from "axios";
 import { ax } from "../../Axios";
-import { agoraCloudRecording } from "./AgoraURL";
 import {
     AgoraCloudRecordAcquireRequestBody,
     AgoraCloudRecordAcquireResponse,
@@ -14,8 +13,9 @@ import {
     AgoraCloudRecordUpdateLayoutRequestBody,
     AgoraCloudRecordUpdateLayoutResponse,
 } from "./Types";
-import { Agora } from "../../../../Constants";
+import { Agora } from "../../../../constants/Process";
 
+const agoraCloudRecording = `https://api.agora.io/v1/apps/${Agora.APP_ID}/cloud_recording`;
 const authorization =
     "Basic" + Buffer.from(`${Agora.RESTFUL_ID}:${Agora.RESTFUL_SECRET}`).toString("base64");
 

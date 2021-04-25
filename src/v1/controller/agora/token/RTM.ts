@@ -1,5 +1,5 @@
-import { Status } from "../../../../Constants";
-import { PatchRequest, Response } from "../../../types/Server";
+import { Status } from "../../../../constants/Project";
+import { PatchRequest, Response } from "../../../../types/Server";
 import { getRTMToken } from "../../../utils/AgoraToken";
 
 export const generateRTM = async (req: PatchRequest): Response<GenerateRTMResponse> => {

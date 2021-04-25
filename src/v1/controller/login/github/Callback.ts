@@ -1,16 +1,16 @@
-import { PatchRequest } from "../../../types/Server";
+import { PatchRequest } from "../../../../types/Server";
 import { FastifyReply } from "fastify";
 import { JSONSchemaType } from "ajv/dist/types/json-schema";
-import redisService from "../../../thirdPartyService/RedisService";
+import redisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import {
     getGithubAccessToken,
     getGithubUserInfo,
 } from "../../../utils/request/github/GithubRequest";
-import { UserDAO, UserGithubDAO } from "../../../dao";
+import { UserDAO, UserGithubDAO } from "../../../../dao";
 import { v4 } from "uuid";
 import { getConnection } from "typeorm";
-import { LoginPlatform } from "../../../Constants";
+import { LoginPlatform } from "../../../../constants/Project";
 
 export const callback = async (
     req: PatchRequest<{

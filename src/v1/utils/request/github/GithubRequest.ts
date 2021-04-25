@@ -1,5 +1,5 @@
 import { ax } from "../../Axios";
-import { Github } from "../../../../Constants";
+import { Github } from "../../../../constants/Process";
 
 export const getGithubAccessToken = async (code: string, authUUID: string): Promise<string> => {
     const response = await ax.post<AccessToken | RequestFailed>(

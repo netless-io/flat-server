@@ -1,4 +1,4 @@
-import { DocsType, Week } from "./Constants";
+import { DocsType, Week } from "../../../model/room/Constants";
 
 export interface Docs {
     type: DocsType;

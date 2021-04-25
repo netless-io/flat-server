@@ -1,9 +1,9 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
 import { getConnection } from "typeorm";
-import { Status } from "../../../../Constants";
-import { PeriodicStatus, RoomStatus } from "../Constants";
+import { Status } from "../../../../constants/Project";
+import { PeriodicStatus, RoomStatus } from "../../../../model/room/Constants";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../dao";
+import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../../dao";
 import { roomIsRunning } from "../utils/Room";
 
 export const started = async (

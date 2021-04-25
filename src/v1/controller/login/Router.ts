@@ -12,10 +12,10 @@ import {
 } from "./github/Callback";
 import { setAuthUUID, setAuthUUIDSchemaType } from "./SetAuthUUID";
 import { login, loginSchemaType } from "./Login";
-import { FastifyRoutes } from "../../types/Server";
+import { FastifyRoutes } from "../../../types/Server";
 import { loginProcess, loginProcessSchemaType } from "./Process";
 
-export const httpLogin: Readonly<FastifyRoutes[]> = Object.freeze([
+export const loginRouters: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
         method: "post",
         path: "login/set-auth-uuid",

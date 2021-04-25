@@ -1,5 +1,5 @@
-import { FastifySchema, PatchRequest } from "../../../../types/Server";
-import redisService from "../../../../thirdPartyService/RedisService";
+import { FastifySchema, PatchRequest } from "../../../../../types/Server";
+import redisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { FastifyReply } from "fastify";
 import { registerOrLoginWechat } from "../Utils";

@@ -1,8 +1,9 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { Agora, Status } from "../../../../Constants";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Agora } from "../../../../constants/Process";
+import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO, RoomRecordDAO, RoomUserDAO } from "../../../dao";
-import { RoomStatus, RoomType } from "../Constants";
+import { RoomDAO, RoomRecordDAO, RoomUserDAO } from "../../../../dao";
+import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
 import { getRTMToken } from "../../../utils/AgoraToken";
 

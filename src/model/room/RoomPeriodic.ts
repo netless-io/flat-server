@@ -1,6 +1,6 @@
 import { Column, Entity, Index } from "typeorm";
 import { Content } from "../Content";
-import { RoomStatus } from "../../controller/room/Constants";
+import { RoomStatus } from "./Constants";
 
 @Entity({
     name: "room_periodic",

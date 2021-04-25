@@ -1,4 +1,4 @@
-import { FastifyRoutes } from "../../types/Server";
+import { FastifyRoutes } from "../../../types/Server";
 import { fileConvertStart, fileConvertStartSchemaType } from "./convert/Start";
 import { cloudStorageList, cloudStorageListSchemaType } from "./list";
 import { alibabaCloudRename, cloudStorageRenameSchemaType } from "./alibabaCloud/rename";
@@ -14,7 +14,7 @@ import { fileConvertFinish, fileConvertFinishSchemaType } from "./convert/Finish
 import { alibabaCloudRemoveFile, alibabaCloudRemoveFileSchemaType } from "./alibabaCloud/remove";
 import { uploadCancel, uploadCancelSchemaType } from "./upload/cancel";
 
-export const httpCloudStorage: Readonly<FastifyRoutes[]> = Object.freeze([
+export const cloudStorageRouters: Readonly<FastifyRoutes[]> = Object.freeze([
     Object.freeze({
         method: "post",
         path: "cloud-storage/alibaba-cloud/upload/start",

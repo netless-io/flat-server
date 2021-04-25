@@ -1,14 +1,12 @@
-import redisService from "../../thirdPartyService/RedisService";
-import { Status } from "../../../Constants";
-import { renewAccessToken } from "../../utils/request/wechat/WeChatURL";
-import { wechatRequest } from "../../utils/request/wechat/WeChatRequest";
-import { RefreshToken } from "../../types/WeChatResponse";
-import { FastifySchema, PatchRequest, Response } from "../../types/Server";
+import redisService from "../../../thirdPartyService/RedisService";
+import { Status } from "../../../constants/Project";
+import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
 import { RedisKey } from "../../../utils/Redis";
 import { ErrorCode } from "../../../ErrorCode";
-import { UserDAO, UserGithubDAO, UserWeChatDAO } from "../../dao";
-import { LoginPlatform } from "../../Constants";
+import { UserDAO, UserGithubDAO, UserWeChatDAO } from "../../../dao";
+import { LoginPlatform } from "../../../constants/Project";
 import { getGithubUserInfo } from "../../utils/request/github/GithubRequest";
+import { weChatRenewAccessToken } from "../../utils/request/wechat/WeChatRequest";
 
 export const login = async (
     req: PatchRequest<{
@@ -51,11 +49,7 @@ export const login = async (
                         code: ErrorCode.NeedLoginAgain,
                     };
                 }
-                const renewAccessTokenURL = renewAccessToken(
-                    refreshToken,
-                    type.toUpperCase() as any,
-                );
-                await wechatRequest<RefreshToken>(renewAccessTokenURL);
+                await weChatRenewAccessToken(refreshToken, type.toUpperCase() as any);
 
                 return {
                     status: Status.Success,

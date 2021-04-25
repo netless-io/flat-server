@@ -10,7 +10,7 @@ import {
     TokenPrefix,
     TokenRole,
 } from "../../src/utils/NetlessToken";
-import { Netless } from "../../src/Constants";
+import { Netless } from "../../src/constants/Process";
 
 describe("NetlessToken Utils", () => {
     it("createWhiteboardSDKToken", () => {

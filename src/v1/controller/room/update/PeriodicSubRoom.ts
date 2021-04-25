@@ -1,8 +1,8 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../dao";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../../dao";
 import { ErrorCode } from "../../../../ErrorCode";
-import { Status } from "../../../../Constants";
-import { RoomStatus } from "../Constants";
+import { Status } from "../../../../constants/Project";
+import { RoomStatus } from "../../../../model/room/Constants";
 import { getConnection, LessThan, MoreThan } from "typeorm";
 import { compareDesc, toDate } from "date-fns/fp";
 import {

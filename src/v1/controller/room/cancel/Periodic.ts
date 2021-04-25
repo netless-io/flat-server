@@ -1,15 +1,15 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { Status } from "../../../../Constants";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { getConnection, In, Not } from "typeorm";
-import { RoomStatus } from "../Constants";
+import { RoomStatus } from "../../../../model/room/Constants";
 import {
     RoomDAO,
     RoomPeriodicConfigDAO,
     RoomPeriodicDAO,
     RoomPeriodicUserDAO,
     RoomUserDAO,
-} from "../../../dao";
+} from "../../../../dao";
 import { roomIsRunning } from "../utils/Room";
 
 export const cancelPeriodic = async (

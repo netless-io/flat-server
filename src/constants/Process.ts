@@ -1,4 +1,4 @@
-import packages from "../package.json";
+import packages from "../../package.json";
 
 export const isDev = process.env.NODE_ENV === "development";
 
@@ -85,11 +85,3 @@ export const AlibabaCloud = {
     OSS_BUCKET: process.env.ALIBABA_CLOUD_OSS_BUCKET,
     OSS_REGION: process.env.ALIBABA_CLOUD_OSS_REGION,
 };
-
-export enum Status {
-    NoLogin = -1,
-    Success,
-    Failed,
-    Process,
-    AuthFailed,
-}

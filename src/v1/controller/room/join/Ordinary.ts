@@ -1,12 +1,12 @@
 import cryptoRandomString from "crypto-random-string";
-import { Status } from "../../../../Constants";
+import { Status } from "../../../../constants/Project";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
-import { RoomStatus } from "../Constants";
+import { RoomStatus } from "../../../../model/room/Constants";
 import { JoinResponse } from "./Type";
 import { getRTCToken, getRTMToken } from "../../../utils/AgoraToken";
 import { ErrorCode } from "../../../../ErrorCode";
-import { Response } from "../../../types/Server";
-import { RoomDAO, RoomUserDAO } from "../../../dao";
+import { Response } from "../../../../types/Server";
+import { RoomDAO, RoomUserDAO } from "../../../../dao";
 
 export const joinOrdinary = async (roomUUID: string, userUUID: string): Response<JoinResponse> => {
     const roomInfo = await RoomDAO().findOne(

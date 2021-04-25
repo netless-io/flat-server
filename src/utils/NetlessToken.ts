@@ -4,7 +4,7 @@
 
 import { createHmac } from "crypto";
 import { v1 as uuidv1 } from "uuid";
-import { Netless } from "../Constants";
+import { Netless } from "../constants/Process";
 
 export enum TokenRole {
     Admin = "0",

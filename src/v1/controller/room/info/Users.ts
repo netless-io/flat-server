@@ -1,10 +1,10 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
 import { createQueryBuilder } from "typeorm";
-import { Status } from "../../../../Constants";
+import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomUserDAO } from "../../../dao";
-import { RoomUserModel } from "../../../model/room/RoomUser";
-import { UserModel } from "../../../model/user/User";
+import { RoomUserDAO } from "../../../../dao";
+import { RoomUserModel } from "../../../../model/room/RoomUser";
+import { UserModel } from "../../../../model/user/User";
 
 export const userInfo = async (
     req: PatchRequest<{

@@ -1,6 +1,6 @@
 import { Column, Entity, Index } from "typeorm";
 import { Content } from "../Content";
-import { Gender } from "../../types/Gender";
+import { Gender } from "../../constants/Project";
 
 @Entity({
     name: "users",

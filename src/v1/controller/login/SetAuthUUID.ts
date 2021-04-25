@@ -1,7 +1,7 @@
-import { FastifySchema, PatchRequest, Response } from "../../types/Server";
-import redisService from "../../thirdPartyService/RedisService";
+import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import redisService from "../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../utils/Redis";
-import { Status } from "../../../Constants";
+import { Status } from "../../../constants/Project";
 import { ErrorCode } from "../../../ErrorCode";
 
 export const setAuthUUID = async (

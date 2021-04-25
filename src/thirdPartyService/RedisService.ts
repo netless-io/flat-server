@@ -1,5 +1,5 @@
 import IORedis from "ioredis";
-import { Redis } from "../../Constants";
+import { Redis } from "../constants/Process";
 
 class RedisService {
     private readonly client: IORedis.Redis;

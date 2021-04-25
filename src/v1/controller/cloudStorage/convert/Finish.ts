@@ -1,9 +1,9 @@
-import { Status } from "../../../../Constants";
+import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
-import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../dao";
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
-import { whiteboardQueryConversionTask } from "../../../utils/request/whiteboard/Whiteboard";
-import { FileConvertStep } from "../Constants";
+import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { whiteboardQueryConversionTask } from "../../../utils/request/whiteboard/WhiteboardRequest";
+import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
 import { determineType, isConvertDone, isConvertFailed } from "./Utils";
 
 export const fileConvertFinish = async (

@@ -1,8 +1,8 @@
-import { Status } from "../../../../Constants";
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import { Status } from "../../../../constants/Project";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
 import { getRTCToken } from "../../../utils/AgoraToken";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomUserDAO } from "../../../dao";
+import { RoomUserDAO } from "../../../../dao";
 
 export const generateRTC = async (
     req: PatchRequest<{

@@ -1,9 +1,10 @@
 import fp from "fastify-plugin";
 import jwt from "fastify-jwt";
-import { JWT, Server, Status } from "../../Constants";
+import { JWT, Server } from "../constants/Process";
+import { Status } from "../constants/Project";
 import { Algorithm } from "jsonwebtoken";
 import { FastifyReply, FastifyRequest } from "fastify";
-import { ErrorCode } from "../../ErrorCode";
+import { ErrorCode } from "../ErrorCode";
 
 export default fp(
     async (fastify): Promise<void> => {

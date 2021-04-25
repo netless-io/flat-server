@@ -1,10 +1,10 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
 import { getConnection } from "typeorm";
-import { Status } from "../../../../Constants";
-import { RoomStatus } from "../Constants";
-import { whiteboardBanRoom } from "../../../utils/request/whiteboard/Whiteboard";
+import { Status } from "../../../../constants/Project";
+import { RoomStatus } from "../../../../model/room/Constants";
+import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO, RoomUserDAO } from "../../../dao";
+import { RoomDAO, RoomUserDAO } from "../../../../dao";
 import { roomIsRunning } from "../utils/Room";
 
 export const cancelOrdinary = async (

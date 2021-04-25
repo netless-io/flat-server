@@ -1,8 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { JSONSchemaType } from "ajv/dist/types/json-schema";
-import { Status } from "../../Constants";
-import { ErrorCode } from "../../ErrorCode";
-import { LoginPlatform } from "../Constants";
+import { Status } from "../constants/Project";
+import { ErrorCode } from "../ErrorCode";
+import { LoginPlatform } from "../constants/Project";
 
 export interface PatchRequest<T = any> extends FastifyRequest<T> {
     user: {

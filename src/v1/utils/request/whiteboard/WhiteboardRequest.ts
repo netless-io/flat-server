@@ -1,5 +1,4 @@
 import { ax } from "../../Axios";
-import { shuntConversionTaskURL, shuntCreateRoomURL } from "./WhiteboardURL";
 import { createWhiteboardSDKToken } from "../../../../utils/NetlessToken";
 import { AxiosResponse } from "axios";
 
@@ -12,7 +11,7 @@ export const whiteboardCreateRoom = async (limit = 0): Promise<string> => {
     const {
         data: { uuid },
     } = await ax.post<Room>(
-        shuntCreateRoomURL,
+        "https://api.netless.link/v5/rooms",
         {
             isRecord: true,
             limit,
@@ -30,7 +29,7 @@ export const whiteboardCreateRoom = async (limit = 0): Promise<string> => {
 
 export const whiteboardBanRoom = async (uuid: string): Promise<AxiosResponse<Room>> => {
     return await ax.patch<Room>(
-        `${shuntCreateRoomURL}/${uuid}`,
+        `https://api.netless.link/v5/rooms/${uuid}`,
         {
             isBan: true,
         },
@@ -46,24 +45,31 @@ export const whiteboardBanRoom = async (uuid: string): Promise<AxiosResponse<Roo
 export const whiteboardCreateConversionTask = async (
     body: CreateConversionTaskParams,
 ): Promise<AxiosResponse<TaskCreated>> => {
-    return await ax.post<TaskCreated>(shuntConversionTaskURL, body, {
-        headers: {
-            token: createWhiteboardSDKToken(),
-            // TODO region: 'cn-hz',
+    return await ax.post<TaskCreated>(
+        "https://api.netless.link/v5/services/conversion/tasks",
+        body,
+        {
+            headers: {
+                token: createWhiteboardSDKToken(),
+                // TODO region: 'cn-hz',
+            },
         },
-    });
+    );
 };
 
 export const whiteboardQueryConversionTask = async (
     uuid: string,
     type: "static" | "dynamic",
 ): Promise<AxiosResponse<TaskStatus>> => {
-    return await ax.get<TaskStatus>(`${shuntConversionTaskURL}/${uuid}?type=${type}`, {
-        headers: {
-            token: createWhiteboardSDKToken(),
-            // TODO region: 'cn-hz',
+    return await ax.get<TaskStatus>(
+        `https://api.netless.link/v5/services/conversion/tasks/${uuid}?type=${type}`,
+        {
+            headers: {
+                token: createWhiteboardSDKToken(),
+                // TODO region: 'cn-hz',
+            },
         },
-    });
+    );
 };
 
 type CreateConversionTaskParams =

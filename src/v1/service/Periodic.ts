@@ -1,9 +1,9 @@
-import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
-import { RoomDAO, RoomPeriodicDAO, RoomPeriodicUserDAO, RoomUserDAO } from "../dao";
-import { RoomStatus, RoomType } from "../controller/room/Constants";
+import { RoomPeriodicModel } from "../../model/room/RoomPeriodic";
+import { RoomDAO, RoomPeriodicDAO, RoomPeriodicUserDAO, RoomUserDAO } from "../../dao";
+import { RoomStatus, RoomType } from "../../model/room/Constants";
 import { MoreThan } from "typeorm";
 import { EntityManager } from "typeorm/entity-manager/EntityManager";
-import { whiteboardCreateRoom } from "../utils/request/whiteboard/Whiteboard";
+import { whiteboardCreateRoom } from "../utils/request/whiteboard/WhiteboardRequest";
 import cryptoRandomString from "crypto-random-string";
 
 export const getNextPeriodicRoomInfo = async (
