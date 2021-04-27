@@ -7,7 +7,7 @@ import {
 } from "../../../../model/room/Constants";
 import { Periodic, Docs } from "../Types";
 import { Status } from "../../../../constants/Project";
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { v4 } from "uuid";
 import { differenceInCalendarDays, toDate } from "date-fns/fp";
 import { getConnection } from "typeorm";
@@ -24,12 +24,12 @@ import {
 } from "../../../../dao";
 import { calculatePeriodicDates } from "../utils/Periodic";
 import { checkBeginAndEndTime } from "../utils/CheckTime";
+import { parseError } from "../../../../Logger";
 
-export const createPeriodic = async (
-    req: PatchRequest<{
-        Body: CreatePeriodicBody;
-    }>,
-): Response<CreatePeriodicResponse> => {
+export const createPeriodic: Controller<CreatePeriodicRequest, CreatePeriodicResponse> = async ({
+    req,
+    logger,
+}) => {
     const { title, type, beginTime, endTime, periodic, docs } = req.body;
     const { userUUID } = req.user;
 
@@ -142,8 +142,8 @@ export const createPeriodic = async (
             status: Status.Success,
             data: {},
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -151,18 +151,18 @@ export const createPeriodic = async (
     }
 };
 
-interface CreatePeriodicBody {
-    title: string;
-    type: RoomType;
-    beginTime: number;
-    endTime: number;
-    periodic: Periodic;
-    docs?: Docs[];
+interface CreatePeriodicRequest {
+    body: {
+        title: string;
+        type: RoomType;
+        beginTime: number;
+        endTime: number;
+        periodic: Periodic;
+        docs?: Docs[];
+    };
 }
 
-export const createPeriodicSchemaType: FastifySchema<{
-    body: CreatePeriodicBody;
-}> = {
+export const createPeriodicSchemaType: FastifySchema<CreatePeriodicRequest> = {
     body: {
         type: "object",
         required: ["title", "type", "beginTime", "endTime", "periodic"],

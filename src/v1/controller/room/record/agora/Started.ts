@@ -1,4 +1,4 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../../types/Server";
 import { Agora } from "../../../../../constants/Process";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
@@ -12,12 +12,12 @@ import {
 import { agoraCloudRecordStartedRequest } from "../../../../utils/request/agora/Agora";
 import { getConnection } from "typeorm";
 import { getCloudRecordData } from "../../utils/Agora";
+import { parseError } from "../../../../../Logger";
 
-export const recordAgoraStarted = async (
-    req: PatchRequest<{
-        Body: RecordAgoraStartedBody;
-    }>,
-): Response<AgoraCloudRecordStartedResponse> => {
+export const recordAgoraStarted: Controller<
+    RecordAgoraStartedRequest,
+    AgoraCloudRecordStartedResponse
+> = async ({ req, logger }) => {
     const { roomUUID, agoraParams, agoraData } = req.body;
     const { userUUID } = req.user;
 
@@ -76,8 +76,8 @@ export const recordAgoraStarted = async (
             // @ts-ignore
             data: agoraResponse,
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -85,15 +85,15 @@ export const recordAgoraStarted = async (
     }
 };
 
-interface RecordAgoraStartedBody {
-    roomUUID: string;
-    agoraParams: AgoraCloudRecordParamsBaseType;
-    agoraData: AgoraCloudRecordStartedRequestBody;
+interface RecordAgoraStartedRequest {
+    body: {
+        roomUUID: string;
+        agoraParams: AgoraCloudRecordParamsBaseType;
+        agoraData: AgoraCloudRecordStartedRequestBody;
+    };
 }
 
-export const recordAgoraStartedSchemaType: FastifySchema<{
-    body: RecordAgoraStartedBody;
-}> = {
+export const recordAgoraStartedSchemaType: FastifySchema<RecordAgoraStartedRequest> = {
     body: {
         type: "object",
         required: ["roomUUID", "agoraParams", "agoraData"],

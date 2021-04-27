@@ -4,19 +4,19 @@ import {
     CloudStorageFilesDAO,
     CloudStorageUserFilesDAO,
 } from "../../../../../dao";
-import { FastifySchema, PatchRequest, Response } from "../../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../../types/Server";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { checkTotalUsage } from "./Utils";
 import { getFilePath, isExistObject, getOSSFileURLPath } from "../Utils";
+import { parseError } from "../../../../../Logger";
 
-export const alibabaCloudUploadFinish = async (
-    req: PatchRequest<{
-        Body: AlibabaCloudUploadFinishBody;
-    }>,
-): Response<AlibabaCloudUploadFinishResponse> => {
+export const alibabaCloudUploadFinish: Controller<
+    AlibabaCloudUploadFinishRequest,
+    AlibabaCloudUploadFinishResponse
+> = async ({ req, logger }) => {
     const { fileUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -96,7 +96,7 @@ export const alibabaCloudUploadFinish = async (
             data: {},
         };
     } catch (err) {
-        console.error(err);
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -104,13 +104,13 @@ export const alibabaCloudUploadFinish = async (
     }
 };
 
-interface AlibabaCloudUploadFinishBody {
-    fileUUID: string;
+interface AlibabaCloudUploadFinishRequest {
+    body: {
+        fileUUID: string;
+    };
 }
 
-export const alibabaCloudUploadFinishSchemaType: FastifySchema<{
-    body: AlibabaCloudUploadFinishBody;
-}> = {
+export const alibabaCloudUploadFinishSchemaType: FastifySchema<AlibabaCloudUploadFinishRequest> = {
     body: {
         type: "object",
         required: ["fileUUID"],

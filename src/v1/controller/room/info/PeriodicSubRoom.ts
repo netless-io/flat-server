@@ -1,4 +1,4 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { DocsType, RoomStatus, RoomType } from "../../../../model/room/Constants";
@@ -9,12 +9,12 @@ import {
     RoomPeriodicUserDAO,
 } from "../../../../dao";
 import { LessThan, MoreThan, Not } from "typeorm";
+import { parseError } from "../../../../Logger";
 
-export const periodicSubRoomInfo = async (
-    req: PatchRequest<{
-        Body: PeriodicSubRoomInfoBody;
-    }>,
-): Response<PeriodicSubRoomInfoResponse> => {
+export const periodicSubRoomInfo: Controller<
+    PeriodicSubRoomInfoRequest,
+    PeriodicSubRoomInfoResponse
+> = async ({ req, logger }) => {
     const { periodicUUID, roomUUID, needOtherRoomTimeInfo } = req.body;
     const { userUUID } = req.user;
 
@@ -137,8 +137,8 @@ export const periodicSubRoomInfo = async (
                 docs,
             },
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -146,15 +146,15 @@ export const periodicSubRoomInfo = async (
     }
 };
 
-interface PeriodicSubRoomInfoBody {
-    roomUUID: string;
-    periodicUUID: string;
-    needOtherRoomTimeInfo?: boolean;
+interface PeriodicSubRoomInfoRequest {
+    body: {
+        roomUUID: string;
+        periodicUUID: string;
+        needOtherRoomTimeInfo?: boolean;
+    };
 }
 
-export const periodicSubRoomInfoSchemaType: FastifySchema<{
-    body: PeriodicSubRoomInfoBody;
-}> = {
+export const periodicSubRoomInfoSchemaType: FastifySchema<PeriodicSubRoomInfoRequest> = {
     body: {
         type: "object",
         required: ["roomUUID", "periodicUUID"],

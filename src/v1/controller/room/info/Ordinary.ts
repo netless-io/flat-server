@@ -1,14 +1,14 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { DocsType, RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { RoomDAO, RoomDocDAO, RoomUserDAO, UserDAO } from "../../../../dao";
+import { parseError } from "../../../../Logger";
 
-export const ordinaryInfo = async (
-    req: PatchRequest<{
-        Body: OrdinaryInfoBody;
-    }>,
-): Response<OrdinaryInfoResponse> => {
+export const ordinaryInfo: Controller<OrdinaryInfoRequest, OrdinaryInfoResponse> = async ({
+    req,
+    logger,
+}) => {
     const { roomUUID, needDocs } = req.body;
     const { userUUID } = req.user;
 
@@ -81,8 +81,8 @@ export const ordinaryInfo = async (
                 docs,
             },
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -90,14 +90,14 @@ export const ordinaryInfo = async (
     }
 };
 
-interface OrdinaryInfoBody {
-    roomUUID: string;
-    needDocs: boolean;
+interface OrdinaryInfoRequest {
+    body: {
+        roomUUID: string;
+        needDocs: boolean;
+    };
 }
 
-export const OrdinaryInfoSchemaType: FastifySchema<{
-    body: OrdinaryInfoBody;
-}> = {
+export const OrdinaryInfoSchemaType: FastifySchema<OrdinaryInfoRequest> = {
     body: {
         type: "object",
         required: ["roomUUID"],

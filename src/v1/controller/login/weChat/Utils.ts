@@ -12,17 +12,21 @@ import {
     getWeChatAccessToken,
     getWeChatUserInfo,
 } from "../../../utils/request/wechat/WeChatRequest";
+import { Logger } from "winston";
+import { loggerAPI, parseError } from "../../../../Logger";
 
 export const registerOrLoginWechat = async (
     code: string,
     authUUID: string,
     type: "WEB" | "MOBILE",
+    logger: Logger,
     reply: FastifyReply,
 ): Response<WeChatResponse> => {
     const result = await redisService.get(RedisKey.authUUID(authUUID));
 
     if (result === null) {
-        console.error(`uuid verification failed, current code: ${code}, current uuid: ${authUUID}`);
+        logger.warn("uuid verification failed");
+
         await redisService.set(RedisKey.authFailed(authUUID), "", 60 * 60);
 
         return {
@@ -43,29 +47,24 @@ export const registerOrLoginWechat = async (
     if (getUserInfoByUserWeChat === undefined) {
         userUUID = v4();
 
-        await getConnection()
-            .transaction(async t => {
-                const createUser = UserDAO(t).insert({
-                    user_name: weChatUserInfo.nickname,
-                    user_uuid: userUUID,
-                    // TODO need upload headimgurl to remote oss server
-                    avatar_url: weChatUserInfo.headimgurl,
-                    user_password: "",
-                });
-
-                const createUserWeChat = UserWeChatDAO(t).insert({
-                    user_uuid: userUUID,
-                    open_uuid: weChatUserInfo.openid,
-                    union_uuid: weChatUserInfo.unionid,
-                    user_name: weChatUserInfo.nickname,
-                });
-
-                return await Promise.all([createUser, createUserWeChat]);
-            })
-            .catch(e => {
-                console.error(e);
-                throw new Error("Failed to create user");
+        await getConnection().transaction(async t => {
+            const createUser = UserDAO(t).insert({
+                user_name: weChatUserInfo.nickname,
+                user_uuid: userUUID,
+                // TODO need upload headimgurl to remote oss server
+                avatar_url: weChatUserInfo.headimgurl,
+                user_password: "",
             });
+
+            const createUserWeChat = UserWeChatDAO(t).insert({
+                user_uuid: userUUID,
+                open_uuid: weChatUserInfo.openid,
+                union_uuid: weChatUserInfo.unionid,
+                user_name: weChatUserInfo.nickname,
+            });
+
+            return await Promise.all([createUser, createUserWeChat]);
+        });
     } else {
         const { user_name } = getUserInfoByUserWeChat;
         userUUID = getUserInfoByUserWeChat.user_uuid;
@@ -81,9 +80,8 @@ export const registerOrLoginWechat = async (
                         user_uuid: userUUID,
                     },
                 )
-                .catch(e => {
-                    console.error(e);
-                    console.error("update wechat nickname failed");
+                .catch(err => {
+                    loggerAPI.warn("update wechat nickname failed", parseError(err));
                 });
         }
     }

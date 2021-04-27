@@ -1,16 +1,13 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { getConnection } from "typeorm";
 import { Status } from "../../../../constants/Project";
 import { PeriodicStatus, RoomStatus } from "../../../../model/room/Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../../dao";
 import { roomIsRunning } from "../utils/Room";
+import { parseError } from "../../../../Logger";
 
-export const started = async (
-    req: PatchRequest<{
-        Body: StartedBody;
-    }>,
-): Response<StartedResponse> => {
+export const started: Controller<StartedRequest, StartedResponse> = async ({ req, logger }) => {
     const { roomUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -92,8 +89,8 @@ export const started = async (
             status: Status.Success,
             data: {},
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -101,13 +98,13 @@ export const started = async (
     }
 };
 
-interface StartedBody {
-    roomUUID: string;
+interface StartedRequest {
+    body: {
+        roomUUID: string;
+    };
 }
 
-export const startedSchemaType: FastifySchema<{
-    body: StartedBody;
-}> = {
+export const startedSchemaType: FastifySchema<StartedRequest> = {
     body: {
         type: "object",
         required: ["roomUUID"],

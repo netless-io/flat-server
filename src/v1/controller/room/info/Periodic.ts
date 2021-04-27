@@ -1,4 +1,4 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { In, Not } from "typeorm";
 import { Status } from "../../../../constants/Project";
 import { PeriodicStatus, RoomStatus, Week } from "../../../../model/room/Constants";
@@ -9,12 +9,12 @@ import {
     RoomPeriodicUserDAO,
     UserDAO,
 } from "../../../../dao";
+import { parseError } from "../../../../Logger";
 
-export const periodicInfo = async (
-    req: PatchRequest<{
-        Body: PeriodicInfoBody;
-    }>,
-): Response<PeriodicInfoResponse> => {
+export const periodicInfo: Controller<PeriodicInfoRequest, PeriodicInfoResponse> = async ({
+    req,
+    logger,
+}) => {
     const { periodicUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -111,8 +111,8 @@ export const periodicInfo = async (
                 }),
             },
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -120,13 +120,13 @@ export const periodicInfo = async (
     }
 };
 
-interface PeriodicInfoBody {
-    periodicUUID: string;
+interface PeriodicInfoRequest {
+    body: {
+        periodicUUID: string;
+    };
 }
 
-export const periodicInfoSchemaType: FastifySchema<{
-    body: PeriodicInfoBody;
-}> = {
+export const periodicInfoSchemaType: FastifySchema<PeriodicInfoRequest> = {
     body: {
         type: "object",
         required: ["periodicUUID"],

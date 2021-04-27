@@ -8,6 +8,7 @@ import jwtVerify from "./plugins/JWT";
 import { ajvSelfPlugin } from "./plugins/Ajv";
 import { orm } from "./thirdPartyService/TypeORMService";
 import { ErrorCode } from "./ErrorCode";
+import { loggerServer, parseError } from "./Logger";
 
 const app = fastify({
     caseSensitive: true,
@@ -16,15 +17,16 @@ const app = fastify({
     },
 });
 
-app.setErrorHandler((error, _request, reply) => {
-    if (error.validation) {
+app.setErrorHandler((err, _request, reply) => {
+    if (err.validation) {
         void reply.status(200).send({
             status: Status.Failed,
             code: ErrorCode.ParamsCheckFailed,
         });
     }
 
-    console.error(error);
+    loggerServer.error("request unexpected interruption", parseError(err));
+
     void reply.status(500).send({
         status: Status.Failed,
         code: ErrorCode.ServerFail,
@@ -48,9 +50,10 @@ app.get("/health-check", async (_req, reply) => {
 void orm.then(() => {
     app.listen(Server.PORT, "0.0.0.0", (err, address) => {
         if (err) {
-            console.error(err);
+            loggerServer.error("server launch failed", parseError(err));
             process.exit(1);
         }
-        console.log("ready on %s", address);
+
+        loggerServer.info(`server launch success, ${address}`);
     });
 });

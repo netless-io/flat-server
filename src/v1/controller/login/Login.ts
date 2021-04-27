@@ -1,18 +1,15 @@
 import redisService from "../../../thirdPartyService/RedisService";
 import { Status } from "../../../constants/Project";
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import { Controller, FastifySchema } from "../../../types/Server";
 import { RedisKey } from "../../../utils/Redis";
 import { ErrorCode } from "../../../ErrorCode";
 import { UserDAO, UserGithubDAO, UserWeChatDAO } from "../../../dao";
 import { LoginPlatform } from "../../../constants/Project";
 import { getGithubUserInfo } from "../../utils/request/github/GithubRequest";
 import { weChatRenewAccessToken } from "../../utils/request/wechat/WeChatRequest";
+import { parseError } from "../../../Logger";
 
-export const login = async (
-    req: PatchRequest<{
-        Body: LoginBody;
-    }>,
-): Response<LoginResponse> => {
+export const login: Controller<LoginRequest, LoginResponse> = async ({ req, logger }) => {
     const { userUUID, loginSource } = req.user;
     const { type } = req.body;
 
@@ -99,8 +96,8 @@ export const login = async (
             status: Status.AuthFailed,
             code: ErrorCode.UnsupportedPlatform,
         };
-    } catch (e: unknown) {
-        console.error((e as Error).message);
+    } catch (err: unknown) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.AuthFailed,
             code: ErrorCode.ServerFail,
@@ -108,13 +105,13 @@ export const login = async (
     }
 };
 
-interface LoginBody {
-    type: "web" | "mobile";
+interface LoginRequest {
+    body: {
+        type: "web" | "mobile";
+    };
 }
 
-export const loginSchemaType: FastifySchema<{
-    body: LoginBody;
-}> = {
+export const loginSchemaType: FastifySchema<LoginRequest> = {
     body: {
         type: "object",
         required: ["type"],

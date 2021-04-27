@@ -1,38 +1,46 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import { Controller, FastifySchema } from "../../../types/Server";
 import redisService from "../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../utils/Redis";
 import { Status } from "../../../constants/Project";
 import { ErrorCode } from "../../../ErrorCode";
+import { parseError } from "../../../Logger";
 
-export const setAuthUUID = async (
-    req: PatchRequest<{
-        Body: SetAuthUUIDBody;
-    }>,
-): Response<SetAuthUUIDResponse> => {
-    const { authUUID } = req.body;
+export const setAuthUUID: Controller<SetAuthUUIDRequest, SetAuthUUIDResponse> = async ({
+    req,
+    logger,
+}) => {
+    try {
+        const { authUUID } = req.body;
 
-    const result = await redisService.set(RedisKey.authUUID(authUUID), "", 60 * 60);
+        const result = await redisService.set(RedisKey.authUUID(authUUID), "", 60 * 60);
 
-    if (result === null) {
+        if (result === null) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.ServerFail,
+            };
+        } else {
+            return {
+                status: Status.Success,
+                data: {},
+            };
+        }
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
-            code: ErrorCode.ServerFail,
-        };
-    } else {
-        return {
-            status: Status.Success,
-            data: {},
+            code: ErrorCode.CurrentProcessFailed,
         };
     }
 };
 
-interface SetAuthUUIDBody {
-    authUUID: string;
+interface SetAuthUUIDRequest {
+    body: {
+        authUUID: string;
+    };
 }
 
-export const setAuthUUIDSchemaType: FastifySchema<{
-    body: SetAuthUUIDBody;
-}> = {
+export const setAuthUUIDSchemaType: FastifySchema<SetAuthUUIDRequest> = {
     body: {
         type: "object",
         required: ["authUUID"],

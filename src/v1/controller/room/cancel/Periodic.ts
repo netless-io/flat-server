@@ -1,4 +1,4 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { getConnection, In, Not } from "typeorm";
@@ -11,12 +11,12 @@ import {
     RoomUserDAO,
 } from "../../../../dao";
 import { roomIsRunning } from "../utils/Room";
+import { parseError } from "../../../../Logger";
 
-export const cancelPeriodic = async (
-    req: PatchRequest<{
-        Body: CancelPeriodicBody;
-    }>,
-): Response<CancelPeriodicResponse> => {
+export const cancelPeriodic: Controller<CancelPeriodicRequest, CancelPeriodicResponse> = async ({
+    req,
+    logger,
+}) => {
     const { periodicUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -113,8 +113,8 @@ export const cancelPeriodic = async (
             status: Status.Success,
             data: {},
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -122,13 +122,13 @@ export const cancelPeriodic = async (
     }
 };
 
-interface CancelPeriodicBody {
-    periodicUUID: string;
+interface CancelPeriodicRequest {
+    body: {
+        periodicUUID: string;
+    };
 }
 
-export const cancelPeriodicSchemaType: FastifySchema<{
-    body: CancelPeriodicBody;
-}> = {
+export const cancelPeriodicSchemaType: FastifySchema<CancelPeriodicRequest> = {
     body: {
         type: "object",
         required: ["periodicUUID"],

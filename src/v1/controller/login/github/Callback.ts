@@ -1,6 +1,4 @@
-import { PatchRequest } from "../../../../types/Server";
-import { FastifyReply } from "fastify";
-import { JSONSchemaType } from "ajv/dist/types/json-schema";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import redisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import {
@@ -11,13 +9,9 @@ import { UserDAO, UserGithubDAO } from "../../../../dao";
 import { v4 } from "uuid";
 import { getConnection } from "typeorm";
 import { LoginPlatform } from "../../../../constants/Project";
+import { parseError } from "../../../../Logger";
 
-export const callback = async (
-    req: PatchRequest<{
-        Querystring: CallbackQuery;
-    }>,
-    reply: FastifyReply,
-): Promise<void> => {
+export const callback: Controller<CallbackRequest, any> = async ({ req, logger }, reply) => {
     void reply.headers({
         "content-type": "text/html",
     });
@@ -28,9 +22,8 @@ export const callback = async (
         const checkAuthUUID = await redisService.get(RedisKey.authUUID(authUUID));
 
         if (checkAuthUUID === null) {
-            console.error(
-                `uuid verification failed, current code: ${code}, current uuid: ${authUUID}`,
-            );
+            logger.warn("uuid verification failed");
+
             await redisService.set(RedisKey.authFailed(authUUID), "", 60 * 60);
 
             return reply.send("Failed");
@@ -50,29 +43,24 @@ export const callback = async (
         if (getUserInfoByUserGithub === undefined) {
             userUUID = v4();
 
-            await getConnection()
-                .transaction(async t => {
-                    const createUser = UserDAO(t).insert({
-                        user_name,
-                        user_uuid: userUUID,
-                        // TODO need upload avatar_url to remote oss server
-                        avatar_url,
-                        user_password: "",
-                    });
-
-                    const createUserGithub = UserGithubDAO(t).insert({
-                        user_uuid: userUUID,
-                        union_uuid: String(union_uuid),
-                        access_token: accessToken,
-                        user_name,
-                    });
-
-                    return await Promise.all([createUser, createUserGithub]);
-                })
-                .catch(e => {
-                    console.error(e);
-                    throw new Error("Failed to create user");
+            await getConnection().transaction(async t => {
+                const createUser = UserDAO(t).insert({
+                    user_name,
+                    user_uuid: userUUID,
+                    // TODO need upload avatar_url to remote oss server
+                    avatar_url,
+                    user_password: "",
                 });
+
+                const createUserGithub = UserGithubDAO(t).insert({
+                    user_uuid: userUUID,
+                    union_uuid: String(union_uuid),
+                    access_token: accessToken,
+                    user_name,
+                });
+
+                return await Promise.all([createUser, createUserGithub]);
+            });
         }
 
         const getUserInfoByUser = await UserDAO().findOne(["user_name", "avatar_url"], {
@@ -97,29 +85,33 @@ export const callback = async (
             60 * 60,
         );
 
-        void reply.send("Success");
+        return reply.send("Success");
     } catch (err: unknown) {
-        console.error(err);
+        logger.error("request failed", parseError(err));
         await redisService.set(RedisKey.authFailed(authUUID), "", 60 * 60);
-        void reply.send("Failed");
+        return reply.send("Failed");
     }
 };
 
-interface CallbackQuery {
-    state: string;
-    code: string;
+interface CallbackRequest {
+    querystring: {
+        state: string;
+        code: string;
+    };
 }
 
-export const callbackSchemaType: JSONSchemaType<CallbackQuery> = {
-    type: "object",
-    required: ["state", "code"],
-    properties: {
-        state: {
-            type: "string",
-            format: "uuid-v4",
-        },
-        code: {
-            type: "string",
+export const callbackSchemaType: FastifySchema<CallbackRequest> = {
+    querystring: {
+        type: "object",
+        required: ["state", "code"],
+        properties: {
+            state: {
+                type: "string",
+                format: "uuid-v4",
+            },
+            code: {
+                type: "string",
+            },
         },
     },
 };

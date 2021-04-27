@@ -3,13 +3,13 @@ import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RedisKey } from "../../../../utils/Redis";
 import RedisService from "../../../../thirdPartyService/RedisService";
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
+import { parseError } from "../../../../Logger";
 
-export const uploadCancel = async (
-    req: PatchRequest<{
-        Body: UploadCancelBody;
-    }>,
-): Response<UploadCancelResponse> => {
+export const uploadCancel: Controller<UploadCancelRequest, UploadCancelResponse> = async ({
+    req,
+    logger,
+}) => {
     const { fileUUIDs } = req.body;
     const { userUUID } = req.user;
 
@@ -33,7 +33,7 @@ export const uploadCancel = async (
             data: {},
         };
     } catch (err) {
-        console.error(err);
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -41,13 +41,13 @@ export const uploadCancel = async (
     }
 };
 
-interface UploadCancelBody {
-    fileUUIDs?: string[];
+interface UploadCancelRequest {
+    body: {
+        fileUUIDs?: string[];
+    };
 }
 
-export const uploadCancelSchemaType: FastifySchema<{
-    body: UploadCancelBody;
-}> = {
+export const uploadCancelSchemaType: FastifySchema<UploadCancelRequest> = {
     body: {
         type: "object",
         required: [],

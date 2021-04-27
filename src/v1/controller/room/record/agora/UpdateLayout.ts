@@ -1,4 +1,4 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../../types/Server";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { RoomDAO } from "../../../../../dao";
@@ -10,12 +10,12 @@ import {
     AgoraCloudRecordUpdateLayoutResponse,
 } from "../../../../utils/request/agora/Types";
 import { getCloudRecordData } from "../../utils/Agora";
+import { parseError } from "../../../../../Logger";
 
-export const recordAgoraUpdateLayout = async (
-    req: PatchRequest<{
-        Body: RecordAgoraUpdateLayoutBody;
-    }>,
-): Response<AgoraCloudRecordUpdateLayoutResponse> => {
+export const recordAgoraUpdateLayout: Controller<
+    RecordAgoraUpdateLayoutRequest,
+    AgoraCloudRecordUpdateLayoutResponse
+> = async ({ req, logger }) => {
     const { roomUUID, agoraParams, agoraData } = req.body;
     const { userUUID } = req.user;
 
@@ -51,8 +51,8 @@ export const recordAgoraUpdateLayout = async (
             status: Status.Success,
             data: agoraResponse,
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -60,15 +60,15 @@ export const recordAgoraUpdateLayout = async (
     }
 };
 
-interface RecordAgoraUpdateLayoutBody {
-    roomUUID: string;
-    agoraParams: AgoraCloudRecordParamsType;
-    agoraData: AgoraCloudRecordUpdateLayoutRequestBody;
+interface RecordAgoraUpdateLayoutRequest {
+    body: {
+        roomUUID: string;
+        agoraParams: AgoraCloudRecordParamsType;
+        agoraData: AgoraCloudRecordUpdateLayoutRequestBody;
+    };
 }
 
-export const recordAgoraUpdateLayoutSchemaType: FastifySchema<{
-    body: RecordAgoraUpdateLayoutBody;
-}> = {
+export const recordAgoraUpdateLayoutSchemaType: FastifySchema<RecordAgoraUpdateLayoutRequest> = {
     body: {
         type: "object",
         required: ["roomUUID", "agoraParams", "agoraData"],

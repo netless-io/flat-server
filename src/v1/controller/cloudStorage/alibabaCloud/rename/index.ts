@@ -3,12 +3,14 @@ import { getConnection } from "typeorm";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../../dao";
-import { FastifySchema, PatchRequest, Response } from "../../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../../types/Server";
 import { getDisposition, getFilePath, ossClient } from "../Utils";
+import { parseError } from "../../../../../Logger";
 
-export const alibabaCloudRename = async (
-    req: PatchRequest<{ Body: AlibabaCloudRenameBody }>,
-): Response<AlibabaCloudRenameResponse> => {
+export const alibabaCloudRename: Controller<
+    AlibabaCloudRenameRequest,
+    AlibabaCloudRenameResponse
+> = async ({ req, logger }) => {
     const { fileUUID, fileName } = req.body;
     const { userUUID } = req.user;
 
@@ -64,7 +66,7 @@ export const alibabaCloudRename = async (
             data: {},
         };
     } catch (err) {
-        console.error(err);
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -72,14 +74,14 @@ export const alibabaCloudRename = async (
     }
 };
 
-interface AlibabaCloudRenameBody {
-    fileUUID: string;
-    fileName: string;
+interface AlibabaCloudRenameRequest {
+    body: {
+        fileUUID: string;
+        fileName: string;
+    };
 }
 
-export const cloudStorageRenameSchemaType: FastifySchema<{
-    body: AlibabaCloudRenameBody;
-}> = {
+export const cloudStorageRenameSchemaType: FastifySchema<AlibabaCloudRenameRequest> = {
     body: {
         type: "object",
         required: ["fileUUID", "fileName"],

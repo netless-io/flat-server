@@ -1,4 +1,4 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { Agora } from "../../../../constants/Process";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
@@ -7,11 +7,12 @@ import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
 import { getRTMToken } from "../../../utils/AgoraToken";
 
-export const recordInfo = async (
-    req: PatchRequest<{
-        Body: RecordInfoBody;
-    }>,
-): Response<RecordInfoResponse> => {
+import { parseError } from "../../../../Logger";
+
+export const recordInfo: Controller<RecordInfoRequest, RecordInfoResponse> = async ({
+    req,
+    logger,
+}) => {
     const { roomUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -90,8 +91,8 @@ export const recordInfo = async (
                 })),
             },
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -99,13 +100,13 @@ export const recordInfo = async (
     }
 };
 
-interface RecordInfoBody {
-    roomUUID: string;
+interface RecordInfoRequest {
+    body: {
+        roomUUID: string;
+    };
 }
 
-export const recordInfoSchemaType: FastifySchema<{
-    body: RecordInfoBody;
-}> = {
+export const recordInfoSchemaType: FastifySchema<RecordInfoRequest> = {
     body: {
         type: "object",
         required: ["roomUUID"],

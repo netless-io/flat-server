@@ -1,14 +1,14 @@
-import { FastifySchema, PatchRequest, Response } from "../../../types/Server";
+import { Controller, FastifySchema } from "../../../types/Server";
 import RedisService from "../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../utils/Redis";
 import { Status } from "../../../constants/Project";
 import { ErrorCode } from "../../../ErrorCode";
+import { parseError } from "../../../Logger";
 
-export const loginProcess = async (
-    req: PatchRequest<{
-        Body: LoginProcessBody;
-    }>,
-): Response<LoginProcessResponse> => {
+export const loginProcess: Controller<LoginProcessRequest, LoginProcessResponse> = async ({
+    req,
+    logger,
+}) => {
     const { authUUID } = req.body;
 
     try {
@@ -49,7 +49,7 @@ export const loginProcess = async (
             data: JSON.parse(userInfo),
         };
     } catch (err) {
-        console.error(err);
+        logger.error("request failed", parseError(err));
 
         return {
             status: Status.Failed,
@@ -58,13 +58,13 @@ export const loginProcess = async (
     }
 };
 
-interface LoginProcessBody {
-    authUUID: string;
+interface LoginProcessRequest {
+    body: {
+        authUUID: string;
+    };
 }
 
-export const loginProcessSchemaType: FastifySchema<{
-    body: LoginProcessBody;
-}> = {
+export const loginProcessSchemaType: FastifySchema<LoginProcessRequest> = {
     body: {
         type: "object",
         required: ["authUUID"],

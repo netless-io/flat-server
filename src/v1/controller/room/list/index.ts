@@ -1,4 +1,4 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { createQueryBuilder, In } from "typeorm";
 import { RoomUserModel } from "../../../../model/room/RoomUser";
 import { RoomModel } from "../../../../model/room/Room";
@@ -8,12 +8,9 @@ import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomRecordDAO } from "../../../../dao";
 
-export const list = async (
-    req: PatchRequest<{
-        Querystring: ListQuery;
-        Params: ListParams;
-    }>,
-): Response<ListResponse> => {
+import { parseError } from "../../../../Logger";
+
+export const list: Controller<ListRequest, ListResponse> = async ({ req, logger }) => {
     const { type } = req.params;
 
     try {
@@ -134,8 +131,8 @@ export const list = async (
             status: Status.Success,
             data: resp,
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -143,18 +140,16 @@ export const list = async (
     }
 };
 
-interface ListQuery {
-    page: number;
+interface ListRequest {
+    querystring: {
+        page: number;
+    };
+    params: {
+        type: ListType;
+    };
 }
 
-interface ListParams {
-    type: ListType;
-}
-
-export const listSchemaType: FastifySchema<{
-    querystring: ListQuery;
-    params: ListParams;
-}> = {
+export const listSchemaType: FastifySchema<ListRequest> = {
     querystring: {
         type: "object",
         required: ["page"],
