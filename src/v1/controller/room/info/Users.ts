@@ -1,16 +1,13 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { createQueryBuilder } from "typeorm";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomUserDAO } from "../../../../dao";
 import { RoomUserModel } from "../../../../model/room/RoomUser";
 import { UserModel } from "../../../../model/user/User";
+import { parseError } from "../../../../Logger";
 
-export const userInfo = async (
-    req: PatchRequest<{
-        Body: UserInfoBody;
-    }>,
-): Response<UserInfoResponse> => {
+export const userInfo: Controller<UserInfoRequest, UserInfoResponse> = async ({ req, logger }) => {
     const { roomUUID, usersUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -65,8 +62,8 @@ export const userInfo = async (
             status: Status.Success,
             data: result,
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -74,14 +71,14 @@ export const userInfo = async (
     }
 };
 
-interface UserInfoBody {
-    roomUUID: string;
-    usersUUID: string[];
+interface UserInfoRequest {
+    body: {
+        roomUUID: string;
+        usersUUID: string[];
+    };
 }
 
-export const userInfoSchemaType: FastifySchema<{
-    body: UserInfoBody;
-}> = {
+export const userInfoSchemaType: FastifySchema<UserInfoRequest> = {
     body: {
         type: "object",
         required: ["roomUUID", "usersUUID"],

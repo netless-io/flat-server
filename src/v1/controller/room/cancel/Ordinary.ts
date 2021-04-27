@@ -1,4 +1,4 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { getConnection } from "typeorm";
 import { Status } from "../../../../constants/Project";
 import { RoomStatus } from "../../../../model/room/Constants";
@@ -6,12 +6,12 @@ import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardR
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomUserDAO } from "../../../../dao";
 import { roomIsRunning } from "../utils/Room";
+import { parseError } from "../../../../Logger";
 
-export const cancelOrdinary = async (
-    req: PatchRequest<{
-        Body: CancelOrdinaryBody;
-    }>,
-): Response<CancelOrdinaryResponse> => {
+export const cancelOrdinary: Controller<CancelOrdinaryRequest, CancelOrdinaryResponse> = async ({
+    req,
+    logger,
+}) => {
     const { roomUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -78,8 +78,8 @@ export const cancelOrdinary = async (
             status: Status.Success,
             data: {},
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -87,13 +87,13 @@ export const cancelOrdinary = async (
     }
 };
 
-interface CancelOrdinaryBody {
-    roomUUID: string;
+interface CancelOrdinaryRequest {
+    body: {
+        roomUUID: string;
+    };
 }
 
-export const cancelOrdinarySchemaType: FastifySchema<{
-    body: CancelOrdinaryBody;
-}> = {
+export const cancelOrdinarySchemaType: FastifySchema<CancelOrdinaryRequest> = {
     body: {
         type: "object",
         required: ["roomUUID"],

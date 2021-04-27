@@ -1,4 +1,4 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { getConnection } from "typeorm";
@@ -7,12 +7,12 @@ import { roomIsRunning } from "../utils/Room";
 import { getNextPeriodicRoomInfo, updateNextPeriodicRoomInfo } from "../../../service/Periodic";
 import { PeriodicStatus } from "../../../../model/room/Constants";
 import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
+import { parseError } from "../../../../Logger";
 
-export const cancelPeriodicSubRoom = async (
-    req: PatchRequest<{
-        Body: CancelPeriodicSubRoomBody;
-    }>,
-): Response<CancelPeriodicSubRoomResponse> => {
+export const cancelPeriodicSubRoom: Controller<
+    CancelPeriodicSubRoomRequest,
+    CancelPeriodicSubRoomResponse
+> = async ({ req, logger }) => {
     const { periodicUUID, roomUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -117,8 +117,8 @@ export const cancelPeriodicSubRoom = async (
             status: Status.Success,
             data: {},
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -126,14 +126,14 @@ export const cancelPeriodicSubRoom = async (
     }
 };
 
-interface CancelPeriodicSubRoomBody {
-    periodicUUID: string;
-    roomUUID: string;
+interface CancelPeriodicSubRoomRequest {
+    body: {
+        periodicUUID: string;
+        roomUUID: string;
+    };
 }
 
-export const cancelPeriodicSubRoomSchemaType: FastifySchema<{
-    body: CancelPeriodicSubRoomBody;
-}> = {
+export const cancelPeriodicSubRoomSchemaType: FastifySchema<CancelPeriodicSubRoomRequest> = {
     body: {
         type: "object",
         required: ["periodicUUID"],

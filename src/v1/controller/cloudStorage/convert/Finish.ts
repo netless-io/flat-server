@@ -1,16 +1,16 @@
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { whiteboardQueryConversionTask } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
 import { determineType, isConvertDone, isConvertFailed } from "./Utils";
+import { parseError } from "../../../../Logger";
 
-export const fileConvertFinish = async (
-    req: PatchRequest<{
-        Body: FileConvertFinishBody;
-    }>,
-): Response<FileConvertFinishResponse> => {
+export const fileConvertFinish: Controller<
+    FileConvertFinishRequest,
+    FileConvertFinishResponse
+> = async ({ req, logger }) => {
     const { fileUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -102,7 +102,7 @@ export const fileConvertFinish = async (
                 };
         }
     } catch (err) {
-        console.error(err);
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -110,13 +110,13 @@ export const fileConvertFinish = async (
     }
 };
 
-interface FileConvertFinishBody {
-    fileUUID: string;
+interface FileConvertFinishRequest {
+    body: {
+        fileUUID: string;
+    };
 }
 
-export const fileConvertFinishSchemaType: FastifySchema<{
-    body: FileConvertFinishBody;
-}> = {
+export const fileConvertFinishSchemaType: FastifySchema<FileConvertFinishRequest> = {
     body: {
         type: "object",
         required: ["fileUUID"],

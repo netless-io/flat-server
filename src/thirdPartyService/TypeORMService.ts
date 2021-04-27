@@ -13,6 +13,7 @@ import { RoomUserModel } from "../model/room/RoomUser";
 import { UserModel } from "../model/user/User";
 import { UserWeChatModel } from "../model/user/WeChat";
 import { UserGithubModel } from "../model/user/Github";
+import { loggerServer, parseError } from "../Logger";
 
 export const orm = createConnection({
     type: "mysql",
@@ -41,7 +42,6 @@ export const orm = createConnection({
     maxQueryExecutionTime: isDev ? 1 : 1000,
     charset: "utf8mb4_unicode_ci",
 }).catch(err => {
-    console.error("Unable to connect to the database");
-    console.error(err);
+    loggerServer.error("unable to connect to the database", parseError(err));
     process.exit(1);
 });

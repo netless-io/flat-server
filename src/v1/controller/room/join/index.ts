@@ -1,16 +1,13 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { joinOrdinary } from "./Ordinary";
 import { joinPeriodic } from "./Periodic";
 import { JoinResponse } from "./Type";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomPeriodicConfigDAO } from "../../../../dao";
+import { parseError } from "../../../../Logger";
 
-export const join = async (
-    req: PatchRequest<{
-        Body: JoinBody;
-    }>,
-): Response<JoinResponse> => {
+export const join: Controller<JoinRequest, JoinResponse> = async ({ req, logger }) => {
     const { uuid } = req.body;
     const { userUUID } = req.user;
 
@@ -24,8 +21,8 @@ export const join = async (
         } else {
             return await joinOrdinary(uuid, userUUID);
         }
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -33,13 +30,13 @@ export const join = async (
     }
 };
 
-interface JoinBody {
-    uuid: string;
+interface JoinRequest {
+    body: {
+        uuid: string;
+    };
 }
 
-export const joinSchemaType: FastifySchema<{
-    body: JoinBody;
-}> = {
+export const joinSchemaType: FastifySchema<JoinRequest> = {
     body: {
         type: "object",
         required: ["uuid"],

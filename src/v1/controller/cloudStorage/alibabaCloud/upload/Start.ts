@@ -3,17 +3,17 @@ import { CloudStorage } from "../../../../../constants/Process";
 import { Status } from "../../../../../constants/Project";
 
 import { ErrorCode } from "../../../../../ErrorCode";
-import { FastifySchema, PatchRequest, Response } from "../../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../../types/Server";
 import { getFilePath, policyTemplate } from "../Utils";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { checkTotalUsage } from "./Utils";
+import { parseError } from "../../../../../Logger";
 
-export const alibabaCloudUploadStart = async (
-    req: PatchRequest<{
-        Body: AlibabaCloudUploadStartBody;
-    }>,
-): Response<AlibabaCloudUploadStartResponse> => {
+export const alibabaCloudUploadStart: Controller<
+    AlibabaCloudUploadStartRequest,
+    AlibabaCloudUploadStartResponse
+> = async ({ req, logger }) => {
     const { fileName, fileSize } = req.body;
     const { userUUID } = req.user;
 
@@ -81,7 +81,7 @@ export const alibabaCloudUploadStart = async (
             },
         };
     } catch (err) {
-        console.error(err);
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -89,14 +89,14 @@ export const alibabaCloudUploadStart = async (
     }
 };
 
-interface AlibabaCloudUploadStartBody {
-    fileName: string;
-    fileSize: number;
+interface AlibabaCloudUploadStartRequest {
+    body: {
+        fileName: string;
+        fileSize: number;
+    };
 }
 
-export const alibabaCloudUploadStartSchemaType: FastifySchema<{
-    body: AlibabaCloudUploadStartBody;
-}> = {
+export const alibabaCloudUploadStartSchemaType: FastifySchema<AlibabaCloudUploadStartRequest> = {
     body: {
         type: "object",
         required: ["fileName", "fileSize"],

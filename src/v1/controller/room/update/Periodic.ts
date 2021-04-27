@@ -1,4 +1,4 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import {
     RoomDAO,
     RoomDocDAO,
@@ -19,12 +19,12 @@ import {
     whiteboardBanRoom,
     whiteboardCreateRoom,
 } from "../../../utils/request/whiteboard/WhiteboardRequest";
+import { parseError } from "../../../../Logger";
 
-export const updatePeriodic = async (
-    req: PatchRequest<{
-        Body: UpdatePeriodicBody;
-    }>,
-): Response<UpdatePeriodicResponse> => {
+export const updatePeriodic: Controller<UpdatePeriodicRequest, UpdatePeriodicResponse> = async ({
+    req,
+    logger,
+}) => {
     const { periodicUUID, beginTime, endTime, title, type, periodic, docs } = req.body;
     const { userUUID } = req.user;
 
@@ -193,8 +193,8 @@ export const updatePeriodic = async (
             status: Status.Success,
             data: {},
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -202,19 +202,19 @@ export const updatePeriodic = async (
     }
 };
 
-interface UpdatePeriodicBody {
-    periodicUUID: string;
-    beginTime: number;
-    endTime: number;
-    title: string;
-    type: RoomType;
-    periodic: Periodic;
-    docs: Docs[];
+interface UpdatePeriodicRequest {
+    body: {
+        periodicUUID: string;
+        beginTime: number;
+        endTime: number;
+        title: string;
+        type: RoomType;
+        periodic: Periodic;
+        docs: Docs[];
+    };
 }
 
-export const updatePeriodicSchemaType: FastifySchema<{
-    body: UpdatePeriodicBody;
-}> = {
+export const updatePeriodicSchemaType: FastifySchema<UpdatePeriodicRequest> = {
     body: {
         type: "object",
         required: ["periodicUUID", "beginTime", "endTime", "title", "type", "docs"],

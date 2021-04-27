@@ -1,14 +1,14 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomRecordDAO } from "../../../../dao";
 import { roomIsRunning } from "../utils/Room";
+import { parseError } from "../../../../Logger";
 
-export const recordStopped = async (
-    req: PatchRequest<{
-        Body: RecordStoppedBody;
-    }>,
-): Response<RecordStoppedResponse> => {
+export const recordStopped: Controller<RecordStoppedRequest, RecordStoppedResponse> = async ({
+    req,
+    logger,
+}) => {
     const { roomUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -47,8 +47,8 @@ export const recordStopped = async (
             status: Status.Success,
             data: {},
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -56,13 +56,13 @@ export const recordStopped = async (
     }
 };
 
-interface RecordStoppedBody {
-    roomUUID: string;
+interface RecordStoppedRequest {
+    body: {
+        roomUUID: string;
+    };
 }
 
-export const recordStoppedSchemaType: FastifySchema<{
-    body: RecordStoppedBody;
-}> = {
+export const recordStoppedSchemaType: FastifySchema<RecordStoppedRequest> = {
     body: {
         type: "object",
         required: ["roomUUID"],

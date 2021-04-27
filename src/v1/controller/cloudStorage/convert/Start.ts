@@ -3,19 +3,19 @@ import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { createWhiteboardTaskToken } from "../../../../utils/NetlessToken";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import {
     TaskCreated,
     whiteboardCreateConversionTask,
 } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
 import { determineType, isConverting, isConvertDone, isConvertFailed } from "./Utils";
+import { parseError } from "../../../../Logger";
 
-export const fileConvertStart = async (
-    req: PatchRequest<{
-        Body: FileConvertStartBody;
-    }>,
-): Response<FileConvertStartResponse> => {
+export const fileConvertStart: Controller<
+    FileConvertStartRequest,
+    FileConvertStartResponse
+> = async ({ req, logger }) => {
     const { fileUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -102,7 +102,7 @@ export const fileConvertStart = async (
             },
         };
     } catch (err) {
-        console.error(err);
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -110,13 +110,13 @@ export const fileConvertStart = async (
     }
 };
 
-interface FileConvertStartBody {
-    fileUUID: string;
+interface FileConvertStartRequest {
+    body: {
+        fileUUID: string;
+    };
 }
 
-export const fileConvertStartSchemaType: FastifySchema<{
-    body: FileConvertStartBody;
-}> = {
+export const fileConvertStartSchemaType: FastifySchema<FileConvertStartRequest> = {
     body: {
         type: "object",
         required: ["fileUUID"],

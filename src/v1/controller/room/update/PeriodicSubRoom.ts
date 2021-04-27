@@ -1,4 +1,4 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../../dao";
 import { ErrorCode } from "../../../../ErrorCode";
 import { Status } from "../../../../constants/Project";
@@ -10,12 +10,12 @@ import {
     beginTimeExceedRedundancyOneMinute,
     timeIntervalLessThanFifteenMinute,
 } from "../utils/CheckTime";
+import { parseError } from "../../../../Logger";
 
-export const updatePeriodicSubRoom = async (
-    req: PatchRequest<{
-        Body: UpdatePeriodicSubRoomBody;
-    }>,
-): Response<UpdatePeriodicSubRoomResponse> => {
+export const updatePeriodicSubRoom: Controller<
+    UpdatePeriodicSubRoomRequest,
+    UpdatePeriodicSubRoomResponse
+> = async ({ req, logger }) => {
     const { periodicUUID, roomUUID, beginTime, endTime } = req.body;
     const { userUUID } = req.user;
 
@@ -172,8 +172,8 @@ export const updatePeriodicSubRoom = async (
             status: Status.Success,
             data: {},
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -181,16 +181,16 @@ export const updatePeriodicSubRoom = async (
     }
 };
 
-interface UpdatePeriodicSubRoomBody {
-    periodicUUID: string;
-    roomUUID: string;
-    beginTime: number;
-    endTime: number;
+interface UpdatePeriodicSubRoomRequest {
+    body: {
+        periodicUUID: string;
+        roomUUID: string;
+        beginTime: number;
+        endTime: number;
+    };
 }
 
-export const updatePeriodicSubRoomSchemaType: FastifySchema<{
-    body: UpdatePeriodicSubRoomBody;
-}> = {
+export const updatePeriodicSubRoomSchemaType: FastifySchema<UpdatePeriodicSubRoomRequest> = {
     body: {
         type: "object",
         required: ["periodicUUID", "roomUUID", "beginTime", "endTime"],

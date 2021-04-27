@@ -1,14 +1,14 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { RoomStatus } from "../../../../model/room/Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomUserDAO } from "../../../../dao";
+import { parseError } from "../../../../Logger";
 
-export const cancelHistory = async (
-    req: PatchRequest<{
-        Body: CancelHistoryBody;
-    }>,
-): Response<CancelHistoryResponse> => {
+export const cancelHistory: Controller<CancelHistoryRequest, CancelHistoryResponse> = async ({
+    req,
+    logger,
+}) => {
     const { roomUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -52,8 +52,8 @@ export const cancelHistory = async (
             status: Status.Success,
             data: {},
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -61,13 +61,13 @@ export const cancelHistory = async (
     }
 };
 
-interface CancelHistoryBody {
-    roomUUID: string;
+interface CancelHistoryRequest {
+    body: {
+        roomUUID: string;
+    };
 }
 
-export const cancelHistorySchemaType: FastifySchema<{
-    body: CancelHistoryBody;
-}> = {
+export const cancelHistorySchemaType: FastifySchema<CancelHistoryRequest> = {
     body: {
         type: "object",
         required: ["roomUUID"],

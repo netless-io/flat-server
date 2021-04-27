@@ -8,14 +8,14 @@ import {
 } from "../../../../../dao";
 import { CloudStorageFilesModel } from "../../../../../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../../../../../model/cloudStorage/CloudStorageUserFiles";
-import { FastifySchema, PatchRequest, Response } from "../../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../../types/Server";
 import { getFilePath, ossClient } from "../Utils";
+import { parseError } from "../../../../../Logger";
 
-export const alibabaCloudRemoveFile = async (
-    req: PatchRequest<{
-        Body: AlibabaCloudRemoveFileBody;
-    }>,
-): Response<AlibabaCloudRemoveFileResponse> => {
+export const alibabaCloudRemoveFile: Controller<
+    AlibabaCloudRemoveFileRequest,
+    AlibabaCloudRemoveFileResponse
+> = async ({ req, logger }) => {
     const { fileUUIDs } = req.body;
     const { userUUID } = req.user;
 
@@ -102,7 +102,7 @@ export const alibabaCloudRemoveFile = async (
             data: {},
         };
     } catch (err) {
-        console.error(err);
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -110,13 +110,13 @@ export const alibabaCloudRemoveFile = async (
     }
 };
 
-interface AlibabaCloudRemoveFileBody {
-    fileUUIDs: string[];
+interface AlibabaCloudRemoveFileRequest {
+    body: {
+        fileUUIDs: string[];
+    };
 }
 
-export const alibabaCloudRemoveFileSchemaType: FastifySchema<{
-    body: AlibabaCloudRemoveFileBody;
-}> = {
+export const alibabaCloudRemoveFileSchemaType: FastifySchema<AlibabaCloudRemoveFileRequest> = {
     body: {
         type: "object",
         required: ["fileUUIDs"],

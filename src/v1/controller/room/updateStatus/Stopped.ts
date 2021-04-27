@@ -1,4 +1,4 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { getConnection } from "typeorm";
 import { Status } from "../../../../constants/Project";
 import { PeriodicStatus, RoomStatus } from "../../../../model/room/Constants";
@@ -8,12 +8,9 @@ import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../../dao
 import { roomIsRunning } from "../utils/Room";
 import { getNextPeriodicRoomInfo, updateNextPeriodicRoomInfo } from "../../../service/Periodic";
 import { RoomPeriodicModel } from "../../../../model/room/RoomPeriodic";
+import { parseError } from "../../../../Logger";
 
-export const stopped = async (
-    req: PatchRequest<{
-        Body: StoppedBody;
-    }>,
-): Response<StoppedResponse> => {
+export const stopped: Controller<StoppedRequest, StoppedResponse> = async ({ req, logger }) => {
     const { roomUUID } = req.body;
     const { userUUID } = req.user;
 
@@ -141,8 +138,8 @@ export const stopped = async (
             status: Status.Success,
             data: {},
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -150,13 +147,13 @@ export const stopped = async (
     }
 };
 
-interface StoppedBody {
-    roomUUID: string;
+interface StoppedRequest {
+    body: {
+        roomUUID: string;
+    };
 }
 
-export const stoppedSchemaType: FastifySchema<{
-    body: StoppedBody;
-}> = {
+export const stoppedSchemaType: FastifySchema<StoppedRequest> = {
     body: {
         type: "object",
         required: ["roomUUID"],

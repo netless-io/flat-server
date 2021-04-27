@@ -1,4 +1,4 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { RoomDAO, RoomDocDAO } from "../../../../dao";
 import { ErrorCode } from "../../../../ErrorCode";
 import { Status } from "../../../../constants/Project";
@@ -7,12 +7,12 @@ import { getConnection, In } from "typeorm";
 import { Docs } from "../Types";
 import { toDate } from "date-fns/fp";
 import { checkUpdateBeginAndEndTime, docsDiff } from "./Utils";
+import { parseError } from "../../../../Logger";
 
-export const updateOrdinary = async (
-    req: PatchRequest<{
-        Body: UpdateOrdinaryBody;
-    }>,
-): Response<UpdateOrdinaryResponse> => {
+export const updateOrdinary: Controller<UpdateOrdinaryRequest, UpdateOrdinaryResponse> = async ({
+    req,
+    logger,
+}) => {
     const { roomUUID, beginTime, endTime, title, type, docs } = req.body;
     const { userUUID } = req.user;
 
@@ -80,8 +80,8 @@ export const updateOrdinary = async (
             status: Status.Success,
             data: {},
         };
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -89,18 +89,18 @@ export const updateOrdinary = async (
     }
 };
 
-interface UpdateOrdinaryBody {
-    roomUUID: string;
-    beginTime: number;
-    endTime: number;
-    title: string;
-    type: RoomType;
-    docs: Docs[];
+interface UpdateOrdinaryRequest {
+    body: {
+        roomUUID: string;
+        beginTime: number;
+        endTime: number;
+        title: string;
+        type: RoomType;
+        docs: Docs[];
+    };
 }
 
-export const updateOrdinarySchemaType: FastifySchema<{
-    body: UpdateOrdinaryBody;
-}> = {
+export const updateOrdinarySchemaType: FastifySchema<UpdateOrdinaryRequest> = {
     body: {
         type: "object",
         required: ["roomUUID", "beginTime", "endTime", "title", "type", "docs"],

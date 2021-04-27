@@ -1,15 +1,10 @@
-import { FastifySchema, PatchRequest } from "../../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../../types/Server";
 import redisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
-import { FastifyReply } from "fastify";
 import { registerOrLoginWechat } from "../Utils";
+import { parseError } from "../../../../../Logger";
 
-export const callback = async (
-    req: PatchRequest<{
-        Querystring: CallbackQuery;
-    }>,
-    reply: FastifyReply,
-): Promise<void> => {
+export const callback: Controller<CallbackRequest, any> = async ({ req, logger }, reply) => {
     void reply.headers({
         "content-type": "text/html",
     });
@@ -18,21 +13,21 @@ export const callback = async (
     const { state: authUUID, code } = req.query;
 
     try {
-        await registerOrLoginWechat(code, authUUID, "WEB", reply);
+        await registerOrLoginWechat(code, authUUID, "WEB", logger, reply);
     } catch (err: unknown) {
-        console.error(err);
+        logger.error("request failed", parseError(err));
         await redisService.set(RedisKey.authFailed(authUUID), "", 60 * 60);
     }
 };
 
-interface CallbackQuery {
-    state: string;
-    code: string;
+interface CallbackRequest {
+    querystring: {
+        state: string;
+        code: string;
+    };
 }
 
-export const callbackSchemaType: FastifySchema<{
-    querystring: CallbackQuery;
-}> = {
+export const callbackSchemaType: FastifySchema<CallbackRequest> = {
     querystring: {
         type: "object",
         required: ["state", "code"],

@@ -1,21 +1,19 @@
-import { FastifySchema, PatchRequest, Response } from "../../../../../types/Server";
-import { FastifyReply } from "fastify";
+import { Controller, FastifySchema } from "../../../../../types/Server";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { registerOrLoginWechat } from "../Utils";
+import { parseError } from "../../../../../Logger";
 
-export const callback = async (
-    req: PatchRequest<{
-        Querystring: CallbackQuery;
-    }>,
-    reply: FastifyReply,
-): Response<CallbackResponse> => {
+export const callback: Controller<CallbackRequest, CallbackResponse> = async (
+    { req, logger },
+    reply,
+) => {
     const { state: authUUID, code } = req.query;
 
     try {
-        return await registerOrLoginWechat(code, authUUID, "MOBILE", reply);
+        return await registerOrLoginWechat(code, authUUID, "MOBILE", logger, reply);
     } catch (err: unknown) {
-        console.error(err);
+        logger.error("request failed", parseError(err));
 
         return {
             status: Status.Failed,
@@ -24,14 +22,14 @@ export const callback = async (
     }
 };
 
-interface CallbackQuery {
-    state: string;
-    code: string;
+interface CallbackRequest {
+    querystring: {
+        state: string;
+        code: string;
+    };
 }
 
-export const callbackSchemaType: FastifySchema<{
-    querystring: CallbackQuery;
-}> = {
+export const callbackSchemaType: FastifySchema<CallbackRequest> = {
     querystring: {
         type: "object",
         required: ["state", "code"],

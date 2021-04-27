@@ -4,14 +4,14 @@ import { ErrorCode } from "../../../../ErrorCode";
 import { CloudStorageConfigsDAO } from "../../../../dao";
 import { CloudStorageFilesModel } from "../../../../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../../../../model/cloudStorage/CloudStorageUserFiles";
-import { FastifySchema, PatchRequest, Response } from "../../../../types/Server";
+import { Controller, FastifySchema } from "../../../../types/Server";
 import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
+import { parseError } from "../../../../Logger";
 
-export const cloudStorageList = async (
-    req: PatchRequest<{
-        Querystring: CloudStorageListQuery;
-    }>,
-): Response<CloudStorageListResponse> => {
+export const cloudStorageList: Controller<
+    CloudStorageListRequest,
+    CloudStorageListResponse
+> = async ({ req, logger }) => {
     const { userUUID } = req.user;
     const { page } = req.query;
 
@@ -74,7 +74,7 @@ export const cloudStorageList = async (
             },
         };
     } catch (err) {
-        console.error(err);
+        logger.error("request failed", parseError(err));
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
@@ -82,13 +82,13 @@ export const cloudStorageList = async (
     }
 };
 
-interface CloudStorageListQuery {
-    page: number;
+interface CloudStorageListRequest {
+    querystring: {
+        page: number;
+    };
 }
 
-export const cloudStorageListSchemaType: FastifySchema<{
-    querystring: CloudStorageListQuery;
-}> = {
+export const cloudStorageListSchemaType: FastifySchema<CloudStorageListRequest> = {
     querystring: {
         type: "object",
         required: ["page"],
