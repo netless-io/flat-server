@@ -4,11 +4,6 @@ export enum RoomType {
     BigClass = "BigClass",
 }
 
-export enum DocsType {
-    Dynamic = "Dynamic",
-    Static = "Static",
-}
-
 export enum Week {
     Sunday,
     Monday,

@@ -1,5 +1,4 @@
-import { DocsType, RoomStatus, RoomType } from "../../../../model/room/Constants";
-import { Docs } from "../Types";
+import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { Status } from "../../../../constants/Project";
 import { Controller, FastifySchema } from "../../../../types/Server";
 import { v4 } from "uuid";
@@ -8,7 +7,7 @@ import { getConnection } from "typeorm";
 import cryptoRandomString from "crypto-random-string";
 import { whiteboardCreateRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO, RoomDocDAO, RoomUserDAO } from "../../../../dao";
+import { RoomDAO, RoomUserDAO } from "../../../../dao";
 import {
     beginTimeLessEndTime,
     beginTimeExceedRedundancyOneMinute,
@@ -20,7 +19,7 @@ export const createOrdinary: Controller<CreateOrdinaryRequest, CreateOrdinaryRes
     req,
     logger,
 }) => {
-    const { title, type, beginTime, endTime, docs } = req.body;
+    const { title, type, beginTime, endTime } = req.body;
     const { userUUID } = req.user;
 
     {
@@ -75,19 +74,6 @@ export const createOrdinary: Controller<CreateOrdinaryRequest, CreateOrdinaryRes
 
             commands.push(RoomUserDAO(t).insert(roomUserData));
 
-            if (docs) {
-                const roomDocData = docs.map(({ uuid, type }) => {
-                    return {
-                        doc_uuid: uuid,
-                        room_uuid: roomData.room_uuid,
-                        periodic_uuid: "",
-                        doc_type: type,
-                        is_preload: true,
-                    };
-                });
-                commands.push(RoomDocDAO(t).insert(roomDocData));
-            }
-
             await Promise.all(commands);
         });
 
@@ -112,7 +98,6 @@ interface CreateOrdinaryRequest {
         type: RoomType;
         beginTime: number;
         endTime?: number;
-        docs?: Docs[];
     };
 }
 
@@ -137,24 +122,6 @@ export const createOrdinarySchemaType: FastifySchema<CreateOrdinaryRequest> = {
                 type: "integer",
                 format: "unix-timestamp",
                 nullable: true,
-            },
-            docs: {
-                type: "array",
-                nullable: true,
-                items: {
-                    type: "object",
-                    required: ["type", "uuid"],
-                    properties: {
-                        type: {
-                            type: "string",
-                            enum: [DocsType.Dynamic, DocsType.Static],
-                        },
-                        uuid: {
-                            type: "string",
-                        },
-                    },
-                },
-                maxItems: 10,
             },
         },
     },

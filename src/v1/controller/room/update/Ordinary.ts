@@ -1,19 +1,17 @@
 import { Controller, FastifySchema } from "../../../../types/Server";
-import { RoomDAO, RoomDocDAO } from "../../../../dao";
+import { RoomDAO } from "../../../../dao";
 import { ErrorCode } from "../../../../ErrorCode";
 import { Status } from "../../../../constants/Project";
-import { DocsType, RoomStatus, RoomType } from "../../../../model/room/Constants";
-import { getConnection, In } from "typeorm";
-import { Docs } from "../Types";
+import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { toDate } from "date-fns/fp";
-import { checkUpdateBeginAndEndTime, docsDiff } from "./Utils";
+import { checkUpdateBeginAndEndTime } from "./Utils";
 import { parseError } from "../../../../Logger";
 
 export const updateOrdinary: Controller<UpdateOrdinaryRequest, UpdateOrdinaryResponse> = async ({
     req,
     logger,
 }) => {
-    const { roomUUID, beginTime, endTime, title, type, docs } = req.body;
+    const { roomUUID, beginTime, endTime, title, type } = req.body;
     const { userUUID } = req.user;
 
     const roomInfo = await RoomDAO().findOne(["room_status", "begin_time", "end_time"], {
@@ -42,39 +40,18 @@ export const updateOrdinary: Controller<UpdateOrdinaryRequest, UpdateOrdinaryRes
         };
     }
 
-    const roomDocs = await RoomDocDAO().find(["doc_uuid"], {
-        room_uuid: roomUUID,
-    });
-
-    const { willAddDocs, willRemoveDocs } = docsDiff(roomDocs, docs, {
-        room_uuid: roomUUID,
-    });
-
     try {
-        await getConnection().transaction(async t => {
-            const commands: Promise<unknown>[] = [];
-
-            commands.push(
-                RoomDAO(t).update(
-                    {
-                        title,
-                        begin_time: toDate(beginTime),
-                        end_time: toDate(endTime),
-                        room_type: type,
-                    },
-                    {
-                        room_uuid: roomUUID,
-                    },
-                ),
-                RoomDocDAO(t).insert(willAddDocs),
-                RoomDocDAO(t).remove({
-                    room_uuid: roomUUID,
-                    doc_uuid: In(willRemoveDocs),
-                }),
-            );
-
-            return Promise.all(commands);
-        });
+        await RoomDAO().update(
+            {
+                title,
+                begin_time: toDate(beginTime),
+                end_time: toDate(endTime),
+                room_type: type,
+            },
+            {
+                room_uuid: roomUUID,
+            },
+        );
 
         return {
             status: Status.Success,
@@ -96,14 +73,13 @@ interface UpdateOrdinaryRequest {
         endTime: number;
         title: string;
         type: RoomType;
-        docs: Docs[];
     };
 }
 
 export const updateOrdinarySchemaType: FastifySchema<UpdateOrdinaryRequest> = {
     body: {
         type: "object",
-        required: ["roomUUID", "beginTime", "endTime", "title", "type", "docs"],
+        required: ["roomUUID", "beginTime", "endTime", "title", "type"],
         properties: {
             roomUUID: {
                 type: "string",
@@ -124,24 +100,6 @@ export const updateOrdinarySchemaType: FastifySchema<UpdateOrdinaryRequest> = {
                 type: "string",
                 enum: [RoomType.SmallClass, RoomType.BigClass, RoomType.OneToOne],
                 maxLength: 50,
-            },
-            docs: {
-                type: "array",
-                nullable: true,
-                items: {
-                    type: "object",
-                    required: ["type", "uuid"],
-                    properties: {
-                        type: {
-                            type: "string",
-                            enum: [DocsType.Dynamic, DocsType.Static],
-                        },
-                        uuid: {
-                            type: "string",
-                        },
-                    },
-                },
-                maxItems: 10,
             },
         },
     },

@@ -1,9 +1,4 @@
-import { DocsType, Week } from "../../../model/room/Constants";
-
-export interface Docs {
-    type: DocsType;
-    uuid: string;
-}
+import { Week } from "../../../model/room/Constants";
 
 export interface Periodic {
     weeks: Week[];

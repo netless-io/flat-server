@@ -1,11 +1,5 @@
-import {
-    DocsType,
-    PeriodicStatus,
-    RoomStatus,
-    RoomType,
-    Week,
-} from "../../../../model/room/Constants";
-import { Periodic, Docs } from "../Types";
+import { PeriodicStatus, RoomStatus, RoomType, Week } from "../../../../model/room/Constants";
+import { Periodic } from "../Types";
 import { Status } from "../../../../constants/Project";
 import { Controller, FastifySchema } from "../../../../types/Server";
 import { v4 } from "uuid";
@@ -16,7 +10,6 @@ import { whiteboardCreateRoom } from "../../../utils/request/whiteboard/Whiteboa
 import { ErrorCode } from "../../../../ErrorCode";
 import {
     RoomDAO,
-    RoomDocDAO,
     RoomPeriodicConfigDAO,
     RoomPeriodicDAO,
     RoomPeriodicUserDAO,
@@ -30,7 +23,7 @@ export const createPeriodic: Controller<CreatePeriodicRequest, CreatePeriodicRes
     req,
     logger,
 }) => {
-    const { title, type, beginTime, endTime, periodic, docs } = req.body;
+    const { title, type, beginTime, endTime, periodic } = req.body;
     const { userUUID } = req.user;
 
     if (!checkBeginAndEndTime(beginTime, endTime)) {
@@ -122,19 +115,6 @@ export const createPeriodic: Controller<CreatePeriodicRequest, CreatePeriodicRes
                 );
             }
 
-            if (docs) {
-                const roomDocData = docs.map(({ uuid, type }) => {
-                    return {
-                        doc_uuid: uuid,
-                        room_uuid: "",
-                        periodic_uuid: periodicUUID,
-                        doc_type: type,
-                        is_preload: true,
-                    };
-                });
-                commands.push(RoomDocDAO(t).insert(roomDocData));
-            }
-
             await Promise.all(commands);
         });
 
@@ -158,7 +138,6 @@ interface CreatePeriodicRequest {
         beginTime: number;
         endTime: number;
         periodic: Periodic;
-        docs?: Docs[];
     };
 }
 
@@ -225,24 +204,6 @@ export const createPeriodicSchemaType: FastifySchema<CreatePeriodicRequest> = {
                         required: ["rate"],
                     },
                 ],
-            },
-            docs: {
-                type: "array",
-                nullable: true,
-                items: {
-                    type: "object",
-                    required: ["type", "uuid"],
-                    properties: {
-                        type: {
-                            type: "string",
-                            enum: [DocsType.Dynamic, DocsType.Static],
-                        },
-                        uuid: {
-                            type: "string",
-                        },
-                    },
-                },
-                maxItems: 10,
             },
         },
     },
