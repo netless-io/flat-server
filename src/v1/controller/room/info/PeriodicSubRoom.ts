@@ -1,13 +1,8 @@
 import { Controller, FastifySchema } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
-import { DocsType, RoomStatus, RoomType } from "../../../../model/room/Constants";
-import {
-    RoomDocDAO,
-    RoomPeriodicConfigDAO,
-    RoomPeriodicDAO,
-    RoomPeriodicUserDAO,
-} from "../../../../dao";
+import { RoomStatus, RoomType } from "../../../../model/room/Constants";
+import { RoomPeriodicConfigDAO, RoomPeriodicDAO, RoomPeriodicUserDAO } from "../../../../dao";
 import { LessThan, MoreThan, Not } from "typeorm";
 import { parseError } from "../../../../Logger";
 
@@ -62,18 +57,6 @@ export const periodicSubRoomInfo: Controller<
         }
 
         const { title, owner_uuid, room_type } = periodicConfigInfo;
-
-        const docs = (
-            await RoomDocDAO().find(["doc_type", "doc_uuid", "is_preload"], {
-                periodic_uuid: periodicUUID,
-            })
-        ).map(({ doc_type, doc_uuid, is_preload }) => {
-            return {
-                docType: doc_type,
-                docUUID: doc_uuid,
-                isPreload: is_preload,
-            };
-        });
 
         const {
             previousPeriodicRoomBeginTime,
@@ -134,7 +117,6 @@ export const periodicSubRoomInfo: Controller<
                     periodic_uuid: periodicUUID,
                     room_status: Not(RoomStatus.Stopped),
                 }),
-                docs,
             },
         };
     } catch (err) {
@@ -187,9 +169,4 @@ interface PeriodicSubRoomInfoResponse {
     previousPeriodicRoomBeginTime: number | null;
     nextPeriodicRoomEndTime: number | null;
     count: number;
-    docs: Array<{
-        docType: DocsType;
-        docUUID: string;
-        isPreload: boolean;
-    }>;
 }

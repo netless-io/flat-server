@@ -1,17 +1,11 @@
 import { Controller, FastifySchema } from "../../../../types/Server";
-import {
-    RoomDAO,
-    RoomDocDAO,
-    RoomPeriodicConfigDAO,
-    RoomPeriodicDAO,
-    RoomUserDAO,
-} from "../../../../dao";
+import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO, RoomUserDAO } from "../../../../dao";
 import { ErrorCode } from "../../../../ErrorCode";
 import { Status } from "../../../../constants/Project";
-import { DocsType, RoomStatus, RoomType, Week } from "../../../../model/room/Constants";
+import { RoomStatus, RoomType, Week } from "../../../../model/room/Constants";
 import { getConnection, In } from "typeorm";
-import { Docs, Periodic } from "../Types";
-import { checkUpdateBeginAndEndTime, docsDiff } from "./Utils";
+import { Periodic } from "../Types";
+import { checkUpdateBeginAndEndTime } from "./Utils";
 import { compareDesc, differenceInCalendarDays, toDate } from "date-fns/fp";
 import { v4 } from "uuid";
 import { calculatePeriodicDates } from "../utils/Periodic";
@@ -25,7 +19,7 @@ export const updatePeriodic: Controller<UpdatePeriodicRequest, UpdatePeriodicRes
     req,
     logger,
 }) => {
-    const { periodicUUID, beginTime, endTime, title, type, periodic, docs } = req.body;
+    const { periodicUUID, beginTime, endTime, title, type, periodic } = req.body;
     const { userUUID } = req.user;
 
     const periodicConfigInfo = await RoomPeriodicConfigDAO().findOne(
@@ -114,14 +108,6 @@ export const updatePeriodic: Controller<UpdatePeriodicRequest, UpdatePeriodicRes
         })
     ).map(room => room.id);
 
-    const roomDocs = await RoomDocDAO().find(["doc_uuid"], {
-        periodic_uuid: periodicUUID,
-    });
-
-    const { willAddDocs, willRemoveDocs } = docsDiff(roomDocs, docs, {
-        periodic_uuid: periodicUUID,
-    });
-
     try {
         await getConnection().transaction(async t => {
             const commands: Promise<unknown>[] = [];
@@ -146,14 +132,6 @@ export const updatePeriodic: Controller<UpdatePeriodicRequest, UpdatePeriodicRes
                 RoomPeriodicDAO(t).insert(willAddRoom),
                 RoomPeriodicDAO(t).remove({
                     id: In(willRemoveRoom),
-                }),
-            );
-
-            commands.push(
-                RoomDocDAO(t).insert(willAddDocs),
-                RoomDocDAO(t).remove({
-                    periodic_uuid: periodicUUID,
-                    doc_uuid: In(willRemoveDocs),
                 }),
             );
 
@@ -210,14 +188,13 @@ interface UpdatePeriodicRequest {
         title: string;
         type: RoomType;
         periodic: Periodic;
-        docs: Docs[];
     };
 }
 
 export const updatePeriodicSchemaType: FastifySchema<UpdatePeriodicRequest> = {
     body: {
         type: "object",
-        required: ["periodicUUID", "beginTime", "endTime", "title", "type", "docs"],
+        required: ["periodicUUID", "beginTime", "endTime", "title", "type"],
         properties: {
             periodicUUID: {
                 type: "string",
@@ -281,24 +258,6 @@ export const updatePeriodicSchemaType: FastifySchema<UpdatePeriodicRequest> = {
                         required: ["rate"],
                     },
                 ],
-            },
-            docs: {
-                type: "array",
-                nullable: true,
-                items: {
-                    type: "object",
-                    required: ["type", "uuid"],
-                    properties: {
-                        type: {
-                            type: "string",
-                            enum: [DocsType.Dynamic, DocsType.Static],
-                        },
-                        uuid: {
-                            type: "string",
-                        },
-                    },
-                },
-                maxItems: 10,
             },
         },
     },

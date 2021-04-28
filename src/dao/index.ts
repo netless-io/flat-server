@@ -6,7 +6,6 @@ import { UserModel } from "../model/user/User";
 import { UserWeChatModel } from "../model/user/WeChat";
 import { RoomPeriodicConfigModel } from "../model/room/RoomPeriodicConfig";
 import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
-import { RoomDocModel } from "../model/room/RoomDoc";
 import { RoomPeriodicUserModel } from "../model/room/RoomPeriodicUser";
 import { RoomRecordModel } from "../model/room/RoomRecord";
 import { CloudStorageFilesModel } from "../model/cloudStorage/CloudStorageFiles";
@@ -31,8 +30,6 @@ export const RoomPeriodicConfigDAO = DAOImplement(RoomPeriodicConfigModel) as Re
 export const RoomPeriodicDAO = DAOImplement(RoomPeriodicModel) as ReturnType<
     DAO<RoomPeriodicModel>
 >;
-
-export const RoomDocDAO = DAOImplement(RoomDocModel) as ReturnType<DAO<RoomDocModel>>;
 
 export const RoomPeriodicUserDAO = DAOImplement(RoomPeriodicUserModel) as ReturnType<
     DAO<RoomPeriodicUserModel>

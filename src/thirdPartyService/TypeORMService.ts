@@ -4,7 +4,6 @@ import { CloudStorageFilesModel } from "../model/cloudStorage/CloudStorageFiles"
 import { CloudStorageUserFilesModel } from "../model/cloudStorage/CloudStorageUserFiles";
 import { isDev, MySQL } from "../constants/Process";
 import { RoomModel } from "../model/room/Room";
-import { RoomDocModel } from "../model/room/RoomDoc";
 import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
 import { RoomPeriodicConfigModel } from "../model/room/RoomPeriodicConfig";
 import { RoomPeriodicUserModel } from "../model/room/RoomPeriodicUser";
@@ -30,7 +29,6 @@ export const orm = createConnection({
         RoomUserModel,
         RoomPeriodicConfigModel,
         RoomPeriodicModel,
-        RoomDocModel,
         RoomPeriodicUserModel,
         RoomRecordModel,
         CloudStorageConfigsModel,

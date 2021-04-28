@@ -1,15 +1,15 @@
 import { Controller, FastifySchema } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
-import { DocsType, RoomStatus, RoomType } from "../../../../model/room/Constants";
-import { RoomDAO, RoomDocDAO, RoomUserDAO, UserDAO } from "../../../../dao";
+import { RoomStatus, RoomType } from "../../../../model/room/Constants";
+import { RoomDAO, RoomUserDAO, UserDAO } from "../../../../dao";
 import { parseError } from "../../../../Logger";
 
 export const ordinaryInfo: Controller<OrdinaryInfoRequest, OrdinaryInfoResponse> = async ({
     req,
     logger,
 }) => {
-    const { roomUUID, needDocs } = req.body;
+    const { roomUUID } = req.body;
     const { userUUID } = req.user;
 
     try {
@@ -52,20 +52,6 @@ export const ordinaryInfo: Controller<OrdinaryInfoRequest, OrdinaryInfoResponse>
             };
         }
 
-        const docs = needDocs
-            ? (
-                  await RoomDocDAO().find(["doc_type", "doc_uuid", "is_preload"], {
-                      room_uuid: roomUUID,
-                  })
-              ).map(({ doc_type, doc_uuid, is_preload }) => {
-                  return {
-                      docType: doc_type,
-                      docUUID: doc_uuid,
-                      isPreload: is_preload,
-                  };
-              })
-            : [];
-
         return {
             status: Status.Success,
             data: {
@@ -78,7 +64,6 @@ export const ordinaryInfo: Controller<OrdinaryInfoRequest, OrdinaryInfoResponse>
                     ownerUUID: owner_uuid,
                     ownerUserName: userInfo.user_name,
                 },
-                docs,
             },
         };
     } catch (err) {
@@ -93,7 +78,6 @@ export const ordinaryInfo: Controller<OrdinaryInfoRequest, OrdinaryInfoResponse>
 interface OrdinaryInfoRequest {
     body: {
         roomUUID: string;
-        needDocs: boolean;
     };
 }
 
@@ -105,9 +89,6 @@ export const OrdinaryInfoSchemaType: FastifySchema<OrdinaryInfoRequest> = {
             roomUUID: {
                 type: "string",
                 format: "uuid-v4",
-            },
-            needDocs: {
-                type: "boolean",
             },
         },
     },
@@ -123,9 +104,4 @@ interface OrdinaryInfoResponse {
         ownerUUID: string;
         ownerUserName: string;
     };
-    docs: Array<{
-        docType: DocsType;
-        docUUID: string;
-        isPreload: boolean;
-    }>;
 }

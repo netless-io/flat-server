@@ -10,7 +10,6 @@ import { UserModel } from "../model/user/User";
 import { UserWeChatModel } from "../model/user/WeChat";
 import { RoomPeriodicConfigModel } from "../model/room/RoomPeriodicConfig";
 import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
-import { RoomDocModel } from "../model/room/RoomDoc";
 import { RoomPeriodicUserModel } from "../model/room/RoomPeriodicUser";
 import { RoomRecordModel } from "../model/room/RoomRecord";
 import { CloudStorageConfigsModel } from "../model/cloudStorage/CloudStorageConfigs";
@@ -65,7 +64,6 @@ export type Model =
     | RoomUserModel
     | RoomPeriodicConfigModel
     | RoomPeriodicModel
-    | RoomDocModel
     | RoomPeriodicUserModel
     | RoomRecordModel
     | CloudStorageFilesModel
