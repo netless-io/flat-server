@@ -10,6 +10,7 @@ module.exports = {
         "plugin:@typescript-eslint/recommended-requiring-type-checking",
         "prettier/@typescript-eslint",
         "plugin:prettier/recommended",
+        "plugin:@netless/recommended",
     ],
     rules: {
         "max-classes-per-file": ["warn", 5],
