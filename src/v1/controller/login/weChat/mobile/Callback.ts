@@ -3,6 +3,8 @@ import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { registerOrLoginWechat } from "../Utils";
 import { parseError } from "../../../../../Logger";
+import redisService from "../../../../../thirdPartyService/RedisService";
+import { RedisKey } from "../../../../../utils/Redis";
 
 export const callback: Controller<CallbackRequest, CallbackResponse> = async (
     { req, logger },
@@ -14,6 +16,7 @@ export const callback: Controller<CallbackRequest, CallbackResponse> = async (
         return await registerOrLoginWechat(code, authUUID, "MOBILE", logger, reply);
     } catch (err: unknown) {
         logger.error("request failed", parseError(err));
+        await redisService.set(RedisKey.authFailed(authUUID), "", 60 * 60);
 
         return {
             status: Status.Failed,

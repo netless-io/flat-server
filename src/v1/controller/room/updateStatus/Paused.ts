@@ -10,33 +10,33 @@ export const paused: Controller<PausedRequest, PausedResponse> = async ({ req, l
     const { roomUUID } = req.body;
     const { userUUID } = req.user;
 
-    const roomInfo = await RoomDAO().findOne(["room_status"], {
-        room_uuid: roomUUID,
-        owner_uuid: userUUID,
-    });
-
-    if (roomInfo === undefined) {
-        return {
-            status: Status.Failed,
-            code: ErrorCode.RoomNotFound,
-        };
-    }
-
-    if (roomInfo.room_status === RoomStatus.Paused) {
-        return {
-            status: Status.Success,
-            data: {},
-        };
-    }
-
-    if (roomInfo.room_status !== RoomStatus.Started) {
-        return {
-            status: Status.Failed,
-            code: ErrorCode.RoomNotIsRunning,
-        };
-    }
-
     try {
+        const roomInfo = await RoomDAO().findOne(["room_status"], {
+            room_uuid: roomUUID,
+            owner_uuid: userUUID,
+        });
+
+        if (roomInfo === undefined) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.RoomNotFound,
+            };
+        }
+
+        if (roomInfo.room_status === RoomStatus.Paused) {
+            return {
+                status: Status.Success,
+                data: {},
+            };
+        }
+
+        if (roomInfo.room_status !== RoomStatus.Started) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.RoomNotIsRunning,
+            };
+        }
+
         await getConnection().transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
