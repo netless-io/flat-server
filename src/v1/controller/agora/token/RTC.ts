@@ -9,10 +9,10 @@ export const generateRTC: Controller<GenerateRTCBody, GenerateRTCResponse> = asy
     req,
     logger,
 }) => {
-    try {
-        const { roomUUID } = req.body;
-        const { userUUID } = req.user;
+    const { roomUUID } = req.body;
+    const { userUUID } = req.user;
 
+    try {
         const roomUserInfo = await RoomUserDAO().findOne(["rtc_uid"], {
             room_uuid: roomUUID,
             user_uuid: userUUID,

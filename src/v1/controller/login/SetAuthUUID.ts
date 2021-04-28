@@ -9,9 +9,9 @@ export const setAuthUUID: Controller<SetAuthUUIDRequest, SetAuthUUIDResponse> = 
     req,
     logger,
 }) => {
-    try {
-        const { authUUID } = req.body;
+    const { authUUID } = req.body;
 
+    try {
         const result = await redisService.set(RedisKey.authUUID(authUUID), "", 60 * 60);
 
         if (result === null) {

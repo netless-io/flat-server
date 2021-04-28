@@ -22,93 +22,93 @@ export const updatePeriodic: Controller<UpdatePeriodicRequest, UpdatePeriodicRes
     const { periodicUUID, beginTime, endTime, title, type, periodic } = req.body;
     const { userUUID } = req.user;
 
-    const periodicConfigInfo = await RoomPeriodicConfigDAO().findOne(
-        ["room_origin_begin_time", "room_origin_end_time", "end_time", "rate"],
-        {
-            periodic_uuid: periodicUUID,
-            owner_uuid: userUUID,
-        },
-    );
+    try {
+        const periodicConfigInfo = await RoomPeriodicConfigDAO().findOne(
+            ["room_origin_begin_time", "room_origin_end_time", "end_time", "rate"],
+            {
+                periodic_uuid: periodicUUID,
+                owner_uuid: userUUID,
+            },
+        );
 
-    if (periodicConfigInfo === undefined) {
-        return {
-            status: Status.Failed,
-            code: ErrorCode.PeriodicNotFound,
-        };
-    }
+        if (periodicConfigInfo === undefined) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.PeriodicNotFound,
+            };
+        }
 
-    const { room_origin_begin_time, room_origin_end_time, end_time, rate } = periodicConfigInfo;
+        const { room_origin_begin_time, room_origin_end_time, end_time, rate } = periodicConfigInfo;
 
-    if (
-        !checkUpdateBeginAndEndTime(beginTime, endTime, {
-            begin_time: room_origin_begin_time,
-            end_time: room_origin_end_time,
-        })
-    ) {
-        return {
-            status: Status.Failed,
-            code: ErrorCode.ParamsCheckFailed,
-        };
-    }
+        if (
+            !checkUpdateBeginAndEndTime(beginTime, endTime, {
+                begin_time: room_origin_begin_time,
+                end_time: room_origin_end_time,
+            })
+        ) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.ParamsCheckFailed,
+            };
+        }
 
-    if (periodic.endTime) {
-        // it was rate before, or periodic.endTime was modified
-        if (rate !== 0 || compareDesc(end_time, periodic.endTime) !== 0) {
-            // endTime(day) > periodic.endTime(day)
-            if (differenceInCalendarDays(endTime)(periodic.endTime) < 0) {
-                return {
-                    status: Status.Failed,
-                    code: ErrorCode.ParamsCheckFailed,
-                };
+        if (periodic.endTime) {
+            // it was rate before, or periodic.endTime was modified
+            if (rate !== 0 || compareDesc(end_time, periodic.endTime) !== 0) {
+                // endTime(day) > periodic.endTime(day)
+                if (differenceInCalendarDays(endTime)(periodic.endTime) < 0) {
+                    return {
+                        status: Status.Failed,
+                        code: ErrorCode.ParamsCheckFailed,
+                    };
+                }
             }
         }
-    }
 
-    const hasRunningSubRoom = await RoomPeriodicDAO().findOne(["id"], {
-        periodic_uuid: periodicUUID,
-        room_status: In([RoomStatus.Started, RoomStatus.Paused]),
-    });
-
-    // if the sub room is running, it is not allowed to modify
-    if (hasRunningSubRoom) {
-        return {
-            status: Status.Failed,
-            code: ErrorCode.PeriodicSubRoomHasRunning,
-        };
-    }
-
-    const roomInfo = await RoomDAO().findOne(["room_uuid", "whiteboard_room_uuid"], {
-        periodic_uuid: periodicUUID,
-        room_status: RoomStatus.Idle,
-    });
-
-    if (roomInfo === undefined) {
-        return {
-            status: Status.Failed,
-            code: ErrorCode.RoomNotFound,
-        };
-    }
-
-    const dates = calculatePeriodicDates(beginTime, endTime, periodic);
-
-    const willAddRoom = dates.map(({ start, end }) => {
-        return {
+        const hasRunningSubRoom = await RoomPeriodicDAO().findOne(["id"], {
             periodic_uuid: periodicUUID,
-            fake_room_uuid: v4(),
-            room_status: RoomStatus.Idle,
-            begin_time: start,
-            end_time: end,
-        };
-    });
+            room_status: In([RoomStatus.Started, RoomStatus.Paused]),
+        });
 
-    const willRemoveRoom = (
-        await RoomPeriodicDAO().find(["id"], {
+        // if the sub room is running, it is not allowed to modify
+        if (hasRunningSubRoom) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.PeriodicSubRoomHasRunning,
+            };
+        }
+
+        const roomInfo = await RoomDAO().findOne(["room_uuid", "whiteboard_room_uuid"], {
             periodic_uuid: periodicUUID,
             room_status: RoomStatus.Idle,
-        })
-    ).map(room => room.id);
+        });
 
-    try {
+        if (roomInfo === undefined) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.RoomNotFound,
+            };
+        }
+
+        const dates = calculatePeriodicDates(beginTime, endTime, periodic);
+
+        const willAddRoom = dates.map(({ start, end }) => {
+            return {
+                periodic_uuid: periodicUUID,
+                fake_room_uuid: v4(),
+                room_status: RoomStatus.Idle,
+                begin_time: start,
+                end_time: end,
+            };
+        });
+
+        const willRemoveRoom = (
+            await RoomPeriodicDAO().find(["id"], {
+                periodic_uuid: periodicUUID,
+                room_status: RoomStatus.Idle,
+            })
+        ).map(room => room.id);
+
         await getConnection().transaction(async t => {
             const commands: Promise<unknown>[] = [];
 

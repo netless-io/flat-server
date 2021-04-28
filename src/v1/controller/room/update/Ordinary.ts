@@ -14,33 +14,33 @@ export const updateOrdinary: Controller<UpdateOrdinaryRequest, UpdateOrdinaryRes
     const { roomUUID, beginTime, endTime, title, type } = req.body;
     const { userUUID } = req.user;
 
-    const roomInfo = await RoomDAO().findOne(["room_status", "begin_time", "end_time"], {
-        room_uuid: roomUUID,
-        owner_uuid: userUUID,
-    });
-
-    if (roomInfo === undefined) {
-        return {
-            status: Status.Failed,
-            code: ErrorCode.RoomNotFound,
-        };
-    }
-
-    if (roomInfo.room_status !== RoomStatus.Idle) {
-        return {
-            status: Status.Failed,
-            code: ErrorCode.RoomNotIsIdle,
-        };
-    }
-
-    if (!checkUpdateBeginAndEndTime(beginTime, endTime, roomInfo)) {
-        return {
-            status: Status.Failed,
-            code: ErrorCode.ParamsCheckFailed,
-        };
-    }
-
     try {
+        const roomInfo = await RoomDAO().findOne(["room_status", "begin_time", "end_time"], {
+            room_uuid: roomUUID,
+            owner_uuid: userUUID,
+        });
+
+        if (roomInfo === undefined) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.RoomNotFound,
+            };
+        }
+
+        if (roomInfo.room_status !== RoomStatus.Idle) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.RoomNotIsIdle,
+            };
+        }
+
+        if (!checkUpdateBeginAndEndTime(beginTime, endTime, roomInfo)) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.ParamsCheckFailed,
+            };
+        }
+
         await RoomDAO().update(
             {
                 title,

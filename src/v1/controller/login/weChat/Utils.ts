@@ -98,27 +98,21 @@ export const registerOrLoginWechat = async (
 
     const { user_name: name, avatar_url: avatar } = getUserInfoByUser!;
 
-    let token = "";
-    try {
-        token = await reply.jwtSign({
-            userUUID,
-            loginSource: LoginPlatform.WeChat,
-        });
+    const token = await reply.jwtSign({
+        userUUID,
+        loginSource: LoginPlatform.WeChat,
+    });
 
-        await redisService.set(
-            RedisKey.authUserInfo(authUUID),
-            JSON.stringify({
-                name: name,
-                avatar: avatar,
-                userUUID,
-                token,
-            }),
-            60 * 60,
-        );
-    } catch (err) {
-        await redisService.set(RedisKey.authFailed(authUUID), "", 60 * 60);
-        throw err;
-    }
+    await redisService.set(
+        RedisKey.authUserInfo(authUUID),
+        JSON.stringify({
+            name: name,
+            avatar: avatar,
+            userUUID,
+            token,
+        }),
+        60 * 60,
+    );
 
     return {
         status: Status.Success,
