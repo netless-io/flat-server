@@ -72,6 +72,7 @@ export const fileConvertStart: Controller<
             result = await whiteboardCreateConversionTask({
                 resource,
                 type: fileType,
+                preview: true,
             });
         } else {
             result = await whiteboardCreateConversionTask({
