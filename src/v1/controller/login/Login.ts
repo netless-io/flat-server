@@ -1,3 +1,4 @@
+import axios from "axios";
 import redisService from "../../../thirdPartyService/RedisService";
 import { Status } from "../../../constants/Project";
 import { Controller, FastifySchema } from "../../../types/Server";
@@ -97,6 +98,13 @@ export const login: Controller<LoginRequest, LoginResponse> = async ({ req, logg
             code: ErrorCode.UnsupportedPlatform,
         };
     } catch (err: unknown) {
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+            return {
+                status: Status.Failed,
+                code: ErrorCode.NeedLoginAgain,
+            };
+        }
+
         logger.error("request failed", parseError(err));
         return {
             status: Status.AuthFailed,
