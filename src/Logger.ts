@@ -1,5 +1,6 @@
 import os from "os";
 import { createLogger, format, Logger, transports } from "winston";
+import axios from "axios";
 
 const logger = createLogger({
     level: "debug",
@@ -44,6 +45,38 @@ export const parseError = (error: any): void | Record<string, any> => {
         case "object": {
             if (error === null) {
                 return;
+            }
+
+            if (axios.isAxiosError(error)) {
+                const axiosErrorData: Record<string, string> = {};
+
+                if (error.response?.status) {
+                    axiosErrorData.status = String(error.response.status);
+                }
+
+                if (error.response?.statusText) {
+                    axiosErrorData.statusText = error.response.statusText;
+                }
+
+                if (error.response?.config.url) {
+                    axiosErrorData.url = error.response?.config.url;
+                }
+
+                if (error.response?.config.method) {
+                    axiosErrorData.method = error.response?.config.method;
+                }
+
+                if (typeof error.response?.data === "object" && error.response.data !== null) {
+                    axiosErrorData.data = error.response.data;
+                }
+
+                if (error.response?.config.headers) {
+                    axiosErrorData.headers = error.response?.config.headers;
+                }
+
+                return {
+                    axiosErrorData: axiosErrorData,
+                };
             }
 
             return {
