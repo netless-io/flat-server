@@ -35,9 +35,12 @@ export const callback: Controller<CallbackRequest, any> = async ({ req, logger }
             accessToken,
         );
 
-        const getUserInfoByUserGithub = await UserGithubDAO().findOne(["user_uuid", "user_name"], {
-            union_uuid: String(union_uuid),
-        });
+        const getUserInfoByUserGithub = await UserGithubDAO().findOne(
+            ["user_uuid", "user_name", "access_token"],
+            {
+                union_uuid: String(union_uuid),
+            },
+        );
 
         let userUUID = getUserInfoByUserGithub?.user_uuid || "";
         if (getUserInfoByUserGithub === undefined) {
@@ -61,6 +64,18 @@ export const callback: Controller<CallbackRequest, any> = async ({ req, logger }
 
                 return await Promise.all([createUser, createUserGithub]);
             });
+        } else {
+            if (getUserInfoByUserGithub.access_token !== accessToken) {
+                logger.info("github user modified access token");
+                await UserGithubDAO().update(
+                    {
+                        access_token: accessToken,
+                    },
+                    {
+                        user_uuid: userUUID,
+                    },
+                );
+            }
         }
 
         const getUserInfoByUser = await UserDAO().findOne(["user_name", "avatar_url"], {
