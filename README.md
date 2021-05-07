@@ -8,7 +8,7 @@ Project flat-server is a `Node.js` server for the [Agora Flat](https://github.co
 
 -  Login via 
   - [x] Wechat
-  - [ ] Github
+  - [x] Github
   - [ ] Google
 - Room scheduling
   - [x] Ordinary rooms
