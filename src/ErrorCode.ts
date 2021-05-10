@@ -32,4 +32,8 @@ export enum ErrorCode {
     FileConvertFailed, // file convert failed
     FileIsConverting, // file is converting
     FileIsConvertWaiting, // file convert is in waiting status
+
+    LoginGithubSuspended = 900000, // https://docs.github.com/en/developers/apps/troubleshooting-authorization-request-errors
+    LoginGithubURLMismatch,
+    LoginGithubAccessDenied,
 }
