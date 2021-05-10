@@ -21,12 +21,21 @@ export const loginProcess: Controller<LoginProcessRequest, LoginProcessResponse>
             };
         }
 
-        const isAuthFailed = await RedisService.get(RedisKey.authFailed(authUUID));
+        const authFailed = await RedisService.get(RedisKey.authFailed(authUUID));
 
-        if (isAuthFailed !== null) {
+        if (authFailed !== null) {
+            const code =
+                authFailed === "application_suspended"
+                    ? ErrorCode.LoginGithubSuspended
+                    : authFailed === "redirect_uri_mismatch"
+                    ? ErrorCode.LoginGithubURLMismatch
+                    : authFailed === "access_denied"
+                    ? ErrorCode.LoginGithubAccessDenied
+                    : ErrorCode.CurrentProcessFailed;
+
             return {
                 status: Status.Failed,
-                code: ErrorCode.CurrentProcessFailed,
+                code,
             };
         }
 

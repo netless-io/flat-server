@@ -16,9 +16,17 @@ export const callback: Controller<CallbackRequest, any> = async ({ req, logger }
         "content-type": "text/html",
     });
 
-    const { state: authUUID, code } = req.query;
+    const { state: authUUID } = req.query;
 
     try {
+        if ("error" in req.query) {
+            await redisService.set(RedisKey.authFailed(authUUID), req.query.error, 60 * 60);
+
+            return reply.send(failedHTML);
+        }
+
+        const code = req.query.code;
+
         const checkAuthUUID = await redisService.get(RedisKey.authUUID(authUUID));
 
         if (checkAuthUUID === null) {
@@ -111,14 +119,20 @@ export const callback: Controller<CallbackRequest, any> = async ({ req, logger }
 interface CallbackRequest {
     querystring: {
         state: string;
-        code: string;
-    };
+    } & (
+        | {
+              code: string;
+          }
+        | {
+              error: string;
+          }
+    );
 }
 
 export const callbackSchemaType: FastifySchema<CallbackRequest> = {
     querystring: {
         type: "object",
-        required: ["state", "code"],
+        required: ["state"],
         properties: {
             state: {
                 type: "string",
@@ -127,7 +141,18 @@ export const callbackSchemaType: FastifySchema<CallbackRequest> = {
             code: {
                 type: "string",
             },
+            error: {
+                type: "string",
+            },
         },
+        oneOf: [
+            {
+                required: ["code"],
+            },
+            {
+                required: ["error"],
+            },
+        ],
     },
 };
 
