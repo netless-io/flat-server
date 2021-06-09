@@ -16,7 +16,7 @@ export const callback: Controller<CallbackRequest, any> = async ({ req, logger }
         "content-type": "text/html",
     });
 
-    const { state: authUUID } = req.query;
+    const { state: authUUID, platform } = req.query;
 
     try {
         if ("error" in req.query) {
@@ -108,7 +108,13 @@ export const callback: Controller<CallbackRequest, any> = async ({ req, logger }
             60 * 60,
         );
 
-        return reply.send(successHTML);
+        let replyHTML = successHTML
+        if (platform === "web") {
+            // remove code about waking up desktop client
+            replyHTML = replyHTML.replace(/^\s*setTimeout.*$/, '')
+        }
+
+        return reply.send(replyHTML);
     } catch (err: unknown) {
         logger.error("request failed", parseError(err));
         await redisService.set(RedisKey.authFailed(authUUID), "", 60 * 60);
@@ -118,6 +124,7 @@ export const callback: Controller<CallbackRequest, any> = async ({ req, logger }
 
 interface CallbackRequest {
     querystring: {
+        platform?: 'web';
         state: string;
     } & (
         | {
@@ -137,6 +144,10 @@ export const callbackSchemaType: FastifySchema<CallbackRequest> = {
             state: {
                 type: "string",
                 format: "uuid-v4",
+            },
+            platform: {
+                type: "string",
+                nullable: true,
             },
             code: {
                 type: "string",
