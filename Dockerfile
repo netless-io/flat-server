@@ -1,4 +1,4 @@
-FROM node:16.4.0 as base
+FROM node:16.3.0 as base
 LABEL maintainer="Black-Hole<158blackhole@gmail.com>"
 
 WORKDIR /usr/src/
@@ -22,7 +22,7 @@ RUN yarn install --production --frozen-lockfile
 
 # ----
 
-FROM node:16.4.0
+FROM node:16.3.0
 
 WORKDIR /usr/src/
 
