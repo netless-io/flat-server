@@ -5,7 +5,7 @@ import { ErrorCode } from "../../../../ErrorCode";
 import { RoomUserDAO } from "../../../../dao";
 import { RoomUserModel } from "../../../../model/room/RoomUser";
 import { UserModel } from "../../../../model/user/User";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const userInfo: Controller<UserInfoRequest, UserInfoResponse> = async ({ req, logger }) => {
     const { roomUUID, usersUUID } = req.body;

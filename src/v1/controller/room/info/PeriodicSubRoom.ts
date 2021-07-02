@@ -4,7 +4,7 @@ import { ErrorCode } from "../../../../ErrorCode";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { RoomPeriodicConfigDAO, RoomPeriodicDAO, RoomPeriodicUserDAO } from "../../../../dao";
 import { LessThan, MoreThan, Not } from "typeorm";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const periodicSubRoomInfo: Controller<
     PeriodicSubRoomInfoRequest,

@@ -5,7 +5,7 @@ import { ErrorCode } from "../../../../../ErrorCode";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../../dao";
 import { Controller, FastifySchema } from "../../../../../types/Server";
 import { getDisposition, getFilePath, ossClient } from "../Utils";
-import { parseError } from "../../../../../Logger";
+import { parseError } from "../../../../../logger";
 
 export const alibabaCloudRename: Controller<
     AlibabaCloudRenameRequest,

@@ -1,13 +1,7 @@
 import { FastifyInstance, RouteShorthandOptions } from "fastify";
 import { httpRouters } from "./Routes";
 import { FastifyRoutes, FastifySchema, PatchRequest } from "../types/Server";
-import { loggerAPI, parseError } from "../Logger";
-import { Logger } from "winston";
-import { v4 } from "uuid";
-
-const existValueInObj = (obj: any): boolean => {
-    return typeof obj === "object" && obj !== null && Object.keys(obj).length !== 0;
-};
+import { createLoggerAPI, parseError, Logger, LoggerAPI } from "../logger";
 
 export const v1RegisterRouters = (server: FastifyInstance): void => {
     // @ts-ignore
@@ -25,50 +19,30 @@ export const v1RegisterRouters = (server: FastifyInstance): void => {
             serverOpts.schema = schema;
         }
 
-        const { verifyParams, verifyBody, verifyQuery } = (() => {
-            if (!schema) {
-                return {
-                    verifyParams: false,
-                    verifyBody: false,
-                    verifyQuery: false,
-                };
-            }
-
-            const schemaKeys = Object.keys(schema);
-
-            return {
-                verifyParams: schemaKeys.includes("params"),
-                verifyBody: schemaKeys.includes("body"),
-                verifyQuery: schemaKeys.includes("querystring"),
+        const loggerHandle = (req: PatchRequest): Logger<LoggerAPI> => {
+            const baseContext = {
+                user: {
+                    userUUID: req?.user?.userUUID,
+                    loginSource: req?.user?.loginSource,
+                    iat: req?.user?.iat,
+                    exp: req?.user?.exp,
+                },
+                params: {
+                    ...req.params,
+                },
+                body: {
+                    ...req.body,
+                },
+                query: {
+                    ...req.query,
+                },
             };
-        })();
 
-        const loggerHandle = (req: PatchRequest): Logger => {
-            const base: Record<string, any> = {
+            return createLoggerAPI<RecursionObject<string | number | boolean>>({
                 requestPath: path,
                 requestVersion: "v1",
-            };
-
-            if (existValueInObj(req.user)) {
-                base.user = req.user;
-            }
-
-            if (verifyParams && existValueInObj(req.params)) {
-                base.params = req.params;
-            }
-
-            if (verifyBody && existValueInObj(req.body)) {
-                base.body = req.body;
-            }
-
-            if (verifyQuery && existValueInObj(req.query)) {
-                // because the prototype of req.query is null
-                base.query = {
-                    ...req.query,
-                };
-            }
-
-            return loggerAPI.child(base);
+                [`v1/${path}`]: baseContext,
+            }) as Logger<LoggerAPI>;
         };
 
         server[method](
@@ -77,9 +51,7 @@ export const v1RegisterRouters = (server: FastifyInstance): void => {
             // @ts-ignore
             async (req: PatchRequest, reply): Promise<void> => {
                 const logger = loggerHandle(req);
-                const uuid = v4();
-
-                logger.profile(uuid);
+                const startTime = Date.now();
 
                 try {
                     const result = await handler(
@@ -97,9 +69,8 @@ export const v1RegisterRouters = (server: FastifyInstance): void => {
                     logger.error("request unexpected interruption", parseError(err));
                     throw err;
                 } finally {
-                    logger.profile(uuid, {
-                        level: "debug",
-                        message: "request execution time",
+                    logger.debug("request execution time", {
+                        durationMS: Date.now() - startTime,
                     });
                 }
             },

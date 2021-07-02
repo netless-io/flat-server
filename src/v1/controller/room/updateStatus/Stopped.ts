@@ -8,7 +8,7 @@ import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../../dao
 import { roomIsRunning } from "../utils/Room";
 import { getNextPeriodicRoomInfo, updateNextPeriodicRoomInfo } from "../../../service/Periodic";
 import { RoomPeriodicModel } from "../../../../model/room/RoomPeriodic";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const stopped: Controller<StoppedRequest, StoppedResponse> = async ({ req, logger }) => {
     const { roomUUID } = req.body;

@@ -3,7 +3,7 @@ import { Controller, FastifySchema } from "../../../../types/Server";
 import { getRTCToken } from "../../../utils/AgoraToken";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomUserDAO } from "../../../../dao";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const generateRTC: Controller<GenerateRTCBody, GenerateRTCResponse> = async ({
     req,

@@ -2,7 +2,7 @@ import { Controller, FastifySchema } from "../../../../../types/Server";
 import redisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { registerOrLoginWechat } from "../Utils";
-import { parseError } from "../../../../../Logger";
+import { parseError } from "../../../../../logger";
 
 export const callback: Controller<CallbackRequest, any> = async ({ req, logger }, reply) => {
     void reply.headers({

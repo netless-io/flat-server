@@ -3,7 +3,7 @@ import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { RoomDAO, RoomUserDAO, UserDAO } from "../../../../dao";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const ordinaryInfo: Controller<OrdinaryInfoRequest, OrdinaryInfoResponse> = async ({
     req,

@@ -5,7 +5,7 @@ import { Status } from "../../../../constants/Project";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { toDate } from "date-fns/fp";
 import { checkUpdateBeginAndEndTime } from "./Utils";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const updateOrdinary: Controller<UpdateOrdinaryRequest, UpdateOrdinaryResponse> = async ({
     req,

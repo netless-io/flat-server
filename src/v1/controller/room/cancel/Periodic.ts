@@ -11,7 +11,7 @@ import {
     RoomUserDAO,
 } from "../../../../dao";
 import { roomIsRunning } from "../utils/Room";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const cancelPeriodic: Controller<CancelPeriodicRequest, CancelPeriodicResponse> = async ({
     req,

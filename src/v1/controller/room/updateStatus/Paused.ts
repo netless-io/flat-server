@@ -4,7 +4,7 @@ import { ErrorCode } from "../../../../ErrorCode";
 import { Status } from "../../../../constants/Project";
 import { RoomStatus } from "../../../../model/room/Constants";
 import { getConnection } from "typeorm";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const paused: Controller<PausedRequest, PausedResponse> = async ({ req, logger }) => {
     const { roomUUID } = req.body;

@@ -3,7 +3,7 @@ import { Status } from "../../../../constants/Project";
 import { RoomStatus } from "../../../../model/room/Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomUserDAO } from "../../../../dao";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const cancelHistory: Controller<CancelHistoryRequest, CancelHistoryResponse> = async ({
     req,

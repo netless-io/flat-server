@@ -11,7 +11,7 @@ import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { checkTotalUsage } from "./Utils";
 import { getFilePath, isExistObject, getOSSFileURLPath } from "../Utils";
-import { parseError } from "../../../../../Logger";
+import { parseError } from "../../../../../logger";
 
 export const alibabaCloudUploadFinish: Controller<
     AlibabaCloudUploadFinishRequest,

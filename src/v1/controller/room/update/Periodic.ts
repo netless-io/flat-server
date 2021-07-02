@@ -13,7 +13,7 @@ import {
     whiteboardBanRoom,
     whiteboardCreateRoom,
 } from "../../../utils/request/whiteboard/WhiteboardRequest";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const updatePeriodic: Controller<UpdatePeriodicRequest, UpdatePeriodicResponse> = async ({
     req,

@@ -85,3 +85,8 @@ export const AlibabaCloud = {
     OSS_BUCKET: process.env.ALIBABA_CLOUD_OSS_BUCKET,
     OSS_REGION: process.env.ALIBABA_CLOUD_OSS_REGION,
 };
+
+export const LogConfig = {
+    PATHNAME: process.env.LOG_PATHNAME,
+    FILENAME: process.env.LOG_FILENAME,
+};

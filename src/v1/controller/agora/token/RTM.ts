@@ -1,7 +1,7 @@
 import { Status } from "../../../../constants/Project";
 import { Controller } from "../../../../types/Server";
 import { getRTMToken } from "../../../utils/AgoraToken";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 import { ErrorCode } from "../../../../ErrorCode";
 
 export const generateRTM: Controller<any, GenerateRTMResponse> = async ({ req, logger }) => {

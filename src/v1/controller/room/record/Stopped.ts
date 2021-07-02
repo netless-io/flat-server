@@ -3,7 +3,7 @@ import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomRecordDAO } from "../../../../dao";
 import { roomIsRunning } from "../utils/Room";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const recordStopped: Controller<RecordStoppedRequest, RecordStoppedResponse> = async ({
     req,

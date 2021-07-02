@@ -7,7 +7,7 @@ import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
 import { getRTMToken } from "../../../utils/AgoraToken";
 
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const recordInfo: Controller<RecordInfoRequest, RecordInfoResponse> = async ({
     req,

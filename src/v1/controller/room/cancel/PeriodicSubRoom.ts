@@ -7,7 +7,7 @@ import { roomIsRunning } from "../utils/Room";
 import { getNextPeriodicRoomInfo, updateNextPeriodicRoomInfo } from "../../../service/Periodic";
 import { PeriodicStatus } from "../../../../model/room/Constants";
 import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const cancelPeriodicSubRoom: Controller<
     CancelPeriodicSubRoomRequest,

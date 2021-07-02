@@ -9,7 +9,7 @@ import { UserDAO, UserGithubDAO } from "../../../../dao";
 import { v4 } from "uuid";
 import { getConnection } from "typeorm";
 import { LoginPlatform } from "../../../../constants/Project";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const callback: Controller<CallbackRequest, any> = async ({ req, logger }, reply) => {
     void reply.headers({

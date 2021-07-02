@@ -5,7 +5,7 @@ import { Controller, FastifySchema } from "../../../../types/Server";
 import { whiteboardQueryConversionTask } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
 import { determineType, isConvertDone, isConvertFailed } from "./Utils";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const fileConvertFinish: Controller<
     FileConvertFinishRequest,
@@ -92,7 +92,7 @@ export const fileConvertFinish: Controller<
                     code: ErrorCode.FileConvertFailed,
                 };
             }
-            default:
+            default: {
                 return {
                     status: Status.Failed,
                     code:
@@ -100,6 +100,7 @@ export const fileConvertFinish: Controller<
                             ? ErrorCode.FileIsConvertWaiting
                             : ErrorCode.FileIsConverting,
                 };
+            }
         }
     } catch (err) {
         logger.error("request failed", parseError(err));

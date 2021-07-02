@@ -5,7 +5,7 @@ import { Status } from "../constants/Project";
 import { Algorithm } from "jsonwebtoken";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ErrorCode } from "../ErrorCode";
-import { loggerAPI, parseError } from "../Logger";
+import { loggerServer, parseError } from "../logger";
 
 export default fp(
     async (fastify): Promise<void> => {
@@ -22,7 +22,7 @@ export default fp(
             try {
                 await request.jwtVerify();
             } catch (err) {
-                loggerAPI.warn("jwt verify failed", parseError(err));
+                loggerServer.warn("jwt verify failed", parseError(err));
                 void reply.send({
                     status: Status.Failed,
                     code: ErrorCode.JWTSignFailed,

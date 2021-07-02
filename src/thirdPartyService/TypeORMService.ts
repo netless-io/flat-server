@@ -12,7 +12,7 @@ import { RoomUserModel } from "../model/room/RoomUser";
 import { UserModel } from "../model/user/User";
 import { UserWeChatModel } from "../model/user/WeChat";
 import { UserGithubModel } from "../model/user/Github";
-import { loggerServer, parseError } from "../Logger";
+import { loggerServer, parseError } from "../logger";
 
 export const orm = createConnection({
     type: "mysql",

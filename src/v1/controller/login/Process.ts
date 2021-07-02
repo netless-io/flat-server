@@ -3,7 +3,7 @@ import RedisService from "../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../utils/Redis";
 import { Status } from "../../../constants/Project";
 import { ErrorCode } from "../../../ErrorCode";
-import { parseError } from "../../../Logger";
+import { parseError } from "../../../logger";
 
 export const loginProcess: Controller<LoginProcessRequest, LoginProcessResponse> = async ({
     req,

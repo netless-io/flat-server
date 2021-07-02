@@ -8,7 +8,7 @@ import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomRecordDAO } from "../../../../dao";
 
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const list: Controller<ListRequest, ListResponse> = async ({ req, logger }) => {
     const { type } = req.params;
