@@ -28,6 +28,7 @@
     "@types/mocha": "^8.2.1",
     "@types/node": "^14.14.10",
     "@types/query-string": "^6.3.0",
+    "@types/source-map-support": "^0.5.3",
     "@types/uuid": "^8.3.0",
     "@types/validator": "^13.1.1",
     "@types/webpack-env": "^1.16.0",
@@ -76,6 +77,8 @@
     "reflect-metadata": "^0.1.13",
     "retry-axios": "^2.4.0",
     "typeorm": "^0.2.29",
-    "uuid": "^8.3.1"
+    "uuid": "^8.3.1",
+    "winston": "^3.3.3",
+    "source-map-support": "^0.5.19"
   }
 }

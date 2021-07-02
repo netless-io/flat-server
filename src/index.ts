@@ -1,3 +1,4 @@
+import 'source-map-support/register'
 import "reflect-metadata";
 import fastify from "fastify";
 import cors from "fastify-cors";
@@ -9,6 +10,9 @@ import { ajvSelfPlugin } from "./plugins/Ajv";
 import { orm } from "./thirdPartyService/TypeORMService";
 import { ErrorCode } from "./ErrorCode";
 import { loggerServer, parseError } from "./logger";
+
+
+
 
 const app = fastify({
     caseSensitive: true,
