@@ -90,3 +90,9 @@ export const LogConfig = {
     PATHNAME: process.env.LOG_PATHNAME,
     FILENAME: process.env.LOG_FILENAME,
 };
+
+export const metricsConfig = {
+    ENABLED: process.env.METRICS_ENABLED || false,
+    ENDPOINT: process.env.METRICS_ENDPOINT || "/metrics",
+    BLACKLIST: process.env.METRICS_BLACKLIST || "/metrics,/health-check",
+};
