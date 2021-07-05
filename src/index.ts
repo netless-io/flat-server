@@ -11,9 +11,6 @@ import { orm } from "./thirdPartyService/TypeORMService";
 import { ErrorCode } from "./ErrorCode";
 import { loggerServer, parseError } from "./logger";
 
-
-
-
 const app = fastify({
     caseSensitive: true,
     ajv: {
