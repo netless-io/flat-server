@@ -6,7 +6,7 @@ import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardR
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomUserDAO } from "../../../../dao";
 import { roomIsRunning } from "../utils/Room";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const cancelOrdinary: Controller<CancelOrdinaryRequest, CancelOrdinaryResponse> = async ({
     req,

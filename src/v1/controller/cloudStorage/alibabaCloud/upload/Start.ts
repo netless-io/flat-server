@@ -8,7 +8,7 @@ import { getFilePath, policyTemplate } from "../Utils";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { checkTotalUsage } from "./Utils";
-import { parseError } from "../../../../../Logger";
+import { parseError } from "../../../../../logger";
 
 export const alibabaCloudUploadStart: Controller<
     AlibabaCloudUploadStartRequest,

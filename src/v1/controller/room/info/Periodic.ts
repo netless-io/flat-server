@@ -9,7 +9,7 @@ import {
     RoomPeriodicUserDAO,
     UserDAO,
 } from "../../../../dao";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const periodicInfo: Controller<PeriodicInfoRequest, PeriodicInfoResponse> = async ({
     req,

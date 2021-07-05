@@ -2,7 +2,7 @@ import { Controller, FastifySchema } from "../../../../../types/Server";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { registerOrLoginWechat } from "../Utils";
-import { parseError } from "../../../../../Logger";
+import { parseError } from "../../../../../logger";
 import redisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 

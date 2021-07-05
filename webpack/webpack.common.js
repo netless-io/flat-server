@@ -9,11 +9,6 @@ module.exports = {
     entry: [paths.entryFile],
     target: "node",
 
-    node: {
-        __filename: true,
-        __dirname: true,
-    },
-
     module: {
         rules: [
             {

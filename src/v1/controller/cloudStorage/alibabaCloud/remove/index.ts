@@ -10,7 +10,7 @@ import { CloudStorageFilesModel } from "../../../../../model/cloudStorage/CloudS
 import { CloudStorageUserFilesModel } from "../../../../../model/cloudStorage/CloudStorageUserFiles";
 import { Controller, FastifySchema } from "../../../../../types/Server";
 import { getFilePath, ossClient } from "../Utils";
-import { parseError } from "../../../../../Logger";
+import { parseError } from "../../../../../logger";
 
 export const alibabaCloudRemoveFile: Controller<
     AlibabaCloudRemoveFileRequest,

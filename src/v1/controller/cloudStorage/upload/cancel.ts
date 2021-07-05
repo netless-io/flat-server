@@ -4,7 +4,7 @@ import { ErrorCode } from "../../../../ErrorCode";
 import { RedisKey } from "../../../../utils/Redis";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { Controller, FastifySchema } from "../../../../types/Server";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const uploadCancel: Controller<UploadCancelRequest, UploadCancelResponse> = async ({
     req,

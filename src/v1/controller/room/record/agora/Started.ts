@@ -12,7 +12,7 @@ import {
 import { agoraCloudRecordStartedRequest } from "../../../../utils/request/agora/Agora";
 import { getConnection } from "typeorm";
 import { getCloudRecordData } from "../../utils/Agora";
-import { parseError } from "../../../../../Logger";
+import { parseError } from "../../../../../logger";
 
 export const recordAgoraStarted: Controller<
     RecordAgoraStartedRequest,

@@ -10,7 +10,7 @@ import {
 } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
 import { determineType, isConverting, isConvertDone, isConvertFailed } from "./Utils";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const fileConvertStart: Controller<
     FileConvertStartRequest,

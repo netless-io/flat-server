@@ -17,7 +17,7 @@ import {
 } from "../../../../dao";
 import { calculatePeriodicDates } from "../utils/Periodic";
 import { checkBeginAndEndTime } from "../utils/CheckTime";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const createPeriodic: Controller<CreatePeriodicRequest, CreatePeriodicResponse> = async ({
     req,

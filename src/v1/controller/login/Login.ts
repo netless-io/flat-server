@@ -8,7 +8,7 @@ import { UserDAO, UserGithubDAO, UserWeChatDAO } from "../../../dao";
 import { LoginPlatform } from "../../../constants/Project";
 import { getGithubUserInfo } from "../../utils/request/github/GithubRequest";
 import { weChatRenewAccessToken } from "../../utils/request/wechat/WeChatRequest";
-import { parseError } from "../../../Logger";
+import { parseError } from "../../../logger";
 
 export const login: Controller<LoginRequest, LoginResponse> = async ({ req, logger }) => {
     const { userUUID, loginSource } = req.user;

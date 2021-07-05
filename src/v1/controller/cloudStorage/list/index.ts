@@ -6,7 +6,7 @@ import { CloudStorageFilesModel } from "../../../../model/cloudStorage/CloudStor
 import { CloudStorageUserFilesModel } from "../../../../model/cloudStorage/CloudStorageUserFiles";
 import { Controller, FastifySchema } from "../../../../types/Server";
 import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const cloudStorageList: Controller<
     CloudStorageListRequest,

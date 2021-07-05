@@ -12,14 +12,13 @@ import {
     getWeChatAccessToken,
     getWeChatUserInfo,
 } from "../../../utils/request/wechat/WeChatRequest";
-import { Logger } from "winston";
-import { loggerAPI, parseError } from "../../../../Logger";
+import { Logger, LoggerAPI, parseError } from "../../../../logger";
 
 export const registerOrLoginWechat = async (
     code: string,
     authUUID: string,
     type: "WEB" | "MOBILE",
-    logger: Logger,
+    logger: Logger<LoggerAPI>,
     reply: FastifyReply,
 ): Response<WeChatResponse> => {
     const result = await redisService.get(RedisKey.authUUID(authUUID));
@@ -81,7 +80,7 @@ export const registerOrLoginWechat = async (
                     },
                 )
                 .catch(err => {
-                    loggerAPI.warn("update wechat nickname failed", parseError(err));
+                    logger.warn("update wechat nickname failed", parseError(err));
                 });
         }
     }

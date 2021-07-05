@@ -8,7 +8,7 @@ import {
     AgoraCloudRecordQueryResponse,
 } from "../../../../utils/request/agora/Types";
 import { agoraCloudRecordQueryRequest } from "../../../../utils/request/agora/Agora";
-import { parseError } from "../../../../../Logger";
+import { parseError } from "../../../../../logger";
 
 export const recordAgoraQuery: Controller<
     RecordAgoraQueryRequest,

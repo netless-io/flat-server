@@ -5,7 +5,7 @@ import { PeriodicStatus, RoomStatus } from "../../../../model/room/Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../../dao";
 import { roomIsRunning } from "../utils/Room";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const started: Controller<StartedRequest, StartedResponse> = async ({ req, logger }) => {
     const { roomUUID } = req.body;

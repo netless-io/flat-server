@@ -8,7 +8,7 @@ import jwtVerify from "./plugins/JWT";
 import { ajvSelfPlugin } from "./plugins/Ajv";
 import { orm } from "./thirdPartyService/TypeORMService";
 import { ErrorCode } from "./ErrorCode";
-import { loggerServer, parseError } from "./Logger";
+import { loggerServer, parseError } from "./logger";
 
 const app = fastify({
     caseSensitive: true,

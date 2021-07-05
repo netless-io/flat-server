@@ -5,7 +5,7 @@ import { joinPeriodic } from "./Periodic";
 import { JoinResponse } from "./Type";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomPeriodicConfigDAO } from "../../../../dao";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const join: Controller<JoinRequest, JoinResponse> = async ({ req, logger }) => {
     const { uuid } = req.body;

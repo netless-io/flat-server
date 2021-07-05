@@ -10,7 +10,7 @@ import {
     beginTimeExceedRedundancyOneMinute,
     timeIntervalLessThanFifteenMinute,
 } from "../utils/CheckTime";
-import { parseError } from "../../../../Logger";
+import { parseError } from "../../../../logger";
 
 export const updatePeriodicSubRoom: Controller<
     UpdatePeriodicSubRoomRequest,

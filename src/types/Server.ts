@@ -1,14 +1,16 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { Logger } from "winston";
 import { JSONSchemaType } from "ajv/dist/types/json-schema";
 import { Status } from "../constants/Project";
 import { ErrorCode } from "../ErrorCode";
 import { LoginPlatform } from "../constants/Project";
+import { Logger, LoggerAPI } from "../logger";
 
 export interface PatchRequest<T = any> extends FastifyRequest<T> {
     user: {
         userUUID: string;
         loginSource: LoginPlatform;
+        iat: number;
+        exp: number;
     };
 }
 
@@ -31,7 +33,7 @@ export interface FastifySchema<T extends Schema = Schema> {
 export type Controller<RES, RESP> = (
     data: {
         req: PatchRequest<CapitalizeKeys<RES>>;
-        logger: Logger;
+        logger: Logger<LoggerAPI>;
     },
     reply: FastifyReply,
 ) => Promise<void> | Response<RESP>;
