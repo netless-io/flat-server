@@ -21,6 +21,8 @@
         "experimentalDecorators": true,
         "resolveJsonModule": true,
         "strictBindCallApply": true,
+        "declaration": true,
+        "declarationMap": true,
         "baseUrl": "src",
     },
     "exclude": ["node_modules"],
