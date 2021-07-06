@@ -10,7 +10,7 @@ import { ajvSelfPlugin } from "./plugins/Ajv";
 import { orm } from "./thirdPartyService/TypeORMService";
 import { ErrorCode } from "./ErrorCode";
 import { loggerServer, parseError } from "./logger";
-import metricsPlugin from "fastify-metrics";
+import { MetricsSever } from "./metrics";
 
 const app = fastify({
     caseSensitive: true,
@@ -21,10 +21,7 @@ const app = fastify({
 
 if (metricsConfig.ENABLED) {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    app.register(metricsPlugin, {
-        endpoint: metricsConfig.ENDPOINT,
-        blacklist: metricsConfig.BLACKLIST.split(","),
-    });
+    new MetricsSever(app).start();
 }
 
 app.setErrorHandler((err, _request, reply) => {
