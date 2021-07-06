@@ -44,6 +44,8 @@ declare namespace NodeJS {
         LOG_PATHNAME: string;
         LOG_FILENAME: string;
 
+        METRICS_ENABLED: string;
+
         NETLESS_ACCESS_KEY: string;
         NETLESS_SECRET_ACCESS_KEY: string;
 

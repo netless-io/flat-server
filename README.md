@@ -133,7 +133,7 @@ Deployment is not needed for local development. If you want to bring the server 
 | LOG_FILENAME                        | Log file name                                  | e.g: `{{DAY_DATE}}`. See [env variable][env-variable]    |
 | METRICS_ENABLED                     | enable prometheus metrics                      | Default: `false`, see: [fastify-metrics][fastify-metrics]                  |
 | METRICS_ENDPOINT                    | metrics endpoint                               | Default: `/metrics`.                                                       |
-| METRICS_BLACKLIST                   | Skip metrics collection for blacklisted routes | Default: `/metrics,/health-check`,split by comma                           |
+| METRICS_BLACKLIST                   | Skip metrics collection for blacklisted routes | Default: `/metrics,/health-check`, split by comma                           |
 | CLOUD_STORAGE_CONCURRENT            | Maximum count of Cloud Storage uploading files | Default: `3`                                                               |
 | CLOUD_STORAGE_SINGLE_FILE_SIZE      | Maximum size of a Cloud Storage file           | Default: `524288000` (500M)                                                |
 | CLOUD_STORAGE_TOTAL_SIZE            | Maximum Cloud Storage size of a user           | Default: `2147483648` (2G)                                                 |

@@ -92,7 +92,7 @@ export const LogConfig = {
 };
 
 export const metricsConfig = {
-    ENABLED: process.env.METRICS_ENABLED || false,
+    ENABLED: (process.env.METRICS_ENABLED && process.env.METRICS_ENABLED === "true") || false,
     ENDPOINT: process.env.METRICS_ENDPOINT || "/metrics",
     BLACKLIST: process.env.METRICS_BLACKLIST || "/metrics,/health-check",
 };
