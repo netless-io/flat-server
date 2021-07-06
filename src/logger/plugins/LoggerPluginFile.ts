@@ -10,7 +10,7 @@ export class LoggerPluginFile<C extends LoggerContext> extends LoggerAbstractPlu
         super();
     }
     public output(log: LoggerFormat<C>): void {
-        appendFileSync(this.logFilePath, JSON.stringify(log));
+        appendFileSync(this.logFilePath, `${JSON.stringify(log)}\n`);
     }
 
     private get logFilePath(): string {

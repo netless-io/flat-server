@@ -30,13 +30,13 @@ describe("Logger Plugin Terminal", () => {
 
         expect(fs.existsSync(filepath)).true;
 
-        const fileContent = fs
-            .readFileSync(filepath, {
-                encoding: "utf-8",
-            })
-            .trim();
+        const fileContent = fs.readFileSync(filepath, {
+            encoding: "utf-8",
+        });
 
-        expect(fileContent).eq(JSON.stringify(log));
+        expect(fileContent[fileContent.length - 1]).eq("\n");
+
+        expect(fileContent.trim()).eq(JSON.stringify(log));
 
         fs.removeSync(filepath);
 
