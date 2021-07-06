@@ -1,18 +1,34 @@
-import { Controller, FastifySchema } from "../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { RoomStatus } from "../../../../model/room/Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomUserDAO } from "../../../../dao";
-import { parseError } from "../../../../logger";
+import { Controller } from "../../../../decorator/Controller";
+import { AbstractController } from "../../../../abstract/Controller";
 
-export const cancelHistory: Controller<CancelHistoryRequest, CancelHistoryResponse> = async ({
-    req,
-    logger,
-}) => {
-    const { roomUUID } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/cancel/history",
+    auth: true,
+})
+export class CancelHistory extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["roomUUID"],
+            properties: {
+                roomUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { roomUUID } = this.body;
+        const userUUID = this.userUUID;
+
         const roomUserInfo = await RoomUserDAO().findOne(["id"], {
             user_uuid: userUUID,
             room_uuid: roomUUID,
@@ -52,32 +68,17 @@ export const cancelHistory: Controller<CancelHistoryRequest, CancelHistoryRespon
             status: Status.Success,
             data: {},
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface CancelHistoryRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         roomUUID: string;
     };
 }
 
-export const cancelHistorySchemaType: FastifySchema<CancelHistoryRequest> = {
-    body: {
-        type: "object",
-        required: ["roomUUID"],
-        properties: {
-            roomUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-        },
-    },
-};
-
-interface CancelHistoryResponse {}
+interface ResponseType {}

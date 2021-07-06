@@ -1,18 +1,34 @@
-import { Controller, FastifySchema } from "../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { RoomDAO, RoomUserDAO, UserDAO } from "../../../../dao";
-import { parseError } from "../../../../logger";
+import { AbstractController } from "../../../../abstract/Controller";
+import { Controller } from "../../../../decorator/Controller";
 
-export const ordinaryInfo: Controller<OrdinaryInfoRequest, OrdinaryInfoResponse> = async ({
-    req,
-    logger,
-}) => {
-    const { roomUUID } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/info/ordinary",
+    auth: true,
+})
+export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["roomUUID"],
+            properties: {
+                roomUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { roomUUID } = this.body;
+        const userUUID = this.userUUID;
+
         const roomUserInfo = await RoomUserDAO().findOne(["id"], {
             user_uuid: userUUID,
             room_uuid: roomUUID,
@@ -66,35 +82,20 @@ export const ordinaryInfo: Controller<OrdinaryInfoRequest, OrdinaryInfoResponse>
                 },
             },
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface OrdinaryInfoRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         roomUUID: string;
     };
 }
 
-export const OrdinaryInfoSchemaType: FastifySchema<OrdinaryInfoRequest> = {
-    body: {
-        type: "object",
-        required: ["roomUUID"],
-        properties: {
-            roomUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-        },
-    },
-};
-
-interface OrdinaryInfoResponse {
+interface ResponseType {
     roomInfo: {
         title: string;
         beginTime: number;

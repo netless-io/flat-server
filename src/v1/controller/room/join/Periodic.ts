@@ -3,7 +3,7 @@ import { Status } from "../../../../constants/Project";
 import { PeriodicStatus, RoomStatus } from "../../../../model/room/Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
 import cryptoRandomString from "crypto-random-string";
-import { JoinResponse } from "./Type";
+import { ResponseType } from "./Type";
 import { getRTCToken, getRTMToken } from "../../../utils/AgoraToken";
 import { ErrorCode } from "../../../../ErrorCode";
 import { Response } from "../../../../types/Server";
@@ -12,7 +12,7 @@ import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicUserDAO, RoomUserDAO } from
 export const joinPeriodic = async (
     periodicUUID: string,
     userUUID: string,
-): Response<JoinResponse> => {
+): Promise<Response<ResponseType>> => {
     const periodicRoomConfig = await RoomPeriodicConfigDAO().findOne(
         ["periodic_status", "owner_uuid"],
         {

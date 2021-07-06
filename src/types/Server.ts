@@ -1,9 +1,8 @@
-import { FastifyReply, FastifyRequest } from "fastify";
+import { FastifyRequest } from "fastify";
 import { JSONSchemaType } from "ajv/dist/types/json-schema";
 import { Status } from "../constants/Project";
 import { ErrorCode } from "../ErrorCode";
 import { LoginPlatform } from "../constants/Project";
-import { Logger, LoggerAPI } from "../logger";
 
 export interface PatchRequest<T = any> extends FastifyRequest<T> {
     user: {
@@ -22,38 +21,24 @@ interface Schema {
     response?: Record<string, any>;
 }
 
-export interface FastifySchema<T extends Schema = Schema> {
-    body?: JSONSchemaType<T["body"]>;
-    querystring?: JSONSchemaType<T["querystring"]>;
-    params?: JSONSchemaType<T["params"]>;
-    headers?: JSONSchemaType<T["headers"]>;
-    response?: JSONSchemaType<T["response"]>;
-}
-
-export type Controller<RES, RESP> = (
-    data: {
-        req: PatchRequest<CapitalizeKeys<RES>>;
-        logger: Logger<LoggerAPI>;
-    },
-    reply: FastifyReply,
-) => Promise<void> | Response<RESP>;
-
-export interface FastifyRoutes {
-    readonly path: string;
-    readonly method: "get" | "post";
-    readonly skipAutoHandle?: true;
-    readonly auth: boolean;
-    readonly handler: Controller<any, any>;
-    readonly schema?: any;
-}
-
-export type Response<T = any> = Promise<
-    | {
-          status: Status.Failed | Status.AuthFailed;
-          code: ErrorCode;
+export type FastifySchema<T extends Schema | null = Schema> = T extends Schema
+    ? {
+          body?: JSONSchemaType<T["body"]>;
+          querystring?: JSONSchemaType<T["querystring"]>;
+          params?: JSONSchemaType<T["params"]>;
+          headers?: JSONSchemaType<T["headers"]>;
+          response?: JSONSchemaType<T["response"]>;
       }
-    | {
-          status: Status.Success;
-          data: T;
-      }
->;
+    : null;
+
+export type ResponseError = {
+    status: Status.Failed | Status.AuthFailed;
+    code: ErrorCode;
+};
+
+export type ResponseSuccess<T = any> = {
+    status: Status.Success;
+    data: T;
+};
+
+export type Response<T = any> = ResponseError | ResponseSuccess<T>;

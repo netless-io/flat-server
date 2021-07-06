@@ -1,20 +1,52 @@
-import { Controller, FastifySchema } from "../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { RoomDAO } from "../../../../dao";
 import { ErrorCode } from "../../../../ErrorCode";
 import { Status } from "../../../../constants/Project";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { toDate } from "date-fns/fp";
 import { checkUpdateBeginAndEndTime } from "./Utils";
-import { parseError } from "../../../../logger";
+import { AbstractController } from "../../../../abstract/Controller";
+import { Controller } from "../../../../decorator/Controller";
 
-export const updateOrdinary: Controller<UpdateOrdinaryRequest, UpdateOrdinaryResponse> = async ({
-    req,
-    logger,
-}) => {
-    const { roomUUID, beginTime, endTime, title, type } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/update/ordinary",
+    auth: true,
+})
+export class UpdateOrdinary extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["roomUUID", "beginTime", "endTime", "title", "type"],
+            properties: {
+                roomUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+                beginTime: {
+                    type: "number",
+                    format: "unix-timestamp",
+                },
+                endTime: {
+                    type: "number",
+                    format: "unix-timestamp",
+                },
+                title: {
+                    type: "string",
+                },
+                type: {
+                    type: "string",
+                    enum: [RoomType.SmallClass, RoomType.BigClass, RoomType.OneToOne],
+                    maxLength: 50,
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { roomUUID, beginTime, endTime, title, type } = this.body;
+        const userUUID = this.userUUID;
+
         const roomInfo = await RoomDAO().findOne(["room_status", "begin_time", "end_time"], {
             room_uuid: roomUUID,
             owner_uuid: userUUID,
@@ -57,16 +89,14 @@ export const updateOrdinary: Controller<UpdateOrdinaryRequest, UpdateOrdinaryRes
             status: Status.Success,
             data: {},
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface UpdateOrdinaryRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         roomUUID: string;
         beginTime: number;
@@ -76,33 +106,4 @@ interface UpdateOrdinaryRequest {
     };
 }
 
-export const updateOrdinarySchemaType: FastifySchema<UpdateOrdinaryRequest> = {
-    body: {
-        type: "object",
-        required: ["roomUUID", "beginTime", "endTime", "title", "type"],
-        properties: {
-            roomUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-            beginTime: {
-                type: "number",
-                format: "unix-timestamp",
-            },
-            endTime: {
-                type: "number",
-                format: "unix-timestamp",
-            },
-            title: {
-                type: "string",
-            },
-            type: {
-                type: "string",
-                enum: [RoomType.SmallClass, RoomType.BigClass, RoomType.OneToOne],
-                maxLength: 50,
-            },
-        },
-    },
-};
-
-interface UpdateOrdinaryResponse {}
+interface ResponseType {}

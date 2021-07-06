@@ -1,18 +1,35 @@
-import { Controller, FastifySchema } from "../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomRecordDAO } from "../../../../dao";
 import { roomIsRunning } from "../utils/Room";
-import { parseError } from "../../../../logger";
+import { Controller } from "../../../../decorator/Controller";
+import { AbstractController } from "../../../../abstract/Controller";
 
-export const recordStopped: Controller<RecordStoppedRequest, RecordStoppedResponse> = async ({
-    req,
-    logger,
-}) => {
-    const { roomUUID } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    // the logic here is consistent with room/record/stopped
+    path: ["room/record/stopped", "room/record/update-end-time"],
+    auth: true,
+})
+export class RecordStopped extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["roomUUID"],
+            properties: {
+                roomUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { roomUUID } = this.body;
+        const userUUID = this.userUUID;
+
         const roomInfo = await RoomDAO().findOne(["room_status"], {
             room_uuid: roomUUID,
             owner_uuid: userUUID,
@@ -47,32 +64,17 @@ export const recordStopped: Controller<RecordStoppedRequest, RecordStoppedRespon
             status: Status.Success,
             data: {},
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface RecordStoppedRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         roomUUID: string;
     };
 }
 
-export const recordStoppedSchemaType: FastifySchema<RecordStoppedRequest> = {
-    body: {
-        type: "object",
-        required: ["roomUUID"],
-        properties: {
-            roomUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-        },
-    },
-};
-
-interface RecordStoppedResponse {}
+interface ResponseType {}

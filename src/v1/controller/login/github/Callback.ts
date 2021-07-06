@@ -1,4 +1,4 @@
-import { Controller, FastifySchema } from "../../../../types/Server";
+import { FastifySchema, ResponseError } from "../../../../types/Server";
 import redisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import {
@@ -10,31 +10,70 @@ import { v4 } from "uuid";
 import { getConnection } from "typeorm";
 import { LoginPlatform } from "../../../../constants/Project";
 import { parseError } from "../../../../logger";
+import { AbstractController } from "../../../../abstract/Controller";
+import { Controller } from "../../../../decorator/Controller";
 
-export const callback: Controller<CallbackRequest, any> = async ({ req, logger }, reply) => {
-    void reply.headers({
-        "content-type": "text/html",
-    });
+@Controller<RequestType, any>({
+    method: "get",
+    path: "login/github/callback",
+    auth: false,
+    skipAutoHandle: true,
+})
+export class GithubCallback extends AbstractController<RequestType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        querystring: {
+            type: "object",
+            required: ["state"],
+            properties: {
+                state: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+                code: {
+                    type: "string",
+                },
+                error: {
+                    type: "string",
+                },
+                platform: {
+                    type: "string",
+                    nullable: true,
+                },
+            },
+            oneOf: [
+                {
+                    required: ["code"],
+                },
+                {
+                    required: ["error"],
+                },
+            ],
+        },
+    };
 
-    const { state: authUUID, platform } = req.query;
+    public async execute(): Promise<void> {
+        void this.reply.headers({
+            "content-type": "text/html",
+        });
 
-    try {
-        if ("error" in req.query) {
-            await redisService.set(RedisKey.authFailed(authUUID), req.query.error, 60 * 60);
+        const { state: authUUID, platform } = this.querystring;
 
-            return reply.send(failedHTML);
+        if ("error" in this.querystring) {
+            await redisService.set(RedisKey.authFailed(authUUID), this.querystring.error, 60 * 60);
+
+            return this.reply.send(failedHTML);
         }
 
-        const code = req.query.code;
+        const code = this.querystring.code;
 
         const checkAuthUUID = await redisService.get(RedisKey.authUUID(authUUID));
 
         if (checkAuthUUID === null) {
-            logger.warn("uuid verification failed");
+            this.logger.warn("uuid verification failed");
 
             await redisService.set(RedisKey.authFailed(authUUID), "", 60 * 60);
 
-            return reply.send(failedHTML);
+            return this.reply.send(failedHTML);
         }
 
         const accessToken = await getGithubAccessToken(code, authUUID);
@@ -74,7 +113,7 @@ export const callback: Controller<CallbackRequest, any> = async ({ req, logger }
             });
         } else {
             if (getUserInfoByUserGithub.access_token !== accessToken) {
-                logger.info("github user modified access token");
+                this.logger.info("github user modified access token");
                 await UserGithubDAO().update(
                     {
                         access_token: accessToken,
@@ -92,7 +131,7 @@ export const callback: Controller<CallbackRequest, any> = async ({ req, logger }
 
         const { user_name: name, avatar_url: avatar } = getUserInfoByUser!;
 
-        const token = await reply.jwtSign({
+        const token = await this.reply.jwtSign({
             userUUID,
             loginSource: LoginPlatform.Github,
         });
@@ -108,58 +147,15 @@ export const callback: Controller<CallbackRequest, any> = async ({ req, logger }
             60 * 60,
         );
 
-        return reply.send(successHTML(platform !== "web"));
-    } catch (err: unknown) {
-        logger.error("request failed", parseError(err));
-        await redisService.set(RedisKey.authFailed(authUUID), "", 60 * 60);
-        return reply.send(failedHTML);
+        return this.reply.send(successHTML(platform !== "web"));
     }
-};
 
-interface CallbackRequest {
-    querystring: {
-        state: string;
-        platform?: "web";
-    } & (
-        | {
-              code: string;
-          }
-        | {
-              error: string;
-          }
-    );
+    public async errorHandler(error: Error): Promise<ResponseError> {
+        await redisService.set(RedisKey.authFailed(this.querystring.state), "", 60 * 60);
+        this.logger.error("request failed", parseError(error));
+        return this.reply.send(failedHTML);
+    }
 }
-
-export const callbackSchemaType: FastifySchema<CallbackRequest> = {
-    querystring: {
-        type: "object",
-        required: ["state"],
-        properties: {
-            state: {
-                type: "string",
-                format: "uuid-v4",
-            },
-            code: {
-                type: "string",
-            },
-            error: {
-                type: "string",
-            },
-            platform: {
-                type: "string",
-                nullable: true,
-            },
-        },
-        oneOf: [
-            {
-                required: ["code"],
-            },
-            {
-                required: ["error"],
-            },
-        ],
-    },
-};
 
 const successHTML = (needLaunchApp: boolean): string => {
     const launchAppCode = needLaunchApp
@@ -210,3 +206,17 @@ const failedHTML = `<!doctype html>
 </body>
 </html>
 `;
+
+interface RequestType {
+    querystring: {
+        state: string;
+        platform?: "web";
+    } & (
+        | {
+              code: string;
+          }
+        | {
+              error: string;
+          }
+    );
+}

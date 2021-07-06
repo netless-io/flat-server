@@ -20,7 +20,7 @@ export const registerOrLoginWechat = async (
     type: "WEB" | "MOBILE",
     logger: Logger<LoggerAPI>,
     reply: FastifyReply,
-): Response<WeChatResponse> => {
+): Promise<Response<WeChatResponse>> => {
     const result = await redisService.get(RedisKey.authUUID(authUUID));
 
     if (result === null) {

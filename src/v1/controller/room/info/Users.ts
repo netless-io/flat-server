@@ -1,17 +1,44 @@
-import { Controller, FastifySchema } from "../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { createQueryBuilder } from "typeorm";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomUserDAO } from "../../../../dao";
 import { RoomUserModel } from "../../../../model/room/RoomUser";
 import { UserModel } from "../../../../model/user/User";
-import { parseError } from "../../../../logger";
+import { Controller } from "../../../../decorator/Controller";
+import { AbstractController } from "../../../../abstract/Controller";
 
-export const userInfo: Controller<UserInfoRequest, UserInfoResponse> = async ({ req, logger }) => {
-    const { roomUUID, usersUUID } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/info/users",
+    auth: true,
+})
+export class UserInfo extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["roomUUID", "usersUUID"],
+            properties: {
+                roomUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+                usersUUID: {
+                    type: "array",
+                    items: {
+                        type: "string",
+                        format: "uuid-v4",
+                    },
+                    minItems: 1,
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { roomUUID, usersUUID } = this.body;
+        const userUUID = this.userUUID;
+
         const roomUserInfo = await RoomUserDAO().findOne(["id"], {
             user_uuid: userUUID,
             room_uuid: roomUUID,
@@ -49,7 +76,7 @@ export const userInfo: Controller<UserInfoRequest, UserInfoResponse> = async ({ 
             };
         }
 
-        const result: UserInfoResponse = {};
+        const result: ResponseType = {};
         for (const { user_name, user_uuid, rtc_uid, avatar_url } of roomUsersInfo) {
             result[user_uuid] = {
                 name: user_name,
@@ -62,44 +89,21 @@ export const userInfo: Controller<UserInfoRequest, UserInfoResponse> = async ({ 
             status: Status.Success,
             data: result,
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface UserInfoRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         roomUUID: string;
         usersUUID: string[];
     };
 }
 
-export const userInfoSchemaType: FastifySchema<UserInfoRequest> = {
-    body: {
-        type: "object",
-        required: ["roomUUID", "usersUUID"],
-        properties: {
-            roomUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-            usersUUID: {
-                type: "array",
-                items: {
-                    type: "string",
-                    format: "uuid-v4",
-                },
-                minItems: 1,
-            },
-        },
-    },
-};
-
-type UserInfoResponse = {
+type ResponseType = {
     [key in string]: {
         name: string;
         rtcUID: number;

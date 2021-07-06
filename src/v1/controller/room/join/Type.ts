@@ -1,6 +1,6 @@
 import { RoomType } from "../../../../model/room/Constants";
 
-export type JoinResponse = {
+export type ResponseType = {
     roomType: RoomType;
     roomUUID: string;
     ownerUUID: string;

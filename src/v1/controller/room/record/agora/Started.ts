@@ -1,4 +1,4 @@
-import { Controller, FastifySchema } from "../../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
 import { Agora } from "../../../../../constants/Process";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
@@ -7,21 +7,52 @@ import { roomIsRunning } from "../../utils/Room";
 import {
     AgoraCloudRecordParamsBaseType,
     AgoraCloudRecordStartedRequestBody,
-    AgoraCloudRecordStartedResponse,
+    AgoraCloudRecordStartedResponse as ResponseType,
 } from "../../../../utils/request/agora/Types";
 import { agoraCloudRecordStartedRequest } from "../../../../utils/request/agora/Agora";
 import { getConnection } from "typeorm";
 import { getCloudRecordData } from "../../utils/Agora";
-import { parseError } from "../../../../../logger";
+import { AbstractController } from "../../../../../abstract/Controller";
+import { Controller } from "../../../../../decorator/Controller";
 
-export const recordAgoraStarted: Controller<
-    RecordAgoraStartedRequest,
-    AgoraCloudRecordStartedResponse
-> = async ({ req, logger }) => {
-    const { roomUUID, agoraParams, agoraData } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/record/agora/started",
+    auth: true,
+})
+export class RecordAgoraStarted extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["roomUUID", "agoraParams", "agoraData"],
+            properties: {
+                roomUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+                agoraParams: {
+                    type: "object",
+                    required: ["resourceid", "mode"],
+                    resourceid: {
+                        type: "string",
+                    },
+                    mode: {
+                        type: "string",
+                    },
+                },
+                agoraData: {
+                    type: "object",
+                    // there are too many parameters and they are only used for forwarding, so there is no more verification here
+                    required: ["clientRequest"],
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { roomUUID, agoraParams, agoraData } = this.body;
+        const userUUID = this.userUUID;
+
         const roomInfo = await RoomDAO().findOne(["room_status"], {
             room_uuid: roomUUID,
             owner_uuid: userUUID,
@@ -41,7 +72,7 @@ export const recordAgoraStarted: Controller<
             };
         }
 
-        let agoraResponse: AgoraCloudRecordStartedResponse;
+        let agoraResponse: ResponseType;
         await getConnection().transaction(async t => {
             const { uid, cname, token } = await getCloudRecordData(roomUUID, true);
 
@@ -76,47 +107,17 @@ export const recordAgoraStarted: Controller<
             // @ts-ignore
             data: agoraResponse,
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface RecordAgoraStartedRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         roomUUID: string;
         agoraParams: AgoraCloudRecordParamsBaseType;
         agoraData: AgoraCloudRecordStartedRequestBody;
     };
 }
-
-export const recordAgoraStartedSchemaType: FastifySchema<RecordAgoraStartedRequest> = {
-    body: {
-        type: "object",
-        required: ["roomUUID", "agoraParams", "agoraData"],
-        properties: {
-            roomUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-            agoraParams: {
-                type: "object",
-                required: ["resourceid", "mode"],
-                resourceid: {
-                    type: "string",
-                },
-                mode: {
-                    type: "string",
-                },
-            },
-            agoraData: {
-                type: "object",
-                // there are too many parameters and they are only used for forwarding, so there is no more verification here
-                required: ["clientRequest"],
-            },
-        },
-    },
-};

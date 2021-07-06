@@ -1,19 +1,38 @@
 import { CloudStorage } from "../../../../constants/Process";
 import { Status } from "../../../../constants/Project";
-import { ErrorCode } from "../../../../ErrorCode";
 import { RedisKey } from "../../../../utils/Redis";
 import RedisService from "../../../../thirdPartyService/RedisService";
-import { Controller, FastifySchema } from "../../../../types/Server";
-import { parseError } from "../../../../logger";
+import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
+import { AbstractController } from "../../../../abstract/Controller";
+import { Controller } from "../../../../decorator/Controller";
 
-export const uploadCancel: Controller<UploadCancelRequest, UploadCancelResponse> = async ({
-    req,
-    logger,
-}) => {
-    const { fileUUIDs } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "cloud-storage/upload/cancel",
+    auth: true,
+})
+export class UploadCancel extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: [],
+            properties: {
+                fileUUIDs: {
+                    type: "array",
+                    items: {
+                        type: "string",
+                        format: "uuid-v4",
+                    },
+                    nullable: true,
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { fileUUIDs } = this.body;
+        const userUUID = this.userUUID;
+
         if (typeof fileUUIDs === "undefined") {
             const uploadingFiles = await RedisService.scan(
                 RedisKey.cloudStorageFileInfo(userUUID, "*"),
@@ -32,36 +51,17 @@ export const uploadCancel: Controller<UploadCancelRequest, UploadCancelResponse>
             status: Status.Success,
             data: {},
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface UploadCancelRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         fileUUIDs?: string[];
     };
 }
 
-export const uploadCancelSchemaType: FastifySchema<UploadCancelRequest> = {
-    body: {
-        type: "object",
-        required: [],
-        properties: {
-            fileUUIDs: {
-                type: "array",
-                items: {
-                    type: "string",
-                    format: "uuid-v4",
-                },
-                nullable: true,
-            },
-        },
-    },
-};
-
-interface UploadCancelResponse {}
+interface ResponseType {}

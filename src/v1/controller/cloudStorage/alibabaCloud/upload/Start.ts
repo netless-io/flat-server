@@ -3,21 +3,43 @@ import { CloudStorage } from "../../../../../constants/Process";
 import { Status } from "../../../../../constants/Project";
 
 import { ErrorCode } from "../../../../../ErrorCode";
-import { Controller, FastifySchema } from "../../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
 import { getFilePath, policyTemplate } from "../Utils";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { checkTotalUsage } from "./Utils";
-import { parseError } from "../../../../../logger";
+import { AbstractController } from "../../../../../abstract/Controller";
+import { Controller } from "../../../../../decorator/Controller";
 
-export const alibabaCloudUploadStart: Controller<
-    AlibabaCloudUploadStartRequest,
-    AlibabaCloudUploadStartResponse
-> = async ({ req, logger }) => {
-    const { fileName, fileSize } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "cloud-storage/alibaba-cloud/upload/start",
+    auth: true,
+})
+export class AlibabaCloudUploadStart extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["fileName", "fileSize"],
+            properties: {
+                fileName: {
+                    type: "string",
+                    format: "file-suffix",
+                    maxLength: 128,
+                },
+                fileSize: {
+                    type: "number",
+                    minimum: 1,
+                    maximum: CloudStorage.SINGLE_FILE_SIZE,
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { fileName, fileSize } = this.body;
+        const userUUID = this.userUUID;
+
         // check upload concurrent and file size and total usage
         {
             const uploadingFiles = await RedisService.scan(
@@ -80,42 +102,21 @@ export const alibabaCloudUploadStart: Controller<
                 signature,
             },
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface AlibabaCloudUploadStartRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         fileName: string;
         fileSize: number;
     };
 }
 
-export const alibabaCloudUploadStartSchemaType: FastifySchema<AlibabaCloudUploadStartRequest> = {
-    body: {
-        type: "object",
-        required: ["fileName", "fileSize"],
-        properties: {
-            fileName: {
-                type: "string",
-                format: "file-suffix",
-                maxLength: 128,
-            },
-            fileSize: {
-                type: "number",
-                minimum: 1,
-                maximum: CloudStorage.SINGLE_FILE_SIZE,
-            },
-        },
-    },
-};
-
-interface AlibabaCloudUploadStartResponse {
+interface ResponseType {
     fileUUID: string;
     filePath: string;
     policy: string;

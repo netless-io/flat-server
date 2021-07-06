@@ -1,20 +1,36 @@
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
-import { Controller, FastifySchema } from "../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { whiteboardQueryConversionTask } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
 import { determineType, isConvertDone, isConvertFailed } from "./Utils";
-import { parseError } from "../../../../logger";
+import { AbstractController } from "../../../../abstract/Controller";
+import { Controller } from "../../../../decorator/Controller";
 
-export const fileConvertFinish: Controller<
-    FileConvertFinishRequest,
-    FileConvertFinishResponse
-> = async ({ req, logger }) => {
-    const { fileUUID } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "cloud-storage/convert/finish",
+    auth: true,
+})
+export class FileConvertFinish extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["fileUUID"],
+            properties: {
+                fileUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { fileUUID } = this.body;
+        const userUUID = this.userUUID;
+
         const userFileInfo = await CloudStorageUserFilesDAO().findOne(["id"], {
             file_uuid: fileUUID,
             user_uuid: userUUID,
@@ -102,32 +118,17 @@ export const fileConvertFinish: Controller<
                 };
             }
         }
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface FileConvertFinishRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         fileUUID: string;
     };
 }
 
-export const fileConvertFinishSchemaType: FastifySchema<FileConvertFinishRequest> = {
-    body: {
-        type: "object",
-        required: ["fileUUID"],
-        properties: {
-            fileUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-        },
-    },
-};
-
-interface FileConvertFinishResponse {}
+interface ResponseType {}

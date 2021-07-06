@@ -3,18 +3,39 @@ import { getConnection } from "typeorm";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../../dao";
-import { Controller, FastifySchema } from "../../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
 import { getDisposition, getFilePath, ossClient } from "../Utils";
-import { parseError } from "../../../../../logger";
+import { AbstractController } from "../../../../../abstract/Controller";
+import { Controller } from "../../../../../decorator/Controller";
 
-export const alibabaCloudRename: Controller<
-    AlibabaCloudRenameRequest,
-    AlibabaCloudRenameResponse
-> = async ({ req, logger }) => {
-    const { fileUUID, fileName } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "cloud-storage/alibaba-cloud/rename",
+    auth: true,
+})
+export class AlibabaCloudRename extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["fileUUID", "fileName"],
+            properties: {
+                fileUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+                fileName: {
+                    type: "string",
+                    format: "file-suffix",
+                    maxLength: 50,
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { fileUUID, fileName } = this.body;
+        const userUUID = this.userUUID;
+
         const userFileInfo = await CloudStorageUserFilesDAO().findOne(["id"], {
             file_uuid: fileUUID,
             user_uuid: userUUID,
@@ -65,38 +86,18 @@ export const alibabaCloudRename: Controller<
             status: Status.Success,
             data: {},
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface AlibabaCloudRenameRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         fileUUID: string;
         fileName: string;
     };
 }
 
-export const cloudStorageRenameSchemaType: FastifySchema<AlibabaCloudRenameRequest> = {
-    body: {
-        type: "object",
-        required: ["fileUUID", "fileName"],
-        properties: {
-            fileUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-            fileName: {
-                type: "string",
-                format: "file-suffix",
-                maxLength: 50,
-            },
-        },
-    },
-};
-
-interface AlibabaCloudRenameResponse {}
+interface ResponseType {}

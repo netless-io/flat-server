@@ -1,44 +1,58 @@
-import { Controller, FastifySchema } from "../../../../../types/Server";
+import { FastifySchema, ResponseError } from "../../../../../types/Server";
 import redisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { registerOrLoginWechat } from "../Utils";
 import { parseError } from "../../../../../logger";
+import { AbstractController } from "../../../../../abstract/Controller";
+import { Controller } from "../../../../../decorator/Controller";
 
-export const callback: Controller<CallbackRequest, any> = async ({ req, logger }, reply) => {
-    void reply.headers({
-        "content-type": "text/html",
-    });
-    void reply.send();
+@Controller<RequestType, any>({
+    method: "get",
+    path: "login/weChat/web/callback",
+    auth: false,
+    skipAutoHandle: true,
+})
+export class WechatWebCallback extends AbstractController<RequestType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        querystring: {
+            type: "object",
+            required: ["state", "code"],
+            properties: {
+                state: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+                code: {
+                    type: "string",
+                },
+            },
+        },
+    };
 
-    const { state: authUUID, code } = req.query;
+    public async execute(): Promise<void> {
+        void this.reply.headers({
+            "content-type": "text/html",
+        });
+        void this.reply.send();
 
-    try {
-        await registerOrLoginWechat(code, authUUID, "WEB", logger, reply);
-    } catch (err: unknown) {
-        logger.error("request failed", parseError(err));
-        await redisService.set(RedisKey.authFailed(authUUID), "", 60 * 60);
+        const { state: authUUID, code } = this.querystring;
+
+        try {
+            await registerOrLoginWechat(code, authUUID, "WEB", this.logger, this.reply);
+        } catch (err: unknown) {
+            this.logger.error("request failed", parseError(err));
+            await redisService.set(RedisKey.authFailed(authUUID), "", 60 * 60);
+        }
     }
-};
 
-interface CallbackRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     querystring: {
         state: string;
         code: string;
     };
 }
-
-export const callbackSchemaType: FastifySchema<CallbackRequest> = {
-    querystring: {
-        type: "object",
-        required: ["state", "code"],
-        properties: {
-            state: {
-                type: "string",
-                format: "uuid-v4",
-            },
-            code: {
-                type: "string",
-            },
-        },
-    },
-};

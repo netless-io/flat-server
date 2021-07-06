@@ -1,7 +1,7 @@
 import axios from "axios";
 import redisService from "../../../thirdPartyService/RedisService";
 import { Status } from "../../../constants/Project";
-import { Controller, FastifySchema } from "../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../types/Server";
 import { RedisKey } from "../../../utils/Redis";
 import { ErrorCode } from "../../../ErrorCode";
 import { UserDAO, UserGithubDAO, UserWeChatDAO } from "../../../dao";
@@ -9,12 +9,33 @@ import { LoginPlatform } from "../../../constants/Project";
 import { getGithubUserInfo } from "../../utils/request/github/GithubRequest";
 import { weChatRenewAccessToken } from "../../utils/request/wechat/WeChatRequest";
 import { parseError } from "../../../logger";
+import { AbstractController } from "../../../abstract/Controller";
+import { Controller } from "../../../decorator/Controller";
 
-export const login: Controller<LoginRequest, LoginResponse> = async ({ req, logger }) => {
-    const { userUUID, loginSource } = req.user;
-    const { type } = req.body;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "login",
+    auth: true,
+})
+export class Login extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["type"],
+            properties: {
+                type: {
+                    type: "string",
+                    enum: ["web", "mobile"],
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const userUUID = this.userUUID;
+        const loginSource = this.loginSource;
+        const { type } = this.body;
+
         const userInfoInstance = await UserDAO().findOne(["user_name", "avatar_url"], {
             user_uuid: userUUID,
         });
@@ -97,42 +118,31 @@ export const login: Controller<LoginRequest, LoginResponse> = async ({ req, logg
             status: Status.AuthFailed,
             code: ErrorCode.UnsupportedPlatform,
         };
-    } catch (err: unknown) {
-        if (axios.isAxiosError(err) && err.response?.status === 401) {
+    }
+
+    public errorHandler(error: Error): ResponseError {
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.NeedLoginAgain,
             };
+        } else {
+            this.logger.error("request failed", parseError(error));
+            return {
+                status: Status.AuthFailed,
+                code: ErrorCode.ServerFail,
+            };
         }
-
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.AuthFailed,
-            code: ErrorCode.ServerFail,
-        };
     }
-};
+}
 
-interface LoginRequest {
+interface RequestType {
     body: {
         type: "web" | "mobile";
     };
 }
 
-export const loginSchemaType: FastifySchema<LoginRequest> = {
-    body: {
-        type: "object",
-        required: ["type"],
-        properties: {
-            type: {
-                type: "string",
-                enum: ["web", "mobile"],
-            },
-        },
-    },
-};
-
-interface LoginResponse {
+interface ResponseType {
     name: string;
     avatar: string;
     userUUID: string;

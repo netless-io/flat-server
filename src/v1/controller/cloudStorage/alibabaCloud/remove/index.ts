@@ -1,6 +1,5 @@
 import { createQueryBuilder, getConnection, In } from "typeorm";
 import { Status } from "../../../../../constants/Project";
-import { ErrorCode } from "../../../../../ErrorCode";
 import {
     CloudStorageConfigsDAO,
     CloudStorageUserFilesDAO,
@@ -8,18 +7,37 @@ import {
 } from "../../../../../dao";
 import { CloudStorageFilesModel } from "../../../../../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../../../../../model/cloudStorage/CloudStorageUserFiles";
-import { Controller, FastifySchema } from "../../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
 import { getFilePath, ossClient } from "../Utils";
-import { parseError } from "../../../../../logger";
+import { AbstractController } from "../../../../../abstract/Controller";
+import { Controller } from "../../../../../decorator/Controller";
 
-export const alibabaCloudRemoveFile: Controller<
-    AlibabaCloudRemoveFileRequest,
-    AlibabaCloudRemoveFileResponse
-> = async ({ req, logger }) => {
-    const { fileUUIDs } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "cloud-storage/alibaba-cloud/remove",
+    auth: true,
+})
+export class AlibabaCloudRemoveFile extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["fileUUIDs"],
+            properties: {
+                fileUUIDs: {
+                    type: "array",
+                    items: {
+                        type: "string",
+                        format: "uuid-v4",
+                    },
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { fileUUIDs } = this.body;
+        const userUUID = this.userUUID;
+
         const fileInfo = await createQueryBuilder(CloudStorageUserFilesModel, "fc")
             .addSelect("f.file_uuid", "file_uuid")
             .addSelect("f.file_name", "file_name")
@@ -101,35 +119,17 @@ export const alibabaCloudRemoveFile: Controller<
             status: Status.Success,
             data: {},
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface AlibabaCloudRemoveFileRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         fileUUIDs: string[];
     };
 }
 
-export const alibabaCloudRemoveFileSchemaType: FastifySchema<AlibabaCloudRemoveFileRequest> = {
-    body: {
-        type: "object",
-        required: ["fileUUIDs"],
-        properties: {
-            fileUUIDs: {
-                type: "array",
-                items: {
-                    type: "string",
-                    format: "uuid-v4",
-                },
-            },
-        },
-    },
-};
-
-interface AlibabaCloudRemoveFileResponse {}
+interface ResponseType {}
