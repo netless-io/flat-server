@@ -129,6 +129,10 @@ docker run -dit -p 6379:6379 --name redis -v `pwd`/data:/data -v `pwd`/conf:/usr
 | JWT_ALGORITHMS                      | JWT 加密算法                          | 见: [Algorithms supported][jwt-crypto]        |
 | LOG_PATHNAME                        | Log 日志路径                          | 如: `{{PROJECT_DIR}}/logs`，详情可见 [env variable][env-variable]    |
 | LOG_FILENAME                        | Log 文件名称                          | 如: `{{DAY_DATE}}`，详情可见 [env variable][env-variable]    |
+| METRICS_ENABLED                     | 开启 prometheus 指标接口                      | 默认: `false`, 详情可见: [fastify-metrics][fastify-metrics]         |
+| METRICS_ENDPOINT                    | 指标接口地址                           | 默认: `/metrics`.                         |
+| METRICS_BLACKLIST                   | 指标收集的路由黑名单                     | 默认: `/metrics,/health-check`, 逗号分隔                  |
+| METRICS_PORT                        | metrics接口所使用的http端口            | 默认: `0`, 当该值为0时，将复用 flat-server 监听端口，否则将监听传入的端口号                  |
 | CLOUD_STORAGE_CONCURRENT            | 云盘同一时间上传文件数                  | 默认: `3`                                        |
 | CLOUD_STORAGE_SINGLE_FILE_SIZE      | 云盘上传单个文件大小最大值               | 默认: `524288000`（500M）                        |
 | CLOUD_STORAGE_TOTAL_SIZE            | 云盘总量最大值                         | 默认: `2147483648`（2G）                         |
@@ -192,6 +196,7 @@ docker run -dit -p 6379:6379 --name redis -v `pwd`/data:/data -v `pwd`/conf:/usr
 [docker]: https://hub.docker.com
 [docker-setting]: https://hub.docker.com/settings/security
 
+[fastify-metrics]: https://github.com/SkeLLLa/fastify-metrics
 
 ## 技术选型
 
