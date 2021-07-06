@@ -13,10 +13,15 @@ spec:
       {{- include "flat.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- with .Values.podAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if (eq .Values.configMap.METRICS_ENABLED "true") }}
+        prometheus.io/path: {{- if (eq .Values.configMap.METRICS_ENDPOINT "") }} "/metrics" {{- else }} {{ .Values.configMap.METRICS_ENDPOINT | quote }} {{- end }}
+        prometheus.io/port: {{- if (eq .Values.configMap.METRICS_PORT "") }} {{ .Values.service.internalPort | quote }} {{- else }} {{ .Values.configMap.METRICS_PORT | quote }} {{- end }}
+        prometheus.io/scrape: "true"
+        {{- end }}
       labels:
         {{- include "flat.selectorLabels" . | nindent 8 }}
     spec:
