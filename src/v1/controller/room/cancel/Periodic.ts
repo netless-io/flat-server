@@ -1,4 +1,4 @@
-import { Controller, FastifySchema } from "../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { getConnection, In, Not } from "typeorm";
@@ -11,16 +11,32 @@ import {
     RoomUserDAO,
 } from "../../../../dao";
 import { roomIsRunning } from "../utils/Room";
-import { parseError } from "../../../../logger";
+import { Controller } from "../../../../decorator/Controller";
+import { AbstractController } from "../../../../abstract/Controller";
 
-export const cancelPeriodic: Controller<CancelPeriodicRequest, CancelPeriodicResponse> = async ({
-    req,
-    logger,
-}) => {
-    const { periodicUUID } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/cancel/periodic",
+    auth: true,
+})
+export class CancelPeriodic extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["periodicUUID"],
+            properties: {
+                periodicUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { periodicUUID } = this.body;
+        const userUUID = this.userUUID;
+
         const periodicRoomUserInfo = await RoomPeriodicUserDAO().findOne(["id"], {
             periodic_uuid: periodicUUID,
             user_uuid: userUUID,
@@ -113,32 +129,17 @@ export const cancelPeriodic: Controller<CancelPeriodicRequest, CancelPeriodicRes
             status: Status.Success,
             data: {},
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface CancelPeriodicRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         periodicUUID: string;
     };
 }
 
-export const cancelPeriodicSchemaType: FastifySchema<CancelPeriodicRequest> = {
-    body: {
-        type: "object",
-        required: ["periodicUUID"],
-        properties: {
-            periodicUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-        },
-    },
-};
-
-interface CancelPeriodicResponse {}
+interface ResponseType {}

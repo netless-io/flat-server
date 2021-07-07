@@ -4,13 +4,14 @@ import fastify from "fastify";
 import cors from "fastify-cors";
 import { Server, metricsConfig } from "./constants/Process";
 import { Status } from "./constants/Project";
-import { v1RegisterRouters } from "./v1";
 import jwtVerify from "./plugins/JWT";
 import { ajvSelfPlugin } from "./plugins/Ajv";
 import { orm } from "./thirdPartyService/TypeORMService";
 import { ErrorCode } from "./ErrorCode";
 import { loggerServer, parseError } from "./logger";
 import { MetricsSever } from "./metrics";
+import { registerV1Routers } from "./utils/RegistryRouters";
+import { httpRouters } from "./v1/Routes";
 
 const app = fastify({
     caseSensitive: true,
@@ -41,7 +42,7 @@ app.setErrorHandler((err, _request, reply) => {
 });
 
 void app.register(jwtVerify).then(() => {
-    v1RegisterRouters(app);
+    registerV1Routers(app, httpRouters);
 });
 
 void app.register(cors, {

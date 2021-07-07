@@ -1,4 +1,4 @@
-import { Controller, FastifySchema } from "../../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { RoomDAO } from "../../../../../dao";
@@ -8,16 +8,47 @@ import {
     AgoraCloudRecordQueryResponse,
 } from "../../../../utils/request/agora/Types";
 import { agoraCloudRecordQueryRequest } from "../../../../utils/request/agora/Agora";
-import { parseError } from "../../../../../logger";
+import { AbstractController } from "../../../../../abstract/Controller";
+import { Controller } from "../../../../../decorator/Controller";
 
-export const recordAgoraQuery: Controller<
-    RecordAgoraQueryRequest,
-    AgoraCloudRecordQueryResponse<"string" | "json" | undefined>
-> = async ({ req, logger }) => {
-    const { roomUUID, agoraParams } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/record/agora/query",
+    auth: true,
+})
+export class RecordAgoraQuery extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["roomUUID", "agoraParams"],
+            properties: {
+                roomUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+                agoraParams: {
+                    type: "object",
+                    required: ["resourceid", "mode", "sid"],
+                    resourceid: {
+                        type: "string",
+                    },
+                    mode: {
+                        type: "string",
+                    },
+                    sid: {
+                        type: "string",
+                    },
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<
+        Response<AgoraCloudRecordQueryResponse<"string" | "json" | undefined>>
+    > {
+        const { roomUUID, agoraParams } = this.body;
+        const userUUID = this.userUUID;
+
         const roomInfo = await RoomDAO().findOne(["room_status"], {
             room_uuid: roomUUID,
             owner_uuid: userUUID,
@@ -43,44 +74,18 @@ export const recordAgoraQuery: Controller<
             status: Status.Success,
             data: agoraResponse,
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface RecordAgoraQueryRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         roomUUID: string;
         agoraParams: AgoraCloudRecordParamsType;
     };
 }
 
-export const recordAgoraQuerySchemaType: FastifySchema<RecordAgoraQueryRequest> = {
-    body: {
-        type: "object",
-        required: ["roomUUID", "agoraParams"],
-        properties: {
-            roomUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-            agoraParams: {
-                type: "object",
-                required: ["resourceid", "mode", "sid"],
-                resourceid: {
-                    type: "string",
-                },
-                mode: {
-                    type: "string",
-                },
-                sid: {
-                    type: "string",
-                },
-            },
-        },
-    },
-};
+type ResponseType = AgoraCloudRecordQueryResponse<"string" | "json" | undefined>;

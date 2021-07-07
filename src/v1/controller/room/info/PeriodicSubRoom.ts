@@ -1,19 +1,43 @@
-import { Controller, FastifySchema } from "../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { RoomPeriodicConfigDAO, RoomPeriodicDAO, RoomPeriodicUserDAO } from "../../../../dao";
 import { LessThan, MoreThan, Not } from "typeorm";
-import { parseError } from "../../../../logger";
+import { AbstractController } from "../../../../abstract/Controller";
+import { Controller } from "../../../../decorator/Controller";
 
-export const periodicSubRoomInfo: Controller<
-    PeriodicSubRoomInfoRequest,
-    PeriodicSubRoomInfoResponse
-> = async ({ req, logger }) => {
-    const { periodicUUID, roomUUID, needOtherRoomTimeInfo } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/info/periodic-sub-room",
+    auth: true,
+})
+export class PeriodicSubRoomInfo extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["roomUUID", "periodicUUID"],
+            properties: {
+                roomUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+                periodicUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+                needOtherRoomTimeInfo: {
+                    type: "boolean",
+                    nullable: true,
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { periodicUUID, roomUUID, needOtherRoomTimeInfo } = this.body;
+        const userUUID = this.userUUID;
+
         const periodicRoomUserInfo = await RoomPeriodicUserDAO().findOne(["id"], {
             periodic_uuid: periodicUUID,
             user_uuid: userUUID,
@@ -119,16 +143,14 @@ export const periodicSubRoomInfo: Controller<
                 }),
             },
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface PeriodicSubRoomInfoRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         roomUUID: string;
         periodicUUID: string;
@@ -136,28 +158,7 @@ interface PeriodicSubRoomInfoRequest {
     };
 }
 
-export const periodicSubRoomInfoSchemaType: FastifySchema<PeriodicSubRoomInfoRequest> = {
-    body: {
-        type: "object",
-        required: ["roomUUID", "periodicUUID"],
-        properties: {
-            roomUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-            periodicUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-            needOtherRoomTimeInfo: {
-                type: "boolean",
-                nullable: true,
-            },
-        },
-    },
-};
-
-interface PeriodicSubRoomInfoResponse {
+interface ResponseType {
     roomInfo: {
         title: string;
         beginTime: number;

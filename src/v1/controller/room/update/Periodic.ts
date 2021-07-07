@@ -1,4 +1,4 @@
-import { Controller, FastifySchema } from "../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO, RoomUserDAO } from "../../../../dao";
 import { ErrorCode } from "../../../../ErrorCode";
 import { Status } from "../../../../constants/Project";
@@ -13,16 +13,91 @@ import {
     whiteboardBanRoom,
     whiteboardCreateRoom,
 } from "../../../utils/request/whiteboard/WhiteboardRequest";
-import { parseError } from "../../../../logger";
+import { AbstractController } from "../../../../abstract/Controller";
+import { Controller } from "../../../../decorator/Controller";
 
-export const updatePeriodic: Controller<UpdatePeriodicRequest, UpdatePeriodicResponse> = async ({
-    req,
-    logger,
-}) => {
-    const { periodicUUID, beginTime, endTime, title, type, periodic } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/update/periodic",
+    auth: true,
+})
+export class UpdatePeriodic extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["periodicUUID", "beginTime", "endTime", "title", "type"],
+            properties: {
+                periodicUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+                beginTime: {
+                    type: "number",
+                    format: "unix-timestamp",
+                },
+                endTime: {
+                    type: "number",
+                    format: "unix-timestamp",
+                },
+                title: {
+                    type: "string",
+                },
+                type: {
+                    type: "string",
+                    enum: [RoomType.SmallClass, RoomType.BigClass, RoomType.OneToOne],
+                    maxLength: 50,
+                },
+                periodic: {
+                    type: "object",
+                    required: ["weeks"],
+                    properties: {
+                        weeks: {
+                            type: "array",
+                            uniqueItems: true,
+                            items: {
+                                type: "integer",
+                                enum: [
+                                    Week.Monday,
+                                    Week.Tuesday,
+                                    Week.Wednesday,
+                                    Week.Thursday,
+                                    Week.Friday,
+                                    Week.Saturday,
+                                    Week.Sunday,
+                                ],
+                            },
+                            maxItems: 7,
+                            minItems: 1,
+                        },
+                        rate: {
+                            type: "integer",
+                            maximum: 50,
+                            minimum: 1,
+                            nullable: true,
+                        },
+                        endTime: {
+                            type: "integer",
+                            format: "unix-timestamp",
+                            nullable: true,
+                        },
+                    },
+                    oneOf: [
+                        {
+                            required: ["endTime"],
+                        },
+                        {
+                            required: ["rate"],
+                        },
+                    ],
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { periodicUUID, beginTime, endTime, title, type, periodic } = this.body;
+        const userUUID = this.userUUID;
+
         const periodicConfigInfo = await RoomPeriodicConfigDAO().findOne(
             ["room_origin_begin_time", "room_origin_end_time", "end_time", "rate"],
             {
@@ -171,16 +246,14 @@ export const updatePeriodic: Controller<UpdatePeriodicRequest, UpdatePeriodicRes
             status: Status.Success,
             data: {},
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface UpdatePeriodicRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         periodicUUID: string;
         beginTime: number;
@@ -191,76 +264,4 @@ interface UpdatePeriodicRequest {
     };
 }
 
-export const updatePeriodicSchemaType: FastifySchema<UpdatePeriodicRequest> = {
-    body: {
-        type: "object",
-        required: ["periodicUUID", "beginTime", "endTime", "title", "type"],
-        properties: {
-            periodicUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-            beginTime: {
-                type: "number",
-                format: "unix-timestamp",
-            },
-            endTime: {
-                type: "number",
-                format: "unix-timestamp",
-            },
-            title: {
-                type: "string",
-            },
-            type: {
-                type: "string",
-                enum: [RoomType.SmallClass, RoomType.BigClass, RoomType.OneToOne],
-                maxLength: 50,
-            },
-            periodic: {
-                type: "object",
-                required: ["weeks"],
-                properties: {
-                    weeks: {
-                        type: "array",
-                        uniqueItems: true,
-                        items: {
-                            type: "integer",
-                            enum: [
-                                Week.Monday,
-                                Week.Tuesday,
-                                Week.Wednesday,
-                                Week.Thursday,
-                                Week.Friday,
-                                Week.Saturday,
-                                Week.Sunday,
-                            ],
-                        },
-                        maxItems: 7,
-                        minItems: 1,
-                    },
-                    rate: {
-                        type: "integer",
-                        maximum: 50,
-                        minimum: 1,
-                        nullable: true,
-                    },
-                    endTime: {
-                        type: "integer",
-                        format: "unix-timestamp",
-                        nullable: true,
-                    },
-                },
-                oneOf: [
-                    {
-                        required: ["endTime"],
-                    },
-                    {
-                        required: ["rate"],
-                    },
-                ],
-            },
-        },
-    },
-};
-
-interface UpdatePeriodicResponse {}
+interface ResponseType {}

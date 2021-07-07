@@ -1,4 +1,4 @@
-import { Controller, FastifySchema } from "../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { getConnection } from "typeorm";
 import { Status } from "../../../../constants/Project";
 import { PeriodicStatus, RoomStatus } from "../../../../model/room/Constants";
@@ -8,13 +8,32 @@ import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../../dao
 import { roomIsRunning } from "../utils/Room";
 import { getNextPeriodicRoomInfo, updateNextPeriodicRoomInfo } from "../../../service/Periodic";
 import { RoomPeriodicModel } from "../../../../model/room/RoomPeriodic";
-import { parseError } from "../../../../logger";
+import { AbstractController } from "../../../../abstract/Controller";
+import { Controller } from "../../../../decorator/Controller";
 
-export const stopped: Controller<StoppedRequest, StoppedResponse> = async ({ req, logger }) => {
-    const { roomUUID } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/update-status/stopped",
+    auth: true,
+})
+export class UpdateStatusStopped extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["roomUUID"],
+            properties: {
+                roomUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { roomUUID } = this.body;
+        const userUUID = this.userUUID;
+
         const roomInfo = await RoomDAO().findOne(
             ["room_status", "owner_uuid", "periodic_uuid", "whiteboard_room_uuid"],
             {
@@ -138,32 +157,17 @@ export const stopped: Controller<StoppedRequest, StoppedResponse> = async ({ req
             status: Status.Success,
             data: {},
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface StoppedRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         roomUUID: string;
     };
 }
 
-export const stoppedSchemaType: FastifySchema<StoppedRequest> = {
-    body: {
-        type: "object",
-        required: ["roomUUID"],
-        properties: {
-            roomUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-        },
-    },
-};
-
-interface StoppedResponse {}
+interface ResponseType {}

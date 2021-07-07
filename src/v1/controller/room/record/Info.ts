@@ -1,4 +1,4 @@
-import { Controller, FastifySchema } from "../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { Agora } from "../../../../constants/Process";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
@@ -6,17 +6,32 @@ import { RoomDAO, RoomRecordDAO, RoomUserDAO } from "../../../../dao";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
 import { getRTMToken } from "../../../utils/AgoraToken";
+import { AbstractController } from "../../../../abstract/Controller";
+import { Controller } from "../../../../decorator/Controller";
 
-import { parseError } from "../../../../logger";
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/record/info",
+    auth: true,
+})
+export class RecordInfo extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["roomUUID"],
+            properties: {
+                roomUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+            },
+        },
+    };
 
-export const recordInfo: Controller<RecordInfoRequest, RecordInfoResponse> = async ({
-    req,
-    logger,
-}) => {
-    const { roomUUID } = req.body;
-    const { userUUID } = req.user;
+    public async execute(): Promise<Response<ResponseType>> {
+        const { roomUUID } = this.body;
+        const userUUID = this.userUUID;
 
-    try {
         const roomUserInfo = await RoomUserDAO().findOne(["id"], {
             room_uuid: roomUUID,
             user_uuid: userUUID,
@@ -91,35 +106,20 @@ export const recordInfo: Controller<RecordInfoRequest, RecordInfoResponse> = asy
                 })),
             },
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface RecordInfoRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         roomUUID: string;
     };
 }
 
-export const recordInfoSchemaType: FastifySchema<RecordInfoRequest> = {
-    body: {
-        type: "object",
-        required: ["roomUUID"],
-        properties: {
-            roomUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-        },
-    },
-};
-
-interface RecordInfoResponse {
+interface ResponseType {
     title: string;
     ownerUUID: string;
     roomType: RoomType;

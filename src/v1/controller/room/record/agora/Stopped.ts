@@ -1,25 +1,54 @@
-import { Controller, FastifySchema } from "../../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { RoomDAO, RoomRecordDAO } from "../../../../../dao";
 import { roomIsRunning } from "../../utils/Room";
 import {
     AgoraCloudRecordParamsType,
-    AgoraCloudRecordStoppedResponse,
+    AgoraCloudRecordStoppedResponse as ResponseType,
 } from "../../../../utils/request/agora/Types";
 import { agoraCloudRecordStoppedRequest } from "../../../../utils/request/agora/Agora";
 import { getConnection } from "typeorm";
 import { getCloudRecordData } from "../../utils/Agora";
-import { parseError } from "../../../../../logger";
+import { AbstractController } from "../../../../../abstract/Controller";
+import { Controller } from "../../../../../decorator/Controller";
 
-export const recordAgoraStopped: Controller<
-    RecordAgoraStoppedRequest,
-    AgoraCloudRecordStoppedResponse
-> = async ({ req, logger }) => {
-    const { roomUUID, agoraParams } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/record/agora/stopped",
+    auth: true,
+})
+export class RecordAgoraStopped extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["roomUUID", "agoraParams"],
+            properties: {
+                roomUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+                agoraParams: {
+                    type: "object",
+                    required: ["resourceid", "mode", "sid"],
+                    resourceid: {
+                        type: "string",
+                    },
+                    mode: {
+                        type: "string",
+                    },
+                    sid: {
+                        type: "string",
+                    },
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { roomUUID, agoraParams } = this.body;
+        const userUUID = this.userUUID;
+
         const roomInfo = await RoomDAO().findOne(["room_status"], {
             room_uuid: roomUUID,
             owner_uuid: userUUID,
@@ -39,7 +68,7 @@ export const recordAgoraStopped: Controller<
             };
         }
 
-        let agoraResponse: AgoraCloudRecordStoppedResponse;
+        let agoraResponse: ResponseType;
         await getConnection().transaction(async t => {
             await RoomRecordDAO(t).update(
                 {
@@ -64,44 +93,16 @@ export const recordAgoraStopped: Controller<
             // @ts-ignore
             data: agoraResponse,
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface RecordAgoraStoppedRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         roomUUID: string;
         agoraParams: AgoraCloudRecordParamsType;
     };
 }
-
-export const recordAgoraStoppedSchemaType: FastifySchema<RecordAgoraStoppedRequest> = {
-    body: {
-        type: "object",
-        required: ["roomUUID", "agoraParams"],
-        properties: {
-            roomUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-            agoraParams: {
-                type: "object",
-                required: ["resourceid", "mode", "sid"],
-                resourceid: {
-                    type: "string",
-                },
-                mode: {
-                    type: "string",
-                },
-                sid: {
-                    type: "string",
-                },
-            },
-        },
-    },
-};

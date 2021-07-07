@@ -1,4 +1,4 @@
-import { Controller, FastifySchema } from "../../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { RoomDAO } from "../../../../../dao";
@@ -7,19 +7,50 @@ import { agoraCloudRecordUpdateLayoutRequest } from "../../../../utils/request/a
 import {
     AgoraCloudRecordParamsType,
     AgoraCloudRecordUpdateLayoutRequestBody,
-    AgoraCloudRecordUpdateLayoutResponse,
+    AgoraCloudRecordUpdateLayoutResponse as ResponseType,
 } from "../../../../utils/request/agora/Types";
 import { getCloudRecordData } from "../../utils/Agora";
-import { parseError } from "../../../../../logger";
+import { AbstractController } from "../../../../../abstract/Controller";
+import { Controller } from "../../../../../decorator/Controller";
 
-export const recordAgoraUpdateLayout: Controller<
-    RecordAgoraUpdateLayoutRequest,
-    AgoraCloudRecordUpdateLayoutResponse
-> = async ({ req, logger }) => {
-    const { roomUUID, agoraParams, agoraData } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/record/agora/update-layout",
+    auth: true,
+})
+export class RecordAgoraUpdateLayout extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["roomUUID", "agoraParams", "agoraData"],
+            properties: {
+                roomUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+                agoraParams: {
+                    type: "object",
+                    required: ["resourceid", "mode"],
+                    resourceid: {
+                        type: "string",
+                    },
+                    mode: {
+                        type: "string",
+                    },
+                },
+                agoraData: {
+                    type: "object",
+                    // there are too many parameters and they are only used for forwarding, so there is no more verification here
+                    required: [],
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { roomUUID, agoraParams, agoraData } = this.body;
+        const userUUID = this.userUUID;
+
         const roomInfo = await RoomDAO().findOne(["room_status"], {
             room_uuid: roomUUID,
             owner_uuid: userUUID,
@@ -51,47 +82,17 @@ export const recordAgoraUpdateLayout: Controller<
             status: Status.Success,
             data: agoraResponse,
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface RecordAgoraUpdateLayoutRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         roomUUID: string;
         agoraParams: AgoraCloudRecordParamsType;
         agoraData: AgoraCloudRecordUpdateLayoutRequestBody;
     };
 }
-
-export const recordAgoraUpdateLayoutSchemaType: FastifySchema<RecordAgoraUpdateLayoutRequest> = {
-    body: {
-        type: "object",
-        required: ["roomUUID", "agoraParams", "agoraData"],
-        properties: {
-            roomUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-            agoraParams: {
-                type: "object",
-                required: ["resourceid", "mode"],
-                resourceid: {
-                    type: "string",
-                },
-                mode: {
-                    type: "string",
-                },
-            },
-            agoraData: {
-                type: "object",
-                // there are too many parameters and they are only used for forwarding, so there is no more verification here
-                required: [],
-            },
-        },
-    },
-};

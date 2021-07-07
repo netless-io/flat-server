@@ -1,4 +1,4 @@
-import { Controller, FastifySchema } from "../../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { RoomDAO } from "../../../../../dao";
@@ -6,19 +6,40 @@ import { roomIsRunning } from "../../utils/Room";
 import { agoraCloudRecordAcquireRequest } from "../../../../utils/request/agora/Agora";
 import {
     AgoraCloudRecordAcquireRequestBody,
-    AgoraCloudRecordAcquireResponse,
+    AgoraCloudRecordAcquireResponse as ResponseType,
 } from "../../../../utils/request/agora/Types";
 import { getCloudRecordData } from "../../utils/Agora";
-import { parseError } from "../../../../../logger";
+import { AbstractController } from "../../../../../abstract/Controller";
+import { Controller } from "../../../../../decorator/Controller";
 
-export const recordAgoraAcquire: Controller<
-    RecordAgoraAcquireRequest,
-    AgoraCloudRecordAcquireResponse
-> = async ({ req, logger }) => {
-    const { roomUUID, agoraData } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/record/agora/acquire",
+    auth: true,
+})
+export class RecordAgoraAcquire extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["roomUUID", "agoraData"],
+            properties: {
+                roomUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+                agoraData: {
+                    type: "object",
+                    // there are too many parameters and they are only used for forwarding, so there is no more verification here
+                    required: ["clientRequest"],
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { roomUUID, agoraData } = this.body;
+        const userUUID = this.userUUID;
+
         const roomInfo = await RoomDAO().findOne(["room_status"], {
             room_uuid: roomUUID,
             owner_uuid: userUUID,
@@ -50,36 +71,16 @@ export const recordAgoraAcquire: Controller<
             status: Status.Success,
             data: agoraResponse,
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface RecordAgoraAcquireRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         roomUUID: string;
         agoraData: AgoraCloudRecordAcquireRequestBody;
     };
 }
-
-export const recordAgoraAcquireSchemaType: FastifySchema<RecordAgoraAcquireRequest> = {
-    body: {
-        type: "object",
-        required: ["roomUUID", "agoraData"],
-        properties: {
-            roomUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-            agoraData: {
-                type: "object",
-                // there are too many parameters and they are only used for forwarding, so there is no more verification here
-                required: ["clientRequest"],
-            },
-        },
-    },
-};

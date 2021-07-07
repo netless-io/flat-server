@@ -1,4 +1,4 @@
-import { Controller, FastifySchema } from "../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { In, Not } from "typeorm";
 import { Status } from "../../../../constants/Project";
 import { PeriodicStatus, RoomStatus, Week } from "../../../../model/room/Constants";
@@ -9,16 +9,32 @@ import {
     RoomPeriodicUserDAO,
     UserDAO,
 } from "../../../../dao";
-import { parseError } from "../../../../logger";
+import { AbstractController } from "../../../../abstract/Controller";
+import { Controller } from "../../../../decorator/Controller";
 
-export const periodicInfo: Controller<PeriodicInfoRequest, PeriodicInfoResponse> = async ({
-    req,
-    logger,
-}) => {
-    const { periodicUUID } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/info/periodic",
+    auth: true,
+})
+export class PeriodicInfo extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["periodicUUID"],
+            properties: {
+                periodicUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { periodicUUID } = this.body;
+        const userUUID = this.userUUID;
+
         const periodicRoomUserInfo = await RoomPeriodicUserDAO().findOne(["id"], {
             periodic_uuid: periodicUUID,
             user_uuid: userUUID,
@@ -111,35 +127,20 @@ export const periodicInfo: Controller<PeriodicInfoRequest, PeriodicInfoResponse>
                 }),
             },
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface PeriodicInfoRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         periodicUUID: string;
     };
 }
 
-export const periodicInfoSchemaType: FastifySchema<PeriodicInfoRequest> = {
-    body: {
-        type: "object",
-        required: ["periodicUUID"],
-        properties: {
-            periodicUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-        },
-    },
-};
-
-interface PeriodicInfoResponse {
+interface ResponseType {
     periodic: {
         ownerUUID: string;
         ownerUserName: string;

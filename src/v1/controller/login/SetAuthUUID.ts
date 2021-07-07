@@ -1,17 +1,33 @@
-import { Controller, FastifySchema } from "../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../types/Server";
 import redisService from "../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../utils/Redis";
 import { Status } from "../../../constants/Project";
 import { ErrorCode } from "../../../ErrorCode";
-import { parseError } from "../../../logger";
+import { AbstractController } from "../../../abstract/Controller";
+import { Controller } from "../../../decorator/Controller";
 
-export const setAuthUUID: Controller<SetAuthUUIDRequest, SetAuthUUIDResponse> = async ({
-    req,
-    logger,
-}) => {
-    const { authUUID } = req.body;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "login/set-auth-uuid",
+    auth: false,
+})
+export class SetAuthUUID extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["authUUID"],
+            properties: {
+                authUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { authUUID } = this.body;
+
         const result = await redisService.set(RedisKey.authUUID(authUUID), "", 60 * 60);
 
         if (result === null) {
@@ -25,32 +41,17 @@ export const setAuthUUID: Controller<SetAuthUUIDRequest, SetAuthUUIDResponse> = 
                 data: {},
             };
         }
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface SetAuthUUIDRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         authUUID: string;
     };
 }
 
-export const setAuthUUIDSchemaType: FastifySchema<SetAuthUUIDRequest> = {
-    body: {
-        type: "object",
-        required: ["authUUID"],
-        properties: {
-            authUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-        },
-    },
-};
-
-interface SetAuthUUIDResponse {}
+interface ResponseType {}

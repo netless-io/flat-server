@@ -4,23 +4,39 @@ import {
     CloudStorageFilesDAO,
     CloudStorageUserFilesDAO,
 } from "../../../../../dao";
-import { Controller, FastifySchema } from "../../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { checkTotalUsage } from "./Utils";
 import { getFilePath, isExistObject, getOSSFileURLPath } from "../Utils";
-import { parseError } from "../../../../../logger";
+import { Controller } from "../../../../../decorator/Controller";
+import { AbstractController } from "../../../../../abstract/Controller";
 
-export const alibabaCloudUploadFinish: Controller<
-    AlibabaCloudUploadFinishRequest,
-    AlibabaCloudUploadFinishResponse
-> = async ({ req, logger }) => {
-    const { fileUUID } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "cloud-storage/alibaba-cloud/upload/finish",
+    auth: true,
+})
+export class AlibabaCloudUploadFinish extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["fileUUID"],
+            properties: {
+                fileUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { fileUUID } = this.body;
+        const userUUID = this.userUUID;
+
         const fileInfo = await RedisService.hmget(
             RedisKey.cloudStorageFileInfo(userUUID, fileUUID),
             ["fileName", "fileSize"],
@@ -95,32 +111,17 @@ export const alibabaCloudUploadFinish: Controller<
             status: Status.Success,
             data: {},
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface AlibabaCloudUploadFinishRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         fileUUID: string;
     };
 }
 
-export const alibabaCloudUploadFinishSchemaType: FastifySchema<AlibabaCloudUploadFinishRequest> = {
-    body: {
-        type: "object",
-        required: ["fileUUID"],
-        properties: {
-            fileUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-        },
-    },
-};
-
-interface AlibabaCloudUploadFinishResponse {}
+interface ResponseType {}

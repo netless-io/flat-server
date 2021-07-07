@@ -1,17 +1,33 @@
-import { Controller, FastifySchema } from "../../../../types/Server";
-import { Status } from "../../../../constants/Project";
+import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { joinOrdinary } from "./Ordinary";
 import { joinPeriodic } from "./Periodic";
-import { JoinResponse } from "./Type";
-import { ErrorCode } from "../../../../ErrorCode";
+import { ResponseType } from "./Type";
 import { RoomPeriodicConfigDAO } from "../../../../dao";
-import { parseError } from "../../../../logger";
+import { AbstractController } from "../../../../abstract/Controller";
+import { Controller } from "../../../../decorator/Controller";
 
-export const join: Controller<JoinRequest, JoinResponse> = async ({ req, logger }) => {
-    const { uuid } = req.body;
-    const { userUUID } = req.user;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/join",
+    auth: true,
+})
+export class JoinRoom extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["uuid"],
+            properties: {
+                uuid: {
+                    type: "string",
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { uuid } = this.body;
+        const userUUID = this.userUUID;
+
         const uuidIsPeriodicUUID = await RoomPeriodicConfigDAO().findOne(["id"], {
             periodic_uuid: uuid,
         });
@@ -21,29 +37,15 @@ export const join: Controller<JoinRequest, JoinResponse> = async ({ req, logger 
         } else {
             return await joinOrdinary(uuid, userUUID);
         }
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface JoinRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         uuid: string;
     };
 }
-
-export const joinSchemaType: FastifySchema<JoinRequest> = {
-    body: {
-        type: "object",
-        required: ["uuid"],
-        properties: {
-            uuid: {
-                type: "string",
-            },
-        },
-    },
-};

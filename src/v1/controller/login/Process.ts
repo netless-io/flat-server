@@ -1,17 +1,33 @@
-import { Controller, FastifySchema } from "../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../types/Server";
 import RedisService from "../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../utils/Redis";
 import { Status } from "../../../constants/Project";
 import { ErrorCode } from "../../../ErrorCode";
-import { parseError } from "../../../logger";
+import { AbstractController } from "../../../abstract/Controller";
+import { Controller } from "../../../decorator/Controller";
 
-export const loginProcess: Controller<LoginProcessRequest, LoginProcessResponse> = async ({
-    req,
-    logger,
-}) => {
-    const { authUUID } = req.body;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "login/process",
+    auth: false,
+})
+export class LoginProcess extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["authUUID"],
+            properties: {
+                authUUID: {
+                    type: "string",
+                    format: "uuid-v4",
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { authUUID } = this.body;
+
         const hasAuthUUID = await RedisService.get(RedisKey.authUUID(authUUID));
 
         if (hasAuthUUID === null) {
@@ -57,36 +73,20 @@ export const loginProcess: Controller<LoginProcessRequest, LoginProcessResponse>
             status: Status.Success,
             data: JSON.parse(userInfo),
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface LoginProcessRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     body: {
         authUUID: string;
     };
 }
 
-export const loginProcessSchemaType: FastifySchema<LoginProcessRequest> = {
-    body: {
-        type: "object",
-        required: ["authUUID"],
-        properties: {
-            authUUID: {
-                type: "string",
-                format: "uuid-v4",
-            },
-        },
-    },
-};
-
-type LoginProcessResponse = {
+type ResponseType = {
     name: string;
     avatar: string;
     userUUID: string;

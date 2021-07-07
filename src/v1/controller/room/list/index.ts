@@ -1,19 +1,48 @@
-import { Controller, FastifySchema } from "../../../../types/Server";
+import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { createQueryBuilder, In } from "typeorm";
 import { RoomUserModel } from "../../../../model/room/RoomUser";
 import { RoomModel } from "../../../../model/room/Room";
 import { UserModel } from "../../../../model/user/User";
 import { ListType, RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { Status } from "../../../../constants/Project";
-import { ErrorCode } from "../../../../ErrorCode";
 import { RoomRecordDAO } from "../../../../dao";
 
-import { parseError } from "../../../../logger";
+import { AbstractController } from "../../../../abstract/Controller";
+import { Controller } from "../../../../decorator/Controller";
 
-export const list: Controller<ListRequest, ListResponse> = async ({ req, logger }) => {
-    const { type } = req.params;
+@Controller<RequestType, ResponseType>({
+    method: "post",
+    path: "room/list/:type",
+    auth: true,
+})
+export class List extends AbstractController<RequestType, ResponseType> {
+    public static readonly schema: FastifySchema<RequestType> = {
+        querystring: {
+            type: "object",
+            required: ["page"],
+            properties: {
+                page: {
+                    type: "integer",
+                    maximum: 50,
+                    minimum: 1,
+                },
+            },
+        },
+        params: {
+            type: "object",
+            required: ["type"],
+            properties: {
+                type: {
+                    type: "string",
+                    enum: [ListType.All, ListType.Today, ListType.Periodic, ListType.History],
+                },
+            },
+        },
+    };
 
-    try {
+    public async execute(): Promise<Response<ResponseType>> {
+        const { type } = this.params;
+
         let queryBuilder = createQueryBuilder(RoomUserModel, "ru")
             .addSelect("r.title", "title")
             .addSelect("r.room_uuid", "room_uuid")
@@ -35,7 +64,7 @@ export const list: Controller<ListRequest, ListResponse> = async ({ req, logger 
                     AND ru.is_delete = false
                     AND r.is_delete = false`,
                     {
-                        userUUID: req.user.userUUID,
+                        userUUID: this.userUUID,
                         notRoomStatus: RoomStatus.Stopped,
                     },
                 );
@@ -49,7 +78,7 @@ export const list: Controller<ListRequest, ListResponse> = async ({ req, logger 
                     AND ru.is_delete = false
                     AND r.is_delete = false`,
                     {
-                        userUUID: req.user.userUUID,
+                        userUUID: this.userUUID,
                         notRoomStatus: RoomStatus.Stopped,
                     },
                 );
@@ -63,7 +92,7 @@ export const list: Controller<ListRequest, ListResponse> = async ({ req, logger 
                     AND ru.is_delete = false
                     AND r.is_delete = false`,
                     {
-                        userUUID: req.user.userUUID,
+                        userUUID: this.userUUID,
                         notRoomStatus: RoomStatus.Stopped,
                     },
                 );
@@ -76,7 +105,7 @@ export const list: Controller<ListRequest, ListResponse> = async ({ req, logger 
                     AND ru.is_delete = false
                     AND r.is_delete = false`,
                     {
-                        userUUID: req.user.userUUID,
+                        userUUID: this.userUUID,
                         roomStatus: RoomStatus.Stopped,
                     },
                 );
@@ -89,11 +118,11 @@ export const list: Controller<ListRequest, ListResponse> = async ({ req, logger 
         });
 
         const rooms = await queryBuilder
-            .offset((req.query.page - 1) * 50)
+            .offset((this.querystring.page - 1) * 50)
             .limit(50)
             .getRawMany();
 
-        const resp: ListResponse = rooms.map((room: Room) => {
+        const resp: ResponseType = rooms.map((room: Room) => {
             return {
                 roomUUID: room.room_uuid,
                 periodicUUID: room.periodic_uuid || null,
@@ -131,16 +160,14 @@ export const list: Controller<ListRequest, ListResponse> = async ({ req, logger 
             status: Status.Success,
             data: resp,
         };
-    } catch (err) {
-        logger.error("request failed", parseError(err));
-        return {
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        };
     }
-};
 
-interface ListRequest {
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+}
+
+interface RequestType {
     querystring: {
         page: number;
     };
@@ -149,31 +176,7 @@ interface ListRequest {
     };
 }
 
-export const listSchemaType: FastifySchema<ListRequest> = {
-    querystring: {
-        type: "object",
-        required: ["page"],
-        properties: {
-            page: {
-                type: "integer",
-                maximum: 50,
-                minimum: 1,
-            },
-        },
-    },
-    params: {
-        type: "object",
-        required: ["type"],
-        properties: {
-            type: {
-                type: "string",
-                enum: [ListType.All, ListType.Today, ListType.Periodic, ListType.History],
-            },
-        },
-    },
-};
-
-type ListResponse = Array<{
+type ResponseType = Array<{
     roomUUID: string;
     periodicUUID: string | null;
     roomType: RoomType;

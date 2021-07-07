@@ -1,19 +1,8 @@
-import { FastifyRoutes } from "../../../types/Server";
-import { generateRTC, generateRTCSchemaType } from "./token/RTC";
-import { generateRTM } from "./token/RTM";
+import { GenerateRTC } from "./token/RTC";
+import { GenerateRTM } from "./token/RTM";
+import { ControllerClass } from "../../../abstract/Controller";
 
-export const agoraRouters: Readonly<FastifyRoutes[]> = Object.freeze([
-    Object.freeze({
-        method: "post",
-        path: "agora/token/generate/rtc",
-        handler: generateRTC,
-        auth: true,
-        schema: generateRTCSchemaType,
-    }),
-    Object.freeze({
-        method: "post",
-        path: "agora/token/generate/rtm",
-        handler: generateRTM,
-        auth: true,
-    }),
+export const agoraRouters: Readonly<Array<ControllerClass<any, any>>> = Object.freeze([
+    GenerateRTC,
+    GenerateRTM,
 ]);
