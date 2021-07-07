@@ -1,6 +1,6 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { createQueryBuilder } from "typeorm";
-import { Status } from "../../../../constants/Project";
+import { Region, Status } from "../../../../constants/Project";
 import { PeriodicStatus, RoomStatus, Week } from "../../../../model/room/Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomPeriodicConfigDAO, RoomPeriodicUserDAO, UserDAO } from "../../../../dao";
@@ -45,7 +45,16 @@ export class PeriodicInfo extends AbstractController<RequestType, ResponseType> 
         }
 
         const periodicConfig = await RoomPeriodicConfigDAO().findOne(
-            ["end_time", "rate", "owner_uuid", "periodic_status", "room_type", "title", "weeks"],
+            [
+                "end_time",
+                "rate",
+                "owner_uuid",
+                "periodic_status",
+                "room_type",
+                "title",
+                "weeks",
+                "region",
+            ],
             {
                 periodic_uuid: periodicUUID,
             },
@@ -66,6 +75,7 @@ export class PeriodicInfo extends AbstractController<RequestType, ResponseType> 
             room_type,
             periodic_status,
             weeks,
+            region,
         } = periodicConfig;
 
         const userInfo = await UserDAO().findOne(["user_name"], {
@@ -118,6 +128,7 @@ export class PeriodicInfo extends AbstractController<RequestType, ResponseType> 
                     rate: rate || null,
                     title,
                     weeks: weeks.split(",").map(week => Number(week)) as Week[],
+                    region,
                 },
                 rooms: rooms.map(({ roomUUID, roomStatus, beginTime, endTime, existRecord }) => {
                     return {
@@ -152,6 +163,7 @@ interface ResponseType {
         rate: number | null;
         title: string;
         weeks: Week[];
+        region: Region;
     };
     rooms: Array<{
         roomUUID: string;

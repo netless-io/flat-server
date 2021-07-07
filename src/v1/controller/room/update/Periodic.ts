@@ -99,7 +99,7 @@ export class UpdatePeriodic extends AbstractController<RequestType, ResponseType
         const userUUID = this.userUUID;
 
         const periodicConfigInfo = await RoomPeriodicConfigDAO().findOne(
-            ["room_origin_begin_time", "room_origin_end_time", "end_time", "rate"],
+            ["room_origin_begin_time", "room_origin_end_time", "end_time", "rate", "region"],
             {
                 periodic_uuid: periodicUUID,
                 owner_uuid: userUUID,
@@ -113,7 +113,13 @@ export class UpdatePeriodic extends AbstractController<RequestType, ResponseType
             };
         }
 
-        const { room_origin_begin_time, room_origin_end_time, end_time, rate } = periodicConfigInfo;
+        const {
+            room_origin_begin_time,
+            room_origin_end_time,
+            end_time,
+            rate,
+            region,
+        } = periodicConfigInfo;
 
         if (
             !checkUpdateBeginAndEndTime(beginTime, endTime, {
@@ -221,9 +227,10 @@ export class UpdatePeriodic extends AbstractController<RequestType, ResponseType
                     room_type: type,
                     room_status: RoomStatus.Idle,
                     room_uuid: willAddRoom[0].fake_room_uuid,
-                    whiteboard_room_uuid: await whiteboardCreateRoom(),
+                    whiteboard_room_uuid: await whiteboardCreateRoom(region),
                     begin_time: willAddRoom[0].begin_time,
                     end_time: willAddRoom[0].end_time,
+                    region,
                 }),
             );
 
@@ -239,7 +246,7 @@ export class UpdatePeriodic extends AbstractController<RequestType, ResponseType
             );
 
             await Promise.all(commands);
-            await whiteboardBanRoom(roomInfo.whiteboard_room_uuid);
+            await whiteboardBanRoom(region, roomInfo.whiteboard_room_uuid);
         });
 
         return {

@@ -5,7 +5,7 @@ import {
     CloudStorageUserFilesDAO,
 } from "../../../../../dao";
 import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
-import { Status } from "../../../../../constants/Project";
+import { Region, Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
@@ -23,18 +23,22 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
     public static readonly schema: FastifySchema<RequestType> = {
         body: {
             type: "object",
-            required: ["fileUUID"],
+            required: ["fileUUID", "region"],
             properties: {
                 fileUUID: {
                     type: "string",
                     format: "uuid-v4",
+                },
+                region: {
+                    type: "string",
+                    enum: [Region.CN_HZ, Region.US_SV, Region.SG, Region.IN_MUM, Region.GB_LON],
                 },
             },
         },
     };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const { fileUUID } = this.body;
+        const { fileUUID, region } = this.body;
         const userUUID = this.userUUID;
 
         const fileInfo = await RedisService.hmget(
@@ -81,6 +85,7 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
                     file_size: fileSize,
                     file_url: alibabaCloudFileURL,
                     file_uuid: fileUUID,
+                    region,
                 }),
             );
 
@@ -121,6 +126,7 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
 interface RequestType {
     body: {
         fileUUID: string;
+        region: Region;
     };
 }
 

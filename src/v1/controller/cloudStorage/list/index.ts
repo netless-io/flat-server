@@ -1,5 +1,5 @@
 import { createQueryBuilder } from "typeorm";
-import { Status } from "../../../../constants/Project";
+import { Region, Status } from "../../../../constants/Project";
 import { CloudStorageConfigsDAO } from "../../../../dao";
 import { CloudStorageFilesModel } from "../../../../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../../../../model/cloudStorage/CloudStorageUserFiles";
@@ -55,6 +55,7 @@ export class CloudStorageList extends AbstractController<RequestType, ResponseTy
             .addSelect("f.task_uuid", "task_uuid")
             .addSelect("f.task_token", "task_token")
             .addSelect("f.created_at", "create_at")
+            .addSelect("f.region", "region")
             .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
             .where(
                 `fc.user_uuid = :userUUID
@@ -79,6 +80,7 @@ export class CloudStorageList extends AbstractController<RequestType, ResponseTy
                 taskUUID: file.task_uuid,
                 taskToken: file.task_token,
                 createAt: file.create_at.valueOf(),
+                region: file.region,
             };
         });
 
@@ -113,6 +115,7 @@ interface ResponseType {
         taskUUID: string;
         taskToken: string;
         createAt: number;
+        region: Region;
     }>;
 }
 
@@ -125,4 +128,5 @@ interface CloudStorageFile {
     task_uuid: string;
     task_token: string;
     create_at: Date;
+    region: Region;
 }

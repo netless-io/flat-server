@@ -1,6 +1,7 @@
 import { RoomStatus, RoomType } from "./Constants";
 import { Column, Entity, Index } from "typeorm";
 import { Content } from "../Content";
+import { Region } from "../../constants/Project";
 
 @Entity({
     name: "rooms",
@@ -63,6 +64,12 @@ export class RoomModel extends Content {
         comment: "room end time",
     })
     end_time: Date;
+
+    @Column({
+        type: "enum",
+        enum: [Region.CN_HZ, Region.US_SV, Region.SG, Region.IN_MUM, Region.GB_LON],
+    })
+    region: Region;
 
     @Index("rooms_whiteboard_room_uuid_uindex", {
         unique: true,

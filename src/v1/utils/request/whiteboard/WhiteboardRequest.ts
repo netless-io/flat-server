@@ -1,13 +1,14 @@
 import { ax } from "../../Axios";
 import { createWhiteboardSDKToken } from "../../../../utils/NetlessToken";
 import { AxiosResponse } from "axios";
+import { Region } from "../../../../constants/Project";
 
 /**
  * whiteboard create room api
  * @param {number} limit - (default: 0 = no limit)
  * @return {string} whiteboard room uuid, not room model's room_uuid
  */
-export const whiteboardCreateRoom = async (limit = 0): Promise<string> => {
+export const whiteboardCreateRoom = async (region: Region, limit = 0): Promise<string> => {
     const {
         data: { uuid },
     } = await ax.post<Room>(
@@ -19,7 +20,7 @@ export const whiteboardCreateRoom = async (limit = 0): Promise<string> => {
         {
             headers: {
                 token: createWhiteboardSDKToken(),
-                // TODO region: 'cn-hz',
+                region,
             },
         },
     );
@@ -27,7 +28,10 @@ export const whiteboardCreateRoom = async (limit = 0): Promise<string> => {
     return uuid;
 };
 
-export const whiteboardBanRoom = async (uuid: string): Promise<AxiosResponse<Room>> => {
+export const whiteboardBanRoom = async (
+    region: Region,
+    uuid: string,
+): Promise<AxiosResponse<Room>> => {
     return await ax.patch<Room>(
         `https://api.netless.link/v5/rooms/${uuid}`,
         {
@@ -36,13 +40,14 @@ export const whiteboardBanRoom = async (uuid: string): Promise<AxiosResponse<Roo
         {
             headers: {
                 token: createWhiteboardSDKToken(),
-                // TODO region: 'cn-hz',
+                region,
             },
         },
     );
 };
 
 export const whiteboardCreateConversionTask = async (
+    region: Region,
     body: CreateConversionTaskParams,
 ): Promise<AxiosResponse<TaskCreated>> => {
     return await ax.post<TaskCreated>(
@@ -51,13 +56,14 @@ export const whiteboardCreateConversionTask = async (
         {
             headers: {
                 token: createWhiteboardSDKToken(),
-                // TODO region: 'cn-hz',
+                region,
             },
         },
     );
 };
 
 export const whiteboardQueryConversionTask = async (
+    region: Region,
     uuid: string,
     type: "static" | "dynamic",
 ): Promise<AxiosResponse<TaskStatus>> => {
@@ -66,7 +72,7 @@ export const whiteboardQueryConversionTask = async (
         {
             headers: {
                 token: createWhiteboardSDKToken(),
-                // TODO region: 'cn-hz',
+                region,
             },
         },
     );

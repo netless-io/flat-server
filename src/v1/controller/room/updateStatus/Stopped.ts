@@ -35,7 +35,7 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
         const userUUID = this.userUUID;
 
         const roomInfo = await RoomDAO().findOne(
-            ["room_status", "owner_uuid", "periodic_uuid", "whiteboard_room_uuid"],
+            ["room_status", "owner_uuid", "periodic_uuid", "whiteboard_room_uuid", "region"],
             {
                 room_uuid: roomUUID,
                 owner_uuid: userUUID,
@@ -131,6 +131,7 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
                                 user_uuid: userUUID,
                                 title,
                                 room_type,
+                                region: roomInfo.region,
                                 ...nextRoomPeriodicInfo,
                             }),
                         );
@@ -149,7 +150,7 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
                 }
 
                 await Promise.all(commands);
-                await whiteboardBanRoom(roomInfo.whiteboard_room_uuid);
+                await whiteboardBanRoom(roomInfo.region, roomInfo.whiteboard_room_uuid);
             },
         );
 

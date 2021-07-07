@@ -44,7 +44,7 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
         }
 
         const fileInfo = await CloudStorageFilesDAO().findOne(
-            ["file_url", "convert_step", "task_uuid"],
+            ["file_url", "convert_step", "task_uuid", "region"],
             {
                 file_uuid: fileUUID,
             },
@@ -57,7 +57,7 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
             };
         }
 
-        const { file_url: resource, convert_step, task_uuid } = fileInfo;
+        const { file_url: resource, convert_step, task_uuid, region } = fileInfo;
 
         if (isConvertDone(convert_step)) {
             return {
@@ -74,7 +74,7 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
         }
 
         const fileType = determineType(resource);
-        const result = await whiteboardQueryConversionTask(task_uuid, fileType);
+        const result = await whiteboardQueryConversionTask(region, task_uuid, fileType);
         const convertStatus = result.data.status;
 
         switch (convertStatus) {

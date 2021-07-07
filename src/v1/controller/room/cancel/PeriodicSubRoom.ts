@@ -37,10 +37,13 @@ export class CancelPeriodicSubRoom extends AbstractController<RequestType, Respo
         const { periodicUUID, roomUUID } = this.body;
         const userUUID = this.userUUID;
 
-        const periodicConfig = await RoomPeriodicConfigDAO().findOne(["title", "room_type"], {
-            periodic_uuid: periodicUUID,
-            owner_uuid: userUUID,
-        });
+        const periodicConfig = await RoomPeriodicConfigDAO().findOne(
+            ["title", "room_type", "region"],
+            {
+                periodic_uuid: periodicUUID,
+                owner_uuid: userUUID,
+            },
+        );
 
         if (periodicConfig === undefined) {
             return {
@@ -49,7 +52,7 @@ export class CancelPeriodicSubRoom extends AbstractController<RequestType, Respo
             };
         }
 
-        const { title, room_type } = periodicConfig;
+        const { title, room_type, region } = periodicConfig;
 
         const periodicRoomInfo = await RoomPeriodicDAO().findOne(["begin_time"], {
             periodic_uuid: periodicUUID,
@@ -110,6 +113,7 @@ export class CancelPeriodicSubRoom extends AbstractController<RequestType, Respo
                             user_uuid: userUUID,
                             title,
                             room_type,
+                            region,
                             ...nextRoomPeriodicInfo,
                         })),
                     );
@@ -129,7 +133,7 @@ export class CancelPeriodicSubRoom extends AbstractController<RequestType, Respo
 
             await Promise.all(commands);
             if (roomInfo) {
-                await whiteboardBanRoom(roomInfo.whiteboard_room_uuid);
+                await whiteboardBanRoom(region, roomInfo.whiteboard_room_uuid);
             }
         });
 

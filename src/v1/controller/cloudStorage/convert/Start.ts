@@ -48,9 +48,12 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
             };
         }
 
-        const fileInfo = await CloudStorageFilesDAO().findOne(["file_url", "convert_step"], {
-            file_uuid: fileUUID,
-        });
+        const fileInfo = await CloudStorageFilesDAO().findOne(
+            ["file_url", "convert_step", "region"],
+            {
+                file_uuid: fileUUID,
+            },
+        );
 
         if (fileInfo === undefined) {
             return {
@@ -59,7 +62,7 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
             };
         }
 
-        const { file_url: resource, convert_step } = fileInfo;
+        const { file_url: resource, convert_step, region } = fileInfo;
 
         if (isConverting(convert_step)) {
             return {
@@ -85,13 +88,13 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
         const fileType = determineType(resource);
         let result: AxiosResponse<TaskCreated>;
         if (fileType === "dynamic") {
-            result = await whiteboardCreateConversionTask({
+            result = await whiteboardCreateConversionTask(region, {
                 resource,
                 type: fileType,
                 preview: true,
             });
         } else {
-            result = await whiteboardCreateConversionTask({
+            result = await whiteboardCreateConversionTask(region, {
                 resource,
                 type: fileType,
                 pack: true,
