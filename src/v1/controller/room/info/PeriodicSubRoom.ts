@@ -2,7 +2,12 @@ import { FastifySchema, Response, ResponseError } from "../../../../types/Server
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
-import { RoomPeriodicConfigDAO, RoomPeriodicDAO, RoomPeriodicUserDAO } from "../../../../dao";
+import {
+    RoomPeriodicConfigDAO,
+    RoomPeriodicDAO,
+    RoomPeriodicUserDAO,
+    RoomRecordDAO,
+} from "../../../../dao";
 import { LessThan, MoreThan, Not } from "typeorm";
 import { AbstractController } from "../../../../abstract/Controller";
 import { Controller } from "../../../../decorator/Controller";
@@ -124,6 +129,10 @@ export class PeriodicSubRoomInfo extends AbstractController<RequestType, Respons
             };
         })();
 
+        const recordInfo = await RoomRecordDAO().findOne(["id"], {
+            room_uuid: roomUUID,
+        });
+
         return {
             status: Status.Success,
             data: {
@@ -134,6 +143,7 @@ export class PeriodicSubRoomInfo extends AbstractController<RequestType, Respons
                     roomType: room_type,
                     roomStatus: room_status,
                     ownerUUID: owner_uuid,
+                    hasRecord: !!recordInfo,
                 },
                 previousPeriodicRoomBeginTime,
                 nextPeriodicRoomEndTime,
@@ -166,6 +176,7 @@ interface ResponseType {
         roomType: RoomType;
         roomStatus: RoomStatus;
         ownerUUID: string;
+        hasRecord: boolean;
     };
     previousPeriodicRoomBeginTime: number | null;
     nextPeriodicRoomEndTime: number | null;

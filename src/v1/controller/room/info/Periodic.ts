@@ -1,16 +1,13 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { In, Not } from "typeorm";
+import { createQueryBuilder } from "typeorm";
 import { Status } from "../../../../constants/Project";
 import { PeriodicStatus, RoomStatus, Week } from "../../../../model/room/Constants";
 import { ErrorCode } from "../../../../ErrorCode";
-import {
-    RoomPeriodicConfigDAO,
-    RoomPeriodicDAO,
-    RoomPeriodicUserDAO,
-    UserDAO,
-} from "../../../../dao";
+import { RoomPeriodicConfigDAO, RoomPeriodicUserDAO, UserDAO } from "../../../../dao";
 import { AbstractController } from "../../../../abstract/Controller";
 import { Controller } from "../../../../decorator/Controller";
+import { RoomPeriodicModel } from "../../../../model/room/RoomPeriodic";
+import { RoomRecordModel } from "../../../../model/room/RoomRecord";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -89,13 +86,18 @@ export class PeriodicInfo extends AbstractController<RequestType, ResponseType> 
             };
         }
 
-        const rooms = await RoomPeriodicDAO().find(
-            ["room_status", "begin_time", "end_time", "fake_room_uuid"],
-            {
-                periodic_uuid: periodicUUID,
-                room_status: Not(In([RoomStatus.Stopped])),
-            },
-        );
+        const rooms: Array<PeriodicSubRooms> = await createQueryBuilder(RoomPeriodicModel, "rp")
+            .leftJoin(RoomRecordModel, "rr", "rr.room_uuid = rp.fake_room_uuid")
+            .addSelect("rp.room_status", "roomStatus")
+            .addSelect("rp.begin_time", "beginTime")
+            .addSelect("rp.end_time", "endTime")
+            .addSelect("rp.fake_room_uuid", "roomUUID")
+            .addSelect("rr.id", "existRecord")
+            .where("rp.periodic_uuid = :periodicUUID", { periodicUUID })
+            .andWhere("rp.room_status != :roomStatus", { roomStatus: RoomStatus.Stopped })
+            .andWhere("rp.is_delete = false")
+            .andWhere("rr.is_delete = false")
+            .getRawMany();
 
         // only in the case of very boundary, will come here
         if (rooms.length === 0) {
@@ -117,12 +119,13 @@ export class PeriodicInfo extends AbstractController<RequestType, ResponseType> 
                     title,
                     weeks: weeks.split(",").map(week => Number(week)) as Week[],
                 },
-                rooms: rooms.map(({ fake_room_uuid, begin_time, end_time, room_status }) => {
+                rooms: rooms.map(({ roomUUID, roomStatus, beginTime, endTime, existRecord }) => {
                     return {
-                        roomUUID: fake_room_uuid,
-                        beginTime: begin_time.valueOf(),
-                        endTime: end_time.valueOf(),
-                        roomStatus: room_status,
+                        roomUUID,
+                        beginTime: beginTime.valueOf(),
+                        endTime: endTime.valueOf(),
+                        roomStatus,
+                        hasRecord: !!existRecord,
                     };
                 }),
             },
@@ -155,5 +158,14 @@ interface ResponseType {
         beginTime: number;
         endTime: number;
         roomStatus: RoomStatus;
+        hasRecord: boolean;
     }>;
+}
+
+interface PeriodicSubRooms {
+    roomUUID: string;
+    beginTime: Date;
+    endTime: Date;
+    roomStatus: RoomStatus;
+    existRecord: number | null;
 }

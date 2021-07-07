@@ -2,7 +2,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../types/Server
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
-import { RoomDAO, RoomUserDAO, UserDAO } from "../../../../dao";
+import { RoomDAO, RoomRecordDAO, RoomUserDAO, UserDAO } from "../../../../dao";
 import { AbstractController } from "../../../../abstract/Controller";
 import { Controller } from "../../../../decorator/Controller";
 
@@ -68,6 +68,10 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
             };
         }
 
+        const recordInfo = await RoomRecordDAO().findOne(["id"], {
+            room_uuid: roomUUID,
+        });
+
         return {
             status: Status.Success,
             data: {
@@ -79,6 +83,7 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
                     roomStatus: room_status,
                     ownerUUID: owner_uuid,
                     ownerUserName: userInfo.user_name,
+                    hasRecord: !!recordInfo,
                 },
             },
         };
@@ -104,5 +109,6 @@ interface ResponseType {
         roomStatus: RoomStatus;
         ownerUUID: string;
         ownerUserName: string;
+        hasRecord: boolean;
     };
 }
