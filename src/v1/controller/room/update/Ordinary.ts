@@ -5,7 +5,7 @@ import { Status } from "../../../../constants/Project";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { toDate } from "date-fns/fp";
 import { checkUpdateBeginAndEndTime } from "./Utils";
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -92,7 +92,7 @@ export class UpdateOrdinary extends AbstractController<RequestType, ResponseType
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

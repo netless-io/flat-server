@@ -17,7 +17,7 @@ import {
 } from "../../../../dao";
 import { calculatePeriodicDates } from "../utils/Periodic";
 import { checkBeginAndEndTime } from "../utils/CheckTime";
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -202,7 +202,7 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

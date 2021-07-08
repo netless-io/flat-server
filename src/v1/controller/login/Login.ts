@@ -9,7 +9,7 @@ import { LoginPlatform } from "../../../constants/Project";
 import { getGithubUserInfo } from "../../utils/request/github/GithubRequest";
 import { weChatRenewAccessToken } from "../../utils/request/wechat/WeChatRequest";
 import { parseError } from "../../../logger";
-import { AbstractController } from "../../../abstract/Controller";
+import { AbstractController } from "../../../abstract/controller";
 import { Controller } from "../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({

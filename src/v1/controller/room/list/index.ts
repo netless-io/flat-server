@@ -7,7 +7,7 @@ import { ListType, RoomStatus, RoomType } from "../../../../model/room/Constants
 import { Status } from "../../../../constants/Project";
 import { RoomRecordDAO } from "../../../../dao";
 
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -163,7 +163,7 @@ export class List extends AbstractController<RequestType, ResponseType> {
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

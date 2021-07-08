@@ -12,7 +12,7 @@ import {
 } from "../../../../dao";
 import { roomIsRunning } from "../utils/Room";
 import { Controller } from "../../../../decorator/Controller";
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -132,7 +132,7 @@ export class CancelPeriodic extends AbstractController<RequestType, ResponseType
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

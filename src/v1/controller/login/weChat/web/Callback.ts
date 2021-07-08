@@ -3,7 +3,7 @@ import redisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { registerOrLoginWechat } from "../Utils";
 import { parseError } from "../../../../../logger";
-import { AbstractController } from "../../../../../abstract/Controller";
+import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
 
 @Controller<RequestType, any>({
@@ -46,7 +46,7 @@ export class WechatWebCallback extends AbstractController<RequestType> {
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

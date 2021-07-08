@@ -5,7 +5,7 @@ import { CloudStorageFilesModel } from "../../../../model/cloudStorage/CloudStor
 import { CloudStorageUserFilesModel } from "../../../../model/cloudStorage/CloudStorageUserFiles";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -94,7 +94,7 @@ export class CloudStorageList extends AbstractController<RequestType, ResponseTy
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

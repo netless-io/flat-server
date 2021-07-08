@@ -13,7 +13,7 @@ import {
     beginTimeLessEndTime,
     timeIntervalLessThanFifteenMinute,
 } from "../utils/CheckTime";
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -120,7 +120,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

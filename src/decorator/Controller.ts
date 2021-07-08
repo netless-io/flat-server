@@ -1,5 +1,5 @@
 import { RouterMetadata } from "./Metadata";
-import { ControllerStaticType } from "../abstract/Controller";
+import { ControllerStaticType } from "../abstract/controller";
 
 export const Controller = <RES, REQ>(
     params: ControllerParams,

@@ -4,7 +4,7 @@ import { RoomStatus } from "../../../../model/room/Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomUserDAO } from "../../../../dao";
 import { Controller } from "../../../../decorator/Controller";
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -71,7 +71,7 @@ export class CancelHistory extends AbstractController<RequestType, ResponseType>
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

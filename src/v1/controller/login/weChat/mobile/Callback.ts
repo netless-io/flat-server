@@ -2,7 +2,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../../types/Ser
 import { registerOrLoginWechat } from "../Utils";
 import redisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
-import { AbstractController } from "../../../../../abstract/Controller";
+import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -35,7 +35,7 @@ export class WechatMobileCallback extends AbstractController<RequestType, Respon
 
     public async errorHandler(error: Error): Promise<ResponseError> {
         await redisService.set(RedisKey.authFailed(this.querystring.state), "", 60 * 60);
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

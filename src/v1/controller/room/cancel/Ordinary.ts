@@ -1,13 +1,17 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { getConnection } from "typeorm";
 import { Status } from "../../../../constants/Project";
-import { RoomStatus } from "../../../../model/room/Constants";
-import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO, RoomUserDAO } from "../../../../dao";
-import { roomIsRunning } from "../utils/Room";
+import { roomIsIdle, roomIsRunning } from "../utils/Room";
 import { Controller } from "../../../../decorator/Controller";
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
+import { ControllerClassParams } from "../../../../abstract/controller";
+import { ServiceOrdinary } from "../../../service";
+import { FlatError } from "../../../../error/FlatError";
+import { ControllerError } from "../../../../error/ControllerError";
+import { RoomModel } from "../../../../model/room/Room";
+import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
+import { parseError } from "../../../../logger";
+import { ORM, ORMType } from "../../../../utils/ORM";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -28,66 +32,63 @@ export class CancelOrdinary extends AbstractController<RequestType, ResponseType
         },
     };
 
+    private readonly svc: {
+        room: ServiceOrdinary;
+    };
+
+    private readonly orm: ORM;
+
+    public constructor(
+        params: ControllerClassParams,
+        payload?: {
+            serviceOrdinary?: ServiceOrdinary;
+            orm?: ORMType;
+        },
+    ) {
+        super(params);
+
+        this.svc = {
+            room:
+                payload?.serviceOrdinary || new ServiceOrdinary(this.body.roomUUID, this.userUUID),
+        };
+
+        this.orm = payload?.orm || new ORM();
+    }
+
     public async execute(): Promise<Response<ResponseType>> {
-        const { roomUUID } = this.body;
-        const userUUID = this.userUUID;
+        const roomInfo = await this.svc.room.info([
+            "room_status",
+            "owner_uuid",
+            "periodic_uuid",
+            "whiteboard_room_uuid",
+            "region",
+        ]);
 
-        const roomInfo = await RoomDAO().findOne(
-            ["room_status", "owner_uuid", "periodic_uuid", "whiteboard_room_uuid", "region"],
-            {
-                room_uuid: roomUUID,
-            },
-        );
+        const { owner_uuid, room_status, region, whiteboard_room_uuid } = roomInfo;
 
-        if (roomInfo === undefined) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.RoomNotFound,
-            };
-        }
+        this.assertRoomValid(roomInfo);
 
-        if (roomInfo.periodic_uuid !== "") {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.NotPermission,
-            };
-        }
-
-        // the owner of the room cannot delete this lesson while the room is running
-        if (roomInfo.owner_uuid === userUUID && roomIsRunning(roomInfo.room_status)) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.RoomIsRunning,
-            };
-        }
-
-        await getConnection().transaction(async t => {
+        await this.orm.transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
-            commands.push(
-                RoomUserDAO(t).remove({
-                    room_uuid: roomUUID,
-                    user_uuid: userUUID,
-                }),
-            );
+            commands.push(this.svc.room.removeUser(t));
 
-            if (roomInfo.owner_uuid === userUUID && roomInfo.room_status === RoomStatus.Idle) {
-                commands.push(
-                    RoomDAO(t).remove({
-                        room_uuid: roomUUID,
-                    }),
-                );
+            if (this.userIsRoomOwner(owner_uuid) && roomIsIdle(room_status)) {
+                commands.push(this.svc.room.remove(t));
 
                 await Promise.all(commands);
 
                 // after the room owner cancels the room, block the whiteboard room
                 // this operation must be placed in the last place
-                await whiteboardBanRoom(roomInfo.region, roomInfo.whiteboard_room_uuid);
+                // ban whiteboard room should not block the overall process
+                whiteboardBanRoom(region, whiteboard_room_uuid).catch(err => {
+                    this.logger.warn("ban room failed", parseError(err));
+                });
 
                 return;
+            } else {
+                await Promise.all(commands);
             }
-
-            await Promise.all(commands);
         });
 
         return {
@@ -96,8 +97,26 @@ export class CancelOrdinary extends AbstractController<RequestType, ResponseType
         };
     }
 
-    public errorHandler(error: Error): ResponseError {
+    public errorHandler(error: FlatError): ResponseError {
         return this.autoHandlerError(error);
+    }
+
+    private assertRoomValid(
+        roomInfo: Pick<RoomModel, "periodic_uuid" | "owner_uuid" | "room_status">,
+    ): void {
+        // not support periodic sub room
+        if (roomInfo.periodic_uuid !== "") {
+            throw new ControllerError(ErrorCode.NotPermission);
+        }
+
+        // the owner of the room cannot delete this lesson while the room is running
+        if (this.userIsRoomOwner(roomInfo.owner_uuid) && roomIsRunning(roomInfo.room_status)) {
+            throw new ControllerError(ErrorCode.RoomIsRunning);
+        }
+    }
+
+    private userIsRoomOwner(owner_uuid: string): boolean {
+        return owner_uuid === this.userUUID;
     }
 }
 

@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { RouterMetadata } from "../decorator/Metadata";
 import { PatchRequest } from "../types/Server";
-import { ControllerClass, ControllerStaticType } from "../abstract/Controller";
+import { ControllerClass, ControllerStaticType } from "../abstract/controller";
 import { createLoggerAPI, Logger, LoggerAPI, parseError } from "../logger";
 
 const registerRouters = (version: `v${number}`) => (
@@ -53,7 +53,11 @@ const registerRouters = (version: `v${number}`) => (
 
                     const startTime = Date.now();
 
-                    const c = new controller(req, reply, logger);
+                    const c = new controller({
+                        req,
+                        reply,
+                        logger,
+                    });
 
                     try {
                         const result = await c.execute();

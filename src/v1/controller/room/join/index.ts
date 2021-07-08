@@ -3,7 +3,7 @@ import { joinOrdinary } from "./Ordinary";
 import { joinPeriodic } from "./Periodic";
 import { ResponseType } from "./Type";
 import { RoomPeriodicConfigDAO } from "../../../../dao";
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -40,7 +40,7 @@ export class JoinRoom extends AbstractController<RequestType, ResponseType> {
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

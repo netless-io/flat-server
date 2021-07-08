@@ -9,7 +9,7 @@ import {
     RoomRecordDAO,
 } from "../../../../dao";
 import { LessThan, MoreThan, Not } from "typeorm";
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -157,7 +157,7 @@ export class PeriodicSubRoomInfo extends AbstractController<RequestType, Respons
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 
