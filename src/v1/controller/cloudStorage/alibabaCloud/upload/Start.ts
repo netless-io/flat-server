@@ -8,7 +8,7 @@ import { getFilePath, policyTemplate } from "../Utils";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { checkTotalUsage } from "./Utils";
-import { AbstractController } from "../../../../../abstract/Controller";
+import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -105,7 +105,7 @@ export class AlibabaCloudUploadStart extends AbstractController<RequestType, Res
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

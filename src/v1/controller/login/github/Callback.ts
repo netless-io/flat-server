@@ -10,7 +10,7 @@ import { v4 } from "uuid";
 import { getConnection } from "typeorm";
 import { LoginPlatform } from "../../../../constants/Project";
 import { parseError } from "../../../../logger";
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 
 @Controller<RequestType, any>({

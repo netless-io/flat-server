@@ -10,7 +10,7 @@ import {
     AgoraCloudRecordUpdateLayoutResponse as ResponseType,
 } from "../../../../utils/request/agora/Types";
 import { getCloudRecordData } from "../../utils/Agora";
-import { AbstractController } from "../../../../../abstract/Controller";
+import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -85,7 +85,7 @@ export class RecordAgoraUpdateLayout extends AbstractController<RequestType, Res
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

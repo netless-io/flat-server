@@ -24,7 +24,7 @@ import { UpdatePeriodicSubRoom } from "./update/PeriodicSubRoom";
 import { UpdatePeriodic } from "./update/Periodic";
 import { RecordStarted } from "./record/Started";
 import { RecordStopped } from "./record/Stopped";
-import { ControllerClass } from "../../../abstract/Controller";
+import { ControllerClass } from "../../../abstract/controller";
 
 export const roomRouters: Readonly<Array<ControllerClass<any, any>>> = Object.freeze([
     CreateOrdinary,

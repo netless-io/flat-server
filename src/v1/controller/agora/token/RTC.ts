@@ -3,7 +3,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../types/Server
 import { getRTCToken } from "../../../utils/AgoraToken";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomUserDAO } from "../../../../dao";
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -50,7 +50,7 @@ export class GenerateRTC extends AbstractController<RequestType, ResponseType> {
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

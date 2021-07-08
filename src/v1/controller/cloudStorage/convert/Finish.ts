@@ -5,7 +5,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../types/Server
 import { whiteboardQueryConversionTask } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
 import { determineType, isConvertDone, isConvertFailed } from "./Utils";
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -121,7 +121,7 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

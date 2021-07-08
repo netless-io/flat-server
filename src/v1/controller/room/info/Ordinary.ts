@@ -3,7 +3,7 @@ import { Region, Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { RoomDAO, RoomRecordDAO, RoomUserDAO, UserDAO } from "../../../../dao";
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -99,7 +99,7 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

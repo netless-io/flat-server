@@ -4,7 +4,7 @@ import { Region, Status } from "../../../../constants/Project";
 import { PeriodicStatus, RoomStatus, Week } from "../../../../model/room/Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomPeriodicConfigDAO, RoomPeriodicUserDAO, UserDAO } from "../../../../dao";
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { RoomPeriodicModel } from "../../../../model/room/RoomPeriodic";
 import { RoomRecordModel } from "../../../../model/room/RoomRecord";
@@ -144,7 +144,7 @@ export class PeriodicInfo extends AbstractController<RequestType, ResponseType> 
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

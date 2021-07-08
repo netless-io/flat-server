@@ -9,7 +9,7 @@ import { CloudStorageFilesModel } from "../../../../../model/cloudStorage/CloudS
 import { CloudStorageUserFilesModel } from "../../../../../model/cloudStorage/CloudStorageUserFiles";
 import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
 import { getFilePath, ossClient } from "../Utils";
-import { AbstractController } from "../../../../../abstract/Controller";
+import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -122,7 +122,7 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

@@ -3,7 +3,7 @@ import { Status } from "../../../../constants/Project";
 import { RedisKey } from "../../../../utils/Redis";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -54,7 +54,7 @@ export class UploadCancel extends AbstractController<RequestType, ResponseType> 
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

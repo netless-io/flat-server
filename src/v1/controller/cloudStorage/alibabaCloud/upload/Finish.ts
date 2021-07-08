@@ -12,7 +12,7 @@ import { RedisKey } from "../../../../../utils/Redis";
 import { checkTotalUsage } from "./Utils";
 import { getFilePath, isExistObject, getOSSFileURLPath } from "../Utils";
 import { Controller } from "../../../../../decorator/Controller";
-import { AbstractController } from "../../../../../abstract/Controller";
+import { AbstractController } from "../../../../../abstract/controller";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -119,7 +119,7 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

@@ -1,4 +1,4 @@
-import { ControllerClass } from "../../../abstract/Controller";
+import { ControllerClass } from "../../../abstract/controller";
 import { AlibabaCloudRemoveFile } from "./alibabaCloud/remove";
 import { AlibabaCloudRename } from "./alibabaCloud/rename";
 import { AlibabaCloudUploadStart } from "./alibabaCloud/upload/Start";

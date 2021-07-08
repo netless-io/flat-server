@@ -8,7 +8,7 @@ import {
     AgoraCloudRecordQueryResponse,
 } from "../../../../utils/request/agora/Types";
 import { agoraCloudRecordQueryRequest } from "../../../../utils/request/agora/Agora";
-import { AbstractController } from "../../../../../abstract/Controller";
+import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -77,7 +77,7 @@ export class RecordAgoraQuery extends AbstractController<RequestType, ResponseTy
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

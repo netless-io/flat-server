@@ -6,7 +6,7 @@ import { RoomDAO, RoomRecordDAO, RoomUserDAO } from "../../../../dao";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
 import { getRTMToken } from "../../../utils/AgoraToken";
-import { AbstractController } from "../../../../abstract/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 
 @Controller<RequestType, ResponseType>({
@@ -109,7 +109,7 @@ export class RecordInfo extends AbstractController<RequestType, ResponseType> {
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return this.currentProcessFailed(error);
     }
 }
 

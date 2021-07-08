@@ -36,7 +36,6 @@ web_modules/
 *.tgz
 .yarn-integrity
 .env
-.env.test
 .cache
 .parcel-cache
 .next
