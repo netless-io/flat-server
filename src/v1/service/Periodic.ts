@@ -5,6 +5,7 @@ import { MoreThan } from "typeorm";
 import { EntityManager } from "typeorm/entity-manager/EntityManager";
 import { whiteboardCreateRoom } from "../utils/request/whiteboard/WhiteboardRequest";
 import cryptoRandomString from "crypto-random-string";
+import { Region } from "../../constants/Project";
 
 export const getNextPeriodicRoomInfo = async (
     periodicUUID: string,
@@ -30,6 +31,7 @@ export const updateNextPeriodicRoomInfo = async ({
     end_time,
     fake_room_uuid,
     room_type,
+    region,
 }: {
     transaction: EntityManager;
     periodic_uuid: string;
@@ -39,6 +41,7 @@ export const updateNextPeriodicRoomInfo = async ({
     end_time: RoomPeriodicModel["end_time"];
     fake_room_uuid: RoomPeriodicModel["fake_room_uuid"];
     room_type: RoomType;
+    region: Region;
 }): Promise<Promise<unknown>[]> => {
     const commands: Promise<unknown>[] = [];
 
@@ -50,9 +53,10 @@ export const updateNextPeriodicRoomInfo = async ({
             room_type,
             room_status: RoomStatus.Idle,
             room_uuid: fake_room_uuid,
-            whiteboard_room_uuid: await whiteboardCreateRoom(),
+            whiteboard_room_uuid: await whiteboardCreateRoom(region),
             begin_time,
             end_time,
+            region,
         }),
     );
 

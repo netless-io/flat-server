@@ -1,5 +1,5 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { Status } from "../../../../constants/Project";
+import { Region, Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { RoomDAO, RoomRecordDAO, RoomUserDAO, UserDAO } from "../../../../dao";
@@ -42,7 +42,7 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
         }
 
         const roomInfo = await RoomDAO().findOne(
-            ["title", "begin_time", "end_time", "room_type", "room_status", "owner_uuid"],
+            ["title", "begin_time", "end_time", "room_type", "room_status", "owner_uuid", "region"],
             {
                 room_uuid: roomUUID,
             },
@@ -55,7 +55,15 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
             };
         }
 
-        const { title, begin_time, end_time, room_type, room_status, owner_uuid } = roomInfo;
+        const {
+            title,
+            begin_time,
+            end_time,
+            room_type,
+            room_status,
+            owner_uuid,
+            region,
+        } = roomInfo;
 
         const userInfo = await UserDAO().findOne(["user_name"], {
             user_uuid: owner_uuid,
@@ -84,6 +92,7 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
                     ownerUUID: owner_uuid,
                     ownerUserName: userInfo.user_name,
                     hasRecord: !!recordInfo,
+                    region,
                 },
             },
         };
@@ -110,5 +119,6 @@ interface ResponseType {
         ownerUUID: string;
         ownerUserName: string;
         hasRecord: boolean;
+        region: Region;
     };
 }

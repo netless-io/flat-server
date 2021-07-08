@@ -1,6 +1,7 @@
 import { Column, Entity, Index } from "typeorm";
 import { Content } from "../Content";
 import { PeriodicStatus, RoomType } from "./Constants";
+import { Region } from "../../constants/Project";
 
 @Entity({
     name: "room_periodic_configs",
@@ -75,6 +76,12 @@ export class RoomPeriodicConfigModel extends Content {
         comment: "current periodic status",
     })
     periodic_status: PeriodicStatus;
+
+    @Column({
+        type: "enum",
+        enum: [Region.CN_HZ, Region.US_SV, Region.SG, Region.IN_MUM, Region.GB_LON],
+    })
+    region: Region;
 
     @Index("periodic_configs_is_delete_index")
     @Column({

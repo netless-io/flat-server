@@ -1,5 +1,5 @@
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
-import { Status } from "../../../../constants/Project";
+import { Region, Status } from "../../../../constants/Project";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { v4 } from "uuid";
 import { addHours, toDate } from "date-fns/fp";
@@ -9,8 +9,8 @@ import { whiteboardCreateRoom } from "../../../utils/request/whiteboard/Whiteboa
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomUserDAO } from "../../../../dao";
 import {
-    beginTimeLessEndTime,
     beginTimeExceedRedundancyOneMinute,
+    beginTimeLessEndTime,
     timeIntervalLessThanFifteenMinute,
 } from "../utils/CheckTime";
 import { AbstractController } from "../../../../abstract/Controller";
@@ -25,7 +25,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
     public static readonly schema: FastifySchema<RequestType> = {
         body: {
             type: "object",
-            required: ["title", "type", "beginTime"],
+            required: ["title", "type", "beginTime", "region"],
             properties: {
                 title: {
                     type: "string",
@@ -44,12 +44,16 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
                     format: "unix-timestamp",
                     nullable: true,
                 },
+                region: {
+                    type: "string",
+                    enum: [Region.CN_HZ, Region.US_SV, Region.SG, Region.IN_MUM, Region.GB_LON],
+                },
             },
         },
     };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const { title, type, beginTime, endTime } = this.body;
+        const { title, type, beginTime, endTime, region } = this.body;
         const userUUID = this.userUUID;
 
         {
@@ -85,9 +89,10 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
             room_type: type,
             room_status: RoomStatus.Idle,
             room_uuid: roomUUID,
-            whiteboard_room_uuid: await whiteboardCreateRoom(),
+            whiteboard_room_uuid: await whiteboardCreateRoom(region),
             begin_time: toDate(beginTime),
             end_time: endTime ? toDate(endTime) : addHours(1, beginTime),
+            region,
         };
 
         const roomUserData = {
@@ -125,6 +130,7 @@ interface RequestType {
         type: RoomType;
         beginTime: number;
         endTime?: number;
+        region: Region;
     };
 }
 

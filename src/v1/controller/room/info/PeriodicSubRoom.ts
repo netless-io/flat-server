@@ -1,5 +1,5 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { Status } from "../../../../constants/Project";
+import { Region, Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import {
@@ -72,7 +72,7 @@ export class PeriodicSubRoomInfo extends AbstractController<RequestType, Respons
         const { room_status, begin_time, end_time } = periodicRoomInfo;
 
         const periodicConfigInfo = await RoomPeriodicConfigDAO().findOne(
-            ["title", "owner_uuid", "room_type"],
+            ["title", "owner_uuid", "room_type", "region"],
             {
                 periodic_uuid: periodicUUID,
             },
@@ -85,7 +85,7 @@ export class PeriodicSubRoomInfo extends AbstractController<RequestType, Respons
             };
         }
 
-        const { title, owner_uuid, room_type } = periodicConfigInfo;
+        const { title, owner_uuid, room_type, region } = periodicConfigInfo;
 
         const {
             previousPeriodicRoomBeginTime,
@@ -144,6 +144,7 @@ export class PeriodicSubRoomInfo extends AbstractController<RequestType, Respons
                     roomStatus: room_status,
                     ownerUUID: owner_uuid,
                     hasRecord: !!recordInfo,
+                    region,
                 },
                 previousPeriodicRoomBeginTime,
                 nextPeriodicRoomEndTime,
@@ -177,6 +178,7 @@ interface ResponseType {
         roomStatus: RoomStatus;
         ownerUUID: string;
         hasRecord: boolean;
+        region: Region;
     };
     previousPeriodicRoomBeginTime: number | null;
     nextPeriodicRoomEndTime: number | null;

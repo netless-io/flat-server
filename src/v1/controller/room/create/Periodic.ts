@@ -1,6 +1,6 @@
 import { PeriodicStatus, RoomStatus, RoomType, Week } from "../../../../model/room/Constants";
 import { Periodic } from "../Types";
-import { Status } from "../../../../constants/Project";
+import { Region, Status } from "../../../../constants/Project";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { v4 } from "uuid";
 import { differenceInCalendarDays, toDate } from "date-fns/fp";
@@ -29,7 +29,7 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
     public static readonly schema: FastifySchema<RequestType> = {
         body: {
             type: "object",
-            required: ["title", "type", "beginTime", "endTime", "periodic"],
+            required: ["title", "type", "beginTime", "endTime", "region", "periodic"],
             properties: {
                 title: {
                     type: "string",
@@ -46,6 +46,10 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
                 endTime: {
                     type: "integer",
                     format: "unix-timestamp",
+                },
+                region: {
+                    type: "string",
+                    enum: [Region.CN_HZ, Region.US_SV, Region.SG, Region.IN_MUM, Region.GB_LON],
                 },
                 periodic: {
                     type: "object",
@@ -95,7 +99,7 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
     };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const { title, type, beginTime, endTime, periodic } = this.body;
+        const { title, type, beginTime, endTime, region, periodic } = this.body;
         const userUUID = this.userUUID;
 
         if (!checkBeginAndEndTime(beginTime, endTime)) {
@@ -151,6 +155,7 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
                         : dates[dates.length - 1].start,
                     room_type: type,
                     periodic_uuid: periodicUUID,
+                    region,
                 }),
             );
 
@@ -171,9 +176,10 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
                         room_type: type,
                         room_status: RoomStatus.Idle,
                         room_uuid: roomData[0].fake_room_uuid,
-                        whiteboard_room_uuid: await whiteboardCreateRoom(),
+                        whiteboard_room_uuid: await whiteboardCreateRoom(region),
                         begin_time: roomData[0].begin_time,
                         end_time: roomData[0].end_time,
+                        region,
                     }),
                 );
 
@@ -206,6 +212,7 @@ interface RequestType {
         type: RoomType;
         beginTime: number;
         endTime: number;
+        region: Region;
         periodic: Periodic;
     };
 }

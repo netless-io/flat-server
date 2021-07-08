@@ -33,7 +33,7 @@ export class CancelOrdinary extends AbstractController<RequestType, ResponseType
         const userUUID = this.userUUID;
 
         const roomInfo = await RoomDAO().findOne(
-            ["room_status", "owner_uuid", "periodic_uuid", "whiteboard_room_uuid"],
+            ["room_status", "owner_uuid", "periodic_uuid", "whiteboard_room_uuid", "region"],
             {
                 room_uuid: roomUUID,
             },
@@ -82,7 +82,7 @@ export class CancelOrdinary extends AbstractController<RequestType, ResponseType
 
                 // after the room owner cancels the room, block the whiteboard room
                 // this operation must be placed in the last place
-                await whiteboardBanRoom(roomInfo.whiteboard_room_uuid);
+                await whiteboardBanRoom(roomInfo.region, roomInfo.whiteboard_room_uuid);
 
                 return;
             }
