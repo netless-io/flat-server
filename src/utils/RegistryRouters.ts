@@ -63,7 +63,11 @@ const registerRouters = (version: `v${number}`) => (
                         }
                     } catch (err) {
                         try {
-                            await c.errorHandler(err);
+                            const errorResult = await c.errorHandler(err);
+
+                            if (!skipAutoHandle) {
+                                await reply.send(errorResult);
+                            }
                         } catch (err) {
                             logger.error("request unexpected interruption", parseError(err));
                             throw err;
