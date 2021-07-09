@@ -55,7 +55,7 @@ app.get("/health-check", async (_req, reply) => {
     await reply.code(200).send();
 });
 
-void orm.then(() => {
+void orm().then(() => {
     app.listen(Server.PORT, "0.0.0.0", (err, address) => {
         if (err) {
             loggerServer.error("server launch failed", parseError(err));
