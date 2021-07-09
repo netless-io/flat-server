@@ -2,7 +2,7 @@ import { Connection, createConnection } from "typeorm";
 import { CloudStorageConfigsModel } from "../model/cloudStorage/CloudStorageConfigs";
 import { CloudStorageFilesModel } from "../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../model/cloudStorage/CloudStorageUserFiles";
-import { isDev, MySQL } from "../constants/Process";
+import { isDev, isTest, MySQL } from "../constants/Process";
 import { RoomModel } from "../model/room/Room";
 import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
 import { RoomPeriodicConfigModel } from "../model/room/RoomPeriodicConfig";
@@ -37,8 +37,8 @@ export const orm = (): Promise<Connection> => {
             CloudStorageUserFilesModel,
         ],
         timezone: "Z",
-        logging: isDev ? "all" : false,
-        maxQueryExecutionTime: isDev ? 1 : 1000,
+        logging: !isTest && isDev ? "all" : false,
+        maxQueryExecutionTime: !isTest && isDev ? 1 : 1000,
         charset: "utf8mb4_unicode_ci",
     }).catch(err => {
         loggerServer.error("unable to connect to the database", parseError(err));

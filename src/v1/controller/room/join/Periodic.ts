@@ -74,7 +74,9 @@ export const joinPeriodic = async (
                         rtc_uid: rtcUID,
                     },
                     {
-                        is_delete: false,
+                        orUpdate: {
+                            is_delete: false,
+                        },
                     },
                 ),
             );
@@ -86,7 +88,9 @@ export const joinPeriodic = async (
                         user_uuid: userUUID,
                     },
                     {
-                        is_delete: false,
+                        orUpdate: {
+                            is_delete: false,
+                        },
                     },
                 ),
             );

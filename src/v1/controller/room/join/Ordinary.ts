@@ -53,7 +53,9 @@ export const joinOrdinary = async (
                 rtc_uid: rtcUID,
             },
             {
-                is_delete: false,
+                orUpdate: {
+                    is_delete: false,
+                },
             },
         );
     }

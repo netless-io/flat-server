@@ -38,11 +38,12 @@ type FindOne<M> = <T extends keyof M>(
 
 type Insert<M> = (
     data: QueryDeepPartialEntity<M> | QueryDeepPartialEntity<M>[],
-    flag?:
-        | true
-        | {
-              [key in keyof M]?: M[key];
-          },
+    config?: {
+        orUpdate?: {
+            [key in keyof M]?: M[key];
+        };
+        orIgnore?: boolean;
+    },
 ) => Promise<InsertResult>;
 
 type Update<M> = (
