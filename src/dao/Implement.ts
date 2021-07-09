@@ -49,22 +49,20 @@ export const DAOImplement: DAO<Model> = model => {
                 });
             },
             insert: (data, flag) => {
-                if (typeof flag === "object") {
-                    const keys = Object.keys(flag);
-
+                if (flag?.orUpdate) {
                     return managerOrRepo
                         .createQueryBuilder()
                         .insert()
                         .orUpdate({
-                            columns: keys,
+                            columns: Object.keys(flag.orUpdate),
                         })
-                        .setParameters(flag)
+                        .setParameters(flag.orUpdate)
                         .into(model)
                         .values(data)
                         .execute();
                 }
 
-                if (flag) {
+                if (flag?.orIgnore) {
                     return managerOrRepo
                         .createQueryBuilder()
                         .insert()

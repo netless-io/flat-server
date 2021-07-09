@@ -103,7 +103,9 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
                         total_usage: String(totalUsage),
                     },
                     {
-                        total_usage: String(totalUsage),
+                        orUpdate: {
+                            total_usage: String(totalUsage),
+                        },
                     },
                 ),
             );

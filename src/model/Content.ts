@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, PrimaryGeneratedColumn, VersionColumn } from "typeorm";
+import { Column, PrimaryGeneratedColumn, VersionColumn } from "typeorm";
 
 export abstract class Content {
     @PrimaryGeneratedColumn({
@@ -6,7 +6,7 @@ export abstract class Content {
     })
     id: number;
 
-    @CreateDateColumn({
+    @Column({
         type: "datetime",
         precision: 3,
         default: () => "CURRENT_TIMESTAMP(3)",
