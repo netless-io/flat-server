@@ -41,8 +41,8 @@ export abstract class AbstractController<
         this.querystring = {
             ...params.req.query,
         };
-        this.userUUID = params.req.user.userUUID;
-        this.loginSource = params.req.user.loginSource;
+        this.userUUID = params.req?.user?.userUUID;
+        this.loginSource = params.req?.user?.loginSource;
     }
 
     public abstract execute(): REQ extends void ? Promise<void> : Promise<Response<REQ>>;
