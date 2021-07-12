@@ -144,7 +144,7 @@ export class CancelPeriodicSubRoom extends AbstractController<RequestType, Respo
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.currentProcessFailed(error);
+        return this.autoHandlerError(error);
     }
 }
 

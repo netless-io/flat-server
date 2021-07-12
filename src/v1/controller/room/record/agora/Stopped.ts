@@ -96,7 +96,7 @@ export class RecordAgoraStopped extends AbstractController<RequestType, Response
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.currentProcessFailed(error);
+        return this.autoHandlerError(error);
     }
 }
 

@@ -54,7 +54,7 @@ export class UploadCancel extends AbstractController<RequestType, ResponseType> 
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.currentProcessFailed(error);
+        return this.autoHandlerError(error);
     }
 }
 

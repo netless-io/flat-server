@@ -121,7 +121,7 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.currentProcessFailed(error);
+        return this.autoHandlerError(error);
     }
 }
 
