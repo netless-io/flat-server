@@ -25,7 +25,9 @@ describe("v1 create room", () => {
 
     const logger = new Logger<any>("test", {}, []);
 
-    const createOrdinaryFn = (userUUID: string, body: RequestType["body"]): CreateOrdinary => {
+    const userUUID = v4();
+
+    const createOrdinaryFn = (body: RequestType["body"]): CreateOrdinary => {
         return new CreateOrdinary({
             logger,
             req: {
@@ -39,11 +41,11 @@ describe("v1 create room", () => {
     };
 
     it("create normal", async () => {
-        const [userUUID, whiteboardRoomUUID] = [v4(), v4().replace("-", "")];
+        const whiteboardRoomUUID = v4().replace("-", "");
         const beginTime = Date.now();
         const endTime = addHours(1)(beginTime).valueOf();
 
-        const createOrdinary = createOrdinaryFn(userUUID, {
+        const createOrdinary = createOrdinaryFn({
             title: "test",
             type: RoomType.OneToOne,
             region: Region.CN_HZ,
@@ -66,6 +68,7 @@ describe("v1 create room", () => {
         assert(result.status === Status.Success);
 
         const roomInfo = await createOrdinary.svc.room.info([
+            "owner_uuid",
             "region",
             "title",
             "whiteboard_room_uuid",
@@ -74,16 +77,16 @@ describe("v1 create room", () => {
         expect(roomInfo.region).eq(Region.CN_HZ);
         expect(roomInfo.title).eq("test");
         expect(roomInfo.whiteboard_room_uuid).eq(whiteboardRoomUUID);
+        expect(roomInfo.owner_uuid).eq(userUUID);
 
         stubAxios.restore();
     });
 
     it("begin time is one minute earlier than now", async () => {
-        const userUUID = v4();
         const beginTime = subMinutes(2)(Date.now()).valueOf();
         const endTime = addHours(1)(beginTime).valueOf();
 
-        const createOrdinary = createOrdinaryFn(userUUID, {
+        const createOrdinary = createOrdinaryFn({
             title: "test",
             type: RoomType.OneToOne,
             region: Region.CN_HZ,
@@ -104,11 +107,10 @@ describe("v1 create room", () => {
     });
 
     it("begin time less end time", async () => {
-        const userUUID = v4();
         const beginTime = Date.now();
         const endTime = subMinutes(1)(beginTime).valueOf();
 
-        const createOrdinary = createOrdinaryFn(userUUID, {
+        const createOrdinary = createOrdinaryFn({
             title: "test",
             type: RoomType.OneToOne,
             region: Region.US_SV,
@@ -129,11 +131,10 @@ describe("v1 create room", () => {
     });
 
     it("time interval less than fifteen minute", async () => {
-        const userUUID = v4();
         const beginTime = Date.now();
         const endTime = addMinutes(14)(beginTime).valueOf();
 
-        const createOrdinary = createOrdinaryFn(userUUID, {
+        const createOrdinary = createOrdinaryFn({
             title: "test",
             type: RoomType.OneToOne,
             region: Region.SG,
@@ -147,7 +148,6 @@ describe("v1 create room", () => {
             await createOrdinary.execute();
             errorResult = null;
         } catch (error) {
-            console.log(error);
             errorResult = createOrdinary.errorHandler(error);
         }
 
