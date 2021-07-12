@@ -1,14 +1,14 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { createQueryBuilder, In } from "typeorm";
+import { createQueryBuilder, SelectQueryBuilder } from "typeorm";
 import { RoomUserModel } from "../../../../model/room/RoomUser";
 import { RoomModel } from "../../../../model/room/Room";
 import { UserModel } from "../../../../model/user/User";
 import { ListType, RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { Region, Status } from "../../../../constants/Project";
-import { RoomRecordDAO } from "../../../../dao";
 
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import { RoomRecordModel } from "../../../../model/room/RoomRecord";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -41,31 +41,66 @@ export class List extends AbstractController<RequestType, ResponseType> {
     };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const { type } = this.params;
+        const rooms = await this.queryRoomsByType();
 
-        let queryBuilder = createQueryBuilder(RoomUserModel, "ru")
+        const resp: ResponseType = rooms.map(room => {
+            return {
+                roomUUID: room.roomUUID,
+                periodicUUID: room.periodicUUID || null,
+                ownerUUID: room.ownerUUID,
+                roomType: room.roomType,
+                title: room.title,
+                beginTime: room.beginTime.valueOf(),
+                endTime: room.endTime.valueOf(),
+                roomStatus: room.roomStatus,
+                ownerName: room.ownerName,
+                region: room.region,
+                hasRecord: !!room.hasRecord,
+            };
+        });
+
+        return {
+            status: Status.Success,
+            data: resp,
+        };
+    }
+
+    public errorHandler(error: Error): ResponseError {
+        return this.autoHandlerError(error);
+    }
+
+    private basisQuery(): SelectQueryBuilder<RoomUserModel> {
+        return createQueryBuilder(RoomUserModel, "ru")
             .innerJoin(RoomModel, "r", "ru.room_uuid = r.room_uuid")
             .innerJoin(UserModel, "u", "u.user_uuid = r.owner_uuid")
             .addSelect("r.title", "title")
-            .addSelect("r.room_uuid", "room_uuid")
-            .addSelect("r.periodic_uuid", "periodic_uuid")
-            .addSelect("r.room_type", "room_type")
-            .addSelect("r.begin_time", "begin_time")
-            .addSelect("r.end_time", "end_time")
-            .addSelect("r.owner_uuid", "owner_uuid")
-            .addSelect("r.room_status", "room_status")
+            .addSelect("r.room_uuid", "roomUUID")
+            .addSelect("r.periodic_uuid", "periodicUUID")
+            .addSelect("r.room_type", "roomType")
+            .addSelect("r.begin_time", "beginTime")
+            .addSelect("r.end_time", "endTime")
+            .addSelect("r.owner_uuid", "ownerUUID")
+            .addSelect("r.room_status", "roomStatus")
             .addSelect("r.region", "region")
-            .addSelect("u.user_name", "owner_user_name")
+            .addSelect("u.user_name", "ownerName")
             .andWhere("ru.user_uuid = :userUUID", {
                 userUUID: this.userUUID,
             })
             .andWhere("ru.is_delete = false")
-            .andWhere("r.is_delete = false");
+            .andWhere("r.is_delete = false")
+            .orderBy({
+                "r.begin_time": this.params.type === ListType.History ? "DESC" : "ASC",
+            })
+            .offset((this.querystring.page - 1) * 50)
+            .limit(50);
+    }
 
-        switch (type) {
+    private async queryRoomsByType(): Promise<ResponseType> {
+        let queryBuilder = this.basisQuery();
+
+        switch (this.params.type) {
             case ListType.All: {
                 queryBuilder = queryBuilder.andWhere("r.room_status <> :notRoomStatus", {
-                    userUUID: this.userUUID,
                     notRoomStatus: RoomStatus.Stopped,
                 });
                 break;
@@ -87,69 +122,26 @@ export class List extends AbstractController<RequestType, ResponseType> {
                 break;
             }
             case ListType.History: {
-                queryBuilder = queryBuilder.where("r.room_status = :roomStatus", {
-                    roomStatus: RoomStatus.Stopped,
-                });
+                queryBuilder = queryBuilder
+                    .leftJoin(
+                        RoomRecordModel,
+                        "rr",
+                        "rr.room_uuid = r.room_uuid AND rr.is_delete = false",
+                    )
+                    .addSelect("rr.id", "hasRecord")
+                    .andWhere("r.room_status = :roomStatus", {
+                        roomStatus: RoomStatus.Stopped,
+                    });
+
                 break;
             }
         }
 
-        queryBuilder = queryBuilder.orderBy({
-            "r.begin_time": type === ListType.History ? "DESC" : "ASC",
-        });
-
-        const rooms = await queryBuilder
-            .offset((this.querystring.page - 1) * 50)
-            .limit(50)
-            .getRawMany();
-
-        const resp: ResponseType = rooms.map((room: Room) => {
-            return {
-                roomUUID: room.room_uuid,
-                periodicUUID: room.periodic_uuid || null,
-                ownerUUID: room.owner_uuid,
-                roomType: room.room_type,
-                title: room.title,
-                beginTime: room.begin_time.valueOf(),
-                endTime: room.end_time.valueOf(),
-                roomStatus: room.room_status,
-                ownerName: room.owner_user_name,
-                region: room.region,
-            };
-        });
-
-        if (type === ListType.History) {
-            const roomsUUID = rooms.map((room: Room) => room.room_uuid);
-
-            const roomRecordUUIDs = (
-                await RoomRecordDAO().find(
-                    ["room_uuid"],
-                    {
-                        room_uuid: In(roomsUUID),
-                    },
-                    {
-                        distinct: true,
-                    },
-                )
-            ).map(record => record.room_uuid);
-
-            resp.forEach(room => {
-                room.hasRecord = roomRecordUUIDs.includes(room.roomUUID);
-            });
-        }
-
-        return {
-            status: Status.Success,
-            data: resp,
-        };
-    }
-
-    public errorHandler(error: Error): ResponseError {
-        return this.autoHandlerError(error);
+        return (await queryBuilder.getRawMany()) as ResponseType;
     }
 }
 
-interface RequestType {
+export interface RequestType {
     querystring: {
         page: number;
     };
@@ -158,7 +150,7 @@ interface RequestType {
     };
 }
 
-type ResponseType = Array<{
+export type ResponseType = Array<{
     roomUUID: string;
     periodicUUID: string | null;
     roomType: RoomType;
@@ -171,16 +163,3 @@ type ResponseType = Array<{
     hasRecord?: boolean;
     region: Region;
 }>;
-
-interface Room {
-    room_uuid: string;
-    periodic_uuid: string;
-    owner_uuid: string;
-    room_type: RoomType;
-    title: string;
-    begin_time: Date;
-    end_time: Date;
-    room_status: RoomStatus;
-    owner_user_name: string;
-    region: Region;
-}
