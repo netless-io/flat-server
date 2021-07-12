@@ -60,7 +60,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
         super(params);
 
         this.svc = {
-            room: new ServiceOrdinary(this.userUUID, this.roomUUID),
+            room: new ServiceOrdinary(this.roomUUID, this.userUUID),
         };
     }
 
