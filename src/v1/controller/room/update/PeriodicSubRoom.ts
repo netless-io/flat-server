@@ -7,7 +7,7 @@ import { getConnection, LessThan, MoreThan } from "typeorm";
 import { compareDesc, toDate } from "date-fns/fp";
 import {
     beginTimeLessEndTime,
-    beginTimeExceedRedundancyOneMinute,
+    timeExceedRedundancyOneMinute,
     timeIntervalLessThanFifteenMinute,
 } from "../utils/CheckTime";
 import { AbstractController } from "../../../../abstract/controller";
@@ -125,7 +125,7 @@ export class UpdatePeriodicSubRoom extends AbstractController<RequestType, Respo
                 }
             } else {
                 // if it is the first room, it must be later than the current time
-                if (beginTimeExceedRedundancyOneMinute(beginTime)) {
+                if (timeExceedRedundancyOneMinute(beginTime)) {
                     return {
                         status: Status.Failed,
                         code: ErrorCode.ParamsCheckFailed,

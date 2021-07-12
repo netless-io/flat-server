@@ -1,7 +1,7 @@
 import { addMinutes, addSeconds, subMinutes } from "date-fns/fp";
 import {
     beginTimeLessEndTime,
-    beginTimeExceedRedundancyOneMinute,
+    timeExceedRedundancyOneMinute,
     timeIntervalLessThanFifteenMinute,
     checkBeginAndEndTime,
 } from "../../../../../src/v1/controller/room/utils/CheckTime";
@@ -11,7 +11,7 @@ import { expect } from "chai";
 describe("V1 Controller Room Utils", () => {
     it("beginTimeLessRedundancyOneMinute", () => {
         const beginTime = subMinutes(3)(Date.now());
-        const result = beginTimeExceedRedundancyOneMinute(+beginTime);
+        const result = timeExceedRedundancyOneMinute(+beginTime);
 
         expect(result).to.true;
     });

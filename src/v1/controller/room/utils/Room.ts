@@ -4,6 +4,10 @@ export const roomIsRunning = (roomStatus: RoomStatus): boolean => {
     return [RoomStatus.Paused, RoomStatus.Started].includes(roomStatus);
 };
 
+export const roomNotRunning = (roomStatus: RoomStatus): boolean => {
+    return [RoomStatus.Idle, RoomStatus.Stopped].includes(roomStatus);
+};
+
 export const roomIsIdle = (roomStatus: RoomStatus): boolean => {
     return roomStatus === RoomStatus.Idle;
 };

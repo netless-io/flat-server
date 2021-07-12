@@ -4,7 +4,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../types/Server
 import { v4 } from "uuid";
 import { ErrorCode } from "../../../../ErrorCode";
 import {
-    beginTimeExceedRedundancyOneMinute,
+    timeExceedRedundancyOneMinute,
     beginTimeLessEndTime,
     timeIntervalLessThanFifteenMinute,
 } from "../utils/CheckTime";
@@ -89,7 +89,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
 
     private checkParams(): void {
         const { beginTime, endTime } = this.body;
-        if (beginTimeExceedRedundancyOneMinute(beginTime)) {
+        if (timeExceedRedundancyOneMinute(beginTime)) {
             throw new ControllerError(ErrorCode.ParamsCheckFailed);
         }
 
