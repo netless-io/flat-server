@@ -1,6 +1,6 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { Agora } from "../../../../constants/Process";
-import { Status } from "../../../../constants/Project";
+import { Region, Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomRecordDAO, RoomUserDAO } from "../../../../dao";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
@@ -45,7 +45,7 @@ export class RecordInfo extends AbstractController<RequestType, ResponseType> {
         }
 
         const roomInfo = await RoomDAO().findOne(
-            ["room_status", "whiteboard_room_uuid", "room_type", "title", "owner_uuid"],
+            ["room_status", "whiteboard_room_uuid", "room_type", "title", "owner_uuid", "region"],
             {
                 room_uuid: roomUUID,
             },
@@ -81,6 +81,7 @@ export class RecordInfo extends AbstractController<RequestType, ResponseType> {
             owner_uuid: ownerUUID,
             room_type: roomType,
             whiteboard_room_uuid: whiteboardRoomUUID,
+            region,
         } = roomInfo;
 
         return {
@@ -89,6 +90,7 @@ export class RecordInfo extends AbstractController<RequestType, ResponseType> {
                 title,
                 ownerUUID,
                 roomType,
+                region,
                 whiteboardRoomUUID,
                 whiteboardRoomToken: createWhiteboardRoomToken(whiteboardRoomUUID, {
                     readonly: true,
@@ -123,6 +125,7 @@ interface ResponseType {
     title: string;
     ownerUUID: string;
     roomType: RoomType;
+    region: Region;
     whiteboardRoomToken: string;
     whiteboardRoomUUID: string;
     rtmToken: string;
