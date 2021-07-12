@@ -2,7 +2,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../../types/Ser
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { RoomDAO, RoomRecordDAO } from "../../../../../dao";
-import { roomIsRunning } from "../../utils/Room";
+import { roomNotRunning } from "../../utils/Room";
 import {
     AgoraCloudRecordParamsType,
     AgoraCloudRecordStoppedResponse as ResponseType,
@@ -12,6 +12,7 @@ import { getConnection } from "typeorm";
 import { getCloudRecordData } from "../../utils/Agora";
 import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
+import { timeExceedRedundancyOneMinute } from "../../utils/CheckTime";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -49,7 +50,7 @@ export class RecordAgoraStopped extends AbstractController<RequestType, Response
         const { roomUUID, agoraParams } = this.body;
         const userUUID = this.userUUID;
 
-        const roomInfo = await RoomDAO().findOne(["room_status"], {
+        const roomInfo = await RoomDAO().findOne(["room_status", "updated_at"], {
             room_uuid: roomUUID,
             owner_uuid: userUUID,
         });
@@ -61,7 +62,10 @@ export class RecordAgoraStopped extends AbstractController<RequestType, Response
             };
         }
 
-        if (!roomIsRunning(roomInfo.room_status)) {
+        if (
+            roomNotRunning(roomInfo.room_status) &&
+            timeExceedRedundancyOneMinute(roomInfo.updated_at.valueOf())
+        ) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.RoomNotIsRunning,

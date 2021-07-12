@@ -1,12 +1,9 @@
 import { compareDesc, differenceInMilliseconds, subMinutes } from "date-fns/fp";
 
-export const beginTimeExceedRedundancyOneMinute = (beginTime: number): boolean => {
-    // because network transmission will consume a little time, there is 1 minute redundancy
+export const timeExceedRedundancyOneMinute = (time: number): boolean => {
     const redundancyTime = subMinutes(1)(Date.now());
 
-    // must beginTime > redundancyTime
-    // creation room time cannot be less than current time
-    return compareDesc(beginTime)(redundancyTime) === -1;
+    return compareDesc(time)(redundancyTime) === -1;
 };
 
 export const beginTimeLessEndTime = (beginTime: number, endTime: number): boolean => {
@@ -28,7 +25,7 @@ export const timeIntervalLessThanFifteenMinute = (beginTime: number, endTime: nu
 };
 
 export const checkBeginAndEndTime = (beginTime: number, endTime: number): boolean => {
-    if (beginTimeExceedRedundancyOneMinute(beginTime)) {
+    if (timeExceedRedundancyOneMinute(beginTime)) {
         return false;
     }
 
