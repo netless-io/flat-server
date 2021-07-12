@@ -35,7 +35,7 @@ export class WechatMobileCallback extends AbstractController<RequestType, Respon
 
     public async errorHandler(error: Error): Promise<ResponseError> {
         await redisService.set(RedisKey.authFailed(this.querystring.state), "", 60 * 60);
-        return this.currentProcessFailed(error);
+        return this.autoHandlerError(error);
     }
 }
 

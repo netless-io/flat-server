@@ -124,7 +124,7 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.currentProcessFailed(error);
+        return this.autoHandlerError(error);
     }
 }
 
