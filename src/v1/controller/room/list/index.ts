@@ -4,7 +4,7 @@ import { RoomUserModel } from "../../../../model/room/RoomUser";
 import { RoomModel } from "../../../../model/room/Room";
 import { UserModel } from "../../../../model/user/User";
 import { ListType, RoomStatus, RoomType } from "../../../../model/room/Constants";
-import { Status } from "../../../../constants/Project";
+import { Region, Status } from "../../../../constants/Project";
 import { RoomRecordDAO } from "../../../../dao";
 
 import { AbstractController } from "../../../../abstract/controller";
@@ -44,6 +44,8 @@ export class List extends AbstractController<RequestType, ResponseType> {
         const { type } = this.params;
 
         let queryBuilder = createQueryBuilder(RoomUserModel, "ru")
+            .innerJoin(RoomModel, "r", "ru.room_uuid = r.room_uuid")
+            .innerJoin(UserModel, "u", "u.user_uuid = r.owner_uuid")
             .addSelect("r.title", "title")
             .addSelect("r.room_uuid", "room_uuid")
             .addSelect("r.periodic_uuid", "periodic_uuid")
@@ -52,63 +54,42 @@ export class List extends AbstractController<RequestType, ResponseType> {
             .addSelect("r.end_time", "end_time")
             .addSelect("r.owner_uuid", "owner_uuid")
             .addSelect("r.room_status", "room_status")
+            .addSelect("r.region", "region")
             .addSelect("u.user_name", "owner_user_name")
-            .innerJoin(RoomModel, "r", "ru.room_uuid = r.room_uuid")
-            .innerJoin(UserModel, "u", "u.user_uuid = r.owner_uuid");
+            .andWhere("ru.user_uuid = :userUUID", {
+                userUUID: this.userUUID,
+            })
+            .andWhere("ru.is_delete = false")
+            .andWhere("r.is_delete = false");
 
         switch (type) {
             case ListType.All: {
-                queryBuilder = queryBuilder.where(
-                    `ru.user_uuid = :userUUID
-                    AND r.room_status <> :notRoomStatus
-                    AND ru.is_delete = false
-                    AND r.is_delete = false`,
-                    {
-                        userUUID: this.userUUID,
-                        notRoomStatus: RoomStatus.Stopped,
-                    },
-                );
+                queryBuilder = queryBuilder.andWhere("r.room_status <> :notRoomStatus", {
+                    userUUID: this.userUUID,
+                    notRoomStatus: RoomStatus.Stopped,
+                });
                 break;
             }
             case ListType.Today: {
-                queryBuilder = queryBuilder.where(
-                    `ru.user_uuid = :userUUID
-                    AND DATE(r.begin_time) = CURDATE()
-                    AND r.room_status <> :notRoomStatus
-                    AND ru.is_delete = false
-                    AND r.is_delete = false`,
-                    {
-                        userUUID: this.userUUID,
+                queryBuilder = queryBuilder
+                    .andWhere("DATE(r.begin_time) = CURDATE()")
+                    .andWhere("r.room_status <> :notRoomStatus", {
                         notRoomStatus: RoomStatus.Stopped,
-                    },
-                );
+                    });
                 break;
             }
             case ListType.Periodic: {
-                queryBuilder = queryBuilder.where(
-                    `ru.user_uuid = :userUUID
-                    AND r.room_status <> :notRoomStatus
-                    AND length(r.periodic_uuid) <> 0
-                    AND ru.is_delete = false
-                    AND r.is_delete = false`,
-                    {
-                        userUUID: this.userUUID,
+                queryBuilder = queryBuilder
+                    .andWhere("r.room_status <> :notRoomStatus", {
                         notRoomStatus: RoomStatus.Stopped,
-                    },
-                );
+                    })
+                    .andWhere("length(r.periodic_uuid) <> 0");
                 break;
             }
             case ListType.History: {
-                queryBuilder = queryBuilder.where(
-                    `ru.user_uuid = :userUUID
-                    AND r.room_status = :roomStatus
-                    AND ru.is_delete = false
-                    AND r.is_delete = false`,
-                    {
-                        userUUID: this.userUUID,
-                        roomStatus: RoomStatus.Stopped,
-                    },
-                );
+                queryBuilder = queryBuilder.where("r.room_status = :roomStatus", {
+                    roomStatus: RoomStatus.Stopped,
+                });
                 break;
             }
         }
@@ -133,6 +114,7 @@ export class List extends AbstractController<RequestType, ResponseType> {
                 endTime: room.end_time.valueOf(),
                 roomStatus: room.room_status,
                 ownerName: room.owner_user_name,
+                region: room.region,
             };
         });
 
@@ -187,6 +169,7 @@ type ResponseType = Array<{
     roomStatus: RoomStatus;
     ownerName: string;
     hasRecord?: boolean;
+    region: Region;
 }>;
 
 interface Room {
@@ -199,4 +182,5 @@ interface Room {
     end_time: Date;
     room_status: RoomStatus;
     owner_user_name: string;
+    region: Region;
 }
