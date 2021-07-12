@@ -7,7 +7,7 @@
     "start": "cross-env NODE_ENV=development webpack --watch --progress --config webpack/webpack.dev.js",
     "build": "cross-env NODE_ENV=production webpack --progress --config webpack/webpack.prod.js",
     "test:local": "./scripts/prepare-test-env.sh && yarn run test",
-    "test": "cross-env webpack --progress --config webpack/webpack.test.js && nyc --reporter=html --reporter=text mocha ./dist-test/index.js",
+    "test": "cross-env webpack --progress --config webpack/webpack.test.js && nyc --reporter=html --reporter=text mocha --timeout 6000 ./dist-test/index.js",
     "lint": "lint-staged"
   },
   "devDependencies": {
