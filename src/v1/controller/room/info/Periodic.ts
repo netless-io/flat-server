@@ -97,16 +97,19 @@ export class PeriodicInfo extends AbstractController<RequestType, ResponseType> 
         }
 
         const rooms: Array<PeriodicSubRooms> = await createQueryBuilder(RoomPeriodicModel, "rp")
-            .leftJoin(RoomRecordModel, "rr", "rr.room_uuid = rp.fake_room_uuid")
+            .leftJoin(
+                RoomRecordModel,
+                "rr",
+                "rr.room_uuid = rp.fake_room_uuid AND rr.is_delete = false",
+            )
             .addSelect("rp.room_status", "roomStatus")
             .addSelect("rp.begin_time", "beginTime")
             .addSelect("rp.end_time", "endTime")
             .addSelect("rp.fake_room_uuid", "roomUUID")
-            .addSelect("rr.id", "existRecord")
-            .where("rp.periodic_uuid = :periodicUUID", { periodicUUID })
+            .addSelect("rr.id", "hasRecord")
+            .andWhere("rp.periodic_uuid = :periodicUUID", { periodicUUID })
             .andWhere("rp.room_status != :roomStatus", { roomStatus: RoomStatus.Stopped })
             .andWhere("rp.is_delete = false")
-            .andWhere("rr.is_delete = false")
             .getRawMany();
 
         // only in the case of very boundary, will come here
@@ -130,13 +133,13 @@ export class PeriodicInfo extends AbstractController<RequestType, ResponseType> 
                     weeks: weeks.split(",").map(week => Number(week)) as Week[],
                     region,
                 },
-                rooms: rooms.map(({ roomUUID, roomStatus, beginTime, endTime, existRecord }) => {
+                rooms: rooms.map(({ roomUUID, roomStatus, beginTime, endTime, hasRecord }) => {
                     return {
                         roomUUID,
                         beginTime: beginTime.valueOf(),
                         endTime: endTime.valueOf(),
                         roomStatus,
-                        hasRecord: !!existRecord,
+                        hasRecord: !!hasRecord,
                     };
                 }),
             },
@@ -179,5 +182,5 @@ interface PeriodicSubRooms {
     beginTime: Date;
     endTime: Date;
     roomStatus: RoomStatus;
-    existRecord: number | null;
+    hasRecord: number | null;
 }
