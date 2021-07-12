@@ -1,20 +1,18 @@
-import { RoomStatus, RoomType } from "../../../../model/room/Constants";
+import { RoomType } from "../../../../model/room/Constants";
 import { Region, Status } from "../../../../constants/Project";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { v4 } from "uuid";
-import { addHours, toDate } from "date-fns/fp";
-import { getConnection } from "typeorm";
-import cryptoRandomString from "crypto-random-string";
-import { whiteboardCreateRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO, RoomUserDAO } from "../../../../dao";
 import {
     beginTimeExceedRedundancyOneMinute,
     beginTimeLessEndTime,
     timeIntervalLessThanFifteenMinute,
 } from "../utils/CheckTime";
-import { AbstractController } from "../../../../abstract/controller";
+import { AbstractController, ControllerClassParams } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import { ControllerError } from "../../../../error/ControllerError";
+import { ServiceOrdinary } from "../../../service";
+import { getConnection } from "typeorm";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -52,79 +50,62 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
         },
     };
 
+    public readonly svc: {
+        room: ServiceOrdinary;
+    };
+
+    private readonly roomUUID: string = v4();
+
+    public constructor(params: ControllerClassParams) {
+        super(params);
+
+        this.svc = {
+            room: new ServiceOrdinary(this.userUUID, this.roomUUID),
+        };
+    }
+
     public async execute(): Promise<Response<ResponseType>> {
-        const { title, type, beginTime, endTime, region } = this.body;
-        const userUUID = this.userUUID;
-
-        {
-            if (beginTimeExceedRedundancyOneMinute(beginTime)) {
-                return {
-                    status: Status.Failed,
-                    code: ErrorCode.ParamsCheckFailed,
-                };
-            }
-
-            if (endTime) {
-                if (beginTimeLessEndTime(beginTime, endTime)) {
-                    return {
-                        status: Status.Failed,
-                        code: ErrorCode.ParamsCheckFailed,
-                    };
-                }
-
-                if (timeIntervalLessThanFifteenMinute(beginTime, endTime)) {
-                    return {
-                        status: Status.Failed,
-                        code: ErrorCode.ParamsCheckFailed,
-                    };
-                }
-            }
-        }
-
-        const roomUUID = v4();
-        const roomData = {
-            periodic_uuid: "",
-            owner_uuid: userUUID,
-            title,
-            room_type: type,
-            room_status: RoomStatus.Idle,
-            room_uuid: roomUUID,
-            whiteboard_room_uuid: await whiteboardCreateRoom(region),
-            begin_time: toDate(beginTime),
-            end_time: endTime ? toDate(endTime) : addHours(1, beginTime),
-            region,
-        };
-
-        const roomUserData = {
-            room_uuid: roomData.room_uuid,
-            user_uuid: userUUID,
-            rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
-        };
+        this.checkParams();
 
         await getConnection().transaction(async t => {
-            const commands: Promise<unknown>[] = [];
-
-            commands.push(RoomDAO(t).insert(roomData));
-
-            commands.push(RoomUserDAO(t).insert(roomUserData));
-
-            await Promise.all(commands);
+            // prettier-ignore
+            await Promise.all([
+                this.svc.room.create(this.body, t),
+                this.svc.room.addSelfUser(t)
+            ]);
         });
 
         return {
             status: Status.Success,
             data: {
-                roomUUID,
+                roomUUID: this.roomUUID,
             },
         };
     }
 
     public errorHandler(error: Error): ResponseError {
-        return this.currentProcessFailed(error);
+        return this.autoHandlerError(error);
+    }
+
+    private checkParams(): void {
+        const { beginTime, endTime } = this.body;
+        if (beginTimeExceedRedundancyOneMinute(beginTime)) {
+            throw new ControllerError(ErrorCode.ParamsCheckFailed);
+        }
+
+        if (endTime) {
+            if (beginTimeLessEndTime(beginTime, endTime)) {
+                throw new ControllerError(ErrorCode.ParamsCheckFailed);
+            }
+
+            if (timeIntervalLessThanFifteenMinute(beginTime, endTime)) {
+                throw new ControllerError(ErrorCode.ParamsCheckFailed);
+            }
+        }
     }
 }
 
-interface RequestType {
+export interface RequestType {
     body: {
         title: string;
         type: RoomType;
@@ -134,6 +115,6 @@ interface RequestType {
     };
 }
 
-interface ResponseType {
+export interface ResponseType {
     roomUUID: string;
 }
