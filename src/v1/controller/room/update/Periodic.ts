@@ -8,7 +8,7 @@ import { Periodic } from "../Types";
 import { checkUpdateBeginAndEndTime } from "./Utils";
 import { compareDesc, differenceInCalendarDays, toDate } from "date-fns/fp";
 import { v4 } from "uuid";
-import { calculatePeriodicDates } from "../utils/Periodic";
+import { calculatePeriodicDates } from "../utils/CalculatePeriodicDates";
 import {
     whiteboardBanRoom,
     whiteboardCreateRoom,

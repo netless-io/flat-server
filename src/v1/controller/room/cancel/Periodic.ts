@@ -10,7 +10,7 @@ import {
     RoomPeriodicUserDAO,
     RoomUserDAO,
 } from "../../../../dao";
-import { roomIsRunning } from "../utils/Room";
+import { roomIsRunning } from "../utils/RoomStatus";
 import { Controller } from "../../../../decorator/Controller";
 import { AbstractController } from "../../../../abstract/controller";
 

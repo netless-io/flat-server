@@ -8,29 +8,29 @@ import {
 import { describe } from "mocha";
 import { expect } from "chai";
 
-describe("V1 Controller Room Utils", () => {
-    it("beginTimeLessRedundancyOneMinute", () => {
+describe("V1 Controller Room CheckTime Utils", () => {
+    it("time less redundancy one minute", () => {
         const beginTime = subMinutes(3)(Date.now());
         const result = timeExceedRedundancyOneMinute(+beginTime);
 
         expect(result).to.true;
     });
 
-    it("beginTimeLessEndTime", () => {
+    it("beginTime less endTime", () => {
         const beginTime = Date.now();
         const result = beginTimeLessEndTime(+beginTime, +addMinutes(1)(beginTime));
 
         expect(result).to.false;
     });
 
-    it("timeIntervalLessThanFifteenMinute", () => {
+    it("time interval less than fifteen minute", () => {
         const now = Date.now();
         const result = timeIntervalLessThanFifteenMinute(now, +addMinutes(15)(now));
 
         expect(result).to.false;
     });
 
-    it("checkBeginAndEndTime", () => {
+    it("check begin and endTime", () => {
         {
             const beginTime = subMinutes(2)(Date.now());
             const result = checkBeginAndEndTime(+beginTime, Date.now());

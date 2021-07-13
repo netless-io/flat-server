@@ -3,7 +3,7 @@ import { Agora } from "../../../../../constants/Process";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { RoomDAO, RoomRecordDAO } from "../../../../../dao";
-import { roomIsRunning } from "../../utils/Room";
+import { roomIsRunning } from "../../utils/RoomStatus";
 import {
     AgoraCloudRecordParamsBaseType,
     AgoraCloudRecordStartedRequestBody,
