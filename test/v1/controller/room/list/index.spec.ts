@@ -19,9 +19,11 @@ describe("v1 list room", () => {
     let connection: Connection;
     before(async () => {
         connection = await orm();
-        await connection.synchronize(true);
     });
     after(() => connection.close());
+    beforeEach(async () => {
+        await connection.synchronize(true);
+    });
 
     const logger = new Logger<any>("test", {}, []);
 
@@ -78,7 +80,7 @@ describe("v1 list room", () => {
             user_uuid: userUUID,
             gender: Gender.Man,
             avatar_url: "",
-            user_name: "test_user",
+            user_name: "test_user_0",
             user_password: "",
         };
 
@@ -108,9 +110,54 @@ describe("v1 list room", () => {
         );
     });
 
-    it("list all normal", async () => {
-        await connection.synchronize(true);
+    it("list history duplicate data", async () => {
+        const fakeRoomsData = {
+            room_uuid: v4(),
+            periodic_uuid: "",
+            owner_uuid: userUUID,
+            title: "list history duplicate data",
+            room_type: RoomType.OneToOne,
+            room_status: RoomStatus.Stopped,
+            begin_time: new Date(),
+            end_time: addMinutes(30)(Date.now()),
+            whiteboard_room_uuid: v4().replace("-", ""),
+            region: Region.GB_LON,
+        };
+        const fakeRoomUserData = {
+            room_uuid: fakeRoomsData.room_uuid,
+            user_uuid: userUUID,
+            rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
+        };
+        const fakeRoomRecordData = new Array(2).fill(1).map(() => ({
+            room_uuid: fakeRoomsData.room_uuid,
+            begin_time: fakeRoomsData.begin_time,
+            end_time: fakeRoomsData.end_time,
+        }));
 
+        const fakeUserData = {
+            user_uuid: userUUID,
+            gender: Gender.Woman,
+            avatar_url: "",
+            user_name: "test_user_1",
+            user_password: "",
+        };
+
+        await Promise.all([
+            RoomDAO().insert(fakeRoomsData),
+            RoomUserDAO().insert(fakeRoomUserData),
+            UserDAO().insert(fakeUserData),
+            RoomRecordDAO().insert(fakeRoomRecordData),
+        ]);
+
+        const historyList = createList(ListType.History);
+
+        const result = (await historyList.execute()) as ResponseSuccess<ResponseType>;
+
+        expect(result.status).eq(Status.Success);
+        expect(result.data).length(1);
+    });
+
+    it("list all normal", async () => {
         const fakeRoomsData = new Array(30).fill(1).map((_v, i) => {
             const beginTime = addHours(i + 1)(Date.now());
             return {
@@ -160,8 +207,6 @@ describe("v1 list room", () => {
     });
 
     it("list today normal", async () => {
-        await connection.synchronize(true);
-
         const fakeRoomsData = new Array(30).fill(1).map((_v, i) => {
             const beginTime = (() => {
                 if (i < 20) {
@@ -220,8 +265,6 @@ describe("v1 list room", () => {
     });
 
     it("list periodic normal", async () => {
-        await connection.synchronize(true);
-
         const fakeRoomsData = new Array(10).fill(1).map((_v, i) => {
             const beginTime = addHours(i + 1)(Date.now());
             return {
