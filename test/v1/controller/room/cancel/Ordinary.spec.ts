@@ -1,185 +1,196 @@
 import { describe } from "mocha";
 import { expect } from "chai";
 import { CancelOrdinary } from "../../../../../src/v1/controller/room/cancel/Ordinary";
-import { ServiceOrdinary } from "../../../../../src/v1/service";
 import { v4 } from "uuid";
-import { ControllerError } from "../../../../../src/error/ControllerError";
-import { Status } from "../../../../../src/constants/Project";
 import { ErrorCode } from "../../../../../src/ErrorCode";
 import { Logger } from "../../../../../src/logger";
 import { ControllerClassParams } from "../../../../../src/abstract/controller";
-import { RoomStatus } from "../../../../../src/model/room/Constants";
-import { ORM } from "../../../../../src/utils/ORM";
+import { ResponseError } from "../../../../../src/types/Server";
+import { Connection } from "typeorm";
+import { orm } from "../../../../../src/thirdPartyService/TypeORMService";
+import { RoomDAO, RoomUserDAO } from "../../../../../src/dao";
+import { Region } from "../../../../../src/constants/Project";
+import { addMinutes } from "date-fns/fp";
+import { RoomStatus, RoomType } from "../../../../../src/model/room/Constants";
+import cryptoRandomString from "crypto-random-string";
 
 describe("v1 cancel room", () => {
+    let connection: Connection;
+    before(async () => {
+        connection = await orm();
+    });
+    after(() => connection.close());
+    beforeEach(async () => {
+        await connection.synchronize(true);
+    });
+
     const logger = new Logger<any>("test", {}, []);
 
-    const createCancelOrdinary = (
-        roomUUID: string,
-        userUUID: string,
-    ): ((serviceOrdinary: ServiceOrdinary) => CancelOrdinary) => {
-        const orm = new ORM();
-        // eslint-disable-next-line @typescript-eslint/require-await
-        orm.transaction = async (cb: (_t: any) => any): Promise<any> => {
-            cb("");
-        };
-
-        return serviceOrdinary => {
-            const controllerClassParams = {
-                logger,
-                req: {
-                    body: {
-                        roomUUID,
-                    },
-                    user: {
-                        userUUID,
-                    },
+    const createCancelOrdinary = (userUUID: string, roomUUID: string): CancelOrdinary => {
+        return new CancelOrdinary({
+            logger,
+            req: {
+                body: {
+                    roomUUID,
                 },
-                reply: {},
-            } as ControllerClassParams;
-
-            return new CancelOrdinary(controllerClassParams, {
-                serviceOrdinary,
-                orm,
-            });
-        };
+                user: {
+                    userUUID,
+                },
+            },
+            reply: {},
+        } as ControllerClassParams);
     };
 
     it("room not found", async () => {
-        const [roomUUID, userUUID] = [v4(), v4()];
+        const [userUUID, roomUUID] = [v4(), v4()];
 
-        const serviceOrdinary = new ServiceOrdinary(roomUUID, userUUID);
+        const cancelOrdinary = createCancelOrdinary(userUUID, roomUUID);
 
-        serviceOrdinary.info = (..._args: any[]): any => {
-            throw new ControllerError(ErrorCode.RoomNotFound, Status.Failed);
-        };
-
-        const cancelOrdinary = createCancelOrdinary(roomUUID, userUUID)(serviceOrdinary);
-
-        let code = NaN;
+        let errorResult: ResponseError | null = null;
 
         try {
             await cancelOrdinary.execute();
         } catch (error) {
-            code = cancelOrdinary.errorHandler(error).code;
+            errorResult = cancelOrdinary.errorHandler(error);
         }
 
-        expect(code).eq(ErrorCode.RoomNotFound);
+        expect(errorResult?.code).eq(ErrorCode.RoomNotFound);
     });
 
     it("room is periodic sub room", async () => {
-        const [roomUUID, userUUID] = [v4(), v4()];
+        const [userUUID, roomUUID] = [v4(), v4()];
 
-        const serviceOrdinary = new ServiceOrdinary(roomUUID, userUUID);
+        await RoomDAO().insert({
+            room_uuid: roomUUID,
+            owner_uuid: userUUID,
+            title: "test",
+            region: Region.US_SV,
+            whiteboard_room_uuid: v4().replace("-", ""),
+            begin_time: new Date(),
+            end_time: addMinutes(30)(Date.now()),
+            room_status: RoomStatus.Idle,
+            periodic_uuid: v4(),
+            room_type: RoomType.BigClass,
+        });
 
-        serviceOrdinary.info = (..._args: any[]): any => {
-            return {
-                periodic_uuid: v4(),
-            };
-        };
+        const cancelOrdinary = createCancelOrdinary(userUUID, roomUUID);
 
-        const cancelOrdinary = createCancelOrdinary(roomUUID, userUUID)(serviceOrdinary);
-
-        let code = NaN;
+        let errorResult: ResponseError | null = null;
 
         try {
             await cancelOrdinary.execute();
         } catch (error) {
-            code = cancelOrdinary.errorHandler(error).code;
+            errorResult = cancelOrdinary.errorHandler(error);
         }
 
-        expect(code).eq(ErrorCode.NotPermission);
+        expect(errorResult?.code).eq(ErrorCode.NotPermission);
     });
 
     it("user is room owner and room is running", async () => {
-        const [roomUUID, userUUID] = [v4(), v4()];
+        const [userUUID, roomUUID] = [v4(), v4()];
 
-        const serviceOrdinary = new ServiceOrdinary(roomUUID, userUUID);
+        await RoomDAO().insert({
+            room_uuid: roomUUID,
+            owner_uuid: userUUID,
+            title: "test",
+            region: Region.US_SV,
+            whiteboard_room_uuid: v4().replace("-", ""),
+            begin_time: new Date(),
+            end_time: addMinutes(30)(Date.now()),
+            room_status: RoomStatus.Started,
+            periodic_uuid: "",
+            room_type: RoomType.OneToOne,
+        });
 
-        serviceOrdinary.info = (..._args: any[]): any => {
-            return {
-                periodic_uuid: "",
-                owner_uuid: userUUID,
-                room_status: RoomStatus.Started,
-            };
-        };
+        const cancelOrdinary = createCancelOrdinary(userUUID, roomUUID);
 
-        const cancelOrdinary = createCancelOrdinary(roomUUID, userUUID)(serviceOrdinary);
-
-        let code = NaN;
+        let errorResult: ResponseError | null = null;
 
         try {
             await cancelOrdinary.execute();
         } catch (error) {
-            code = cancelOrdinary.errorHandler(error).code;
+            errorResult = cancelOrdinary.errorHandler(error);
         }
 
-        expect(code).eq(ErrorCode.RoomIsRunning);
+        expect(errorResult?.code).eq(ErrorCode.RoomIsRunning);
     });
 
     it("student cancel room", async () => {
-        const [roomUUID, userUUID] = [v4(), v4()];
+        const [ownerUUID, userUUID, roomUUID] = [v4(), v4(), v4()];
 
-        const serviceOrdinary = new ServiceOrdinary(roomUUID, userUUID);
+        await RoomDAO().insert({
+            room_uuid: roomUUID,
+            owner_uuid: ownerUUID,
+            title: "test",
+            region: Region.US_SV,
+            whiteboard_room_uuid: v4().replace("-", ""),
+            begin_time: new Date(),
+            end_time: addMinutes(30)(Date.now()),
+            room_status: RoomStatus.Paused,
+            periodic_uuid: "",
+            room_type: RoomType.OneToOne,
+        });
 
-        serviceOrdinary.info = (..._args: any[]): any => {
-            return {
-                periodic_uuid: "",
-                owner_uuid: v4(),
-                room_status: RoomStatus.Paused,
-            };
-        };
+        await RoomUserDAO().insert([
+            {
+                room_uuid: roomUUID,
+                user_uuid: userUUID,
+                rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
+            },
+            {
+                room_uuid: roomUUID,
+                user_uuid: ownerUUID,
+                rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
+            },
+        ]);
 
-        serviceOrdinary.removeUser = (): any => {
-            return Promise.resolve();
-        };
+        const cancelOrdinary = createCancelOrdinary(userUUID, roomUUID);
 
-        const cancelOrdinary = createCancelOrdinary(roomUUID, userUUID)(serviceOrdinary);
+        await cancelOrdinary.execute();
 
-        let status: Status;
+        {
+            const result = await RoomUserDAO().find(["id", "is_delete", "room_uuid", "user_uuid"], {
+                user_uuid: userUUID,
+            });
 
-        try {
-            status = (await cancelOrdinary.execute()).status;
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (error) {
-            status = Status.Failed;
+            expect(result).length(0, "remove self failed in room user table");
         }
 
-        expect(status).eq(Status.Success);
+        {
+            const result = await RoomDAO().find(["room_uuid", "owner_uuid"], {
+                owner_uuid: ownerUUID,
+            });
+
+            expect(result).length(1, "students should not have the right to delete room");
+            expect(result[0].room_uuid).eq(roomUUID);
+            expect(result[0].owner_uuid).eq(ownerUUID);
+        }
     });
 
     it("owner cancel room", async () => {
-        const [roomUUID, userUUID] = [v4(), v4()];
+        const [userUUID, roomUUID] = [v4(), v4()];
 
-        const serviceOrdinary = new ServiceOrdinary(roomUUID, userUUID);
+        const cancelOrdinary = createCancelOrdinary(userUUID, roomUUID);
 
-        serviceOrdinary.info = (..._args: any[]): any => {
-            return {
-                periodic_uuid: "",
-                owner_uuid: userUUID,
-                room_status: RoomStatus.Idle,
-            };
-        };
+        await RoomDAO().insert({
+            room_uuid: roomUUID,
+            owner_uuid: userUUID,
+            title: "test",
+            region: Region.US_SV,
+            whiteboard_room_uuid: v4().replace("-", ""),
+            begin_time: new Date(),
+            end_time: addMinutes(30)(Date.now()),
+            room_status: RoomStatus.Idle,
+            periodic_uuid: "",
+            room_type: RoomType.OneToOne,
+        });
 
-        serviceOrdinary.removeUser = (): any => {
-            return Promise.resolve();
-        };
+        await RoomUserDAO().insert({
+            room_uuid: roomUUID,
+            user_uuid: userUUID,
+            rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
+        });
 
-        serviceOrdinary.remove = (): any => {
-            return Promise.resolve();
-        };
-
-        const cancelOrdinary = createCancelOrdinary(roomUUID, userUUID)(serviceOrdinary);
-
-        let status: Status;
-
-        try {
-            status = (await cancelOrdinary.execute()).status;
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (error) {
-            status = Status.Failed;
-        }
-
-        expect(status).eq(Status.Success);
+        await cancelOrdinary.execute();
     });
 });

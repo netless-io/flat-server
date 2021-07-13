@@ -10,7 +10,7 @@ import { ControllerError } from "../../../../error/ControllerError";
 import { RoomModel } from "../../../../model/room/Room";
 import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { parseError } from "../../../../logger";
-import { ORM, ORMType } from "../../../../utils/ORM";
+import { getConnection } from "typeorm";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -35,23 +35,12 @@ export class CancelOrdinary extends AbstractController<RequestType, ResponseType
         room: ServiceOrdinary;
     };
 
-    private readonly orm: ORM;
-
-    public constructor(
-        params: ControllerClassParams,
-        payload?: {
-            serviceOrdinary?: ServiceOrdinary;
-            orm?: ORMType;
-        },
-    ) {
+    public constructor(params: ControllerClassParams) {
         super(params);
 
         this.svc = {
-            room:
-                payload?.serviceOrdinary || new ServiceOrdinary(this.body.roomUUID, this.userUUID),
+            room: new ServiceOrdinary(this.body.roomUUID, this.userUUID),
         };
-
-        this.orm = payload?.orm || new ORM();
     }
 
     public async execute(): Promise<Response<ResponseType>> {
@@ -67,7 +56,7 @@ export class CancelOrdinary extends AbstractController<RequestType, ResponseType
 
         this.assertRoomValid(roomInfo);
 
-        await this.orm.transaction(async t => {
+        await getConnection().transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
             commands.push(this.svc.room.removeUser(t));
