@@ -125,11 +125,19 @@ export class List extends AbstractController<RequestType, ResponseType> {
             case ListType.History: {
                 queryBuilder = queryBuilder
                     .leftJoin(
-                        RoomRecordModel,
+                        qb => {
+                            return qb
+                                .subQuery()
+                                .addSelect("temp_rr.room_uuid", "room_uuid")
+                                .addSelect("temp_rr.is_delete", "is_delete")
+                                .from(RoomRecordModel, "temp_rr")
+                                .addGroupBy("room_uuid")
+                                .addGroupBy("is_delete");
+                        },
                         "rr",
                         "rr.room_uuid = r.room_uuid AND rr.is_delete = false",
                     )
-                    .addSelect("rr.id", "hasRecord")
+                    .addSelect("rr.room_uuid", "hasRecord")
                     .andWhere("r.room_status = :roomStatus", {
                         roomStatus: RoomStatus.Stopped,
                     });
