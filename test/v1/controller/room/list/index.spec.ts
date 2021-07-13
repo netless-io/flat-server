@@ -11,7 +11,9 @@ import { List, ResponseType } from "../../../../../src/v1/controller/room/list";
 import { RoomDAO, RoomRecordDAO, RoomUserDAO, UserDAO } from "../../../../../src/dao";
 import cryptoRandomString from "crypto-random-string";
 import { expect } from "chai";
-import { ResponseSuccess } from "../../../../../src/types/Server";
+import { ResponseError, ResponseSuccess } from "../../../../../src/types/Server";
+import { isASC, isDESC } from "../../../../test-utils/Sort";
+import { ErrorCode } from "../../../../../src/ErrorCode";
 
 describe("v1 list room", () => {
     let connection: Connection;
@@ -98,8 +100,12 @@ describe("v1 list room", () => {
             .filter(room => room.hasRecord)
             .map(room => room.roomUUID)
             .sort();
-
         expect(fakeRoomRecordData.map(room => room.room_uuid).sort()).deep.eq(hasRecordRooms);
+
+        expect(isDESC(result.data.map(room => room.beginTime.valueOf()))).eq(
+            true,
+            "history room list is not in desc order according to begin_time",
+        );
     });
 
     it("list all normal", async () => {
@@ -147,6 +153,10 @@ describe("v1 list room", () => {
         expect(result.status).eq(Status.Success);
         expect(result.data).length(20);
         expect(result.data.filter(room => room.roomStatus === RoomStatus.Idle)).length(10);
+        expect(isASC(result.data.map(room => room.beginTime.valueOf()))).eq(
+            true,
+            "history room list is not in asc order according to begin_time",
+        );
     });
 
     it("list today normal", async () => {
@@ -197,9 +207,9 @@ describe("v1 list room", () => {
             UserDAO().insert(fakeUserData),
         ]);
 
-        const historyList = createList(ListType.Today);
+        const todayList = createList(ListType.Today);
 
-        const result = (await historyList.execute()) as ResponseSuccess<ResponseType>;
+        const result = (await todayList.execute()) as ResponseSuccess<ResponseType>;
 
         expect(result.status).eq(Status.Success);
         expect(result.data).length(15);
@@ -207,5 +217,84 @@ describe("v1 list room", () => {
             userUUID,
             "today room list has other user",
         );
+    });
+
+    it("list periodic normal", async () => {
+        await connection.synchronize(true);
+
+        const fakeRoomsData = new Array(10).fill(1).map((_v, i) => {
+            const beginTime = addHours(i + 1)(Date.now());
+            return {
+                room_uuid: v4(),
+                periodic_uuid: i < 5 ? v4() : "",
+                owner_uuid: i < 3 ? userUUID : v4(),
+                title: `test history - ${i}`,
+                room_type: RoomType.BigClass,
+                room_status: RoomStatus.Started,
+                begin_time: beginTime,
+                end_time: addMinutes(30)(beginTime),
+                whiteboard_room_uuid: v4().replace("-", ""),
+                region: Region.IN_MUM,
+            };
+        });
+        const fakeRoomUserData = fakeRoomsData.map(room => ({
+            room_uuid: room.room_uuid,
+            user_uuid: userUUID,
+            rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
+        }));
+        const fakeUserData = {
+            user_uuid: userUUID,
+            gender: Gender.Man,
+            avatar_url: "",
+            user_name: "test_user_4",
+            user_password: "",
+        };
+
+        await Promise.all([
+            RoomDAO().insert(fakeRoomsData),
+            RoomUserDAO().insert(fakeRoomUserData),
+            UserDAO().insert(fakeUserData),
+        ]);
+
+        const periodicList = createList(ListType.Periodic);
+
+        const result = (await periodicList.execute()) as ResponseSuccess<ResponseType>;
+
+        expect(result.status).eq(Status.Success);
+        expect(result.data).length(3);
+        expect(
+            result.data
+                .filter(room => !!room.periodicUUID)
+                .map(room => room.periodicUUID)
+                .sort(),
+        ).deep.eq(
+            fakeRoomsData
+                .splice(0, 3)
+                .map(room => room.periodic_uuid)
+                .sort(),
+        );
+
+        const roomOwnerUUID = Array.from(new Set(result.data.map(room => room.ownerUUID)));
+
+        expect(roomOwnerUUID).length(1, "today room list has other user");
+
+        expect(roomOwnerUUID[0]).eq(userUUID, "today room list has other user");
+    });
+
+    it("error handler", async () => {
+        await connection.close();
+
+        const periodicList = createList(ListType.Periodic);
+
+        let errorResult: ResponseError | null = null;
+        try {
+            await periodicList.execute();
+        } catch (error) {
+            errorResult = periodicList.errorHandler(error);
+        }
+
+        expect(errorResult!.code).eq(ErrorCode.CurrentProcessFailed);
+
+        await connection.connect();
     });
 });

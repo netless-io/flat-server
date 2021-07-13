@@ -88,6 +88,7 @@ export class List extends AbstractController<RequestType, ResponseType> {
             })
             .andWhere("ru.is_delete = false")
             .andWhere("r.is_delete = false")
+            .andWhere("u.is_delete = false")
             .orderBy({
                 "r.begin_time": this.params.type === ListType.History ? "DESC" : "ASC",
             })
