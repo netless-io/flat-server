@@ -2,7 +2,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../types/Server
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomRecordDAO } from "../../../../dao";
-import { roomIsRunning } from "../utils/Room";
+import { roomIsRunning } from "../utils/RoomStatus";
 import { Controller } from "../../../../decorator/Controller";
 import { AbstractController } from "../../../../abstract/controller";
 

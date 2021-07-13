@@ -2,7 +2,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../../types/Ser
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { RoomDAO } from "../../../../../dao";
-import { roomIsRunning } from "../../utils/Room";
+import { roomIsRunning } from "../../utils/RoomStatus";
 import { agoraCloudRecordUpdateLayoutRequest } from "../../../../utils/request/agora/Agora";
 import {
     AgoraCloudRecordParamsType,

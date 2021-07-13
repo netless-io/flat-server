@@ -1,7 +1,7 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
-import { roomIsIdle, roomIsRunning } from "../utils/Room";
+import { roomIsIdle, roomIsRunning } from "../utils/RoomStatus";
 import { Controller } from "../../../../decorator/Controller";
 import { AbstractController, ControllerClassParams } from "../../../../abstract/controller";
 import { ServiceOrdinary } from "../../../service";

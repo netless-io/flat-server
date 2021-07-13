@@ -5,7 +5,7 @@ import { PeriodicStatus, RoomStatus } from "../../../../model/room/Constants";
 import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../../dao";
-import { roomIsRunning } from "../utils/Room";
+import { roomIsRunning } from "../utils/RoomStatus";
 import { getNextPeriodicRoomInfo, updateNextPeriodicRoomInfo } from "../../../service/Periodic";
 import { RoomPeriodicModel } from "../../../../model/room/RoomPeriodic";
 import { AbstractController } from "../../../../abstract/controller";

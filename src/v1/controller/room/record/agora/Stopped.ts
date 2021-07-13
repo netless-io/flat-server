@@ -2,7 +2,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../../types/Ser
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { RoomDAO, RoomRecordDAO } from "../../../../../dao";
-import { roomNotRunning } from "../../utils/Room";
+import { roomNotRunning } from "../../utils/RoomStatus";
 import {
     AgoraCloudRecordParamsType,
     AgoraCloudRecordStoppedResponse as ResponseType,
