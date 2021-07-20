@@ -1,4 +1,5 @@
 import packages from "../../package.json";
+import { Region } from "./Project";
 
 export const isDev = process.env.NODE_ENV === "development";
 export const isTest = process.env.IS_TEST === "yes";
@@ -83,8 +84,26 @@ export const CloudStorage = {
 export const AlibabaCloud = {
     OSS_ACCESS_KEY: process.env.ALIBABA_CLOUD_OSS_ACCESS_KEY,
     OSS_ACCESS_KEY_SECRET: process.env.ALIBABA_CLOUD_OSS_ACCESS_KEY_SECRET,
-    OSS_BUCKET: process.env.ALIBABA_CLOUD_OSS_BUCKET,
-    OSS_REGION: process.env.ALIBABA_CLOUD_OSS_REGION,
+    [Region.CN_HZ]: {
+        OSS_BUCKET: process.env.ALIBABA_CLOUD_CN_OSS_BUCKET,
+        OSS_REGION: process.env.ALIBABA_CLOUD_CN_OSS_REGION,
+    },
+    [Region.US_SV]: {
+        OSS_BUCKET: process.env.ALIBABA_CLOUD_US_OSS_BUCKET,
+        OSS_REGION: process.env.ALIBABA_CLOUD_US_OSS_REGION,
+    },
+    [Region.SG]: {
+        OSS_BUCKET: process.env.ALIBABA_CLOUD_SG_OSS_BUCKET,
+        OSS_REGION: process.env.ALIBABA_CLOUD_SG_OSS_REGION,
+    },
+    [Region.IN_MUM]: {
+        OSS_BUCKET: process.env.ALIBABA_CLOUD_MUM_OSS_BUCKET,
+        OSS_REGION: process.env.ALIBABA_CLOUD_MUM_OSS_REGION,
+    },
+    [Region.GB_LON]: {
+        OSS_BUCKET: process.env.ALIBABA_CLOUD_GB_OSS_BUCKET,
+        OSS_REGION: process.env.ALIBABA_CLOUD_GB_OSS_REGION,
+    },
 };
 
 export const LogConfig = {

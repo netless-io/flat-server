@@ -5,6 +5,7 @@ import { Region } from "../../../../constants/Project";
 
 /**
  * whiteboard create room api
+ * @param {Region} region - whiteboard room region
  * @param {number} limit - (default: 0 = no limit)
  * @return {string} whiteboard room uuid, not room model's room_uuid
  */
