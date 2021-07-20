@@ -59,7 +59,7 @@ export const getFilePath = (fileName: string, fileUUID: string): string => {
 };
 
 export const getOSSDomain = (region: Region): string => {
-    return `https://${AlibabaCloud[region].OSS_BUCKET}.${AlibabaCloud[region].OSS_REGION}.aliyuncs.com`;
+    return `https://${AlibabaCloud[region].OSS_BUCKET}.${AlibabaCloud.OSS_ENDPOINT}`;
 };
 
 export const getOSSFileURLPath = (filePath: string, region: Region): string => {
@@ -70,6 +70,7 @@ const createOSSClient = (region: Region): OSS => {
     return new OSS({
         bucket: AlibabaCloud[region].OSS_BUCKET,
         region: AlibabaCloud[region].OSS_REGION,
+        endpoint: AlibabaCloud.OSS_ENDPOINT,
         accessKeyId: AlibabaCloud.OSS_ACCESS_KEY,
         accessKeySecret: AlibabaCloud.OSS_ACCESS_KEY_SECRET,
         secure: true,

@@ -63,6 +63,7 @@ declare namespace NodeJS {
 
         ALIBABA_CLOUD_OSS_ACCESS_KEY: string;
         ALIBABA_CLOUD_OSS_ACCESS_KEY_SECRET: string;
+        ALIBABA_CLOUD_OSS_ENDPOINT: string;
         ALIBABA_CLOUD_CN_OSS_BUCKET: string;
         ALIBABA_CLOUD_CN_OSS_REGION: string;
         ALIBABA_CLOUD_US_OSS_BUCKET: string;
