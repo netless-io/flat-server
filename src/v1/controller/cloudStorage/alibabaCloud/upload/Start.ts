@@ -1,10 +1,10 @@
 import { v4 } from "uuid";
 import { CloudStorage } from "../../../../../constants/Process";
-import { Status } from "../../../../../constants/Project";
+import { Region, Status } from "../../../../../constants/Project";
 
 import { ErrorCode } from "../../../../../ErrorCode";
 import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
-import { getFilePath, policyTemplate } from "../Utils";
+import { getFilePath, getOSSDomain, policyTemplate } from "../Utils";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { checkTotalUsage } from "./Utils";
@@ -20,7 +20,7 @@ export class AlibabaCloudUploadStart extends AbstractController<RequestType, Res
     public static readonly schema: FastifySchema<RequestType> = {
         body: {
             type: "object",
-            required: ["fileName", "fileSize"],
+            required: ["fileName", "fileSize", "region"],
             properties: {
                 fileName: {
                     type: "string",
@@ -32,12 +32,16 @@ export class AlibabaCloudUploadStart extends AbstractController<RequestType, Res
                     minimum: 1,
                     maximum: CloudStorage.SINGLE_FILE_SIZE,
                 },
+                region: {
+                    type: "string",
+                    enum: [Region.CN_HZ, Region.US_SV, Region.SG, Region.IN_MUM, Region.GB_LON],
+                },
             },
         },
     };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const { fileName, fileSize } = this.body;
+        const { fileName, fileSize, region } = this.body;
         const userUUID = this.userUUID;
 
         // check upload concurrent and file size and total usage
@@ -82,13 +86,14 @@ export class AlibabaCloudUploadStart extends AbstractController<RequestType, Res
 
         const fileUUID = v4();
         const filePath = getFilePath(fileName, fileUUID);
-        const { policy, signature } = policyTemplate(fileName, filePath, fileSize);
+        const { policy, signature } = policyTemplate(fileName, filePath, fileSize, region);
 
         await RedisService.hmset(
             RedisKey.cloudStorageFileInfo(userUUID, fileUUID),
             {
                 fileName,
                 fileSize: String(fileSize),
+                region,
             },
             60 * 60,
         );
@@ -99,6 +104,7 @@ export class AlibabaCloudUploadStart extends AbstractController<RequestType, Res
                 fileUUID,
                 filePath,
                 policy,
+                policyURL: getOSSDomain(region),
                 signature,
             },
         };
@@ -113,6 +119,7 @@ interface RequestType {
     body: {
         fileName: string;
         fileSize: number;
+        region: Region;
     };
 }
 
@@ -120,5 +127,6 @@ interface ResponseType {
     fileUUID: string;
     filePath: string;
     policy: string;
+    policyURL: string;
     signature: string;
 }

@@ -23,33 +23,30 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
     public static readonly schema: FastifySchema<RequestType> = {
         body: {
             type: "object",
-            required: ["fileUUID", "region"],
+            required: ["fileUUID"],
             properties: {
                 fileUUID: {
                     type: "string",
                     format: "uuid-v4",
-                },
-                region: {
-                    type: "string",
-                    enum: [Region.CN_HZ, Region.US_SV, Region.SG, Region.IN_MUM, Region.GB_LON],
                 },
             },
         },
     };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const { fileUUID, region } = this.body;
+        const { fileUUID } = this.body;
         const userUUID = this.userUUID;
 
         const fileInfo = await RedisService.hmget(
             RedisKey.cloudStorageFileInfo(userUUID, fileUUID),
-            ["fileName", "fileSize"],
+            ["fileName", "fileSize", "region"],
         );
 
         const fileName = fileInfo[0];
         const fileSize = Number(fileInfo[1]);
+        const region = fileInfo[2] as Region;
 
-        if (!fileName || Number.isNaN(fileSize)) {
+        if (!fileName || Number.isNaN(fileSize) || !Object.values(Region).includes(region)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.FileNotFound,
@@ -58,7 +55,7 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
 
         const fullPath = getFilePath(fileName, fileUUID);
 
-        if (!(await isExistObject(fullPath))) {
+        if (!(await isExistObject(fullPath, region))) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.FileNotFound,
@@ -74,7 +71,7 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
             };
         }
 
-        const alibabaCloudFileURL = getOSSFileURLPath(fullPath);
+        const alibabaCloudFileURL = getOSSFileURLPath(fullPath, region);
 
         await getConnection().transaction(async t => {
             const commands: Promise<unknown>[] = [];
@@ -128,7 +125,6 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
 interface RequestType {
     body: {
         fileUUID: string;
-        region: Region;
     };
 }
 

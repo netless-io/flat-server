@@ -1,5 +1,5 @@
 import { createQueryBuilder, getConnection, In } from "typeorm";
-import { Status } from "../../../../../constants/Project";
+import { Region, Status } from "../../../../../constants/Project";
 import {
     CloudStorageConfigsDAO,
     CloudStorageUserFilesDAO,
@@ -38,10 +38,11 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
         const { fileUUIDs } = this.body;
         const userUUID = this.userUUID;
 
-        const fileInfo = await createQueryBuilder(CloudStorageUserFilesModel, "fc")
+        const fileInfo: FileInfoType[] = await createQueryBuilder(CloudStorageUserFilesModel, "fc")
             .addSelect("f.file_uuid", "file_uuid")
             .addSelect("f.file_name", "file_name")
             .addSelect("f.file_size", "file_size")
+            .addSelect("f.region", "region")
             .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
             .where(
                 `f.file_uuid IN (:...fileUUIDs)
@@ -66,20 +67,26 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
 
         const totalUsage = Number(cloudStorageConfigsInfo?.total_usage) || 0;
 
-        const { fileURLList, remainingTotalUsage } = ((): {
-            fileURLList: string[];
+        const { fileList, remainingTotalUsage } = ((): {
+            fileList: FileListType;
             remainingTotalUsage: number;
         } => {
-            const fileURLList: string[] = [];
+            const fileList: FileListType = {};
             let remainingTotalUsage = totalUsage;
 
-            fileInfo.forEach(({ file_uuid, file_name, file_size }) => {
-                fileURLList.push(getFilePath(file_name, file_uuid));
+            fileInfo.forEach(({ file_uuid, file_name, file_size, region }) => {
+                if (typeof fileList[region] === "undefined") {
+                    fileList[region] = [];
+                }
+
+                (fileList as Required<FileListType>)[region].push(
+                    getFilePath(file_name, file_uuid),
+                );
                 remainingTotalUsage -= file_size;
             });
 
             return {
-                fileURLList,
+                fileList,
                 remainingTotalUsage: remainingTotalUsage < 0 ? 0 : remainingTotalUsage,
             };
         })();
@@ -112,7 +119,12 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
             );
 
             await Promise.all(commands);
-            await ossClient.deleteMulti(fileURLList);
+
+            const deleteMultiByRegion = Object.keys(fileList).map(region => {
+                return ossClient[region as Region].deleteMulti(fileList[region as Region]!);
+            });
+
+            await Promise.all(deleteMultiByRegion);
         });
 
         return {
@@ -133,3 +145,14 @@ interface RequestType {
 }
 
 interface ResponseType {}
+
+type FileListType = {
+    [region in Region]?: string[];
+};
+
+interface FileInfoType {
+    file_uuid: string;
+    file_name: string;
+    file_size: number;
+    region: Region;
+}

@@ -48,7 +48,7 @@ export class AlibabaCloudRename extends AbstractController<RequestType, Response
             };
         }
 
-        const fileInfo = await CloudStorageFilesDAO().findOne(["file_name"], {
+        const fileInfo = await CloudStorageFilesDAO().findOne(["file_name", "region"], {
             file_uuid: fileUUID,
         });
 
@@ -77,7 +77,7 @@ export class AlibabaCloudRename extends AbstractController<RequestType, Response
             );
 
             const filePath = getFilePath(fileName, fileUUID);
-            await ossClient.copy(filePath, filePath, {
+            await ossClient[fileInfo.region].copy(filePath, filePath, {
                 headers: { "Content-Disposition": getDisposition(fileName) },
             });
         });
