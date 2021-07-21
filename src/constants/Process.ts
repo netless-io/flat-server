@@ -86,24 +86,24 @@ export const AlibabaCloud = {
     OSS_ACCESS_KEY_SECRET: process.env.ALIBABA_CLOUD_OSS_ACCESS_KEY_SECRET,
     OSS_ENDPOINT: process.env.ALIBABA_CLOUD_OSS_ENDPOINT,
     [Region.CN_HZ]: {
-        OSS_BUCKET: process.env.ALIBABA_CLOUD_CN_OSS_BUCKET,
-        OSS_REGION: process.env.ALIBABA_CLOUD_CN_OSS_REGION,
+        OSS_BUCKET: process.env.ALIBABA_CLOUD_HANGCHOW_OSS_BUCKET,
+        OSS_REGION: process.env.ALIBABA_CLOUD_HANGCHOW_OSS_REGION,
     },
     [Region.US_SV]: {
-        OSS_BUCKET: process.env.ALIBABA_CLOUD_US_OSS_BUCKET,
-        OSS_REGION: process.env.ALIBABA_CLOUD_US_OSS_REGION,
+        OSS_BUCKET: process.env.ALIBABA_CLOUD_SILICONVALLEY_OSS_BUCKET,
+        OSS_REGION: process.env.ALIBABA_CLOUD_SILICONVALLEY_OSS_REGION,
     },
     [Region.SG]: {
-        OSS_BUCKET: process.env.ALIBABA_CLOUD_SG_OSS_BUCKET,
-        OSS_REGION: process.env.ALIBABA_CLOUD_SG_OSS_REGION,
+        OSS_BUCKET: process.env.ALIBABA_CLOUD_SINGAPORE_OSS_BUCKET,
+        OSS_REGION: process.env.ALIBABA_CLOUD_SINGAPORE_OSS_REGION,
     },
     [Region.IN_MUM]: {
-        OSS_BUCKET: process.env.ALIBABA_CLOUD_MUM_OSS_BUCKET,
-        OSS_REGION: process.env.ALIBABA_CLOUD_MUM_OSS_REGION,
+        OSS_BUCKET: process.env.ALIBABA_CLOUD_MUMBAI_OSS_BUCKET,
+        OSS_REGION: process.env.ALIBABA_CLOUD_MUMBAI_OSS_REGION,
     },
     [Region.GB_LON]: {
-        OSS_BUCKET: process.env.ALIBABA_CLOUD_GB_OSS_BUCKET,
-        OSS_REGION: process.env.ALIBABA_CLOUD_GB_OSS_REGION,
+        OSS_BUCKET: process.env.ALIBABA_CLOUD_LONDON_OSS_BUCKET,
+        OSS_REGION: process.env.ALIBABA_CLOUD_LONDON_OSS_REGION,
     },
 };
 
