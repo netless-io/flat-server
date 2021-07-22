@@ -1,146 +1,67 @@
-import axios from "axios";
-import redisService from "../../../thirdPartyService/RedisService";
 import { Status } from "../../../constants/Project";
 import { FastifySchema, Response, ResponseError } from "../../../types/Server";
-import { RedisKey } from "../../../utils/Redis";
-import { ErrorCode } from "../../../ErrorCode";
-import { UserDAO, UserGithubDAO, UserWeChatDAO } from "../../../dao";
 import { LoginPlatform } from "../../../constants/Project";
-import { getGithubUserInfo } from "../../utils/request/github/GithubRequest";
-import { weChatRenewAccessToken } from "../../utils/request/wechat/WeChatRequest";
-import { parseError } from "../../../logger";
-import { AbstractController } from "../../../abstract/controller";
+import { AbstractController, ControllerClassParams } from "../../../abstract/controller";
 import { Controller } from "../../../decorator/Controller";
 
-@Controller<RequestType, ResponseType>({
+import { ServiceUser } from "../../service/user/User";
+import { ServiceUserGithub } from "../../service/user/UserGithub";
+import { ServiceUserWeChat } from "../../service/user/UserWeChat";
+
+@Controller<null, ResponseType>({
     method: "post",
     path: "login",
     auth: true,
 })
 export class Login extends AbstractController<RequestType, ResponseType> {
-    public static readonly schema: FastifySchema<RequestType> = {
-        body: {
-            type: "object",
-            required: ["type"],
-            properties: {
-                type: {
-                    type: "string",
-                    enum: ["web", "mobile"],
-                },
-            },
-        },
+    public static readonly schema: FastifySchema<null> = null;
+
+    public readonly svc: {
+        user: ServiceUser;
+        userGithub: ServiceUserGithub;
+        userWeChat: ServiceUserWeChat;
     };
 
+    public constructor(params: ControllerClassParams) {
+        super(params);
+
+        this.svc = {
+            user: new ServiceUser(this.userUUID),
+            userGithub: new ServiceUserGithub(this.userUUID),
+            userWeChat: new ServiceUserWeChat(this.userUUID),
+        };
+    }
+
     public async execute(): Promise<Response<ResponseType>> {
-        const userUUID = this.userUUID;
-        const loginSource = this.loginSource;
-        const { type } = this.body;
+        const { userName, avatarURL } = await this.svc.user.assertGetNameAndAvatar();
 
-        const userInfoInstance = await UserDAO().findOne(["user_name", "avatar_url"], {
-            user_uuid: userUUID,
-        });
-
-        if (userInfoInstance === undefined) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.UserNotFound,
-            };
-        }
-
-        switch (loginSource) {
+        switch (this.loginSource) {
             case LoginPlatform.WeChat: {
-                const weChatUserInfo = await UserWeChatDAO().findOne(["id"], {
-                    user_uuid: userUUID,
-                });
-
-                if (weChatUserInfo === undefined) {
-                    return {
-                        status: Status.Failed,
-                        code: ErrorCode.UserNotFound,
-                    };
-                }
-
-                const refreshToken = await redisService.get(RedisKey.wechatRefreshToken(userUUID));
-
-                if (refreshToken === null) {
-                    return {
-                        status: Status.AuthFailed,
-                        code: ErrorCode.NeedLoginAgain,
-                    };
-                }
-                await weChatRenewAccessToken(refreshToken, type.toUpperCase() as any);
-
-                return {
-                    status: Status.Success,
-                    data: {
-                        name: userInfoInstance.user_name,
-                        avatar: userInfoInstance.avatar_url,
-                        userUUID,
-                    },
-                };
+                await this.svc.userWeChat.assertExist();
+                break;
             }
             case LoginPlatform.Github: {
-                const githubUserInfo = await UserGithubDAO().findOne(
-                    ["union_uuid", "access_token"],
-                    {
-                        user_uuid: userUUID,
-                    },
-                );
-
-                if (githubUserInfo === undefined) {
-                    return {
-                        status: Status.Failed,
-                        code: ErrorCode.UserNotFound,
-                    };
-                }
-
-                const { id: union_uuid } = await getGithubUserInfo(githubUserInfo.access_token);
-
-                if (String(union_uuid) !== githubUserInfo.union_uuid) {
-                    return {
-                        status: Status.AuthFailed,
-                        code: ErrorCode.NeedLoginAgain,
-                    };
-                }
-
-                return {
-                    status: Status.Success,
-                    data: {
-                        name: userInfoInstance.user_name,
-                        avatar: userInfoInstance.avatar_url,
-                        userUUID,
-                    },
-                };
+                await this.svc.userGithub.assertExist();
+                break;
             }
         }
 
         return {
-            status: Status.AuthFailed,
-            code: ErrorCode.UnsupportedPlatform,
+            status: Status.Success,
+            data: {
+                name: userName,
+                avatar: avatarURL,
+                userUUID: this.userUUID,
+            },
         };
     }
 
     public errorHandler(error: Error): ResponseError {
-        if (axios.isAxiosError(error) && error.response?.status === 401) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.NeedLoginAgain,
-            };
-        } else {
-            this.logger.error("request failed", parseError(error));
-            return {
-                status: Status.AuthFailed,
-                code: ErrorCode.ServerFail,
-            };
-        }
+        return this.autoHandlerError(error);
     }
 }
 
-interface RequestType {
-    body: {
-        type: "web" | "mobile";
-    };
-}
+interface RequestType {}
 
 interface ResponseType {
     name: string;

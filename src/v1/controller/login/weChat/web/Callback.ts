@@ -1,7 +1,7 @@
 import { FastifySchema, ResponseError } from "../../../../../types/Server";
 import redisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
-import { registerOrLoginWechat } from "../Utils";
+import { wechatCallback } from "../Utils";
 import { parseError } from "../../../../../logger";
 import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
@@ -37,15 +37,13 @@ export class WechatWebCallback extends AbstractController<RequestType> {
 
         const { state: authUUID, code } = this.querystring;
 
-        try {
-            await registerOrLoginWechat(code, authUUID, "WEB", this.logger, this.reply);
-        } catch (err: unknown) {
-            this.logger.error("request failed", parseError(err));
-            await redisService.set(RedisKey.authFailed(authUUID), "", 60 * 60);
-        }
+        await wechatCallback(code, authUUID, "WEB", this.logger, this.reply);
     }
 
-    public errorHandler(error: Error): ResponseError {
+    public async errorHandler(error: Error): Promise<ResponseError> {
+        this.logger.error("request failed", parseError(error));
+        await redisService.set(RedisKey.authFailed(this.querystring.state), "", 60 * 60);
+
         return this.autoHandlerError(error);
     }
 }

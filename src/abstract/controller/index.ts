@@ -48,8 +48,12 @@ export abstract class AbstractController<
     public abstract execute(): REQ extends void ? Promise<void> : Promise<Response<REQ>>;
     public abstract errorHandler(error: Error): ResponseError | Promise<ResponseError>;
 
+    protected isControllerError(error: Error): error is ControllerError {
+        return error instanceof ControllerError;
+    }
+
     protected parseFlatError(error: FlatError): ResponseError | null {
-        if (error instanceof ControllerError) {
+        if (this.isControllerError(error)) {
             return {
                 status: error.status,
                 code: error.errorCode,

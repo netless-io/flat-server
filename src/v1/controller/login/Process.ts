@@ -5,6 +5,7 @@ import { Status } from "../../../constants/Project";
 import { ErrorCode } from "../../../ErrorCode";
 import { AbstractController } from "../../../abstract/controller";
 import { Controller } from "../../../decorator/Controller";
+import { AbstractLogin } from "../../../abstract/login";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -28,24 +29,17 @@ export class LoginProcess extends AbstractController<RequestType, ResponseType> 
     public async execute(): Promise<Response<ResponseType>> {
         const { authUUID } = this.body;
 
-        const hasAuthUUID = await RedisService.get(RedisKey.authUUID(authUUID));
+        await AbstractLogin.assertHasAuthUUID(authUUID, this.logger);
 
-        if (hasAuthUUID === null) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.ParamsCheckFailed,
-            };
-        }
+        const failedReason = await RedisService.get(RedisKey.authFailed(authUUID));
 
-        const authFailed = await RedisService.get(RedisKey.authFailed(authUUID));
-
-        if (authFailed !== null) {
+        if (failedReason !== null) {
             const code =
-                authFailed === "application_suspended"
+                failedReason === "application_suspended"
                     ? ErrorCode.LoginGithubSuspended
-                    : authFailed === "redirect_uri_mismatch"
+                    : failedReason === "redirect_uri_mismatch"
                     ? ErrorCode.LoginGithubURLMismatch
-                    : authFailed === "access_denied"
+                    : failedReason === "access_denied"
                     ? ErrorCode.LoginGithubAccessDenied
                     : ErrorCode.CurrentProcessFailed;
 

@@ -57,7 +57,7 @@ export const parseError = (error: any): Partial<LoggerError> => {
             if (error instanceof Error) {
                 return {
                     errorMessage: error.message,
-                    errorStack: error.stack,
+                    errorStack: error.stack || "",
                 };
             }
 
