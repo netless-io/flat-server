@@ -1,1 +1,2 @@
-export { ServiceOrdinary } from "./room/Ordinary";
+export { ServiceRoom } from "./room/Room";
+export { ServiceRoomUser } from "./room/RoomUser";

@@ -12,7 +12,7 @@ export enum FilterValue {
 }
 
 export const removeEmptyValue = <
-    O extends RecursionObject<string | number | boolean | undefined | null>
+    O extends RecursionObject<string | number | boolean | undefined | null | Date>
 >(
     obj: O,
     filter: FilterValue[],
