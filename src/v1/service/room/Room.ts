@@ -1,4 +1,4 @@
-import { RoomDAO, RoomUserDAO } from "../../../dao";
+import { RoomDAO } from "../../../dao";
 import { RoomModel } from "../../../model/room/Room";
 import { ControllerError } from "../../../error/ControllerError";
 import { Region, Status } from "../../../constants/Project";
@@ -9,12 +9,11 @@ import { RoomStatus, RoomType } from "../../../model/room/Constants";
 import { whiteboardCreateRoom } from "../../utils/request/whiteboard/WhiteboardRequest";
 import { addHours, toDate } from "date-fns/fp";
 import { InsertResult } from "typeorm/query-builder/result/InsertResult";
-import cryptoRandomString from "crypto-random-string";
 
-export class ServiceOrdinary {
+export class ServiceRoom {
     constructor(private readonly roomUUID: string, private readonly userUUID: string) {}
 
-    public async existAssert(errorCode: ErrorCode = ErrorCode.RoomNotFound): Promise<void> {
+    public async assertExist(errorCode: ErrorCode = ErrorCode.RoomNotFound): Promise<void> {
         const result = await RoomDAO().findOne(["id"], {
             room_uuid: this.roomUUID,
         });
@@ -24,7 +23,7 @@ export class ServiceOrdinary {
         }
     }
 
-    public async info<T extends keyof RoomModel = keyof RoomModel>(
+    public async assertInfo<T extends keyof RoomModel = keyof RoomModel>(
         field: T[],
         errorCode: ErrorCode = ErrorCode.RoomNotFound,
     ): Promise<Pick<RoomModel, T>> {
@@ -39,7 +38,7 @@ export class ServiceOrdinary {
         throw new ControllerError(errorCode, Status.Failed);
     }
 
-    public async infoByOwner<T extends keyof RoomModel = keyof RoomModel>(
+    public async assertInfoByOwner<T extends keyof RoomModel = keyof RoomModel>(
         field: T[],
         errorCode: ErrorCode = ErrorCode.RoomNotFound,
     ): Promise<Pick<RoomModel, T>> {
@@ -53,20 +52,6 @@ export class ServiceOrdinary {
         }
 
         throw new ControllerError(errorCode, Status.Failed);
-    }
-
-    public removeUser(t?: EntityManager): Promise<UpdateResult> {
-        return RoomUserDAO(t).remove({
-            room_uuid: this.roomUUID,
-            user_uuid: this.userUUID,
-        });
-    }
-
-    public remove(t?: EntityManager): Promise<UpdateResult> {
-        return RoomDAO(t).remove({
-            room_uuid: this.roomUUID,
-            owner_uuid: this.userUUID,
-        });
     }
 
     public async create(
@@ -74,8 +59,8 @@ export class ServiceOrdinary {
             title: string;
             type: RoomType;
             region: Region;
-            beginTime: number;
-            endTime?: number;
+            beginTime: number | Date;
+            endTime?: number | Date;
         },
         t?: EntityManager,
     ): Promise<InsertResult> {
@@ -94,11 +79,10 @@ export class ServiceOrdinary {
         });
     }
 
-    public async addSelfUser(t?: EntityManager): Promise<InsertResult> {
-        return await RoomUserDAO(t).insert({
+    public remove(t?: EntityManager): Promise<UpdateResult> {
+        return RoomDAO(t).remove({
             room_uuid: this.roomUUID,
-            user_uuid: this.userUUID,
-            rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
+            owner_uuid: this.userUUID,
         });
     }
 }

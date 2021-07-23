@@ -14,6 +14,7 @@ import assert from "assert";
 import { addHours, addMinutes, subMinutes } from "date-fns/fp";
 import { ErrorCode } from "../../../../../src/ErrorCode";
 import { ResponseError } from "../../../../../src/types/Server";
+import { FilterValue, removeEmptyValue } from "../../../../../src/utils/Object";
 
 describe("v1 create room", () => {
     let connection: Connection;
@@ -67,17 +68,22 @@ describe("v1 create room", () => {
 
         assert(result.status === Status.Success);
 
-        const roomInfo = await createOrdinary.svc.room.info([
-            "owner_uuid",
-            "region",
-            "title",
-            "whiteboard_room_uuid",
-        ]);
+        const roomInfo = removeEmptyValue(
+            await createOrdinary.svc.room.assertInfo([
+                "owner_uuid",
+                "region",
+                "title",
+                "whiteboard_room_uuid",
+            ]),
+            [FilterValue.UNDEFINED],
+        );
 
-        expect(roomInfo.region).eq(Region.CN_HZ);
-        expect(roomInfo.title).eq("test");
-        expect(roomInfo.whiteboard_room_uuid).eq(whiteboardRoomUUID);
-        expect(roomInfo.owner_uuid).eq(userUUID);
+        expect(roomInfo).deep.eq({
+            region: Region.CN_HZ,
+            title: "test",
+            whiteboard_room_uuid: whiteboardRoomUUID,
+            owner_uuid: userUUID,
+        });
 
         stubAxios.restore();
     });

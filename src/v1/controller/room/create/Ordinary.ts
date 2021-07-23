@@ -11,7 +11,7 @@ import {
 import { AbstractController, ControllerClassParams } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { ControllerError } from "../../../../error/ControllerError";
-import { ServiceOrdinary } from "../../../service";
+import { ServiceRoom, ServiceRoomUser } from "../../../service";
 import { getConnection } from "typeorm";
 
 @Controller<RequestType, ResponseType>({
@@ -51,7 +51,8 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
     };
 
     public readonly svc: {
-        room: ServiceOrdinary;
+        room: ServiceRoom;
+        roomUser: ServiceRoomUser;
     };
 
     private readonly roomUUID: string = v4();
@@ -60,7 +61,8 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
         super(params);
 
         this.svc = {
-            room: new ServiceOrdinary(this.roomUUID, this.userUUID),
+            room: new ServiceRoom(this.roomUUID, this.userUUID),
+            roomUser: new ServiceRoomUser(this.roomUUID, this.userUUID),
         };
     }
 
@@ -71,7 +73,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
             // prettier-ignore
             await Promise.all([
                 this.svc.room.create(this.body, t),
-                this.svc.room.addSelfUser(t)
+                this.svc.roomUser.addSelf(t)
             ]);
         });
 
