@@ -11,6 +11,7 @@ describe("Redis Utils", () => {
             "authFailed",
             "authUserInfo",
             "wechatRefreshToken",
+            "githubAccessToken",
             "agoraRTCRoomUserToken",
             "agoraRTMUserToken",
             "cloudStorageFileInfo",
@@ -40,6 +41,14 @@ describe("Redis Utils", () => {
 
         expect(RedisKey.wechatRefreshToken(`${userUUID}`)).to.equal(
             `weChat:refresh:uuid:${userUUID}`,
+        );
+    });
+
+    it("githubAccessToken", () => {
+        const userUUID = v4();
+
+        expect(RedisKey.githubAccessToken(`${userUUID}`)).to.equal(
+            `github:accessToken:uuid:${userUUID}`,
         );
     });
 

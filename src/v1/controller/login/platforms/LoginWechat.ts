@@ -7,18 +7,20 @@ import { getConnection } from "typeorm";
 import { AxiosResponse } from "axios";
 import { ServiceUser } from "../../../service/user/User";
 import { ServiceUserWeChat } from "../../../service/user/UserWeChat";
+import redisService from "../../../../thirdPartyService/RedisService";
+import { RedisKey } from "../../../../utils/Redis";
 
 @Login()
 export class LoginWechat extends AbstractLogin {
-    private readonly svc: RegisterService;
+    public readonly svc: RegisterService;
 
-    constructor(
-        params: LoginClassParams<{
-            svc: RegisterService;
-        }>,
-    ) {
+    constructor(params: LoginClassParams) {
         super(params);
-        this.svc = params.svc;
+
+        this.svc = {
+            user: new ServiceUser(this.userUUID),
+            userWeChat: new ServiceUserWeChat(this.userUUID),
+        };
     }
 
     public async register(info: RegisterInfo): Promise<void> {
@@ -29,6 +31,10 @@ export class LoginWechat extends AbstractLogin {
 
             return await Promise.all([createUser, createUserGithub]);
         });
+    }
+
+    public async saveToken(token: string): Promise<void> {
+        await redisService.set(RedisKey.wechatRefreshToken(this.userUUID), token);
     }
 
     public static async getToken(code: string, type: "WEB" | "MOBILE"): Promise<WeChatToken> {

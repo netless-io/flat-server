@@ -7,7 +7,6 @@ import { parseError } from "../../../../logger";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { LoginGithub } from "../platforms/LoginGithub";
-import { ServiceUser } from "../../../service/user/User";
 import { ServiceUserGithub } from "../../../service/user/UserGithub";
 
 @Controller<RequestType, any>({
@@ -54,33 +53,23 @@ export class GithubCallback extends AbstractController<RequestType> {
 
         const userInfo = await LoginGithub.getUserInfoAndToken(code, authUUID);
 
-        const basicUUIDInfo = await ServiceUserGithub.basicUUIDInfoByUnionUUID(userInfo.unionUUID);
+        const userUUIDByDB = await ServiceUserGithub.uuidInfoByUnionUUID(userInfo.unionUUID);
 
-        const userUUID = basicUUIDInfo?.userUUID || v4();
-
-        const svc = {
-            user: new ServiceUser(userUUID),
-            userGithub: new ServiceUserGithub(userUUID),
-        };
+        const userUUID = userUUIDByDB || v4();
 
         const loginGithub = new LoginGithub({
             userUUID,
-            svc,
         });
 
-        const { userName, avatarURL } = await (async () => {
-            if (!basicUUIDInfo) {
-                await loginGithub.register(userInfo);
-                return userInfo;
-            }
+        if (!userUUIDByDB) {
+            await loginGithub.register(userInfo);
+        }
 
-            if (basicUUIDInfo.accessToken !== userInfo.accessToken) {
-                this.logger.info("github user modified access token");
-                await svc.userGithub.updateAccessToken(userInfo.accessToken);
-            }
+        await loginGithub.saveToken(userInfo.accessToken);
 
-            return (await svc.user.getNameAndAvatar())!;
-        })();
+        const { userName, avatarURL } = !userUUIDByDB
+            ? userInfo
+            : (await loginGithub.svc.user.getNameAndAvatar())!;
 
         await loginGithub.tempSaveUserInfo(authUUID, {
             name: userName,

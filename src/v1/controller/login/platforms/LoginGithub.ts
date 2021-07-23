@@ -6,18 +6,20 @@ import { Github } from "../../../../constants/Process";
 import { getConnection } from "typeorm";
 import { ServiceUser } from "../../../service/user/User";
 import { ServiceUserGithub } from "../../../service/user/UserGithub";
+import redisService from "../../../../thirdPartyService/RedisService";
+import { RedisKey } from "../../../../utils/Redis";
 
 @Login()
 export class LoginGithub extends AbstractLogin {
-    private readonly svc: RegisterService;
+    public readonly svc: RegisterService;
 
-    constructor(
-        params: LoginClassParams<{
-            svc: RegisterService;
-        }>,
-    ) {
+    constructor(params: LoginClassParams) {
         super(params);
-        this.svc = params.svc;
+
+        this.svc = {
+            user: new ServiceUser(this.userUUID),
+            userGithub: new ServiceUserGithub(this.userUUID),
+        };
     }
 
     public async register(info: RegisterInfo): Promise<void> {
@@ -28,6 +30,10 @@ export class LoginGithub extends AbstractLogin {
 
             return await Promise.all([createUser, createUserGithub]);
         });
+    }
+
+    public async saveToken(token: string): Promise<void> {
+        await redisService.set(RedisKey.githubAccessToken(this.userUUID), token);
     }
 
     public static async getToken(code: string, authUUID: string): Promise<string> {

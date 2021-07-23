@@ -7,6 +7,6 @@ export interface LoginStaticType extends LoginClass {
     getUserInfoByAPI(...args: any[]): Promise<any>;
 }
 
-export type LoginClassParams<T = any> = {
+export interface LoginClassParams {
     userUUID: string;
-} & T;
+}

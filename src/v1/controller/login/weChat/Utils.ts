@@ -1,12 +1,9 @@
 import { v4 } from "uuid";
-import redisService from "../../../../thirdPartyService/RedisService";
-import { RedisKey } from "../../../../utils/Redis";
 import { FastifyReply } from "fastify";
 import { LoginPlatform } from "../../../../constants/Project";
 import { Logger, LoggerAPI } from "../../../../logger";
 import { LoginWechat } from "../platforms/LoginWechat";
 import { ServiceUserWeChat } from "../../../service/user/UserWeChat";
-import { ServiceUser } from "../../../service/user/User";
 
 export const wechatCallback = async (
     code: string,
@@ -19,34 +16,23 @@ export const wechatCallback = async (
 
     const userInfo = await LoginWechat.getUserInfoAndToken(code, type);
 
-    const userUUIDByDB = await ServiceUserWeChat.getUserUUIDByUnionUUID(userInfo.unionUUID);
+    const userUUIDByDB = await ServiceUserWeChat.userUUIDByUnionUUID(userInfo.unionUUID);
 
     const userUUID = userUUIDByDB || v4();
 
-    const svc = {
-        user: new ServiceUser(userUUID),
-        userWeChat: new ServiceUserWeChat(userUUID),
-    };
-
     const loginWechat = new LoginWechat({
         userUUID,
-        svc,
     });
 
-    const { userName, avatarURL } = await (async () => {
-        if (!userUUIDByDB) {
-            await loginWechat.register(userInfo);
-            return userInfo;
-        }
+    if (!userUUIDByDB) {
+        await loginWechat.register(userInfo);
+    }
 
-        return (await svc.user.getNameAndAvatar())!;
-    })();
+    const { userName, avatarURL } = !userUUIDByDB
+        ? userInfo
+        : (await loginWechat.svc.user.getNameAndAvatar())!;
 
-    await redisService.set(
-        RedisKey.wechatRefreshToken(userUUID),
-        userInfo.refreshToken,
-        60 * 60 * 24 * 29,
-    );
+    await loginWechat.saveToken(userInfo.refreshToken);
 
     const jwtToken = await reply.jwtSign({
         userUUID,

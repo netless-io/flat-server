@@ -3,6 +3,7 @@ export const RedisKey = {
     authFailed: (authUUID: string): string => `auth:failed:${authUUID}`,
     authUserInfo: (authUUID: string): string => `auth:userInfo:${authUUID}`,
     wechatRefreshToken: (userUUID: string): string => `weChat:refresh:uuid:${userUUID}`,
+    githubAccessToken: (userUUID: string): string => `github:accessToken:uuid:${userUUID}`,
     agoraRTCRoomUserToken: (roomUUID: string, uid: string | number): string =>
         `agora:rtc:room:${roomUUID}:uid:${uid}`,
     agoraRTMUserToken: (userUUID: string): string => `agora:rtm:userUUID:${userUUID}`,

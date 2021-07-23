@@ -6,11 +6,13 @@ import { ControllerError } from "../../error/ControllerError";
 import { Logger, LoggerAPI } from "../../logger";
 
 export abstract class AbstractLogin {
-    private readonly userUUID: string;
+    protected readonly userUUID: string;
 
     protected constructor(params: LoginClassParams) {
         this.userUUID = params.userUUID;
     }
+
+    public abstract saveToken(token: string): Promise<void>;
 
     public abstract register(info: any): Promise<void>;
 
