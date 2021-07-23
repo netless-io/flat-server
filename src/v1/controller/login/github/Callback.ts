@@ -69,7 +69,7 @@ export class GithubCallback extends AbstractController<RequestType> {
 
         const { userName, avatarURL } = !userUUIDByDB
             ? userInfo
-            : (await loginGithub.svc.user.getNameAndAvatar())!;
+            : (await loginGithub.svc.user.nameAndAvatar())!;
 
         await loginGithub.tempSaveUserInfo(authUUID, {
             name: userName,

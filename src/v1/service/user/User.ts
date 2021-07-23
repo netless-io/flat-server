@@ -27,7 +27,7 @@ export class ServiceUser {
         });
     }
 
-    public async getNameAndAvatar(): Promise<{
+    public async nameAndAvatar(): Promise<{
         userName: string;
         avatarURL: string;
     } | null> {
@@ -49,7 +49,7 @@ export class ServiceUser {
         userName: string;
         avatarURL: string;
     }> {
-        const result = await this.getNameAndAvatar();
+        const result = await this.nameAndAvatar();
 
         if (result === null) {
             throw new ControllerError(ErrorCode.UserNotFound);

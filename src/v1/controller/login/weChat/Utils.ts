@@ -30,7 +30,7 @@ export const wechatCallback = async (
 
     const { userName, avatarURL } = !userUUIDByDB
         ? userInfo
-        : (await loginWechat.svc.user.getNameAndAvatar())!;
+        : (await loginWechat.svc.user.nameAndAvatar())!;
 
     await loginWechat.saveToken(userInfo.refreshToken);
 
