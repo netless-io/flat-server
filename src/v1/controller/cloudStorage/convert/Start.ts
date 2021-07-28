@@ -1,17 +1,14 @@
-import { AxiosResponse } from "axios";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { createWhiteboardTaskToken } from "../../../../utils/NetlessToken";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import {
-    TaskCreated,
-    whiteboardCreateConversionTask,
-} from "../../../utils/request/whiteboard/WhiteboardRequest";
+import { whiteboardCreateConversionTask } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
 import { determineType, isConverting, isConvertDone, isConvertFailed } from "./Utils";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import path from "path";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -85,21 +82,15 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
             };
         }
 
-        const fileType = determineType(resource);
-        let result: AxiosResponse<TaskCreated>;
-        if (fileType === "dynamic") {
-            result = await whiteboardCreateConversionTask(region, {
-                resource,
-                type: fileType,
-                preview: true,
-            });
-        } else {
-            result = await whiteboardCreateConversionTask(region, {
-                resource,
-                type: fileType,
-                pack: true,
-            });
-        }
+        const resourceType = determineType(resource);
+
+        const result = await whiteboardCreateConversionTask(region, {
+            resource,
+            type: resourceType,
+            preview: resourceType === "dynamic",
+            pack: resourceType === "static",
+            scale: FileConvertStart.scaleByFileType(resource),
+        });
 
         const taskUUID = result.data.uuid;
         const taskToken = createWhiteboardTaskToken(taskUUID);
@@ -125,6 +116,20 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
 
     public errorHandler(error: Error): ResponseError {
         return this.autoHandlerError(error);
+    }
+
+    // see: https://developer.netless.link/server-en/home/server-conversion
+    private static scaleByFileType(resource: string): number {
+        const extname = path.extname(resource);
+
+        switch (extname) {
+            case ".pdf": {
+                return 1.8;
+            }
+            default: {
+                return 1.2;
+            }
+        }
     }
 }
 
