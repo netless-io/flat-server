@@ -2,8 +2,8 @@ import { createQueryBuilder, getConnection, In } from "typeorm";
 import { Region, Status } from "../../../../../constants/Project";
 import {
     CloudStorageConfigsDAO,
-    CloudStorageUserFilesDAO,
     CloudStorageFilesDAO,
+    CloudStorageUserFilesDAO,
 } from "../../../../../dao";
 import { CloudStorageFilesModel } from "../../../../../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../../../../../model/cloudStorage/CloudStorageUserFiles";
@@ -41,6 +41,8 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
         const { fileUUIDs } = this.body;
         const userUUID = this.userUUID;
 
+        await this.assertFilesOwnerIsCurrentUser();
+
         const fileInfo: FileInfoType[] = await createQueryBuilder(CloudStorageUserFilesModel, "fc")
             .addSelect("f.file_uuid", "file_uuid")
             .addSelect("f.file_name", "file_name")
@@ -60,7 +62,10 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
             .getRawMany();
 
         if (fileInfo.length === 0) {
-            throw new ControllerError(ErrorCode.FileNotFound);
+            return {
+                status: Status.Success,
+                data: {},
+            };
         }
 
         const cloudStorageConfigsInfo = await CloudStorageConfigsDAO().findOne(["total_usage"], {
@@ -137,6 +142,18 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
 
     public errorHandler(error: Error): ResponseError {
         return this.autoHandlerError(error);
+    }
+
+    private async assertFilesOwnerIsCurrentUser(): Promise<void> {
+        const filesOwner = await CloudStorageUserFilesDAO().find(["user_uuid"], {
+            file_uuid: In(this.body.fileUUIDs),
+        });
+
+        for (const { user_uuid } of filesOwner) {
+            if (user_uuid !== this.userUUID) {
+                throw new ControllerError(ErrorCode.NotPermission);
+            }
+        }
     }
 }
 
