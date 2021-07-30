@@ -11,6 +11,8 @@ import { FastifySchema, Response, ResponseError } from "../../../../../types/Ser
 import { getFilePath, ossClient } from "../Utils";
 import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
+import { ControllerError } from "../../../../../error/ControllerError";
+import { ErrorCode } from "../../../../../ErrorCode";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -29,6 +31,7 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
                         type: "string",
                         format: "uuid-v4",
                     },
+                    minItems: 1,
                 },
             },
         },
@@ -46,19 +49,18 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
             .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
             .where(
                 `f.file_uuid IN (:...fileUUIDs)
+                AND fc.user_uuid = :userUUID
                 AND fc.is_delete = false
                 AND f.is_delete = false`,
                 {
                     fileUUIDs,
+                    userUUID,
                 },
             )
             .getRawMany();
 
         if (fileInfo.length === 0) {
-            return {
-                status: Status.Success,
-                data: {},
-            };
+            throw new ControllerError(ErrorCode.FileNotFound);
         }
 
         const cloudStorageConfigsInfo = await CloudStorageConfigsDAO().findOne(["total_usage"], {
