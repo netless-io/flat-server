@@ -1,4 +1,5 @@
 import { RoomType } from "../../../../model/room/Constants";
+import { Region } from "../../../../constants/Project";
 
 export type ResponseType = {
     roomType: RoomType;
@@ -9,4 +10,5 @@ export type ResponseType = {
     rtcUID: number;
     rtcToken: string;
     rtmToken: string;
+    region: Region;
 };

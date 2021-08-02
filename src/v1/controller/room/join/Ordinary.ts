@@ -13,7 +13,14 @@ export const joinOrdinary = async (
     userUUID: string,
 ): Promise<Response<ResponseType>> => {
     const roomInfo = await RoomDAO().findOne(
-        ["room_status", "whiteboard_room_uuid", "periodic_uuid", "room_type", "owner_uuid"],
+        [
+            "room_status",
+            "whiteboard_room_uuid",
+            "periodic_uuid",
+            "room_type",
+            "owner_uuid",
+            "region",
+        ],
         {
             room_uuid: roomUUID,
         },
@@ -71,6 +78,7 @@ export const joinOrdinary = async (
             rtcUID: Number(rtcUID),
             rtcToken: await getRTCToken(roomUUID, Number(rtcUID)),
             rtmToken: await getRTMToken(userUUID),
+            region: roomInfo.region,
         },
     };
 };
