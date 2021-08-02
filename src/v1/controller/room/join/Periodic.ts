@@ -14,7 +14,7 @@ export const joinPeriodic = async (
     userUUID: string,
 ): Promise<Response<ResponseType>> => {
     const periodicRoomConfig = await RoomPeriodicConfigDAO().findOne(
-        ["periodic_status", "owner_uuid"],
+        ["periodic_status", "owner_uuid", "region"],
         {
             periodic_uuid: periodicUUID,
         },
@@ -110,6 +110,7 @@ export const joinPeriodic = async (
             rtcUID: Number(rtcUID),
             rtcToken: await getRTCToken(roomUUID, Number(rtcUID)),
             rtmToken: await getRTMToken(userUUID),
+            region: periodicRoomConfig.region,
         },
     };
 };
