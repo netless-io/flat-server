@@ -9,6 +9,10 @@ export type ResponseType = {
     whiteboardRoomUUID: string;
     rtcUID: number;
     rtcToken: string;
+    rtcShareScreen: {
+        uid: 10;
+        token: string;
+    };
     rtmToken: string;
     region: Region;
 };
