@@ -9,6 +9,10 @@ import { Region } from "../../../../../constants/Project";
 import { addMinutes } from "date-fns/fp";
 import { RoomStatus, RoomType } from "../../../../../model/room/Constants";
 import cryptoRandomString from "crypto-random-string";
+import { Logger } from "../../../../../logger";
+import { LoggerPluginTest } from "./helpers/logger";
+import sinon from "sinon";
+import { ax } from "../../../../utils/Axios";
 
 const namespace = "[api][api-v1][api-room][api-room-cancel][api-room-cancel-ordinary]";
 
@@ -32,6 +36,37 @@ test(`${namespace} - room not found`, async ava => {
     } catch (error) {
         ava.is(cancelOrdinary.errorHandler(error).code, ErrorCode.RoomNotFound);
     }
+});
+
+test(`${namespace} - ban room failed`, async ava => {
+    const [userUUID, roomUUID] = [v4(), v4()];
+
+    await RoomDAO().insert({
+        room_uuid: roomUUID,
+        owner_uuid: userUUID,
+        title: "test",
+        region: Region.US_SV,
+        whiteboard_room_uuid: v4().replace("-", ""),
+        begin_time: new Date(),
+        end_time: addMinutes(30)(Date.now()),
+        room_status: RoomStatus.Idle,
+        periodic_uuid: "",
+        room_type: RoomType.BigClass,
+    });
+
+    const flag = {
+        trigger: false,
+    };
+    const logger = new Logger("test", {}, [new LoggerPluginTest(flag)]);
+    const cancelOrdinary = createCancelOrdinary(userUUID, roomUUID, logger);
+
+    const stubAxios = sinon.stub(ax, "patch").rejects();
+
+    await cancelOrdinary.execute();
+
+    ava.true(flag.trigger);
+
+    stubAxios.restore();
 });
 
 test(`${namespace} - room is periodic sub room`, async ava => {
