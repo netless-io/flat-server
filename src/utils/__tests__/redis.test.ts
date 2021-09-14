@@ -12,7 +12,6 @@ test(`${namespace} - Match Redis Keys`, ava => {
         "authUUID",
         "authUserInfo",
         "cloudStorageFileInfo",
-        "wechatRefreshToken",
     ]);
 });
 
@@ -32,12 +31,6 @@ test(`${namespace} - authUserInfo`, ava => {
     const uuid = v4();
 
     ava.is(RedisKey.authUserInfo(uuid), `auth:userInfo:${uuid}`);
-});
-
-test(`${namespace} - "wechatRefreshToken`, ava => {
-    const userUUID = v4();
-
-    ava.is(RedisKey.wechatRefreshToken(userUUID), `weChat:refresh:uuid:${userUUID}`);
 });
 
 test(`${namespace} - agoraRTCRoomUserToken`, ava => {

@@ -19,6 +19,59 @@ test.after(`${namespace} - close orm`, async () => {
     await connection.close();
 });
 
+test(`${namespace} - create user`, async ava => {
+    const [userUUID, userName, avatarURL, gender] = [
+        v4(),
+        `test_user_${v4()}`,
+        `https://test.com/${v4()}`,
+        Gender.Man,
+    ];
+
+    const serviceUser = new ServiceUser(userUUID);
+
+    await serviceUser.create({
+        userName,
+        avatarURL,
+        gender,
+    });
+
+    const result = await UserDAO().findOne(["avatar_url", "gender"], {
+        user_uuid: userUUID,
+    });
+
+    ava.not(result, undefined);
+
+    ava.deepEqual(
+        {
+            avatarURL: result?.avatar_url,
+            gender: result?.gender,
+        },
+        {
+            avatarURL,
+            gender,
+        },
+    );
+});
+
+test(`${namespace} - create user not gender`, async ava => {
+    const [userUUID, userName, avatarURL] = [v4(), `test_user_${v4()}`, `https://test.com/${v4()}`];
+
+    const serviceUser = new ServiceUser(userUUID);
+
+    await serviceUser.create({
+        userName,
+        avatarURL,
+    });
+
+    const result = await UserDAO().findOne(["gender"], {
+        user_uuid: userUUID,
+    });
+
+    ava.not(result, undefined);
+
+    ava.is(result?.gender, Gender.None);
+});
+
 test(`${namespace} - has name and avatar`, async ava => {
     const [userUUID, userName, avatarURL] = [v4(), `test_name_${v4()}`, `https://test.com/${v4()}`];
 

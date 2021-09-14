@@ -1,9 +1,30 @@
 import { UserDAO } from "../../../dao";
+import { Gender } from "../../../constants/Project";
+import { EntityManager, InsertResult } from "typeorm";
 import { ControllerError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
 
 export class ServiceUser {
     constructor(private readonly userUUID: string) {}
+
+    public async create(
+        data: {
+            userName: string;
+            avatarURL: string;
+            gender?: Gender;
+        },
+        t?: EntityManager,
+    ): Promise<InsertResult> {
+        const { userName, avatarURL, gender } = data;
+        return await UserDAO(t).insert({
+            user_name: userName,
+            user_uuid: this.userUUID,
+            // TODO need upload avatar_url to remote oss server
+            avatar_url: avatarURL,
+            gender,
+            user_password: "",
+        });
+    }
 
     public async nameAndAvatar(): Promise<{
         userName: string;
