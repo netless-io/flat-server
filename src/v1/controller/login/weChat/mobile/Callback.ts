@@ -1,9 +1,11 @@
 import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
-import { registerOrLoginWechat } from "../Utils";
+import { wechatCallback } from "../Utils";
 import redisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
+import { Status } from "../../../../../constants/Project";
+import { parseError } from "../../../../../logger";
 
 @Controller<RequestType, ResponseType>({
     method: "get",
@@ -26,14 +28,19 @@ export class WechatMobileCallback extends AbstractController<RequestType, Respon
             },
         },
     };
-
     public async execute(): Promise<Response<ResponseType>> {
         const { state: authUUID, code } = this.querystring;
 
-        return await registerOrLoginWechat(code, authUUID, "MOBILE", this.logger, this.reply);
+        const result = await wechatCallback(code, authUUID, "MOBILE", this.logger, this.reply);
+
+        return {
+            status: Status.Success,
+            data: result,
+        };
     }
 
     public async errorHandler(error: Error): Promise<ResponseError> {
+        this.logger.error("request failed", parseError(error));
         await redisService.set(RedisKey.authFailed(this.querystring.state), "", 60 * 60);
         return this.autoHandlerError(error);
     }
