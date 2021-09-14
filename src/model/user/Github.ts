@@ -25,6 +25,13 @@ export class UserGithubModel extends Content {
     })
     union_uuid: string;
 
+    @Column({
+        length: 255,
+        comment: "[deprecated]: github access token",
+        default: "",
+    })
+    access_token: string;
+
     @Index("user_github_is_delete_index")
     @Column({
         default: false,
