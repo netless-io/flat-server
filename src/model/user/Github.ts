@@ -25,13 +25,6 @@ export class UserGithubModel extends Content {
     })
     union_uuid: string;
 
-    @Column({
-        // see: https://github.blog/changelog/2021-03-31-authentication-token-format-updates-are-generally-available/
-        length: 255,
-        comment: "github access token",
-    })
-    access_token: string;
-
     @Index("user_github_is_delete_index")
     @Column({
         default: false,
