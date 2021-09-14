@@ -82,12 +82,9 @@ export class GithubCallback extends AbstractController<RequestType> {
             accessToken,
         );
 
-        const getUserInfoByUserGithub = await UserGithubDAO().findOne(
-            ["user_uuid", "user_name", "access_token"],
-            {
-                union_uuid: String(union_uuid),
-            },
-        );
+        const getUserInfoByUserGithub = await UserGithubDAO().findOne(["user_uuid", "user_name"], {
+            union_uuid: String(union_uuid),
+        });
 
         let userUUID = getUserInfoByUserGithub?.user_uuid || "";
         if (getUserInfoByUserGithub === undefined) {
@@ -105,24 +102,11 @@ export class GithubCallback extends AbstractController<RequestType> {
                 const createUserGithub = UserGithubDAO(t).insert({
                     user_uuid: userUUID,
                     union_uuid: String(union_uuid),
-                    access_token: accessToken,
                     user_name,
                 });
 
                 return await Promise.all([createUser, createUserGithub]);
             });
-        } else {
-            if (getUserInfoByUserGithub.access_token !== accessToken) {
-                this.logger.info("github user modified access token");
-                await UserGithubDAO().update(
-                    {
-                        access_token: accessToken,
-                    },
-                    {
-                        user_uuid: userUUID,
-                    },
-                );
-            }
         }
 
         const getUserInfoByUser = await UserDAO().findOne(["user_name", "avatar_url"], {
