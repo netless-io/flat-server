@@ -4,8 +4,8 @@ import { FastifySchema, Response, ResponseError } from "../../../../types/Server
 import { v4 } from "uuid";
 import { ErrorCode } from "../../../../ErrorCode";
 import {
-    timeExceedRedundancyOneMinute,
     beginTimeLessEndTime,
+    timeExceedRedundancyOneMinute,
     timeIntervalLessThanFifteenMinute,
 } from "../utils/CheckTime";
 import { AbstractController, ControllerClassParams } from "../../../../abstract/controller";
@@ -13,6 +13,7 @@ import { Controller } from "../../../../decorator/Controller";
 import { ControllerError } from "../../../../error/ControllerError";
 import { ServiceRoom, ServiceRoomUser } from "../../../service";
 import { getConnection } from "typeorm";
+import { generateRoomInviteCode } from "./Utils";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -81,6 +82,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
             status: Status.Success,
             data: {
                 roomUUID: this.roomUUID,
+                inviteCode: await generateRoomInviteCode(this.roomUUID, this.logger),
             },
         };
     }
@@ -119,4 +121,5 @@ export interface RequestType {
 
 export interface ResponseType {
     roomUUID: string;
+    inviteCode: string;
 }
