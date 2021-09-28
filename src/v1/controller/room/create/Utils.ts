@@ -26,9 +26,10 @@ export const generateRoomInviteCode = async (
             .exec()
             .then(data => {
                 for (let i = 0; i < data.length; i++) {
-                    const error = data[i][0];
-                    if (error !== null) {
-                        throw error;
+                    const [error, result] = data[i];
+
+                    if (error !== null || result === null) {
+                        throw error || new Error(`already exists redis key, failed index: ${i}`);
                     }
                 }
             })
