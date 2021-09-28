@@ -21,8 +21,8 @@ export const generateRoomInviteCode = async (
 
         await RedisService.client
             .multi()
-            .set(RedisKey.roomInviteCode(inviteCode), roomUUID, "EX", fiftyDays)
-            .set(RedisKey.roomInviteCodeReverse(roomUUID), inviteCode, "EX", fiftyDays)
+            .set(RedisKey.roomInviteCode(inviteCode), roomUUID, "EX", fiftyDays, "NX")
+            .set(RedisKey.roomInviteCodeReverse(roomUUID), inviteCode, "EX", fiftyDays, "NX")
             .exec()
             .then(data => {
                 for (let i = 0; i < data.length; i++) {
@@ -33,6 +33,7 @@ export const generateRoomInviteCode = async (
                 }
             })
             .catch(error => {
+                inviteCode = roomUUID;
                 logger.warn("set room invite code to redis failed", parseError(error));
             });
     }
