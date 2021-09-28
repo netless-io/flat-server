@@ -10,6 +10,9 @@ import { getNextPeriodicRoomInfo, updateNextPeriodicRoomInfo } from "../../../se
 import { RoomPeriodicModel } from "../../../../model/room/RoomPeriodic";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import RedisService from "../../../../thirdPartyService/RedisService";
+import { parseError } from "../../../../logger";
+import { RedisKey } from "../../../../utils/Redis";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -29,6 +32,8 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
             },
         },
     };
+
+    private readyRecycleInviteCode = false;
 
     public async execute(): Promise<Response<ResponseType>> {
         const { roomUUID } = this.body;
@@ -136,6 +141,7 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
                             }),
                         );
                     } else {
+                        this.readyRecycleInviteCode = true;
                         commands.push(
                             RoomPeriodicConfigDAO(t).update(
                                 {
@@ -147,10 +153,21 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
                             ),
                         );
                     }
+                } else {
+                    this.readyRecycleInviteCode = true;
                 }
 
                 await Promise.all(commands);
                 await whiteboardBanRoom(roomInfo.region, roomInfo.whiteboard_room_uuid);
+
+                if (this.readyRecycleInviteCode) {
+                    readyRecycleInviteCode(roomInfo.periodic_uuid || roomUUID).catch(error => {
+                        this.logger.warn(
+                            "set room invite code expire time failed",
+                            parseError(error),
+                        );
+                    });
+                }
             },
         );
 
@@ -172,3 +189,29 @@ interface RequestType {
 }
 
 interface ResponseType {}
+
+const readyRecycleInviteCode = async (roomUUID: string): Promise<void> => {
+    // prevent access to new rooms with the previous invitation code
+    // add delays and improve security.
+    const tenDay = 60 * 60 * 24 * 10;
+
+    const inviteCode = await RedisService.get(RedisKey.roomInviteCodeReverse(roomUUID));
+
+    if (inviteCode === null) {
+        return;
+    }
+
+    await RedisService.client
+        .multi()
+        .expire(RedisKey.roomInviteCode(inviteCode), tenDay)
+        .expire(RedisKey.roomInviteCodeReverse(roomUUID), tenDay)
+        .exec()
+        .then(data => {
+            for (let i = 0; i < data.length; i++) {
+                const error = data[i][0];
+                if (error !== null) {
+                    throw error;
+                }
+            }
+        });
+};

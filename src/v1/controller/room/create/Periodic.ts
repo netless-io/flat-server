@@ -19,6 +19,7 @@ import { calculatePeriodicDates } from "../utils/CalculatePeriodicDates";
 import { checkBeginAndEndTime } from "../utils/CheckTime";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import { generateRoomInviteCode } from "./Utils";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -98,6 +99,8 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
         },
     };
 
+    private readonly periodicUUID = v4();
+
     public async execute(): Promise<Response<ResponseType>> {
         const { title, type, beginTime, endTime, region, periodic } = this.body;
         const userUUID = this.userUUID;
@@ -124,11 +127,9 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
 
         const dates = calculatePeriodicDates(beginTime, endTime, periodic);
 
-        const periodicUUID = v4();
-
         const roomData = dates.map(({ start, end }) => {
             return {
-                periodic_uuid: periodicUUID,
+                periodic_uuid: this.periodicUUID,
                 fake_room_uuid: v4(),
                 room_status: RoomStatus.Idle,
                 begin_time: start,
@@ -154,14 +155,14 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
                         ? toDate(periodic.endTime)
                         : dates[dates.length - 1].start,
                     room_type: type,
-                    periodic_uuid: periodicUUID,
+                    periodic_uuid: this.periodicUUID,
                     region,
                 }),
             );
 
             commands.push(
                 RoomPeriodicUserDAO(t).insert({
-                    periodic_uuid: periodicUUID,
+                    periodic_uuid: this.periodicUUID,
                     user_uuid: userUUID,
                 }),
             );
@@ -170,7 +171,7 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
             {
                 commands.push(
                     RoomDAO(t).insert({
-                        periodic_uuid: periodicUUID,
+                        periodic_uuid: this.periodicUUID,
                         owner_uuid: userUUID,
                         title,
                         room_type: type,
@@ -194,6 +195,8 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
 
             await Promise.all(commands);
         });
+
+        await generateRoomInviteCode(this.periodicUUID, this.logger);
 
         return {
             status: Status.Success,

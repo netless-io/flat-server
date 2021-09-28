@@ -8,6 +8,7 @@ import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { RoomPeriodicModel } from "../../../../model/room/RoomPeriodic";
 import { RoomRecordModel } from "../../../../model/room/RoomRecord";
+import { getInviteCode } from "./Utils";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -132,6 +133,7 @@ export class PeriodicInfo extends AbstractController<RequestType, ResponseType> 
                     title,
                     weeks: weeks.split(",").map(week => Number(week)) as Week[],
                     region,
+                    inviteCode: await getInviteCode(periodicUUID, this.logger),
                 },
                 rooms: rooms.map(({ roomUUID, roomStatus, beginTime, endTime, hasRecord }) => {
                     return {
@@ -167,6 +169,7 @@ interface ResponseType {
         title: string;
         weeks: Week[];
         region: Region;
+        inviteCode: string;
     };
     rooms: Array<{
         roomUUID: string;

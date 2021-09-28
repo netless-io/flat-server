@@ -11,6 +11,7 @@ import {
 import { LessThan, MoreThan, Not } from "typeorm";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import { getInviteCode } from "./Utils";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -145,6 +146,7 @@ export class PeriodicSubRoomInfo extends AbstractController<RequestType, Respons
                     ownerUUID: owner_uuid,
                     hasRecord: !!recordInfo,
                     region,
+                    inviteCode: await getInviteCode(periodicUUID, this.logger),
                 },
                 previousPeriodicRoomBeginTime,
                 nextPeriodicRoomEndTime,
@@ -179,6 +181,7 @@ interface ResponseType {
         ownerUUID: string;
         hasRecord: boolean;
         region: Region;
+        inviteCode: string;
     };
     previousPeriodicRoomBeginTime: number | null;
     nextPeriodicRoomEndTime: number | null;

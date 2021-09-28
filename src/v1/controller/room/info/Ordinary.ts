@@ -5,6 +5,7 @@ import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { RoomDAO, RoomRecordDAO, RoomUserDAO, UserDAO } from "../../../../dao";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import { getInviteCode } from "./Utils";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -93,6 +94,7 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
                     ownerUserName: userInfo.user_name,
                     hasRecord: !!recordInfo,
                     region,
+                    inviteCode: await getInviteCode(roomUUID, this.logger),
                 },
             },
         };
@@ -120,5 +122,6 @@ interface ResponseType {
         ownerUserName: string;
         hasRecord: boolean;
         region: Region;
+        inviteCode: string;
     };
 }

@@ -1,4 +1,5 @@
 import test from "ava";
+import { customAlphabet } from "nanoid";
 import { RedisKey } from "../Redis";
 import { v4 } from "uuid";
 
@@ -12,6 +13,8 @@ test(`${namespace} - Match Redis Keys`, ava => {
         "authUUID",
         "authUserInfo",
         "cloudStorageFileInfo",
+        "roomInviteCode",
+        "roomInviteCodeReverse",
     ]);
 });
 
@@ -54,4 +57,16 @@ test(`${namespace} - cloudStorageFileInfo`, ava => {
         RedisKey.cloudStorageFileInfo(userUUID, fileUUID),
         `cloudStorage:${userUUID}:${fileUUID}`,
     );
+});
+
+test(`${namespace} - roomInviteCode`, ava => {
+    const inviteCode = customAlphabet("0123456789", 10)();
+
+    ava.is(RedisKey.roomInviteCode(inviteCode), `room:invite:${inviteCode}`);
+});
+
+test(`${namespace} - roomInviteCodeReverse`, ava => {
+    const roomUUID = v4();
+
+    ava.is(RedisKey.roomInviteCodeReverse(roomUUID), `room:inviteReverse:${roomUUID}`);
 });

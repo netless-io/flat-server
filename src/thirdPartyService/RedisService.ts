@@ -2,7 +2,7 @@ import IORedis from "ioredis";
 import { Redis } from "../constants/Process";
 
 class RedisService {
-    private readonly client: IORedis.Redis;
+    public readonly client: IORedis.Redis;
 
     public constructor() {
         this.client = new IORedis({
@@ -83,6 +83,24 @@ class RedisService {
             });
             stream.on("error", reject);
         });
+    }
+
+    public async mget(keys: string[]): Promise<(string | null)[]> {
+        return await this.client.mget(keys);
+    }
+
+    public async vacantKey(keys: string[]): Promise<string | null> {
+        const valueResult = await this.mget(keys);
+
+        for (let i = 0; i < valueResult.length; i++) {
+            const value = valueResult[i];
+
+            if (value === null) {
+                return keys[i];
+            }
+        }
+
+        return null;
     }
 }
 
