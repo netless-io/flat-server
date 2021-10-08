@@ -21,7 +21,7 @@ export class MetricsSever {
 
     public start(): void {
         const client = new Registry();
-        collectDefaultMetrics({ client });
+        collectDefaultMetrics({ register: client });
         let metricsServer = null;
         if (this.params.port) {
             metricsServer = fastify({
