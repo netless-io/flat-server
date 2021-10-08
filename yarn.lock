@@ -2632,14 +2632,6 @@ fastify-jwt@^2.1.3:
     jsonwebtoken "^8.5.1"
     steed "^1.1.3"
 
-fastify-metrics@^7.2.3:
-  version "7.2.3"
-  resolved "https://registry.yarnpkg.com/fastify-metrics/-/fastify-metrics-7.2.3.tgz#75bb4e0e3712ba7ffa973debd4aebdcb2346f74e"
-  integrity sha512-OqWWtv1/URZqN+1ZeEb96LqAuKxpU5+yJ1faoUuM90KHtBxiYQmlJMx0iurATJlNGtDQtBW1LPXDfLTNFLAPeg==
-  dependencies:
-    fastify-plugin "^3.0.0"
-    prom-client "^13.1.0"
-
 fastify-plugin@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/fastify-plugin/-/fastify-plugin-3.0.0.tgz#cf1b8c8098e3b5a7c8c30e6aeb06903370c054ca"
@@ -4992,10 +4984,10 @@ progress@^2.0.0:
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
-prom-client@^13.1.0:
-  version "13.1.0"
-  resolved "https://registry.yarnpkg.com/prom-client/-/prom-client-13.1.0.tgz#1185caffd8691e28d32e373972e662964e3dba45"
-  integrity sha512-jT9VccZCWrJWXdyEtQddCDszYsiuWj5T0ekrPszi/WEegj3IZy6Mm09iOOVM86A4IKMWq8hZkT2dD9MaSe+sng==
+prom-client@^14.0.0:
+  version "14.0.0"
+  resolved "https://registry.yarnpkg.com/prom-client/-/prom-client-14.0.0.tgz#7af5a0f8f544743f0dee4447c06ac9bb0d052719"
+  integrity sha512-etPa4SMO4j6qTn2uaSZy7+uahGK0kXUZwO7WhoDpTf3yZ837I3jqUDYmG6N0caxuU6cyqrg0xmOxh+yneczvyA==
   dependencies:
     tdigest "^0.1.1"
 
