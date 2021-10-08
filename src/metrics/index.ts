@@ -6,7 +6,6 @@ import { loggerServer, parseError } from "../logger";
 type MetricsParams = {
     appServer: FastifyInstance;
     port: number;
-    blacklist: string;
     endpoint: string;
 };
 
@@ -14,7 +13,6 @@ export class MetricsSever {
     private params: MetricsParams;
     constructor(appServer: FastifyInstance) {
         this.params = {
-            blacklist: metricsConfig.BLACKLIST,
             endpoint: metricsConfig.ENDPOINT,
             port: metricsConfig.PORT,
             appServer: appServer,
