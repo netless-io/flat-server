@@ -1,4 +1,4 @@
-import { Registry } from "prom-client";
+import { Registry, collectDefaultMetrics } from "prom-client";
 import fastify, { FastifyInstance } from "fastify";
 import { metricsConfig } from "../constants/Process";
 import { loggerServer, parseError } from "../logger";
