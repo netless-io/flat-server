@@ -8,6 +8,11 @@ const prodConfig = () => {
         mode: "production",
 
         devtool: "source-map",
+
+        optimization: {
+            minimize: false,
+            moduleIds: "named",
+        },
     };
 
     // if this value is undefined, it is considered to be a locally built production

@@ -12,12 +12,6 @@
     "lint": "lint-staged"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9",
-    "@babel/plugin-proposal-class-properties": "^7.12.1",
-    "@babel/plugin-proposal-decorators": "^7.12.1",
-    "@babel/plugin-transform-runtime": "^7.12.1",
-    "@babel/preset-env": "^7.12.7",
-    "@babel/preset-typescript": "^7.12.7",
     "@commitlint/cli": "^12.1.1",
     "@commitlint/config-angular": "^12.1.1",
     "@netless/eslint-plugin": "^1.1.1",
@@ -37,8 +31,6 @@
     "@typescript-eslint/eslint-plugin": "^4.9.0",
     "@typescript-eslint/parser": "^4.9.0",
     "ava": "^3.15.0",
-    "babel-loader": "^8.2.2",
-    "babel-plugin-transform-typescript-metadata": "^0.3.1",
     "clean-webpack-plugin": "^3.0.0",
     "cross-env": "^7.0.2",
     "dotenv-flow": "^3.2.0",
@@ -55,6 +47,7 @@
     "prettier": "^2.2.1",
     "query-string": "^6.14.1",
     "sinon": "^11.1.1",
+    "ts-loader": "^9.2.6",
     "ts-node": "^10.2.1",
     "typescript": "^4.1.2",
     "webpack": "^5.9.0",
@@ -63,7 +56,6 @@
     "webpack-node-externals": "^2.5.2"
   },
   "dependencies": {
-    "@babel/runtime": "^7.12.5",
     "agora-access-token": "^2.0.4",
     "ajv": "^7.0.0-rc.5",
     "ali-oss": "^6.14.0",
