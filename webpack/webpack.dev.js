@@ -9,7 +9,6 @@ module.exports = merge(common, {
 
     devtool: "source-map",
 
-    watch: true,
     watchOptions: {
         aggregateTimeout: 600,
         ignored: ["node_modules/**"],
