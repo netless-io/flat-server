@@ -1,5 +1,4 @@
-import metricsPlugin from "fastify-metrics";
-import { Registry } from "prom-client";
+import { Registry, collectDefaultMetrics } from "prom-client";
 import fastify, { FastifyInstance } from "fastify";
 import { metricsConfig } from "../constants/Process";
 import { loggerServer, parseError } from "../logger";
@@ -7,7 +6,6 @@ import { loggerServer, parseError } from "../logger";
 type MetricsParams = {
     appServer: FastifyInstance;
     port: number;
-    blacklist: string;
     endpoint: string;
 };
 
@@ -15,19 +13,15 @@ export class MetricsSever {
     private params: MetricsParams;
     constructor(appServer: FastifyInstance) {
         this.params = {
-            blacklist: metricsConfig.BLACKLIST,
             endpoint: metricsConfig.ENDPOINT,
             port: metricsConfig.PORT,
             appServer: appServer,
         };
     }
 
-    public async start(): Promise<void> {
+    public start(): void {
         const client = new Registry();
-        await this.params.appServer.register(metricsPlugin, {
-            blacklist: metricsConfig.BLACKLIST.split(","),
-            register: client,
-        });
+        collectDefaultMetrics({ register: client });
         let metricsServer = null;
         if (this.params.port) {
             metricsServer = fastify({

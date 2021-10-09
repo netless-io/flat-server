@@ -46,7 +46,6 @@ declare namespace NodeJS {
 
         METRICS_ENABLED: string;
         METRICS_ENDPOINT: string;
-        METRICS_BLACKLIST: string;
         METRICS_PORT: string;
 
         NETLESS_ACCESS_KEY: string;
