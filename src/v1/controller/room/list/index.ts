@@ -9,6 +9,8 @@ import { Region, Status } from "../../../../constants/Project";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { RoomRecordModel } from "../../../../model/room/RoomRecord";
+import RedisService from "../../../../thirdPartyService/RedisService";
+import { RedisKey } from "../../../../utils/Redis";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -43,7 +45,13 @@ export class List extends AbstractController<RequestType, ResponseType> {
     public async execute(): Promise<Response<ResponseType>> {
         const rooms = await this.queryRoomsByType();
 
-        const resp: ResponseType = rooms.map(room => {
+        const roomUUIDs = rooms.map(roomInfo => {
+            return roomInfo.periodicUUID || roomInfo.roomUUID;
+        });
+
+        const inviteCodes = await RedisService.mget(roomUUIDs.map(RedisKey.roomInviteCodeReverse));
+
+        const resp: ResponseType = rooms.map((room, index) => {
             return {
                 roomUUID: room.roomUUID,
                 periodicUUID: room.periodicUUID || null,
@@ -56,6 +64,7 @@ export class List extends AbstractController<RequestType, ResponseType> {
                 ownerName: room.ownerName,
                 region: room.region,
                 hasRecord: !!room.hasRecord,
+                inviteCode: inviteCodes[index] || room.periodicUUID || room.roomUUID,
             };
         });
 
@@ -171,4 +180,5 @@ export type ResponseType = Array<{
     ownerName: string;
     hasRecord?: boolean;
     region: Region;
+    inviteCode: string;
 }>;
