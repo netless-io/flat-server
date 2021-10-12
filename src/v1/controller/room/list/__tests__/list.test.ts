@@ -13,6 +13,9 @@ import { isDESC, isASC } from "./helpers/sort";
 import { roomIsIdle } from "../../utils/RoomStatus";
 import { createList } from "./helpers/createList";
 import { ErrorCode } from "../../../../../ErrorCode";
+import RedisService from "../../../../../thirdPartyService/RedisService";
+import { RedisKey } from "../../../../../utils/Redis";
+import { generateInviteCode } from "../../utils/GenerateInviteCode";
 
 const namespace = "[api][api-v1][api-v1-room][api-v1-room-list]";
 
@@ -310,6 +313,74 @@ test(`${namespace} - list periodic normal`, async ava => {
     ava.is(roomOwnerUUID.length, 1, "today room list has other user");
 
     ava.is(roomOwnerUUID[0], userUUID, "today room list has other user");
+});
+
+test(`${namespace} - has inviteCode`, async ava => {
+    const userUUID = v4();
+
+    const roomUUIDs = new Array(30).fill(1).map(() => v4());
+
+    const fakeRoomsData = await Promise.all(
+        new Array(30).fill(1).map(async (_v, i) => {
+            const beginTime = addHours(i + 1)(Date.now());
+
+            const isEven = i % 2 === 0;
+
+            if (i % 3 !== 0) {
+                const inviteCode = (await generateInviteCode())!;
+                await RedisService.set(RedisKey.roomInviteCode(inviteCode), roomUUIDs[i]);
+                await RedisService.set(RedisKey.roomInviteCodeReverse(roomUUIDs[i]), inviteCode);
+            }
+
+            return {
+                room_uuid: isEven ? roomUUIDs[i] : v4(),
+                periodic_uuid: isEven ? "" : roomUUIDs[i],
+                owner_uuid: userUUID,
+                title: `inviteCode - ${i}`,
+                room_type: RoomType.OneToOne,
+                room_status: RoomStatus.Started,
+                begin_time: beginTime,
+                end_time: addMinutes(30)(beginTime),
+                whiteboard_room_uuid: v4().replace("-", ""),
+                region: Region.US_SV,
+            };
+        }),
+    );
+    const fakeRoomUserData = fakeRoomsData.map(room => ({
+        room_uuid: room.room_uuid,
+        user_uuid: userUUID,
+        rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
+    }));
+    const fakeUserData = {
+        user_uuid: userUUID,
+        gender: Gender.Man,
+        avatar_url: "",
+        user_name: "test_user_5",
+        user_password: "",
+    };
+
+    await Promise.all([
+        RoomDAO().insert(fakeRoomsData),
+        RoomUserDAO().insert(fakeRoomUserData),
+        UserDAO().insert(fakeUserData),
+    ]);
+
+    const allList = createList(ListType.All, userUUID);
+
+    const result = (await allList.execute()) as ResponseSuccess<ResponseType>;
+
+    ava.is(result.status, Status.Success);
+    ava.is(result.data.length, 30);
+
+    result.data.forEach((room, i) => {
+        const isEven = i % 2 === 0;
+
+        if (i % 3 !== 0) {
+            ava.true(/\d{10}/.test(room.inviteCode), "invite code must is ten digits");
+        } else {
+            ava.is(room.inviteCode, isEven ? room.roomUUID : room.periodicUUID);
+        }
+    });
 });
 
 test.serial(`${namespace} - error handler`, async ava => {
