@@ -9,7 +9,7 @@ import { Gender, Region, Status } from "../../../../../constants/Project";
 import cryptoRandomString from "crypto-random-string";
 import { RoomDAO, RoomRecordDAO, RoomUserDAO, UserDAO } from "../../../../../dao";
 import { ResponseSuccess } from "../../../../../types/Server";
-import { isDESC, isASC } from "./helpers/sort";
+import { isASC, isDESC } from "./helpers/sort";
 import { roomIsIdle } from "../../utils/RoomStatus";
 import { createList } from "./helpers/createList";
 import { ErrorCode } from "../../../../../ErrorCode";
@@ -381,6 +381,27 @@ test(`${namespace} - has inviteCode`, async ava => {
             ava.is(room.inviteCode, isEven ? room.roomUUID : room.periodicUUID);
         }
     });
+});
+
+test.serial(`${namespace} - no room data`, async ava => {
+    const userUUID = v4();
+
+    const fakeUserData = {
+        user_uuid: userUUID,
+        gender: Gender.Man,
+        avatar_url: "",
+        user_name: "test_user_6",
+        user_password: "",
+    };
+
+    await UserDAO().insert(fakeUserData);
+
+    const allList = createList(ListType.All, userUUID);
+
+    const result = (await allList.execute()) as ResponseSuccess<ResponseType>;
+
+    ava.is(result.status, Status.Success);
+    ava.is(result.data.length, 0);
 });
 
 test.serial(`${namespace} - error handler`, async ava => {
