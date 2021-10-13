@@ -86,6 +86,10 @@ class RedisService {
     }
 
     public async mget(keys: string[]): Promise<(string | null)[]> {
+        if (keys.length === 0) {
+            return [];
+        }
+
         return await this.client.mget(keys);
     }
 
