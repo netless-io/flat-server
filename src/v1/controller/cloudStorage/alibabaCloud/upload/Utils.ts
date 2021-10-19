@@ -1,5 +1,7 @@
 import { CloudStorageConfigsDAO } from "../../../../../dao";
-import { CloudStorage } from "../../../../../constants/Process";
+import { AlibabaCloud, CloudStorage } from "../../../../../constants/Process";
+import path from "path";
+import { Region } from "../../../../../constants/Project";
 
 export const checkTotalUsage = async (
     userUUID: string,
@@ -18,4 +20,16 @@ export const checkTotalUsage = async (
         fail: totalUsage > CloudStorage.TOTAL_SIZE,
         totalUsage,
     };
+};
+
+export const getFilePath = (fileName: string, fileUUID: string): string => {
+    return `${CloudStorage.PREFIX_PATH}/${fileUUID}${path.extname(fileName)}`;
+};
+
+export const getOSSDomain = (region: Region): string => {
+    return `https://${AlibabaCloud[region].OSS_BUCKET}.${AlibabaCloud.OSS_ENDPOINT}`;
+};
+
+export const getOSSFileURLPath = (filePath: string, region: Region): string => {
+    return `${getOSSDomain(region)}/${filePath}`;
 };

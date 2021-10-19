@@ -4,10 +4,10 @@ import { Region, Status } from "../../../../../constants/Project";
 
 import { ErrorCode } from "../../../../../ErrorCode";
 import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
-import { getFilePath, getOSSDomain, policyTemplate } from "../Utils";
+import { policyTemplate } from "../Utils";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
-import { checkTotalUsage } from "./Utils";
+import { checkTotalUsage, getFilePath, getOSSDomain } from "./Utils";
 import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
 

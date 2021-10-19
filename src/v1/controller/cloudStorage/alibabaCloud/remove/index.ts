@@ -8,11 +8,12 @@ import {
 import { CloudStorageFilesModel } from "../../../../../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../../../../../model/cloudStorage/CloudStorageUserFiles";
 import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
-import { getFilePath, ossClient } from "../Utils";
+import { ossClient } from "../Utils";
 import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
 import { ControllerError } from "../../../../../error/ControllerError";
 import { ErrorCode } from "../../../../../ErrorCode";
+import { URL } from "url";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -44,9 +45,8 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
         await this.assertFilesOwnerIsCurrentUser();
 
         const fileInfo: FileInfoType[] = await createQueryBuilder(CloudStorageUserFilesModel, "fc")
-            .addSelect("f.file_uuid", "file_uuid")
-            .addSelect("f.file_name", "file_name")
             .addSelect("f.file_size", "file_size")
+            .addSelect("f.file_url", "file_url")
             .addSelect("f.region", "region")
             .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
             .where(
@@ -81,13 +81,13 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
             const fileList: FileListType = {};
             let remainingTotalUsage = totalUsage;
 
-            fileInfo.forEach(({ file_uuid, file_name, file_size, region }) => {
+            fileInfo.forEach(({ file_url, file_size, region }) => {
                 if (typeof fileList[region] === "undefined") {
                     fileList[region] = [];
                 }
 
                 (fileList as Required<FileListType>)[region].push(
-                    getFilePath(file_name, file_uuid),
+                    new URL(file_url).pathname.slice(1),
                 );
                 remainingTotalUsage -= file_size;
             });
@@ -170,8 +170,7 @@ type FileListType = {
 };
 
 interface FileInfoType {
-    file_uuid: string;
-    file_name: string;
     file_size: number;
+    file_url: string;
     region: Region;
 }

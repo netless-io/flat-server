@@ -9,8 +9,8 @@ import { Region, Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
-import { checkTotalUsage } from "./Utils";
-import { getFilePath, isExistObject, getOSSFileURLPath } from "../Utils";
+import { checkTotalUsage, getFilePath, getOSSFileURLPath } from "./Utils";
+import { isExistObject } from "../Utils";
 import { Controller } from "../../../../../decorator/Controller";
 import { AbstractController } from "../../../../../abstract/controller";
 
