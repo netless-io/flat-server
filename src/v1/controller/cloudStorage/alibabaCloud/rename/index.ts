@@ -4,9 +4,10 @@ import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../../dao";
 import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
-import { getDisposition, getFilePath, ossClient } from "../Utils";
+import { getDisposition, ossClient } from "../Utils";
 import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
+import { URL } from "url";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -48,7 +49,7 @@ export class AlibabaCloudRename extends AbstractController<RequestType, Response
             };
         }
 
-        const fileInfo = await CloudStorageFilesDAO().findOne(["file_name", "region"], {
+        const fileInfo = await CloudStorageFilesDAO().findOne(["file_name", "file_url", "region"], {
             file_uuid: fileUUID,
         });
 
@@ -76,7 +77,7 @@ export class AlibabaCloudRename extends AbstractController<RequestType, Response
                 },
             );
 
-            const filePath = getFilePath(fileName, fileUUID);
+            const filePath = new URL(fileInfo.file_url).pathname.slice(1);
             await ossClient[fileInfo.region].copy(filePath, filePath, {
                 headers: { "Content-Disposition": getDisposition(fileName) },
             });

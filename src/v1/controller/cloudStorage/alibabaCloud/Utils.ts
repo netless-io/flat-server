@@ -1,7 +1,6 @@
 import { addMinutes } from "date-fns/fp";
-import { AlibabaCloud, CloudStorage } from "../../../../constants/Process";
+import { AlibabaCloud } from "../../../../constants/Process";
 import crypto from "crypto";
-import path from "path";
 import OSS from "ali-oss";
 import { Region } from "../../../../constants/Project";
 
@@ -52,18 +51,6 @@ export const policyTemplate = (
         policy,
         signature,
     };
-};
-
-export const getFilePath = (fileName: string, fileUUID: string): string => {
-    return `${CloudStorage.PREFIX_PATH}/${fileUUID}${path.extname(fileName)}`;
-};
-
-export const getOSSDomain = (region: Region): string => {
-    return `https://${AlibabaCloud[region].OSS_BUCKET}.${AlibabaCloud.OSS_ENDPOINT}`;
-};
-
-export const getOSSFileURLPath = (filePath: string, region: Region): string => {
-    return `${getOSSDomain(region)}/${filePath}`;
 };
 
 const createOSSClient = (region: Region): OSS => {
