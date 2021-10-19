@@ -78,7 +78,7 @@ export const CloudStorage = {
     // allow upload file type
     ALLOW_FILE_SUFFIX: process.env.CLOUD_STORAGE_ALLOW_FILE_SUFFIX
         ? process.env.CLOUD_STORAGE_ALLOW_FILE_SUFFIX.split(",").map(suffix => suffix.trim())
-        : ["ppt", "pptx", "doc", "docx", "pdf", "png", "jpg", "jpeg", "gif"],
+        : ["ppt", "pptx", "doc", "docx", "pdf", "png", "jpg", "jpeg", "gif", "mp3", "mp4", "ice"],
 };
 
 export const AlibabaCloud = {
