@@ -136,7 +136,7 @@ docker run -dit -p 6379:6379 --name redis -v `pwd`/data:/data -v `pwd`/conf:/usr
 | CLOUD_STORAGE_SINGLE_FILE_SIZE      | 云盘上传单个文件大小最大值               | 默认: `524288000`（500M）                        |
 | CLOUD_STORAGE_TOTAL_SIZE            | 云盘总量最大值                         | 默认: `2147483648`（2G）                         |
 | CLOUD_STORAGE_PREFIX_PATH           | 云盘上传路径的前缀                      | 默认: `cloud-storage`，前后不能有 `/`              |
-| CLOUD_STORAGE_ALLOW_FILE_SUFFIX     | 云盘支持上传的文件扩展名                 | 默认：`ppt,pptx,doc,docx,pdf,png,jpg,jpeg,gif`  |
+| CLOUD_STORAGE_ALLOW_FILE_SUFFIX     | 云盘支持上传的文件扩展名                 | 默认：`ppt,pptx,doc,docx,pdf,png,jpg,jpeg,gif,mp3,mp4,ice`  |
 | WEB_WECHAT_APP_ID                   | [微信开放平台][open-wechat] App ID    | 见 `网站应用` 里 `AppID`                         |
 | WEB_WECHAT_APP_SECRET               | [微信开放平台][open-wechat] App 密钥   | 见 `网站应用` 里 `AppSecret`                     |
 | MOBILE_WECHAT_APP_ID                | [微信开放平台][open-wechat] App ID    | 见 `移动应用` 里 `AppID`                         |
