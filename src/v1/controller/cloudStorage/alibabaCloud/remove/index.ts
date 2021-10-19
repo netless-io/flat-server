@@ -14,6 +14,7 @@ import { Controller } from "../../../../../decorator/Controller";
 import { ControllerError } from "../../../../../error/ControllerError";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { URL } from "url";
+import path from "path";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -47,6 +48,8 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
         const fileInfo: FileInfoType[] = await createQueryBuilder(CloudStorageUserFilesModel, "fc")
             .addSelect("f.file_size", "file_size")
             .addSelect("f.file_url", "file_url")
+            .addSelect("f.file_name", "file_name")
+            .addSelect("f.file_uuid", "file_uuid")
             .addSelect("f.region", "region")
             .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
             .where(
@@ -81,13 +84,13 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
             const fileList: FileListType = {};
             let remainingTotalUsage = totalUsage;
 
-            fileInfo.forEach(({ file_url, file_size, region }) => {
+            fileInfo.forEach(({ file_url, file_uuid, file_name, file_size, region }) => {
                 if (typeof fileList[region] === "undefined") {
                     fileList[region] = [];
                 }
 
                 (fileList as Required<FileListType>)[region].push(
-                    new URL(file_url).pathname.slice(1),
+                    AlibabaCloudRemoveFile.willDeleteFilePath(file_name, file_uuid, file_url),
                 );
                 remainingTotalUsage -= file_size;
             });
@@ -155,6 +158,24 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
             }
         }
     }
+
+    private static willDeleteFilePath(fileName: string, fileUUID: string, fileURL: string): string {
+        const suffix = path.extname(fileName);
+
+        // remove first char: /
+        const pathKey = new URL(fileURL).pathname.slice(1);
+
+        // old: PREFIX/UUID.png
+        // new: PREFIX/2021-10/12/UUID/UUID.png
+        const newFilePathSuffix = `${fileUUID}/${fileUUID}${suffix}`;
+
+        // PREFIX/2021-10/12/UUID/UUID.png => PREFIX/2021-10/12/UUID/
+        if (fileURL.endsWith(newFilePathSuffix)) {
+            return pathKey.replace(`${fileUUID}${suffix}`, "");
+        }
+
+        return pathKey;
+    }
 }
 
 interface RequestType {
@@ -172,5 +193,7 @@ type FileListType = {
 interface FileInfoType {
     file_size: number;
     file_url: string;
+    file_uuid: string;
+    file_name: string;
     region: Region;
 }

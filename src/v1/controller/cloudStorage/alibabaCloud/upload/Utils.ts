@@ -2,6 +2,7 @@ import { CloudStorageConfigsDAO } from "../../../../../dao";
 import { AlibabaCloud, CloudStorage } from "../../../../../constants/Process";
 import path from "path";
 import { Region } from "../../../../../constants/Project";
+import { format } from "date-fns/fp";
 
 export const checkTotalUsage = async (
     userUUID: string,
@@ -23,7 +24,11 @@ export const checkTotalUsage = async (
 };
 
 export const getFilePath = (fileName: string, fileUUID: string): string => {
-    return `${CloudStorage.PREFIX_PATH}/${fileUUID}${path.extname(fileName)}`;
+    const datePath = format("yyyy-MM/dd")(Date.now());
+    // e.g: PREFIX/2021-10/19/UUID/UUID.txt
+    return `${CloudStorage.PREFIX_PATH}/${datePath}/${fileUUID}/${fileUUID}${path.extname(
+        fileName,
+    )}`;
 };
 
 export const getOSSDomain = (region: Region): string => {
