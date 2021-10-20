@@ -207,7 +207,7 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
             {},
         );
 
-        if (files.objects.length !== 0) {
+        if (files.objects && files.objects.length !== 0) {
             await ossClient.deleteMulti(files.objects.map(meta => meta.name));
         }
 
