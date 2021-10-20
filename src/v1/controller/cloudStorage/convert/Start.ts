@@ -87,9 +87,10 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
         const result = await whiteboardCreateConversionTask(region, {
             resource,
             type: resourceType,
+            scale: FileConvertStart.scaleByFileType(resource),
             preview: resourceType === "dynamic",
             pack: resourceType === "static",
-            scale: FileConvertStart.scaleByFileType(resource),
+            canvasVersion: resourceType === "dynamic",
         });
 
         const taskUUID = result.data.uuid;

@@ -98,6 +98,7 @@ interface CreateDynamicConversionTaskParams {
     type: "dynamic";
     /** @default false */
     preview?: boolean;
+    canvasVersion: boolean;
 }
 
 export interface TaskCreated {
