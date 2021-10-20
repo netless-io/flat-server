@@ -1,12 +1,14 @@
-import { Status } from "../../../../constants/Project";
+import { Region, Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { whiteboardQueryConversionTask } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
-import { determineType, isConvertDone, isConvertFailed } from "./Utils";
+import { determineType, isConvertDone, isConvertFailed, isCourseware } from "./Utils";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import path from "path";
+import axios from "axios";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -73,9 +75,11 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
             };
         }
 
-        const resourceType = determineType(resource);
-        const result = await whiteboardQueryConversionTask(region, task_uuid, resourceType);
-        const convertStatus = result.data.status;
+        const convertStatus = await FileConvertFinish.queryConversionStatus(
+            resource,
+            task_uuid,
+            region,
+        );
 
         switch (convertStatus) {
             case "Finished": {
@@ -122,6 +126,33 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
 
     public errorHandler(error: Error): ResponseError {
         return this.autoHandlerError(error);
+    }
+
+    private static async queryConversionStatus(
+        resource: string,
+        taskUUID: string,
+        region: Region,
+    ): Promise<"Waiting" | "Converting" | "Finished" | "Fail"> {
+        if (isCourseware(resource)) {
+            const fileName = path.basename(resource);
+            const dir = resource.substr(0, resource.length - fileName.length);
+            const resultPath = `${dir}result`;
+
+            try {
+                const response = await axios.head(resultPath);
+                return response.headers["x-oss-meta-success"] === "true" ? "Finished" : "Fail";
+            } catch (error) {
+                if (axios.isAxiosError(error) && error.response?.status === 404) {
+                    return "Converting";
+                }
+
+                throw error;
+            }
+        } else {
+            const resourceType = determineType(resource);
+            const result = await whiteboardQueryConversionTask(region, taskUUID, resourceType);
+            return result.data.status;
+        }
     }
 }
 

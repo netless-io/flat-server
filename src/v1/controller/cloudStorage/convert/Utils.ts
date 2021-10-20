@@ -4,6 +4,10 @@ export const determineType = (resource: string): "static" | "dynamic" => {
     return resource.endsWith(".pptx") ? "dynamic" : "static";
 };
 
+export const isCourseware = (resource: string): boolean => {
+    return resource.endsWith(".ice");
+};
+
 export const isConverting = (convertStep: FileConvertStep): boolean => {
     return convertStep === FileConvertStep.Converting;
 };
