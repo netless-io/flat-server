@@ -30,7 +30,7 @@ export class CloudStorageFilesModel extends Content {
 
     @Column({
         length: 256,
-        comment: "file url in oss cdn",
+        comment: "file url",
     })
     file_url: string;
 
@@ -62,9 +62,9 @@ export class CloudStorageFilesModel extends Content {
 
     @Column({
         type: "enum",
-        enum: [Region.CN_HZ, Region.US_SV, Region.SG, Region.IN_MUM, Region.GB_LON],
+        enum: [Region.CN_HZ, Region.US_SV, Region.SG, Region.IN_MUM, Region.GB_LON, "none"],
     })
-    region: Region;
+    region: Region | "none";
 
     @Index("cloud_storage_files_is_delete_index")
     @Column({

@@ -120,3 +120,77 @@ test(`${namespace} - file-suffix`, ava => {
         ava.is(validate.errors, null);
     }
 });
+
+test(`${namespace} - url-file-suffix`, ava => {
+    const ajv = new Ajv();
+    ajvSelfPlugin(ajv);
+
+    const validate = ajv.compile({
+        type: "object",
+        required: ["fileName"],
+        properties: {
+            fileName: {
+                type: "string",
+                format: "url-file-suffix",
+            },
+        },
+    });
+
+    {
+        const testURLFileSuffixValidFail = {
+            fileName: "hi.txt",
+        };
+
+        validate(testURLFileSuffixValidFail);
+
+        ava.true(validate.errors !== null);
+    }
+
+    {
+        const testURLFileSuffixValidSuccess = {
+            fileName: `yes.${CloudStorage.ALLOW_URL_FILE_SUFFIX[0]}`,
+        };
+
+        validate(testURLFileSuffixValidSuccess);
+
+        ava.is(validate.errors, null);
+    }
+});
+
+test(`${namespace} - url`, ava => {
+    const ajv = new Ajv();
+    ajvSelfPlugin(ajv);
+
+    const validate = ajv.compile({
+        type: "object",
+        required: ["url"],
+        properties: {
+            url: {
+                type: "string",
+                format: "url",
+            },
+        },
+    });
+
+    {
+        const testURLValidFail = {
+            url: "google.com",
+        };
+
+        validate(testURLValidFail);
+
+        console.log(validate);
+
+        ava.true(validate.errors !== null);
+    }
+
+    {
+        const testURLValidSuccess = {
+            url: "http://google.com/a/1?a=1!@#$%^*()_&x=1#!c=2",
+        };
+
+        validate(testURLValidSuccess);
+
+        ava.is(validate.errors, null);
+    }
+});
