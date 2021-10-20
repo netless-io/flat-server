@@ -75,6 +75,10 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
             };
         }
 
+        if (region === "none") {
+            throw new Error("unsupported current file conversion");
+        }
+
         const convertStatus = await FileConvertFinish.queryConversionStatus(
             resource,
             task_uuid,

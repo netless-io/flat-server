@@ -139,6 +139,7 @@ Deployment is not needed for local development. If you want to bring the server 
 | CLOUD_STORAGE_TOTAL_SIZE            | Maximum Cloud Storage size of a user           | Default: `2147483648` (2G)                                                 |
 | CLOUD_STORAGE_PREFIX_PATH           | Cloud Storage upload path prefix               | Default: `cloud-storage` (No `/` prefix or suffix)                         |
 | CLOUD_STORAGE_ALLOW_FILE_SUFFIX     | Cloud Storage supported file extensions        | Default: `ppt,pptx,doc,docx,pdf,png,jpg,jpeg,gif,mp3,mp4,ice`                          |
+| CLOUD_STORAGE_ALLOW_URL_FILE_SUFFIX | Cloud Storage supported file url extensions    | Default：`vf`                                                              |
 | WEB_WECHAT_APP_ID                   | [Wechat Open Platform][open-wechat] App ID     |                                                                            |
 | WEB_WECHAT_APP_SECRET               | [Wechat Open Platform][open-wechat] App Secret |                                                                            |
 | MOBILE_WECHAT_APP_ID                | [Wechat Open Platform][open-wechat] App ID     |                                                                            |

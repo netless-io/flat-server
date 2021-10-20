@@ -82,6 +82,10 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
             };
         }
 
+        if (region === "none") {
+            throw new Error("unsupported current file conversion");
+        }
+
         const resourceType = determineType(resource);
 
         const result = await whiteboardCreateConversionTask(region, {

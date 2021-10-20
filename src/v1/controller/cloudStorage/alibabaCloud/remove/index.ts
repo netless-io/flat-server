@@ -84,6 +84,10 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
             let remainingTotalUsage = totalUsage;
 
             fileInfo.forEach(({ file_url, file_size, region }) => {
+                if (region === "none") {
+                    throw new Error("unsupported current file remove");
+                }
+
                 if (typeof fileList[region] === "undefined") {
                     fileList[region] = [];
                 }
@@ -230,5 +234,5 @@ type FileListType = {
 interface FileInfoType {
     file_size: number;
     file_url: string;
-    region: Region;
+    region: Region | "none";
 }

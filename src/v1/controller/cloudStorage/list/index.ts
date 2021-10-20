@@ -115,7 +115,7 @@ interface ResponseType {
         taskUUID: string;
         taskToken: string;
         createAt: number;
-        region: Region;
+        region: Region | "none";
     }>;
 }
 
@@ -128,5 +128,5 @@ interface CloudStorageFile {
     task_uuid: string;
     task_token: string;
     create_at: Date;
-    region: Region;
+    region: Region | "none";
 }

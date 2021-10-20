@@ -1,33 +1,30 @@
-import path from "path";
-import { getConnection } from "typeorm";
+import { AbstractController } from "../../../../../abstract/controller";
+import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
+import { Controller } from "../../../../../decorator/Controller";
+import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../../dao";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
-import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../../dao";
-import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
-import { getDisposition, ossClient } from "../Utils";
-import { AbstractController } from "../../../../../abstract/controller";
-import { Controller } from "../../../../../decorator/Controller";
-import { URL } from "url";
+import path from "path";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
-    path: "cloud-storage/alibaba-cloud/rename",
+    path: "cloud-storage/url-cloud/rename",
     auth: true,
 })
-export class AlibabaCloudRename extends AbstractController<RequestType, ResponseType> {
+export class URLCloudRename extends AbstractController<RequestType, ResponseType> {
     public static readonly schema: FastifySchema<RequestType> = {
         body: {
             type: "object",
             required: ["fileUUID", "fileName"],
             properties: {
+                fileName: {
+                    type: "string",
+                    format: "url-file-suffix",
+                    maxLength: 128,
+                },
                 fileUUID: {
                     type: "string",
                     format: "uuid-v4",
-                },
-                fileName: {
-                    type: "string",
-                    format: "file-suffix",
-                    maxLength: 50,
                 },
             },
         },
@@ -49,7 +46,7 @@ export class AlibabaCloudRename extends AbstractController<RequestType, Response
             };
         }
 
-        const fileInfo = await CloudStorageFilesDAO().findOne(["file_name", "file_url", "region"], {
+        const fileInfo = await CloudStorageFilesDAO().findOne(["file_name", "region"], {
             file_uuid: fileUUID,
         });
 
@@ -67,25 +64,18 @@ export class AlibabaCloudRename extends AbstractController<RequestType, Response
             };
         }
 
-        await getConnection().transaction(async t => {
-            await CloudStorageFilesDAO(t).update(
-                {
-                    file_name: fileName,
-                },
-                {
-                    file_uuid: fileUUID,
-                },
-            );
+        if (fileInfo.region !== "none") {
+            throw new Error("unsupported current file rename");
+        }
 
-            if (fileInfo.region === "none") {
-                throw new Error("unsupported current file rename");
-            }
-
-            const filePath = new URL(fileInfo.file_url).pathname.slice(1);
-            await ossClient[fileInfo.region].copy(filePath, filePath, {
-                headers: { "Content-Disposition": getDisposition(fileName) },
-            });
-        });
+        await CloudStorageFilesDAO().update(
+            {
+                file_name: fileName,
+            },
+            {
+                file_uuid: fileUUID,
+            },
+        );
 
         return {
             status: Status.Success,
