@@ -36,16 +36,6 @@ export class CloudStorageList extends AbstractController<RequestType, ResponseTy
             user_uuid: userUUID,
         });
 
-        if (userInfo === undefined) {
-            return {
-                status: Status.Success,
-                data: {
-                    totalUsage: 0,
-                    files: [],
-                },
-            };
-        }
-
         const files = await createQueryBuilder(CloudStorageUserFilesModel, "fc")
             .addSelect("f.file_uuid", "file_uuid")
             .addSelect("f.file_name", "file_name")
@@ -87,7 +77,7 @@ export class CloudStorageList extends AbstractController<RequestType, ResponseTy
         return {
             status: Status.Success,
             data: {
-                totalUsage: Number(userInfo.total_usage),
+                totalUsage: Number(userInfo?.total_usage) || 0,
                 files: resp,
             },
         };
