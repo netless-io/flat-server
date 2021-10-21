@@ -7,6 +7,9 @@ import { UploadCancel } from "./upload/cancel";
 import { FileConvertFinish } from "./convert/Finish";
 import { FileConvertStart } from "./convert/Start";
 import { CloudStorageList } from "./list";
+import { URLCloudAdd } from "./urlCloud/add";
+import { URLCloudRemove } from "./urlCloud/remove";
+import { URLCloudRename } from "./urlCloud/rename";
 
 export const cloudStorageRouters: Readonly<Array<ControllerClass<any, any>>> = Object.freeze([
     AlibabaCloudRemoveFile,
@@ -17,4 +20,7 @@ export const cloudStorageRouters: Readonly<Array<ControllerClass<any, any>>> = O
     FileConvertFinish,
     FileConvertStart,
     CloudStorageList,
+    URLCloudAdd,
+    URLCloudRemove,
+    URLCloudRename,
 ]);
