@@ -71,6 +71,7 @@ export class CloudStorageList extends AbstractController<RequestType, ResponseTy
                 taskToken: file.task_token,
                 createAt: file.create_at.valueOf(),
                 region: file.region,
+                external: file.region === "none",
             };
         });
 
@@ -106,6 +107,7 @@ interface ResponseType {
         taskToken: string;
         createAt: number;
         region: Region | "none";
+        external: boolean;
     }>;
 }
 
