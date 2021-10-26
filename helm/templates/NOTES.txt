@@ -1,2 +1,0 @@
-Server URL:
-https://{{ .Values.ingress.hostname }}
