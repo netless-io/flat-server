@@ -144,6 +144,9 @@ docker run -dit -p 6379:6379 --name redis -v `pwd`/data:/data -v `pwd`/conf:/usr
 | MOBILE_WECHAT_APP_SECRET            | [微信开放平台][open-wechat] App 秘钥   | 见 `移动应用` 里 `AppSecret`                     |
 | GITHUB_CLIENT_ID                    | Github Client ID                    | 见 [Authorizing OAuth Apps][authorizing-oauth-apps]                    |
 | GITHUB_CLIENT_SECRET                | Github Client Secret                | 见 [Authorizing OAuth Apps][authorizing-oauth-apps]                    |
+| GOOGLE_CLIENT_ID                    | Google Client ID                    | 见 [Google OAuth Credentials][google-oauth]                               |
+| GOOGLE_CLIENT_SECRET                | Google Client Secret                | 见 [Google OAuth Credentials][google-oauth]                               |
+| GOOGLE_REDIRECT_URI                 | Google Redirect uri                 | 见 [Google OAuth Credentials][google-oauth]                               |
 | AGORA_APP_ID                        | Agora App ID                        | 用于 RTC 与 RTM。见: [Use an App ID for authentication][agora-app-id-auth]    |
 | AGORA_APP_CERTIFICATE               | Agora App Certificate               | 见: [Enable the App Certificate][agora-app-auth]             |
 | AGORA_RESTFUL_ID                    | Agora RESTful ID                    | 用于课程回放。见: [Restful Authentication][agora-restful-auth]            |
@@ -187,6 +190,8 @@ docker run -dit -p 6379:6379 --name redis -v `pwd`/data:/data -v `pwd`/conf:/usr
 [open-wechat]: https://open.weixin.qq.com/
 
 [authorizing-oauth-apps]: https://docs.github.com/en/developers/apps/authorizing-oauth-apps
+
+[google-oauth]: https://developers.google.com/identity/protocols/oauth2/openid-connect#getcredentials
 
 [agora-app-id-auth]: https://docs.agora.io/cn/Agora%20Platform/token#a-name--appidause-an-app-id-for-authentication
 [agora-app-auth]: https://docs.agora.io/cn/Agora%20Platform/token#2-enable-the-app-certificate

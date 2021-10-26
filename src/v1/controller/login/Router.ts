@@ -5,6 +5,7 @@ import { SetAuthUUID } from "./SetAuthUUID";
 import { Login } from "./Login";
 import { LoginProcess } from "./Process";
 import { ControllerClass } from "../../../abstract/controller";
+import { GoogleCallback } from "./google/Callback";
 
 export const loginRouters: Readonly<Array<ControllerClass<any, any>>> = Object.freeze([
     SetAuthUUID,
@@ -12,5 +13,6 @@ export const loginRouters: Readonly<Array<ControllerClass<any, any>>> = Object.f
     WechatWebCallback,
     WechatMobileCallback,
     GithubCallback,
+    GoogleCallback,
     Login,
 ]);

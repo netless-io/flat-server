@@ -42,6 +42,12 @@ export const Github = {
     CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
 };
 
+export const Google = {
+    CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+    REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI,
+};
+
 export const Agora = {
     APP_ID: process.env.AGORA_APP_ID,
     APP_CERTIFICATE: process.env.AGORA_APP_CERTIFICATE,

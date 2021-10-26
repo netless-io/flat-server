@@ -1,26 +1,26 @@
+import { Controller } from "../../../../decorator/Controller";
+import { AbstractController } from "../../../../abstract/controller";
 import { FastifySchema, ResponseError } from "../../../../types/Server";
+import { parseError } from "../../../../logger";
 import redisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
+import { LoginGoogle } from "../platforms/LoginGoogle";
+import { ServiceUserGoogle } from "../../../service/user/UserGoogle";
 import { v4 } from "uuid";
 import { LoginPlatform } from "../../../../constants/Project";
-import { parseError } from "../../../../logger";
-import { AbstractController } from "../../../../abstract/controller";
-import { Controller } from "../../../../decorator/Controller";
-import { LoginGithub } from "../platforms/LoginGithub";
-import { ServiceUserGithub } from "../../../service/user/UserGithub";
 import { failedHTML, successHTML } from "../utils/callbackHTML";
 
 @Controller<RequestType, any>({
     method: "get",
-    path: "login/github/callback",
+    path: "login/google/callback",
     auth: false,
     skipAutoHandle: true,
 })
-export class GithubCallback extends AbstractController<RequestType> {
+export class GoogleCallback extends AbstractController<RequestType> {
     public static readonly schema: FastifySchema<RequestType> = {
         querystring: {
             type: "object",
-            required: ["state"],
+            required: ["state", "code"],
             properties: {
                 state: {
                     type: "string",
@@ -28,10 +28,6 @@ export class GithubCallback extends AbstractController<RequestType> {
                 },
                 code: {
                     type: "string",
-                },
-                error: {
-                    type: "string",
-                    nullable: true,
                 },
                 platform: {
                     type: "string",
@@ -46,35 +42,33 @@ export class GithubCallback extends AbstractController<RequestType> {
             "content-type": "text/html",
         });
 
-        const { state: authUUID, platform, code } = this.querystring;
+        const { state: authUUID, code, platform } = this.querystring;
 
-        GithubCallback.assertCallbackParamsNoError(this.querystring);
+        await LoginGoogle.assertHasAuthUUID(authUUID, this.logger);
 
-        await LoginGithub.assertHasAuthUUID(authUUID, this.logger);
+        const userInfo = await LoginGoogle.getUserInfoAndToken(code);
 
-        const userInfo = await LoginGithub.getUserInfoAndToken(code, authUUID);
-
-        const userUUIDByDB = await ServiceUserGithub.userUUIDByUnionUUID(userInfo.unionUUID);
+        const userUUIDByDB = await ServiceUserGoogle.userUUIDByUnionUUID(userInfo.unionUUID);
 
         const userUUID = userUUIDByDB || v4();
 
-        const loginGithub = new LoginGithub({
+        const loginGoogle = new LoginGoogle({
             userUUID,
         });
 
         if (!userUUIDByDB) {
-            await loginGithub.register(userInfo);
+            await loginGoogle.register(userInfo);
         }
 
         const { userName, avatarURL } = !userUUIDByDB
             ? userInfo
-            : (await loginGithub.svc.user.nameAndAvatar())!;
+            : (await loginGoogle.svc.user.nameAndAvatar())!;
 
-        await loginGithub.tempSaveUserInfo(authUUID, {
+        await loginGoogle.tempSaveUserInfo(authUUID, {
             name: userName,
             token: await this.reply.jwtSign({
                 userUUID,
-                loginSource: LoginPlatform.Github,
+                loginSource: LoginPlatform.Google,
             }),
             avatar: avatarURL,
         });
@@ -83,25 +77,17 @@ export class GithubCallback extends AbstractController<RequestType> {
     }
 
     public async errorHandler(error: Error): Promise<ResponseError> {
-        const failedReason = this.querystring.error || "";
-        await redisService.set(RedisKey.authFailed(this.querystring.state), failedReason, 60 * 60);
-
         this.logger.error("request failed", parseError(error));
-        return this.reply.send(failedHTML());
-    }
+        await redisService.set(RedisKey.authFailed(this.querystring.state), "", 60 * 60);
 
-    private static assertCallbackParamsNoError(querystring: RequestType["querystring"]): void {
-        if (querystring.error) {
-            throw new Error("callback query params did not pass the github check");
-        }
+        return this.reply.send(failedHTML());
     }
 }
 
 interface RequestType {
     querystring: {
         state: string;
-        platform?: "web";
         code: string;
-        error?: string;
+        platform?: "web";
     };
 }

@@ -146,6 +146,9 @@ Deployment is not needed for local development. If you want to bring the server 
 | MOBILE_WECHAT_APP_SECRET            | [Wechat Open Platform][open-wechat] App Secret |                                                                            |
 | GITHUB_CLIENT_ID                    | Github Client ID                               | See [Authorizing OAuth Apps][authorizing-oauth-apps]                       |
 | GITHUB_CLIENT_SECRET                | Github Client Secret                           | See [Authorizing OAuth Apps][authorizing-oauth-apps]                       |
+| GOOGLE_CLIENT_ID                    | Google Client ID                               | See [Google OAuth Credentials][google-oauth]                               |
+| GOOGLE_CLIENT_SECRET                | Google Client Secret                           | See [Google OAuth Credentials][google-oauth]                               |
+| GOOGLE_REDIRECT_URI                 | Google Redirect uri                            | See [Google OAuth Credentials][google-oauth]                               |
 | AGORA_APP_ID                        | Agora App ID                                   | For RTC and RTM. See [Use an App ID for authentication][agora-app-id-auth] |
 | AGORA_APP_CERTIFICATE               | Agora App Certificate                          | See [Enable the App Certificate][agora-app-auth]                           |
 | AGORA_RESTFUL_ID                    | Agora RESTful ID                               | For classroom replaying. See [Restful Authentication][agora-restful-auth]  |
@@ -189,6 +192,8 @@ If you need to deploy to a remote server, add the following variables additional
 [open-wechat]: https://open.weixin.qq.com/
 
 [authorizing-oauth-apps]: https://docs.github.com/en/developers/apps/authorizing-oauth-apps
+
+[google-oauth]: https://developers.google.com/identity/protocols/oauth2/openid-connect#getcredentials
 
 [agora-app-id-auth]: https://docs.agora.io/en/Agora%20Platform/token
 [agora-app-auth]: https://docs.agora.io/en/Agora%20Platform/token

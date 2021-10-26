@@ -95,7 +95,6 @@ interface RegisterInfo {
     userName: string;
     avatarURL: string;
     unionUUID: string;
-    accessToken: string;
 }
 
 interface AccessToken {

@@ -5,6 +5,7 @@ import { Controller } from "../../../decorator/Controller";
 import { ServiceUser } from "../../service/user/User";
 import { ServiceUserGithub } from "../../service/user/UserGithub";
 import { ServiceUserWeChat } from "../../service/user/UserWeChat";
+import { ServiceUserGoogle } from "../../service/user/UserGoogle";
 
 @Controller<null, ResponseType>({
     method: "post",
@@ -18,6 +19,7 @@ export class Login extends AbstractController<RequestType, ResponseType> {
         user: ServiceUser;
         userGithub: ServiceUserGithub;
         userWeChat: ServiceUserWeChat;
+        userGoogle: ServiceUserGoogle;
     };
 
     public constructor(params: ControllerClassParams) {
@@ -27,6 +29,7 @@ export class Login extends AbstractController<RequestType, ResponseType> {
             user: new ServiceUser(this.userUUID),
             userGithub: new ServiceUserGithub(this.userUUID),
             userWeChat: new ServiceUserWeChat(this.userUUID),
+            userGoogle: new ServiceUserGoogle(this.userUUID),
         };
     }
 
@@ -41,6 +44,9 @@ export class Login extends AbstractController<RequestType, ResponseType> {
             case LoginPlatform.Github: {
                 await this.svc.userGithub.assertExist();
                 break;
+            }
+            case LoginPlatform.Google: {
+                await this.svc.userGoogle.assertExist();
             }
         }
 
