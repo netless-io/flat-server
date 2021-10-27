@@ -1,0 +1,66 @@
+serverPort: ""
+env: 
+mysql:
+    host: ""
+    port: ""
+    username: ""
+    password: ""
+    name: ""
+redis:
+    host: ""
+    port: ""
+    username: ""
+    password: ""
+    pool: 0
+jwt:
+    secret: ""
+    algorithms: ""
+oauth:
+    weChat:
+        web:
+            accessKeyId: ""
+            secretKey: ""
+        mobile:
+            accessKeyId: ""
+            secretKey: ""
+    github:
+        appId: ""
+        secretKey: ""
+log:
+    path: ""
+    fileName: ""
+    format: ""
+metrics:
+    enable: false
+    endpoint: ""
+    port: ""
+agora:
+    appId: ""
+    certificate: ""
+    restfulId: ""
+    restfulSecret: ""
+    oss:
+        vendor: ""
+        accessKey: ""
+        secretKey: ""
+        region: ""
+        bucket: ""
+        folder: ""
+        prefix: ""
+storage:
+    concurrent: 3
+    singleFileSize: 536870912000
+    totalSize: 2199023255552
+    prefixPath: cloud-storage
+    allowFileSuffix: ppt,pptx,doc,docx,pdf,png,jpg,jpeg,gif,mp3,mp4,ice
+    allowURlFileSuffix: vf
+    type:
+        oss:
+            accessKey: ""
+            secretKey: ""
+            endpoint: ""
+            bucket: ""
+            region: ""
+whiteboard:
+    accessKey: ""
+    secretKey: ""
