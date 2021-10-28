@@ -11,7 +11,7 @@ type _defaultConf struct {
 	StorageAllowUrlFileSuffix string
 }
 
-var DefaultConf = _defaultConf{
+var defaultConf = _defaultConf{
 	StorageConcurrent:         3,
 	StorageSingleFileSize:     500 * utils.MiB,
 	StorageTotalSize:          2 * utils.GiB,
@@ -22,26 +22,26 @@ var DefaultConf = _defaultConf{
 
 func SafeSetDefault(conf *FlatConf) {
 	if conf.Storage.Concurrent <= 0 {
-		conf.Storage.Concurrent = DefaultConf.StorageConcurrent
+		conf.Storage.Concurrent = defaultConf.StorageConcurrent
 	}
 
 	if conf.Storage.SingleFileSize <= 0 {
-		conf.Storage.SingleFileSize = DefaultConf.StorageSingleFileSize
+		conf.Storage.SingleFileSize = defaultConf.StorageSingleFileSize
 	}
 
 	if conf.Storage.TotalSize <= 0 {
-		conf.Storage.TotalSize = DefaultConf.StorageTotalSize
+		conf.Storage.TotalSize = defaultConf.StorageTotalSize
 	}
 
 	if conf.Storage.PrefixPath == "" {
-		conf.Storage.PrefixPath = DefaultConf.StoragePrefixPath
+		conf.Storage.PrefixPath = defaultConf.StoragePrefixPath
 	}
 
 	if conf.Storage.AllowFileSuffix == "" {
-		conf.Storage.AllowFileSuffix = DefaultConf.StorageAllowFileSuffix
+		conf.Storage.AllowFileSuffix = defaultConf.StorageAllowFileSuffix
 	}
 
 	if conf.Storage.AllowURLFileSuffix == "" {
-		conf.Storage.AllowURLFileSuffix = DefaultConf.StorageAllowUrlFileSuffix
+		conf.Storage.AllowURLFileSuffix = defaultConf.StorageAllowUrlFileSuffix
 	}
 }
