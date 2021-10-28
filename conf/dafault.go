@@ -2,16 +2,14 @@ package conf
 
 import "github.com/netless-io/flat-server/pkg/utils"
 
-type _DefaultConf struct {
+var defaultConf = struct {
 	StorageConcurrent         int
 	StorageSingleFileSize     int
 	StorageTotalSize          int
 	StoragePrefixPath         string
 	StorageAllowFileSuffix    string
 	StorageAllowUrlFileSuffix string
-}
-
-var defaultConf = _DefaultConf{
+}{
 	StorageConcurrent:         3,
 	StorageSingleFileSize:     500 * utils.MiB,
 	StorageTotalSize:          2 * utils.GiB,
