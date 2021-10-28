@@ -11,20 +11,20 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var _conf *FlatConf
+var conf *FlatConf
 
 func Read(confFilePath string) error {
-	_conf = new(FlatConf)
+	conf = new(FlatConf)
 
 	if confFilePath == "" {
-		confFilePath = os.Getenv("FLAT_CONFIG_PATH")
+		confFilePath = os.Getenv("FLATconfIG_PATH")
 	}
 
 	if confFilePath == "" {
-		return readEnvInConf(_conf)
+		return readEnvInConf(conf)
 	}
 
-	return readFileInConf(_conf, confFilePath)
+	return readFileInConf(conf, confFilePath)
 }
 
 func readEnvInConf(conf *FlatConf) error {
@@ -155,49 +155,49 @@ func readFileInConf(conf *FlatConf, filePath string) error {
 }
 
 func ServerPort() string {
-	return _conf.ServerPort
+	return conf.ServerPort
 }
 
 func Redis() RedisConf {
-	return _conf.Redis
+	return conf.Redis
 }
 
 func Mysql() MySQLConf {
-	return _conf.MySQL
+	return conf.MySQL
 }
 
 func WeChat() WeChatOAuth {
-	return _conf.OAuth.WeChat
+	return conf.OAuth.WeChat
 }
 
 func GitHub() GithubOAuth {
-	return _conf.OAuth.Github
+	return conf.OAuth.Github
 }
 
 func Agora() AgoraConf {
-	return _conf.Agora
+	return conf.Agora
 }
 
 func JWT() JWTConf {
-	return _conf.JWT
+	return conf.JWT
 }
 
 func NetLess() WhiteboardConf {
-	return _conf.Whiteboard
+	return conf.Whiteboard
 }
 
 func CloudStorage() StorageConf {
-	return _conf.Storage
+	return conf.Storage
 }
 
 func AlibabaCloud() StorageConf {
-	return _conf.Storage
+	return conf.Storage
 }
 
 func LogConfig() LoggerConf {
-	return _conf.Log
+	return conf.Log
 }
 
 func MetricsConfig() MetricsConf {
-	return _conf.Metrics
+	return conf.Metrics
 }

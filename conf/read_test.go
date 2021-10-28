@@ -16,7 +16,7 @@ func TestConvertToYaml(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := yaml.Marshal(_conf)
+	data, err := yaml.Marshal(conf)
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -37,7 +37,7 @@ func TestConvertToJSON(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(_conf)
+	data, err := json.Marshal(conf)
 	if err != nil {
 		t.Fatal(err)
 		return
