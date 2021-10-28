@@ -1,6 +1,5 @@
 {
     "serverPort": "",
-    "env": "",
     "mysql": {
         "host": "",
         "port": "",
@@ -62,8 +61,8 @@
     },
     "storage": {
         "concurrent": 3,
-        "singleFileSize": 536870912000,
-        "totalSize": 2199023255552,
+        "singleFileSize": 524288000,
+        "totalSize": 2147483648,
         "prefixPath": "cloud-storage",
         "allowFileSuffix": "ppt,pptx,doc,docx,pdf,png,jpg,jpeg,gif,mp3,mp4,ice",
         "allowURlFileSuffix": "vf",
