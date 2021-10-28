@@ -2,6 +2,7 @@ package conf
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -10,22 +11,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const (
-	defaultENV                       = "development"
-	defaultStorageConcurrent         = 3
-	defaultStorageSingleFileSize     = 500 * utils.MiB
-	defaultStorageTotalSize          = 2 * utils.GiB
-	defaultStoragePrefixPath         = "cloud-storage"
-	defaultStorageAllowFileSuffix    = "ppt,pptx,doc,docx,pdf,png,jpg,jpeg,gif,mp3,mp4,ice"
-	defaultStorageAllowUrlFileSuffix = "vf"
-)
-
 var conf *FlatConf
 
-// StorageType support cloud storage type
-var StorageType = []string{"oss"}
-
-func ReadConf(confFilePath string) error {
+func Read(confFilePath string) error {
 	conf = new(FlatConf)
 
 	if confFilePath == "" {
@@ -33,7 +21,6 @@ func ReadConf(confFilePath string) error {
 	}
 
 	if confFilePath == "" {
-
 		return readEnvInConf(conf)
 	}
 
@@ -41,22 +28,19 @@ func ReadConf(confFilePath string) error {
 }
 
 func readEnvInConf(conf *FlatConf) error {
+	SafeSetDefault(conf)
+
 	var err error
 
 	conf.ServerPort = os.Getenv("SERVER_PORT")
-	conf.ENV = os.Getenv("ENV")
-	if conf.ENV == "" {
-		conf.ENV = defaultENV
-	}
 
 	conf.Redis.Host = os.Getenv("REDIS_HOST")
 	conf.Redis.Port = os.Getenv("REDIS_PORT")
 	conf.Redis.Username = os.Getenv("REDIS_USERNAME")
 	conf.Redis.Password = os.Getenv("REDIS_PASSWORD")
-	redisDB := os.Getenv("REDIS_DB")
-	conf.Redis.Pool, err = strconv.Atoi(redisDB)
+	conf.Redis.Pool, err = strconv.Atoi(os.Getenv("REDIS_DB"))
 	if err != nil {
-		return err
+		return errors.New("redis db must is number")
 	}
 
 	conf.MySQL.Host = os.Getenv("MYSQL_HOST")
@@ -71,11 +55,7 @@ func readEnvInConf(conf *FlatConf) error {
 	conf.Log.FileName = os.Getenv("LOG_PATHNAME")
 	conf.Log.Path = os.Getenv("LOG_FILENAME")
 
-	onMetrics := os.Getenv("METRICS_ENABLED")
-	on, err := strconv.ParseBool(onMetrics)
-	if err == nil {
-		conf.Metrics.Enable = on
-	}
+	conf.Metrics.Enable, _ = strconv.ParseBool(os.Getenv("METRICS_ENABLED"))
 
 	conf.Metrics.Endpoint = os.Getenv("METRICS_ENDPOINT")
 	conf.Metrics.Port = os.Getenv("METRICS_PORT")
@@ -101,53 +81,46 @@ func readEnvInConf(conf *FlatConf) error {
 	conf.Agora.OSS.Folder = os.Getenv("AGORA_OSS_FOLDER")
 	conf.Agora.OSS.Prefix = os.Getenv("AGORA_OSS_PREFIX")
 
-	ossStorage := make(map[string]CloudStorageConf)
-	oss := CloudStorageConf{
-		AccessKey: os.Getenv("ALIBABA_CLOUD_OSS_ACCESS_KEY"),
-		SecretKey: os.Getenv("ALIBABA_CLOUD_OSS_ACCESS_KEY_SECRET"),
-		Endpoint:  os.Getenv("ALIBABA_CLOUD_OSS_ENDPOINT"),
-		Region:    os.Getenv("ALIBABA_CLOUD_OSS_REGION"),
-		Bucket:    os.Getenv("ALIBABA_CLOUD_OSS_BUCKET"),
+	conf.Storage.Type = CloudStorageTypeConf{
+		OSS: CloudStorageOSSConf{
+			AccessKey: os.Getenv("CLOUD_STORAGE_OSS_ACCESS_KEY"),
+			SecretKey: os.Getenv("CLOUD_STORAGE_OSS_ACCESS_KEY_SECRET"),
+			Endpoint:  os.Getenv("CLOUD_STORAGE_OSS_ENDPOINT"),
+			Region:    os.Getenv("CLOUD_STORAGE_OSS_REGION"),
+			Bucket:    os.Getenv("CLOUD_STORAGE_OSS_BUCKET"),
+		},
 	}
-	ossStorage["oss"] = oss
-	conf.Storage.Type = ossStorage
 
-	conf.Storage.Concurrent = defaultStorageConcurrent
 	concurrent := os.Getenv("CLOUD_STORAGE_CONCURRENT")
 
 	if concurrentInt, err := strconv.Atoi(concurrent); err == nil && concurrentInt > 0 {
 		conf.Storage.Concurrent = concurrentInt
 	}
 
-	conf.Storage.SingleFileSize = defaultStorageSingleFileSize
 	singleFileSize := os.Getenv("CLOUD_STORAGE_SINGLE_FILE_SIZE")
 	if singleFileSizeInt, err := strconv.Atoi(singleFileSize); err == nil && singleFileSizeInt > 0 {
 		conf.Storage.Concurrent = singleFileSizeInt
 	}
 
-	conf.Storage.TotalSize = defaultStorageTotalSize
 	totalSize := os.Getenv("CLOUD_STORAGE_TOTAL_SIZE")
 	if totalSizeInt, err := strconv.Atoi(totalSize); err == nil && totalSizeInt > 0 {
 		conf.Storage.Concurrent = totalSizeInt
 	}
 
-	conf.Storage.PrefixPath = defaultStoragePrefixPath
 	if prefixPath := os.Getenv("CLOUD_STORAGE_PREFIX_PATH"); prefixPath != "" {
 		conf.Storage.PrefixPath = prefixPath
 	}
 
-	conf.Storage.AllowFileSuffix = defaultStorageAllowFileSuffix
 	if allowFileSuffix := os.Getenv("CLOUD_STORAGE_ALLOW_FILE_SUFFIX"); allowFileSuffix != "" {
 		conf.Storage.AllowFileSuffix = allowFileSuffix
 	}
 
-	conf.Storage.AllowURLFileSuffix = defaultStorageAllowUrlFileSuffix
 	if allowUrlFileSuffix := os.Getenv("CLOUD_STORAGE_ALLOW_URL_FILE_SUFFIX"); allowUrlFileSuffix != "" {
 		conf.Storage.AllowURLFileSuffix = allowUrlFileSuffix
 	}
 
-	conf.WhiteBoard.AccessKey = os.Getenv("NETLESS_ACCESS_KEY")
-	conf.WhiteBoard.Secretkey = os.Getenv("NETLESS_SECRET_ACCESS_KEY")
+	conf.Whiteboard.AccessKey = os.Getenv("WHITEBOARD_ACCESS_KEY")
+	conf.Whiteboard.SecretKey = os.Getenv("WHITEBOARD_SECRET_ACCESS_KEY")
 	return nil
 }
 
@@ -170,56 +143,19 @@ func readFileInConf(conf *FlatConf, filePath string) error {
 		err = json.Unmarshal(fileData, conf)
 	default:
 		return fmt.Errorf("unsupport config file type: %s", fileType)
-
 	}
+
+	SafeSetDefault(conf)
 
 	if err != nil {
 		return err
 	}
 
-	if conf.Storage.Concurrent <= 0 {
-		conf.Storage.Concurrent = defaultStorageConcurrent
-	}
-
-	if conf.Storage.SingleFileSize <= 0 {
-		conf.Storage.SingleFileSize = defaultStorageSingleFileSize
-	}
-
-	if conf.Storage.TotalSize <= 0 {
-		conf.Storage.TotalSize = defaultStorageTotalSize
-	}
-
-	if conf.Storage.PrefixPath == "" {
-		conf.Storage.PrefixPath = defaultStoragePrefixPath
-	}
-
-	if conf.Storage.AllowFileSuffix == "" {
-		conf.Storage.AllowFileSuffix = defaultStorageAllowFileSuffix
-	}
-
-	if conf.Storage.AllowURLFileSuffix == "" {
-		conf.Storage.AllowURLFileSuffix = defaultStorageAllowUrlFileSuffix
-	}
-
 	return nil
-
 }
 
 func ServerPort() string {
 	return conf.ServerPort
-}
-func RunMod() string {
-	return conf.ENV
-}
-
-// compatibility old node.js version
-func IsTest() bool {
-	return os.Getenv("IS_TEST") == "yes"
-}
-
-// compatibility old node.js version
-func IsDev() bool {
-	return conf.ENV == defaultENV
 }
 
 func Redis() RedisConf {
@@ -246,8 +182,8 @@ func JWT() JWTConf {
 	return conf.JWT
 }
 
-func NetLess() WhiteBoard {
-	return conf.WhiteBoard
+func NetLess() WhiteboardConf {
+	return conf.Whiteboard
 }
 
 func CloudStorage() StorageConf {

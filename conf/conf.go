@@ -1,17 +1,16 @@
 package conf
 
 type FlatConf struct {
-	ServerPort string      `json:"serverPort" yaml:"serverPort"`
-	ENV        string      `json:"env" yaml:"env"`
-	MySQL      MySQLConf   `json:"mysql" yaml:"mysql"`
-	Redis      RedisConf   `json:"redis" yaml:"redis"`
-	JWT        JWTConf     `json:"jwt" yaml:"jwt"`
-	OAuth      OAuth       `json:"oauth" yaml:"oauth"`
-	Log        LoggerConf  `json:"log" yaml:"log"`
-	Metrics    MetricsConf `json:"metrics" yaml:"metrics"`
-	Agora      AgoraConf   `json:"agora" yaml:"agora"`
-	Storage    StorageConf `json:"storage" yaml:"storage"`
-	WhiteBoard WhiteBoard  `json:"whiteboard" yaml:"whiteboard"`
+	ServerPort string         `json:"serverPort" yaml:"serverPort"`
+	MySQL      MySQLConf      `json:"mysql" yaml:"mysql"`
+	Redis      RedisConf      `json:"redis" yaml:"redis"`
+	JWT        JWTConf        `json:"jwt" yaml:"jwt"`
+	OAuth      OAuth          `json:"oauth" yaml:"oauth"`
+	Log        LoggerConf     `json:"log" yaml:"log"`
+	Metrics    MetricsConf    `json:"metrics" yaml:"metrics"`
+	Agora      AgoraConf      `json:"agora" yaml:"agora"`
+	Storage    StorageConf    `json:"storage" yaml:"storage"`
+	Whiteboard WhiteboardConf `json:"whiteboard" yaml:"whiteboard"`
 }
 
 type MySQLConf struct {
@@ -70,14 +69,14 @@ type MetricsConf struct {
 }
 
 type AgoraConf struct {
-	APPID         string  `json:"appId" yaml:"appId"`
-	Certificate   string  `json:"certificate" yaml:"certificate"`
-	RestfulID     string  `json:"restfulId" yaml:"restfulId"`
-	RestfulSecret string  `json:"restfulSecret" yaml:"restfulSecret"`
-	OSS           OSSConf `json:"oss" yaml:"oss"`
+	APPID         string       `json:"appId" yaml:"appId"`
+	Certificate   string       `json:"certificate" yaml:"certificate"`
+	RestfulID     string       `json:"restfulId" yaml:"restfulId"`
+	RestfulSecret string       `json:"restfulSecret" yaml:"restfulSecret"`
+	OSS           AgoraOSSConf `json:"oss" yaml:"oss"`
 }
 
-type OSSConf struct {
+type AgoraOSSConf struct {
 	Vendor    string `json:"vendor" yaml:"vendor"`
 	AccessKey string `json:"accessKey" yaml:"accessKey"`
 	SecretKey string `json:"secretKey" yaml:"secretKey"`
@@ -88,16 +87,20 @@ type OSSConf struct {
 }
 
 type StorageConf struct {
-	Concurrent         int                         `json:"concurrent,omitempty" yaml:"concurrent,omitempty"`
-	SingleFileSize     int                         `json:"singleFileSize,omitempty" yaml:"singleFileSize,omitempty"`
-	TotalSize          int                         `json:"totalSize,omitempty" yaml:"totalSize,omitempty"`
-	PrefixPath         string                      `json:"prefixPath,omitempty" yaml:"prefixPath,omitempty"`
-	AllowFileSuffix    string                      `json:"allowFileSuffix,omitempty" yaml:"allowFileSuffix,omitempty"`
-	AllowURLFileSuffix string                      `json:"allowURlFileSuffix,omitempty" yaml:"allowURlFileSuffix,omitempty"`
-	Type               map[string]CloudStorageConf `json:"type" yaml:"type"`
+	Concurrent         int                  `json:"concurrent,omitempty" yaml:"concurrent,omitempty"`
+	SingleFileSize     int                  `json:"singleFileSize,omitempty" yaml:"singleFileSize,omitempty"`
+	TotalSize          int                  `json:"totalSize,omitempty" yaml:"totalSize,omitempty"`
+	PrefixPath         string               `json:"prefixPath,omitempty" yaml:"prefixPath,omitempty"`
+	AllowFileSuffix    string               `json:"allowFileSuffix,omitempty" yaml:"allowFileSuffix,omitempty"`
+	AllowURLFileSuffix string               `json:"allowURlFileSuffix,omitempty" yaml:"allowURlFileSuffix,omitempty"`
+	Type               CloudStorageTypeConf `json:"type" yaml:"type"`
 }
 
-type CloudStorageConf struct {
+type CloudStorageTypeConf struct {
+	OSS CloudStorageOSSConf `json:"oss" yaml:"oss"`
+}
+
+type CloudStorageOSSConf struct {
 	AccessKey string `json:"accessKey" yaml:"accessKey"`
 	SecretKey string `json:"secretKey" yaml:"secretKey"`
 	Endpoint  string `json:"endpoint" yaml:"endpoint"`
@@ -105,7 +108,7 @@ type CloudStorageConf struct {
 	Region    string `json:"region" yaml:"region"`
 }
 
-type WhiteBoard struct {
+type WhiteboardConf struct {
 	AccessKey string `json:"accessKey" yaml:"accessKey"`
-	Secretkey string `json:"secretKey" yaml:"secretKey"`
+	SecretKey string `json:"secretKey" yaml:"secretKey"`
 }

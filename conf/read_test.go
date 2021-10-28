@@ -9,10 +9,10 @@ import (
 )
 
 func TestConvertToYaml(t *testing.T) {
-	os.Setenv("SERVER_PORT", "80")
-	os.Setenv("REDIS_DB", "8")
+	_ = os.Setenv("SERVER_PORT", "80")
+	_ = os.Setenv("REDIS_DB", "8")
 
-	err := ReadConf("")
+	err := Read("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -30,10 +30,10 @@ func TestConvertToYaml(t *testing.T) {
 }
 
 func TestConvertToJSON(t *testing.T) {
-	os.Setenv("SERVER_PORT", "80")
-	os.Setenv("REDIS_DB", "8")
+	_ = os.Setenv("SERVER_PORT", "80")
+	_ = os.Setenv("REDIS_DB", "8")
 
-	err := ReadConf("")
+	err := Read("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,31 +50,25 @@ func TestConvertToJSON(t *testing.T) {
 	}
 }
 
-// go test -v conf.go conf_test.go process.go -run=TestReadFileInConf
+// go test -v conf.go read_test.go read.go -run=TestReadFileInConf
 func TestReadFileInConf(t *testing.T) {
 
-	err := ReadConf("./testdata/.default.yaml")
+	err := Read("./testdata/.default.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Log(ServerPort())
-	t.Log(RunMod())
-	t.Log(IsDev())
-	t.Log(IsTest())
 }
 
-// go test -v conf.go conf_test.go process.go -run=TestReadEnvInConf
+// go test -v conf.go read_test.go read.go -run=TestReadEnvInConf
 func TestReadEnvInConf(t *testing.T) {
-	os.Setenv("SERVER_PORT", "80")
-	os.Setenv("REDIS_DB", "8")
+	_ = os.Setenv("SERVER_PORT", "80")
+	_ = os.Setenv("REDIS_DB", "8")
 
-	err := ReadConf("")
+	err := Read("")
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Log(ServerPort())
-	t.Log(RunMod())
-	t.Log(IsDev())
-	t.Log(IsTest())
 	t.Logf("%+v\n", Redis())
 }

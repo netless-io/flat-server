@@ -1,3 +1,7 @@
+### Project
+**/testdata/*
+flat-server
+
 ### Go template
 # Binaries for programs and plugins
 *.exe
@@ -111,9 +115,5 @@ $RECYCLE.BIN/
 out
 gen
 
-
-### Project
+### GIT
 !.gitkeep
-testdata/
-
-flat-server
