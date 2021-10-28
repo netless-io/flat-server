@@ -11,7 +11,7 @@ import (
 
 func init() {
 	var confFile string
-	flag.StringVar(&confFile, "conf.path", "./config/.default.yaml", "flat configuration file path")
+	flag.StringVar(&confFile, "conf.path", "", "flat configuration file path")
 	flag.Parse()
 
 	err := conf.Read(confFile)
