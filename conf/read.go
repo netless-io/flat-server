@@ -17,7 +17,7 @@ func Read(confFilePath string) error {
 	conf = new(FlatConf)
 
 	if confFilePath == "" {
-		confFilePath = os.Getenv("FLATCONFIG_PATH")
+		confFilePath = os.Getenv("FLAT_CONFIG_PATH")
 	}
 
 	if confFilePath == "" {
