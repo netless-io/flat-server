@@ -1,9 +1,10 @@
 package utils
 
-// file size units
+// Binary size units
+// See: http://en.wikipedia.org/wiki/Binary_prefix
 const (
-	B  = 1024
-	KB = B * 1024
-	MB = KB * 1024
-	GB = MB * 1024
+	KiB = 1024
+	MiB = 1024 * KiB
+	GiB = 1024 * MiB
+	TiB = 1024 * GiB
 )

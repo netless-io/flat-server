@@ -22,7 +22,7 @@ func TestConvertToYaml(t *testing.T) {
 		return
 	}
 
-	err = os.WriteFile("../config/.default.yaml", data, 0666)
+	err = os.WriteFile("./testdata/.default.yaml", data, 0600)
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -43,7 +43,7 @@ func TestConvertToJSON(t *testing.T) {
 		return
 	}
 
-	err = os.WriteFile("../config/.default.json", data, 0666)
+	err = os.WriteFile("./testdata/.default.json", data, 0600)
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -53,7 +53,7 @@ func TestConvertToJSON(t *testing.T) {
 // go test -v conf.go conf_test.go process.go -run=TestReadFileInConf
 func TestReadFileInConf(t *testing.T) {
 
-	err := ReadConf("../config/.default.yaml")
+	err := ReadConf("./testdata/.default.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}

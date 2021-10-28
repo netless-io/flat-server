@@ -11,7 +11,7 @@ type FlatConf struct {
 	Metrics    MetricsConf `json:"metrics" yaml:"metrics"`
 	Agora      AgoraConf   `json:"agora" yaml:"agora"`
 	Storage    StorageConf `json:"storage" yaml:"storage"`
-	Whiteboard Whiteboard  `json:"whiteboard" yaml:"whiteboard"`
+	WhiteBoard WhiteBoard  `json:"whiteboard" yaml:"whiteboard"`
 }
 
 type MySQLConf struct {
@@ -88,12 +88,12 @@ type OSSConf struct {
 }
 
 type StorageConf struct {
-	Concurrent         int                         `json:"concurrent" yaml:"concurrent"`
-	SingleFileSize     int                         `json:"singleFileSize" yaml:"singleFileSize"`
-	TotalSize          int                         `json:"totalSize" yaml:"totalSize"`
-	PrefixPath         string                      `json:"prefixPath" yaml:"prefixPath"`
-	AllowFileSuffix    string                      `json:"allowFileSuffix" yaml:"allowFileSuffix"`
-	AllowURLFileSuffix string                      `json:"allowURlFileSuffix" yaml:"allowURlFileSuffix"`
+	Concurrent         int                         `json:"concurrent,omitempty" yaml:"concurrent,omitempty"`
+	SingleFileSize     int                         `json:"singleFileSize,omitempty" yaml:"singleFileSize,omitempty"`
+	TotalSize          int                         `json:"totalSize,omitempty" yaml:"totalSize,omitempty"`
+	PrefixPath         string                      `json:"prefixPath,omitempty" yaml:"prefixPath,omitempty"`
+	AllowFileSuffix    string                      `json:"allowFileSuffix,omitempty" yaml:"allowFileSuffix,omitempty"`
+	AllowURLFileSuffix string                      `json:"allowURlFileSuffix,omitempty" yaml:"allowURlFileSuffix,omitempty"`
 	Type               map[string]CloudStorageConf `json:"type" yaml:"type"`
 }
 
@@ -105,7 +105,7 @@ type CloudStorageConf struct {
 	Region    string `json:"region" yaml:"region"`
 }
 
-type Whiteboard struct {
+type WhiteBoard struct {
 	AccessKey string `json:"accessKey" yaml:"accessKey"`
 	Secretkey string `json:"secretKey" yaml:"secretKey"`
 }

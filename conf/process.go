@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 
 	"github.com/netless-io/flat-server/pkg/utils"
 	"gopkg.in/yaml.v3"
@@ -14,8 +13,8 @@ import (
 const (
 	defaultENV                       = "development"
 	defaultStorageConcurrent         = 3
-	defaultStorageSingleFileSize     = 500 * utils.MB
-	defaultStorageTotalSize          = 2 * utils.GB
+	defaultStorageSingleFileSize     = 500 * utils.MiB
+	defaultStorageTotalSize          = 2 * utils.GiB
 	defaultStoragePrefixPath         = "cloud-storage"
 	defaultStorageAllowFileSuffix    = "ppt,pptx,doc,docx,pdf,png,jpg,jpeg,gif,mp3,mp4,ice"
 	defaultStorageAllowUrlFileSuffix = "vf"
@@ -147,8 +146,8 @@ func readEnvInConf(conf *FlatConf) error {
 		conf.Storage.AllowURLFileSuffix = allowUrlFileSuffix
 	}
 
-	conf.Whiteboard.AccessKey = os.Getenv("NETLESS_ACCESS_KEY")
-	conf.Whiteboard.Secretkey = os.Getenv("NETLESS_SECRET_ACCESS_KEY")
+	conf.WhiteBoard.AccessKey = os.Getenv("NETLESS_ACCESS_KEY")
+	conf.WhiteBoard.Secretkey = os.Getenv("NETLESS_SECRET_ACCESS_KEY")
 	return nil
 }
 
@@ -158,14 +157,10 @@ func readFileInConf(conf *FlatConf, filePath string) error {
 		return err
 	}
 
-	suffixIndex := strings.LastIndex(filePath, ".")
-	if suffixIndex < 0 {
-		return fmt.Errorf("unsupport config file type: %s", filePath)
+	fileType, err := utils.FileExtension(filePath)
+	if err != nil {
+		return err
 	}
-
-	fileType := filePath[suffixIndex+1:]
-
-	fileType = strings.ToLower(fileType)
 
 	switch fileType {
 
@@ -251,8 +246,8 @@ func JWT() JWTConf {
 	return conf.JWT
 }
 
-func NetLess() Whiteboard {
-	return conf.Whiteboard
+func NetLess() WhiteBoard {
+	return conf.WhiteBoard
 }
 
 func CloudStorage() StorageConf {

@@ -108,4 +108,5 @@ certificate/*
 !certificate/.gitkeep
 flat-server
 *.exe
+testdata
 
