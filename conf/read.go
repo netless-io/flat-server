@@ -52,8 +52,8 @@ func readEnvInConf(conf *FlatConf) error {
 	conf.JWT.Secret = os.Getenv("JWT_SECRET")
 	conf.JWT.Algorithms = os.Getenv("JWT_ALGORITHMS")
 
-	conf.Log.FileName = os.Getenv("LOG_PATHNAME")
-	conf.Log.Path = os.Getenv("LOG_FILENAME")
+	conf.Log.LocalFile.FileName = os.Getenv("LOG_PATHNAME")
+	conf.Log.LocalFile.Path = os.Getenv("LOG_FILENAME")
 
 	conf.Metrics.Enable, _ = strconv.ParseBool(os.Getenv("METRICS_ENABLED"))
 

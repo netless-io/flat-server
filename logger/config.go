@@ -13,7 +13,6 @@ type LogConfig struct {
 	JsonFormat      bool
 	Consoleout      bool
 	Fileout         *Fileout
-	Label           string
 }
 
 type Fileout struct {
@@ -25,7 +24,6 @@ type Fileout struct {
 }
 
 // DefaultLogConf provides a default logging configuration for quick use
-// TODO this may not necessarily work
 func DefaultLogConf() *LogConfig {
 	return &LogConfig{
 		Level:           "info",

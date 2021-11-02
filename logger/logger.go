@@ -104,10 +104,6 @@ func (l *LogType) applyLogConfig() {
 		zap.AddCaller(),
 	)
 
-	if conf.Label != "" {
-		logger = logger.Named(conf.Label)
-	}
-
 	l.logger = logger.Sugar()
 	logger.Sync()
 

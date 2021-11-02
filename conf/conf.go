@@ -6,7 +6,7 @@ type FlatConf struct {
 	Redis      RedisConf      `json:"redis" yaml:"redis"`
 	JWT        JWTConf        `json:"jwt" yaml:"jwt"`
 	OAuth      OAuth          `json:"oauth" yaml:"oauth"`
-	Log        LoggerConf     `json:"log" yaml:"log"`
+	Log        LoggerConf     `json:"log,omitempty" yaml:"log,omitempty"`
 	Metrics    MetricsConf    `json:"metrics" yaml:"metrics"`
 	Agora      AgoraConf      `json:"agora" yaml:"agora"`
 	Storage    StorageConf    `json:"storage" yaml:"storage"`
@@ -35,9 +35,15 @@ type JWTConf struct {
 }
 
 type LoggerConf struct {
-	Path     string `json:"path" yaml:"path"`
-	FileName string `json:"fileName" yaml:"fileName"`
-	Format   string `json:"format" yaml:"format"`
+	Consoleout bool           `json:"consoleout,omitempty" yaml:"consoleout,omitempty"`
+	LocalFile  LoggerFileConf `json:"localFile,,omitempty" yaml:"localFile,omitempty"`
+}
+
+type LoggerFileConf struct {
+	Path          string `json:"path"`
+	FileName      string `json:"fileName"`
+	RotationTime  uint   `json:"rotationTime"`
+	RotationCount uint   `json:"rotationCount"`
 }
 
 type OAuth struct {

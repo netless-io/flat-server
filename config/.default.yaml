@@ -25,10 +25,6 @@ oauth:
     github:
         appId: ""
         secretKey: ""
-log:
-    path: ""
-    fileName: ""
-    format: ""
 metrics:
     enable: false
     endpoint: ""

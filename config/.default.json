@@ -34,11 +34,6 @@
             "secretKey": ""
         }
     },
-    "log": {
-        "path": "",
-        "fileName": "",
-        "format": ""
-    },
     "metrics": {
         "enable": false,
         "endpoint": "",
