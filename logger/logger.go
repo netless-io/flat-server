@@ -8,63 +8,49 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+var logger *zap.SugaredLogger
+
 type Logger interface {
 	Debug(args ...interface{})
 
 	Debugf(template string, args ...interface{})
 
-	Debugw(msg string, keysAndValues ...interface{})
+	Debugw(template string, args ...interface{})
 
 	Info(args ...interface{})
 
 	Infof(template string, args ...interface{})
 
-	Infow(msg string, keysAndValues ...interface{})
+	Infow(template string, args ...interface{})
 
 	Warn(args ...interface{})
 
 	Warnf(template string, args ...interface{})
 
-	Warnw(msg string, keysAndValues ...interface{})
+	Warnw(template string, args ...interface{})
 
 	Error(args ...interface{})
 
 	Errorf(template string, args ...interface{})
 
-	Errorw(msg string, keysAndValues ...interface{})
-
-	Fatal(args ...interface{})
-
-	Fatalf(template string, args ...interface{})
-
-	Fatalw(msg string, keysAndValues ...interface{})
+	Errorw(template string, args ...interface{})
 }
 
-type LogType struct {
-	conf   *LogConfig
-	logger *zap.SugaredLogger
-}
-
-func New(conf *LogConfig) Logger {
-	logger := new(LogType)
+func New(conf *LogConfig) error {
 
 	if conf == nil {
-		logger.conf = DefaultLogConf()
-	} else {
-		logger.conf = conf
+		conf = DefaultLogConf()
 	}
 
-	logger.conf.atomicLevel = zap.NewAtomicLevel()
+	conf.atomicLevel = zap.NewAtomicLevel()
 
-	logger.applyLogConfig()
-	return logger
+	return conf.applyLogConfig()
 }
 
 // apply
-func (l *LogType) applyLogConfig() {
+func (conf *LogConfig) applyLogConfig() error {
 
 	var (
-		conf    = l.conf
 		cores   = []zapcore.Core{}
 		encoder zapcore.Encoder
 	)
@@ -98,73 +84,13 @@ func (l *LogType) applyLogConfig() {
 
 	combinedCore := zapcore.NewTee(cores...)
 
-	logger := zap.New(combinedCore,
+	zapLog := zap.New(combinedCore,
 		zap.AddCallerSkip(conf.CallerSkip),
 		zap.AddStacktrace(getLevel(conf.StacktraceLevel)),
 		zap.AddCaller(),
 	)
 
-	l.logger = logger.Sugar()
-	logger.Sync()
+	logger = zapLog.Sugar()
+	return logger.Sync()
 
-}
-
-func (l *LogType) Debug(args ...interface{}) {
-	l.logger.Debug(args...)
-}
-
-func (l *LogType) Debugf(template string, args ...interface{}) {
-	l.logger.Debugf(template, args...)
-}
-
-func (l *LogType) Debugw(template string, keysAndValues ...interface{}) {
-	l.logger.Debugw(template, keysAndValues...)
-}
-
-func (l *LogType) Info(args ...interface{}) {
-	l.logger.Info(args...)
-}
-
-func (l *LogType) Infof(template string, args ...interface{}) {
-	l.logger.Infof(template, args...)
-}
-
-func (l *LogType) Infow(template string, keysAndValues ...interface{}) {
-	l.logger.Infow(template, keysAndValues...)
-}
-
-func (l *LogType) Warn(args ...interface{}) {
-	l.logger.Warn(args...)
-}
-
-func (l *LogType) Warnf(template string, args ...interface{}) {
-	l.logger.Warnf(template, args...)
-}
-
-func (l *LogType) Warnw(template string, keysAndValues ...interface{}) {
-	l.logger.Warnf(template, keysAndValues...)
-}
-
-func (l *LogType) Error(args ...interface{}) {
-	l.logger.Error(args...)
-}
-
-func (l *LogType) Errorf(template string, args ...interface{}) {
-	l.logger.Errorf(template, args...)
-}
-
-func (l *LogType) Errorw(template string, keysAndValues ...interface{}) {
-	l.logger.Errorw(template, keysAndValues...)
-}
-
-func (l *LogType) Fatal(args ...interface{}) {
-	l.logger.Fatal(args...)
-}
-
-func (l *LogType) Fatalf(template string, args ...interface{}) {
-	l.logger.Fatalf(template, args...)
-}
-
-func (l *LogType) Fatalw(template string, keysAndValues ...interface{}) {
-	l.logger.Fatalw(template, keysAndValues...)
 }

@@ -27,7 +27,7 @@ type Fileout struct {
 func DefaultLogConf() *LogConfig {
 	return &LogConfig{
 		Level:           "info",
-		StacktraceLevel: "panic",
+		StacktraceLevel: "error",
 		CallerSkip:      1,
 		JsonFormat:      true,
 		Consoleout:      true,
@@ -63,9 +63,9 @@ func getEncoderConf() zapcore.EncoderConfig {
 		LevelKey:       "level",
 		TimeKey:        "time",
 		MessageKey:     "message",
-		NameKey:        "label",
 		CallerKey:      "caller",
-		StacktraceKey:  "stack",
+		StacktraceKey:  "stacktrace",
+		FunctionKey:    zapcore.OmitKey,
 		LineEnding:     zapcore.DefaultLineEnding,
 		EncodeLevel:    zapcore.CapitalLevelEncoder,
 		EncodeTime:     zapcore.ISO8601TimeEncoder,
