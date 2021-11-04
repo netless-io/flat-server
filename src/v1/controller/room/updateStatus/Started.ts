@@ -4,7 +4,6 @@ import { Status } from "../../../../constants/Project";
 import { PeriodicStatus, RoomStatus } from "../../../../model/room/Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../../dao";
-import { roomIsRunning } from "../utils/RoomStatus";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 
@@ -31,10 +30,13 @@ export class UpdateStatusStarted extends AbstractController<RequestType, Respons
         const { roomUUID } = this.body;
         const userUUID = this.userUUID;
 
-        const roomInfo = await RoomDAO().findOne(["room_status", "owner_uuid", "periodic_uuid"], {
-            room_uuid: roomUUID,
-            owner_uuid: userUUID,
-        });
+        const roomInfo = await RoomDAO().findOne(
+            ["room_status", "owner_uuid", "periodic_uuid", "begin_time"],
+            {
+                room_uuid: roomUUID,
+                owner_uuid: userUUID,
+            },
+        );
 
         if (roomInfo === undefined) {
             return {
@@ -43,8 +45,7 @@ export class UpdateStatusStarted extends AbstractController<RequestType, Respons
             };
         }
 
-        // if the room is running, return
-        if (roomIsRunning(roomInfo.room_status)) {
+        if (roomInfo.room_status === RoomStatus.Started) {
             return {
                 status: Status.Success,
                 data: {},
@@ -61,7 +62,8 @@ export class UpdateStatusStarted extends AbstractController<RequestType, Respons
         await getConnection().transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
-            const beginTime = new Date();
+            const beginTime =
+                roomInfo.room_status === RoomStatus.Paused ? roomInfo.begin_time : new Date();
 
             commands.push(
                 RoomDAO(t).update(
@@ -76,17 +78,19 @@ export class UpdateStatusStarted extends AbstractController<RequestType, Respons
             );
 
             if (roomInfo.periodic_uuid !== "") {
-                commands.push(
-                    RoomPeriodicConfigDAO(t).update(
-                        {
-                            periodic_status: PeriodicStatus.Started,
-                        },
-                        {
-                            periodic_uuid: roomInfo.periodic_uuid,
-                            periodic_status: PeriodicStatus.Idle,
-                        },
-                    ),
-                );
+                if (roomInfo.room_status === RoomStatus.Idle) {
+                    commands.push(
+                        RoomPeriodicConfigDAO(t).update(
+                            {
+                                periodic_status: PeriodicStatus.Started,
+                            },
+                            {
+                                periodic_uuid: roomInfo.periodic_uuid,
+                                periodic_status: PeriodicStatus.Idle,
+                            },
+                        ),
+                    );
+                }
 
                 commands.push(
                     RoomPeriodicDAO(t).update(
