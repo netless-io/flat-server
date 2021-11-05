@@ -3,7 +3,7 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/netless-io/flat-server/api/middleware"
-	"github.com/netless-io/flat-server/logger"
+	v1 "github.com/netless-io/flat-server/api/v1"
 )
 
 func InitRoute() *gin.Engine {
@@ -16,24 +16,10 @@ func InitRoute() *gin.Engine {
 
 	app.Use(middleware.Logger())
 
-	// test logger
-	app.GET("/test", HandleTest)
+	apiV1 := app.Group("/v1")
+	{
+		v1.RegisterUsersRoutes(apiV1)
+	}
 
 	return app
-}
-
-func HandleTest(ctx *gin.Context) {
-	// 去参数
-	log, exists := ctx.Get("logger")
-	if !exists {
-		panic(111)
-	}
-
-	logger, ok := log.(*logger.TraceLog)
-	if !ok {
-		panic(222)
-	}
-
-	logger.Info("", 3333)
-
 }

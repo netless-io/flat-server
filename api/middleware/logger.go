@@ -11,12 +11,10 @@ import (
 )
 
 type PayLoad struct {
-	Latency    string       `json:"latency"`
+	DurationMS int64        `json:"durationMS"`
 	Method     string       `json:"method"`
 	StatusCode int          `json:"status_code"`
 	BodySize   int          `json:"body_size"`
-	ClientIP   string       `json:"client_ip"`
-	Path       string       `json:"path"`
 	User       *UserPayLoad `json:"user,omitempty"`
 }
 
@@ -32,7 +30,6 @@ func Logger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		path := c.Request.URL.Path
-		raw := c.Request.URL.RawQuery
 
 		requestID := strings.ReplaceAll(uuid.New().String(), "-", "")
 		log := logger.NewTraceLog(requestID)
@@ -42,20 +39,28 @@ func Logger() gin.HandlerFunc {
 		// Process request
 		c.Next()
 
+		bodySize := c.Writer.Size()
+		if bodySize < 0 {
+			bodySize = 0
+		}
+
 		payload := PayLoad{
-			Latency:    time.Since(start).String(),
-			ClientIP:   c.ClientIP(),
+			DurationMS: time.Since(start).Milliseconds(),
 			Method:     c.Request.Method,
+			BodySize:   bodySize,
 			StatusCode: c.Writer.Status(),
-			BodySize:   c.Writer.Size(),
 		}
 
-		if raw != "" {
-			path = path + "?" + raw
+		if userAuth, exists := c.Get("user_auth"); exists {
+			if userPayLoad, ok := userAuth.(UserPayLoad); ok {
+				payload.User = &userPayLoad
+			}
 		}
 
-		payload.Path = path
-		log.Infow("", zap.Any("payload", payload))
+		param := make(map[string]PayLoad)
+		param[path] = payload
+
+		log.Infow("", zap.Any("payload", param))
 
 	}
 }
