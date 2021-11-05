@@ -11,7 +11,7 @@ import (
 )
 
 type PayLoad struct {
-	DurationMS int64        `json:"durationMS"`
+	DurationMS int64        `json:"duration_ms"`
 	Method     string       `json:"method"`
 	StatusCode int          `json:"status_code"`
 	BodySize   int          `json:"body_size"`
@@ -51,6 +51,7 @@ func Logger() gin.HandlerFunc {
 			StatusCode: c.Writer.Status(),
 		}
 
+		// TODO jwt trace log
 		if userAuth, exists := c.Get("user_auth"); exists {
 			if userPayLoad, ok := userAuth.(UserPayLoad); ok {
 				payload.User = &userPayLoad
@@ -60,7 +61,7 @@ func Logger() gin.HandlerFunc {
 		param := make(map[string]PayLoad)
 		param[path] = payload
 
-		log.Infow("", zap.Any("payload", param))
+		log.Infow("router info", zap.Any("payload", param))
 
 	}
 }

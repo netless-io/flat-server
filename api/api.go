@@ -3,23 +3,19 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/netless-io/flat-server/api/middleware"
-	v1 "github.com/netless-io/flat-server/api/v1"
+	"github.com/netless-io/flat-server/logger"
 )
 
-func InitRoute() *gin.Engine {
+func InitRoute(mod string) *gin.Engine {
 	app := gin.New()
 
-	gin.DisableConsoleColor()
-
-	// local dev
-	gin.SetMode(gin.DebugMode)
-
-	app.Use(middleware.Logger())
-
-	apiV1 := app.Group("/v1")
-	{
-		v1.RegisterUsersRoutes(apiV1)
+	// default debug
+	if mod == "production" {
+		gin.SetMode(gin.ReleaseMode)
 	}
+
+	logger.Infof("run mod %s ...", mod)
+	app.Use(middleware.Logger())
 
 	return app
 }

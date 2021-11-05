@@ -13,7 +13,7 @@ import (
 
 func LocalFileWriter(path, name string, rotationTime, rotationCount uint) io.Writer {
 	writer, _ := rotatelogs.New(
-		filepath.Join(path, name+".%Y%m%d%H.log"),
+		filepath.Join(path, name+".%Y-%m-%d-%H.log"),
 		rotatelogs.WithRotationTime(time.Duration(rotationTime)*time.Hour), // Log cutting interval
 		rotatelogs.WithRotationCount(rotationCount),                        // Maximum number of log files to be saved
 	)

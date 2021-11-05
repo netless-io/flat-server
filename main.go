@@ -31,9 +31,12 @@ func main() {
 	logConf := logger.DefaultLogConf()
 	logger.New(logConf)
 
-	route := api.InitRoute()
+	route := api.InitRoute(internal.ENV)
 
-	if err := route.Run(":80"); err != nil {
+	port := conf.ServerPort()
+	logger.Infof("listening and serving HTTP on :%s", port)
+
+	if err := route.Run(":" + port); err != nil {
 		log.Fatal(err)
 	}
 }
