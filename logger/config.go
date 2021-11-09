@@ -11,11 +11,11 @@ type LogConfig struct {
 	atomicLevel     zap.AtomicLevel
 	CallerSkip      int
 	JsonFormat      bool
-	Consoleout      bool
-	Fileout         *Fileout
+	Console         bool
+	File            *File
 }
 
-type Fileout struct {
+type File struct {
 	Enable        bool
 	Path          string
 	Name          string
@@ -30,8 +30,8 @@ func DefaultLogConf() *LogConfig {
 		StacktraceLevel: "error",
 		CallerSkip:      1,
 		JsonFormat:      true,
-		Consoleout:      true,
-		Fileout: &Fileout{
+		Console:         true,
+		File: &File{
 			Enable:        false,
 			Path:          "",
 			Name:          "",

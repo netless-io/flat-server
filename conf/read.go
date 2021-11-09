@@ -52,11 +52,10 @@ func readEnvInConf(conf *FlatConf) error {
 	conf.JWT.Secret = os.Getenv("JWT_SECRET")
 	conf.JWT.Algorithms = os.Getenv("JWT_ALGORITHMS")
 
-	conf.Log.LocalFile.FileName = os.Getenv("LOG_PATHNAME")
-	conf.Log.LocalFile.Path = os.Getenv("LOG_FILENAME")
+	conf.Log.File.Name = os.Getenv("LOG_FILENAME")
+	conf.Log.File.Path = os.Getenv("LOG_PATHNAME")
 
 	conf.Metrics.Enable, _ = strconv.ParseBool(os.Getenv("METRICS_ENABLED"))
-
 	conf.Metrics.Endpoint = os.Getenv("METRICS_ENDPOINT")
 	conf.Metrics.Port = assertStrToIntByEnv("METRICS_PORT")
 
@@ -65,8 +64,8 @@ func readEnvInConf(conf *FlatConf) error {
 	conf.OAuth.WeChat.Mobile.AccessKeyID = os.Getenv("MOBILE_WECHAT_APP_ID")
 	conf.OAuth.WeChat.Mobile.SecretKey = os.Getenv("MOBILE_WECHAT_APP_SECRET")
 
-	conf.OAuth.Github.APPID = os.Getenv("GITHUB_CLIENT_ID")
-	conf.OAuth.Github.SecretKey = os.Getenv("GITHUB_CLIENT_SECRET")
+	conf.OAuth.Github.APPID = os.Getenv("GITHUB_APP_ID")
+	conf.OAuth.Github.SecretKey = os.Getenv("GITHUB_SECRET")
 
 	conf.Agora.APPID = os.Getenv("AGORA_APP_ID")
 	conf.Agora.Certificate = os.Getenv("AGORA_APP_CERTIFICATE")
@@ -74,8 +73,8 @@ func readEnvInConf(conf *FlatConf) error {
 	conf.Agora.RestfulSecret = os.Getenv("AGORA_RESTFUL_SECRET")
 
 	conf.Agora.OSS.Vendor = os.Getenv("AGORA_OSS_VENDOR")
-	conf.Agora.OSS.AccessKey = os.Getenv("AGORA_OSS_ACCESS_KEY_ID")
-	conf.Agora.OSS.SecretKey = os.Getenv("AGORA_OSS_ACCESS_KEY_SECRET")
+	conf.Agora.OSS.AccessKey = os.Getenv("AGORA_OSS_ACCESS_KEY")
+	conf.Agora.OSS.SecretKey = os.Getenv("AGORA_OSS_SECRET_KEY")
 	conf.Agora.OSS.Region = os.Getenv("AGORA_OSS_REGION")
 	conf.Agora.OSS.Bucket = os.Getenv("AGORA_OSS_BUCKET")
 	conf.Agora.OSS.Folder = os.Getenv("AGORA_OSS_FOLDER")
@@ -84,7 +83,7 @@ func readEnvInConf(conf *FlatConf) error {
 	conf.Storage.Type = CloudStorageTypeConf{
 		OSS: CloudStorageOSSConf{
 			AccessKey: os.Getenv("CLOUD_STORAGE_OSS_ACCESS_KEY"),
-			SecretKey: os.Getenv("CLOUD_STORAGE_OSS_ACCESS_KEY_SECRET"),
+			SecretKey: os.Getenv("CLOUD_STORAGE_OSS_SECRET_KEY"),
 			Endpoint:  os.Getenv("CLOUD_STORAGE_OSS_ENDPOINT"),
 			Region:    os.Getenv("CLOUD_STORAGE_OSS_REGION"),
 			Bucket:    os.Getenv("CLOUD_STORAGE_OSS_BUCKET"),
@@ -98,7 +97,7 @@ func readEnvInConf(conf *FlatConf) error {
 	conf.Storage.AllowURLFileSuffix = os.Getenv("CLOUD_STORAGE_ALLOW_URL_FILE_SUFFIX")
 
 	conf.Whiteboard.AccessKey = os.Getenv("WHITEBOARD_ACCESS_KEY")
-	conf.Whiteboard.SecretKey = os.Getenv("WHITEBOARD_SECRET_ACCESS_KEY")
+	conf.Whiteboard.SecretKey = os.Getenv("WHITEBOARD_SECRET_KEY")
 
 	return nil
 }

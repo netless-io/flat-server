@@ -10,9 +10,9 @@ func TestLog(t *testing.T) {
 	conf := DefaultLogConf()
 	conf.Level = "debug"
 	conf.StacktraceLevel = "warn"
-	conf.Fileout.Enable = true
-	conf.Fileout.Name = "test"
-	conf.Fileout.Path = "./testdata"
+	conf.File.Enable = true
+	conf.File.Name = "test"
+	conf.File.Path = "./testdata"
 
 	New(conf)
 	logger.Debug("Debug")

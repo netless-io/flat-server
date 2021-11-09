@@ -35,15 +35,15 @@ type JWTConf struct {
 }
 
 type LoggerConf struct {
-	Consoleout bool           `json:"consoleout,omitempty" yaml:"consoleout,omitempty"`
-	LocalFile  LoggerFileConf `json:"localFile,,omitempty" yaml:"localFile,omitempty"`
+	Console bool           `json:"console,omitempty" yaml:"console,omitempty"`
+	File    LoggerFileConf `json:"file,omitempty" yaml:"file,omitempty"`
 }
 
 type LoggerFileConf struct {
-	Path          string `json:"path"`
-	FileName      string `json:"fileName"`
-	RotationTime  uint   `json:"rotationTime"`
-	RotationCount uint   `json:"rotationCount"`
+	Path          string `json:"path" yaml:"path"`
+	Name          string `json:"name" yaml:"name"`
+	RotationTime  uint   `json:"rotationTime" yaml:"rotationTime"`
+	RotationCount uint   `json:"rotationCount" yaml:"rotationCount"`
 }
 
 type OAuth struct {
@@ -71,7 +71,7 @@ type GithubOAuth struct {
 type MetricsConf struct {
 	Enable   bool   `json:"enable" yaml:"enable"`
 	Endpoint string `json:"endpoint" yaml:"endpoint"`
-	Port     int    `json:"port"`
+	Port     int    `json:"port" yaml:"port"`
 }
 
 type AgoraConf struct {

@@ -35,7 +35,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	app := api.Setup(internal.ENV)
+	app := api.New(internal.ENV)
 
 	port := strconv.Itoa(conf.ServerPort())
 

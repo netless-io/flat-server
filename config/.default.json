@@ -35,9 +35,9 @@
         }
     },
     "log": {
-        "localFile": {
+        "file": {
             "path": "",
-            "fileName": "",
+            "name": "",
             "rotationTime": 0,
             "rotationCount": 0
         }

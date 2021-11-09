@@ -5,7 +5,7 @@ import (
 	"github.com/netless-io/flat-server/api/middleware"
 )
 
-func Setup(env string) *gin.Engine {
+func New(env string) *gin.Engine {
 	app := gin.New()
 
 	if env == "production" {

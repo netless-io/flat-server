@@ -64,18 +64,18 @@ func (conf *LogConfig) applyLogConfig() error {
 
 	conf.atomicLevel.SetLevel(getLevel(conf.Level))
 
-	if conf.Consoleout {
+	if conf.Console {
 		writer := zapcore.Lock(os.Stdout)
 		core := zapcore.NewCore(encoder, writer, conf.atomicLevel)
 		cores = append(cores, core)
 	}
 
-	if conf.Fileout.Enable {
+	if conf.File.Enable {
 		fileWriter := storage.LocalFileWriter(
-			conf.Fileout.Path,
-			conf.Fileout.Name,
-			conf.Fileout.RotationTime,
-			conf.Fileout.RotationCount,
+			conf.File.Path,
+			conf.File.Name,
+			conf.File.RotationTime,
+			conf.File.RotationCount,
 		)
 
 		writer := zapcore.AddSync(fileWriter)
