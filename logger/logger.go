@@ -1,7 +1,9 @@
 package logger
 
 import (
+	"errors"
 	"os"
+	"syscall"
 
 	"github.com/netless-io/flat-server/logger/storage"
 	"go.uber.org/zap"
@@ -47,11 +49,10 @@ func New(conf *LogConfig) error {
 	return conf.applyLogConfig()
 }
 
-// apply
 func (conf *LogConfig) applyLogConfig() error {
 
 	var (
-		cores   = []zapcore.Core{}
+		cores   []zapcore.Core
 		encoder zapcore.Encoder
 	)
 
@@ -91,8 +92,14 @@ func (conf *LogConfig) applyLogConfig() error {
 	)
 
 	logger = zapLog.Sugar()
-	return logger.Sync()
 
+	// see: https://github.com/uber-go/zap/issues/880 and https://github.com/uber-go/zap/issues/991
+	err := logger.Sync()
+	if err != nil && !errors.Is(err, syscall.ENOTTY) {
+		return err
+	}
+
+	return nil
 }
 
 func Debug(args ...interface{}) {

@@ -1,13 +1,13 @@
-serverPort: ""
+serverPort: 8081
 mysql:
     host: ""
-    port: ""
+    port: 0
     username: ""
     password: ""
     name: ""
 redis:
     host: ""
-    port: ""
+    port: 0
     username: ""
     password: ""
     pool: 0
@@ -28,7 +28,7 @@ oauth:
 metrics:
     enable: false
     endpoint: ""
-    port: ""
+    port: 0
 agora:
     appId: ""
     certificate: ""

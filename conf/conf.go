@@ -1,7 +1,7 @@
 package conf
 
 type FlatConf struct {
-	ServerPort string         `json:"serverPort" yaml:"serverPort"`
+	ServerPort int            `json:"serverPort" yaml:"serverPort"`
 	MySQL      MySQLConf      `json:"mysql" yaml:"mysql"`
 	Redis      RedisConf      `json:"redis" yaml:"redis"`
 	JWT        JWTConf        `json:"jwt" yaml:"jwt"`
@@ -15,7 +15,7 @@ type FlatConf struct {
 
 type MySQLConf struct {
 	Host     string `json:"host" yaml:"host"`
-	Port     string `json:"port" yaml:"port"`
+	Port     int    `json:"port" yaml:"port"`
 	Username string `json:"username" yaml:"username"`
 	Password string `json:"password" yaml:"password"`
 	Name     string `json:"name" yaml:"name"`
@@ -23,7 +23,7 @@ type MySQLConf struct {
 
 type RedisConf struct {
 	Host     string `json:"host" yaml:"host"`
-	Port     string `json:"port" yaml:"port"`
+	Port     int    `json:"port" yaml:"port"`
 	Username string `json:"username" yaml:"username"`
 	Password string `json:"password" yaml:"password"`
 	Pool     int    `json:"pool" yaml:"pool"`
@@ -71,7 +71,7 @@ type GithubOAuth struct {
 type MetricsConf struct {
 	Enable   bool   `json:"enable" yaml:"enable"`
 	Endpoint string `json:"endpoint" yaml:"endpoint"`
-	Port     string `json:"port"`
+	Port     int    `json:"port"`
 }
 
 type AgoraConf struct {

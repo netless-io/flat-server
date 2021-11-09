@@ -1,16 +1,19 @@
 package main
 
 import (
+	_ "embed"
 	"flag"
 	"fmt"
-	"log"
-	"os"
-
 	"github.com/netless-io/flat-server/api"
 	"github.com/netless-io/flat-server/conf"
 	"github.com/netless-io/flat-server/internal"
 	"github.com/netless-io/flat-server/logger"
+	"log"
+	"strconv"
 )
+
+//go:embed VERSION
+var Version string
 
 func init() {
 	var confFile string
@@ -19,24 +22,26 @@ func init() {
 
 	err := conf.Read(confFile)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 }
 
 func main() {
-	fmt.Println("hello flat-server")
-	fmt.Printf("environment: %s, version: %s\n", internal.ENV, internal.Version)
+	fmt.Printf("environment: %s, version: %s\n", internal.ENV, Version)
 
 	logConf := logger.DefaultLogConf()
-	logger.New(logConf)
 
-	route := api.InitRoute(internal.ENV)
-
-	port := conf.ServerPort()
-	logger.Infof("listening and serving HTTP on :%s", port)
-
-	if err := route.Run(":" + port); err != nil {
+	if err := logger.New(logConf); err != nil {
 		log.Fatal(err)
+	}
+
+	app := api.Setup(internal.ENV)
+
+	port := strconv.Itoa(conf.ServerPort())
+
+	if err := app.Run(":" + port); err != nil {
+		log.Fatal(err)
+	} else {
+		logger.Infof("listening and serving HTTP on :%s", port)
 	}
 }
