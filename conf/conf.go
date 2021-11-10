@@ -14,11 +14,14 @@ type FlatConf struct {
 }
 
 type MySQLConf struct {
-	Host     string `json:"host" yaml:"host"`
-	Port     int    `json:"port" yaml:"port"`
-	Username string `json:"username" yaml:"username"`
-	Password string `json:"password" yaml:"password"`
-	Name     string `json:"name" yaml:"name"`
+	Host            string `json:"host" yaml:"host"`
+	Port            int    `json:"port" yaml:"port"`
+	Username        string `json:"username" yaml:"username"`
+	Password        string `json:"password" yaml:"password"`
+	Name            string `json:"name" yaml:"name"`
+	ConnMaxLifetime int    `json:"connMaxLifetime,omitempty" yaml:"connMaxLifetime,omitempty"`
+	MaxOpenConns    int    `json:"maxOpenConns,omitempty" yaml:"maxOpenConns,omitempty"`
+	MaxIdleConns    int    `json:"maxIdleConns,omitempty" yaml:"maxIdleConns,omitempty"`
 }
 
 type RedisConf struct {
