@@ -35,8 +35,10 @@ type JWTConf struct {
 }
 
 type LoggerConf struct {
-	Console bool           `json:"console,omitempty" yaml:"console,omitempty"`
-	File    LoggerFileConf `json:"file,omitempty" yaml:"file,omitempty"`
+	Level           string         `json:"level,omitempty" yaml:"level,omitempty"`
+	StackTraceLevel string         `json:"stackTraceLevel,omitempty" yaml:"stackTraceLevel,omitempty"`
+	DisableConsole  bool           `json:"disableConsole,omitempty" yaml:"disableConsole,omitempty"`
+	File            LoggerFileConf `json:"file,omitempty" yaml:"file,omitempty"`
 }
 
 type LoggerFileConf struct {

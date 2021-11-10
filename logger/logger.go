@@ -3,8 +3,10 @@ package logger
 import (
 	"errors"
 	"os"
+	"path/filepath"
 	"syscall"
 
+	"github.com/netless-io/flat-server/conf"
 	"github.com/netless-io/flat-server/logger/storage"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -38,15 +40,65 @@ type Logger interface {
 	Errorw(template string, args ...interface{})
 }
 
-func New(conf *LogConfig) error {
-
-	if conf == nil {
-		conf = DefaultLogConf()
+func New(loggerConf conf.LoggerConf) error {
+	conf, err := createLogConf(loggerConf)
+	if err != nil {
+		return err
 	}
 
-	conf.atomicLevel = zap.NewAtomicLevel()
-
 	return conf.applyLogConfig()
+}
+
+func createLogConf(loggerConf conf.LoggerConf) (*LogConfig, error) {
+	conf := new(LogConfig)
+	defaultConf := defaultLogConf()
+
+	defer func() {
+		conf.atomicLevel = zap.NewAtomicLevel()
+	}()
+
+	// level filepath is null indicates that the log configuration is not specified
+	if loggerConf.Level == "" && loggerConf.File.Path == "" {
+		conf = defaultConf
+		return conf, nil
+	}
+
+	conf.CallerSkip = defaultConf.CallerSkip
+	conf.JsonFormat = defaultConf.JsonFormat
+
+	if loggerConf.Level == "" {
+		conf.Level = defaultConf.Level
+	}
+
+	if loggerConf.StackTraceLevel == "" {
+		conf.StackTraceLevel = defaultConf.StackTraceLevel
+	}
+
+	if loggerConf.File.Path != "" {
+		conf.File.Enable = true
+		logFilePath, err := filepath.Abs(loggerConf.File.Path)
+		if err != nil {
+			return nil, err
+		}
+
+		conf.File.Path = logFilePath
+		conf.File.Name = loggerConf.File.Name
+
+		if loggerConf.File.RotationCount <= 0 {
+			conf.File.RotationCount = defaultConf.File.RotationCount
+		}
+
+		if loggerConf.File.RotationTime <= 0 {
+			conf.File.RotationTime = defaultConf.File.RotationTime
+		}
+
+	}
+
+	if !loggerConf.DisableConsole {
+		conf.Console = defaultConf.Console
+	}
+
+	return conf, nil
 }
 
 func (conf *LogConfig) applyLogConfig() error {
@@ -87,7 +139,7 @@ func (conf *LogConfig) applyLogConfig() error {
 
 	zapLog := zap.New(combinedCore,
 		zap.AddCallerSkip(conf.CallerSkip),
-		zap.AddStacktrace(getLevel(conf.StacktraceLevel)),
+		zap.AddStacktrace(getLevel(conf.StackTraceLevel)),
 		zap.AddCaller(),
 	)
 

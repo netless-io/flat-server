@@ -4,12 +4,13 @@ import (
 	_ "embed"
 	"flag"
 	"fmt"
+	"log"
+	"strconv"
+
 	"github.com/netless-io/flat-server/api"
 	"github.com/netless-io/flat-server/conf"
 	"github.com/netless-io/flat-server/internal"
 	"github.com/netless-io/flat-server/logger"
-	"log"
-	"strconv"
 )
 
 //go:embed VERSION
@@ -29,9 +30,7 @@ func init() {
 func main() {
 	fmt.Printf("environment: %s, version: %s\n", internal.ENV, Version)
 
-	logConf := logger.DefaultLogConf()
-
-	if err := logger.New(logConf); err != nil {
+	if err := logger.New(conf.LogConfig()); err != nil {
 		log.Fatal(err)
 	}
 
@@ -39,9 +38,9 @@ func main() {
 
 	port := strconv.Itoa(conf.ServerPort())
 
+	logger.Infof("listening and serving HTTP on :%s", port)
+
 	if err := app.Run(":" + port); err != nil {
 		log.Fatal(err)
-	} else {
-		logger.Infof("listening and serving HTTP on :%s", port)
 	}
 }

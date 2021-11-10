@@ -3,11 +3,12 @@ package conf
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/netless-io/flat-server/pkg/utils"
-	"gopkg.in/yaml.v3"
 	"log"
 	"os"
 	"strconv"
+
+	"github.com/netless-io/flat-server/pkg/utils"
+	"gopkg.in/yaml.v3"
 )
 
 var conf *FlatConf

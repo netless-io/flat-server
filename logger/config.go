@@ -7,12 +7,12 @@ import (
 
 type LogConfig struct {
 	Level           string
-	StacktraceLevel string
+	StackTraceLevel string
 	atomicLevel     zap.AtomicLevel
 	CallerSkip      int
 	JsonFormat      bool
 	Console         bool
-	File            *File
+	File            File
 }
 
 type File struct {
@@ -23,15 +23,15 @@ type File struct {
 	RotationCount uint // max number of log files to be save
 }
 
-// DefaultLogConf provides a default logging configuration for quick use
-func DefaultLogConf() *LogConfig {
+// defaultLogConf provides a default logging configuration for quick use
+func defaultLogConf() *LogConfig {
 	return &LogConfig{
 		Level:           "info",
-		StacktraceLevel: "error",
+		StackTraceLevel: "error",
 		CallerSkip:      1,
 		JsonFormat:      true,
 		Console:         true,
-		File: &File{
+		File: File{
 			Enable:        false,
 			Path:          "",
 			Name:          "",

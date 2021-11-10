@@ -3,22 +3,26 @@ package logger
 import (
 	"testing"
 
+	"github.com/netless-io/flat-server/conf"
 	"go.uber.org/zap"
 )
 
 func TestLog(t *testing.T) {
-	conf := DefaultLogConf()
+	conf := conf.LoggerConf{}
 	conf.Level = "debug"
-	conf.StacktraceLevel = "warn"
-	conf.File.Enable = true
+	conf.StackTraceLevel = "warn"
 	conf.File.Name = "test"
 	conf.File.Path = "./testdata"
 
-	New(conf)
-	logger.Debug("Debug")
-	logger.Debugf("%s", "Debuf")
-	logger.Info("Info")
-	logger.Infof("%s", "Infof")
+	err := New(conf)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	Debug("Debug")
+	Debugf("%s", "Debuf")
+	Info("Info")
+	Infof("%s", "Infof")
 
 	userData := make(map[string][]string)
 	userData["/v1"] = []string{"a", "b"}
@@ -30,9 +34,9 @@ func TestLog(t *testing.T) {
 		Path: "/v1/flat",
 		User: userData,
 	}
-	logger.Infow("this a message", zap.Any("payload", payLoad))
-	logger.Warn("Warn")
-	logger.Warnf("%s", "Warnf")
-	logger.Error("Error")
-	logger.Errorf("%s", "Errorf")
+	Infow("this a message", zap.Any("payload", payLoad))
+	Warn("Warn")
+	Warnf("%s", "Warnf")
+	Error("Error")
+	Errorf("%s", "Errorf")
 }
