@@ -1,12 +1,12 @@
 package conf
 
 type FlatConf struct {
-	ServerPort string         `json:"serverPort" yaml:"serverPort"`
+	ServerPort int            `json:"serverPort" yaml:"serverPort"`
 	MySQL      MySQLConf      `json:"mysql" yaml:"mysql"`
 	Redis      RedisConf      `json:"redis" yaml:"redis"`
 	JWT        JWTConf        `json:"jwt" yaml:"jwt"`
 	OAuth      OAuth          `json:"oauth" yaml:"oauth"`
-	Log        LoggerConf     `json:"log" yaml:"log"`
+	Log        LoggerConf     `json:"log,omitempty" yaml:"log,omitempty"`
 	Metrics    MetricsConf    `json:"metrics" yaml:"metrics"`
 	Agora      AgoraConf      `json:"agora" yaml:"agora"`
 	Storage    StorageConf    `json:"storage" yaml:"storage"`
@@ -15,7 +15,7 @@ type FlatConf struct {
 
 type MySQLConf struct {
 	Host     string `json:"host" yaml:"host"`
-	Port     string `json:"port" yaml:"port"`
+	Port     int    `json:"port" yaml:"port"`
 	Username string `json:"username" yaml:"username"`
 	Password string `json:"password" yaml:"password"`
 	Name     string `json:"name" yaml:"name"`
@@ -23,7 +23,7 @@ type MySQLConf struct {
 
 type RedisConf struct {
 	Host     string `json:"host" yaml:"host"`
-	Port     string `json:"port" yaml:"port"`
+	Port     int    `json:"port" yaml:"port"`
 	Username string `json:"username" yaml:"username"`
 	Password string `json:"password" yaml:"password"`
 	Pool     int    `json:"pool" yaml:"pool"`
@@ -35,9 +35,17 @@ type JWTConf struct {
 }
 
 type LoggerConf struct {
-	Path     string `json:"path" yaml:"path"`
-	FileName string `json:"fileName" yaml:"fileName"`
-	Format   string `json:"format" yaml:"format"`
+	Level           string         `json:"level,omitempty" yaml:"level,omitempty"`
+	StackTraceLevel string         `json:"stackTraceLevel,omitempty" yaml:"stackTraceLevel,omitempty"`
+	DisableConsole  bool           `json:"disableConsole,omitempty" yaml:"disableConsole,omitempty"`
+	File            LoggerFileConf `json:"file,omitempty" yaml:"file,omitempty"`
+}
+
+type LoggerFileConf struct {
+	Path          string `json:"path" yaml:"path"`
+	Name          string `json:"name" yaml:"name"`
+	RotationTime  uint   `json:"rotationTime" yaml:"rotationTime"`
+	RotationCount uint   `json:"rotationCount" yaml:"rotationCount"`
 }
 
 type OAuth struct {
@@ -65,7 +73,7 @@ type GithubOAuth struct {
 type MetricsConf struct {
 	Enable   bool   `json:"enable" yaml:"enable"`
 	Endpoint string `json:"endpoint" yaml:"endpoint"`
-	Port     string `json:"port"`
+	Port     int    `json:"port" yaml:"port"`
 }
 
 type AgoraConf struct {

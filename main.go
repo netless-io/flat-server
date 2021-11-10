@@ -1,13 +1,20 @@
 package main
 
 import (
+	_ "embed"
 	"flag"
 	"fmt"
-	"os"
+	"log"
+	"strconv"
 
+	"github.com/netless-io/flat-server/api"
 	"github.com/netless-io/flat-server/conf"
 	"github.com/netless-io/flat-server/internal"
+	"github.com/netless-io/flat-server/logger"
 )
+
+//go:embed VERSION
+var Version string
 
 func init() {
 	var confFile string
@@ -16,12 +23,24 @@ func init() {
 
 	err := conf.Read(confFile)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 }
 
 func main() {
-	fmt.Println("hello flat-server")
-	fmt.Printf("environment: %s, version: %s\n", internal.ENV, internal.Version)
+	fmt.Printf("environment: %s, version: %s\n", internal.ENV, Version)
+
+	if err := logger.New(conf.LogConfig()); err != nil {
+		log.Fatal(err)
+	}
+
+	app := api.New(internal.ENV)
+
+	port := strconv.Itoa(conf.ServerPort())
+
+	logger.Infof("listening and serving HTTP on :%s", port)
+
+	if err := app.Run(":" + port); err != nil {
+		log.Fatal(err)
+	}
 }

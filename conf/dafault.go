@@ -3,6 +3,7 @@ package conf
 import "github.com/netless-io/flat-server/pkg/utils"
 
 var defaultConf = struct {
+	ServerPort                int
 	StorageConcurrent         int
 	StorageSingleFileSize     int
 	StorageTotalSize          int
@@ -10,6 +11,7 @@ var defaultConf = struct {
 	StorageAllowFileSuffix    string
 	StorageAllowUrlFileSuffix string
 }{
+	ServerPort:                8081,
 	StorageConcurrent:         3,
 	StorageSingleFileSize:     500 * utils.MiB,
 	StorageTotalSize:          2 * utils.GiB,
@@ -19,6 +21,10 @@ var defaultConf = struct {
 }
 
 func SafeSetDefault(conf *FlatConf) {
+	if conf.ServerPort <= 0 {
+		conf.ServerPort = defaultConf.ServerPort
+	}
+
 	if conf.Storage.Concurrent <= 0 {
 		conf.Storage.Concurrent = defaultConf.StorageConcurrent
 	}

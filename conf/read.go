@@ -2,8 +2,8 @@ package conf
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 
@@ -20,31 +20,32 @@ func Read(confFilePath string) error {
 		confFilePath = os.Getenv("FLAT_CONFIG_PATH")
 	}
 
+	var err error
 	if confFilePath == "" {
-		return readEnvInConf(conf)
+		err = readEnvInConf(conf)
+	} else {
+		err = readFileInConf(conf, confFilePath)
 	}
 
-	return readFileInConf(conf, confFilePath)
+	if err != nil {
+		return err
+	}
+
+	SafeSetDefault(conf)
+	return nil
 }
 
 func readEnvInConf(conf *FlatConf) error {
-	SafeSetDefault(conf)
-
-	var err error
-
-	conf.ServerPort = os.Getenv("SERVER_PORT")
+	conf.ServerPort = assertStrToIntByEnv("SERVER_PORT")
 
 	conf.Redis.Host = os.Getenv("REDIS_HOST")
-	conf.Redis.Port = os.Getenv("REDIS_PORT")
+	conf.Redis.Port = assertStrToIntByEnv("REDIS_PORT")
 	conf.Redis.Username = os.Getenv("REDIS_USERNAME")
 	conf.Redis.Password = os.Getenv("REDIS_PASSWORD")
-	conf.Redis.Pool, err = strconv.Atoi(os.Getenv("REDIS_DB"))
-	if err != nil {
-		return errors.New("redis db must is number")
-	}
+	conf.Redis.Pool = assertStrToIntByEnv("REDIS_DB")
 
 	conf.MySQL.Host = os.Getenv("MYSQL_HOST")
-	conf.MySQL.Port = os.Getenv("MYSQL_PORT")
+	conf.MySQL.Port = assertStrToIntByEnv("MYSQL_PORT")
 	conf.MySQL.Username = os.Getenv("MYSQL_USER")
 	conf.MySQL.Password = os.Getenv("MYSQL_PASSWORD")
 	conf.MySQL.Name = os.Getenv("MYSQL_DB")
@@ -52,21 +53,20 @@ func readEnvInConf(conf *FlatConf) error {
 	conf.JWT.Secret = os.Getenv("JWT_SECRET")
 	conf.JWT.Algorithms = os.Getenv("JWT_ALGORITHMS")
 
-	conf.Log.FileName = os.Getenv("LOG_PATHNAME")
-	conf.Log.Path = os.Getenv("LOG_FILENAME")
+	conf.Log.File.Name = os.Getenv("LOG_FILENAME")
+	conf.Log.File.Path = os.Getenv("LOG_PATHNAME")
 
 	conf.Metrics.Enable, _ = strconv.ParseBool(os.Getenv("METRICS_ENABLED"))
-
 	conf.Metrics.Endpoint = os.Getenv("METRICS_ENDPOINT")
-	conf.Metrics.Port = os.Getenv("METRICS_PORT")
+	conf.Metrics.Port = assertStrToIntByEnv("METRICS_PORT")
 
 	conf.OAuth.WeChat.Web.AccessKeyID = os.Getenv("WEB_WECHAT_APP_ID")
 	conf.OAuth.WeChat.Web.SecretKey = os.Getenv("WEB_WECHAT_APP_SECRET")
 	conf.OAuth.WeChat.Mobile.AccessKeyID = os.Getenv("MOBILE_WECHAT_APP_ID")
 	conf.OAuth.WeChat.Mobile.SecretKey = os.Getenv("MOBILE_WECHAT_APP_SECRET")
 
-	conf.OAuth.Github.APPID = os.Getenv("GITHUB_CLIENT_ID")
-	conf.OAuth.Github.SecretKey = os.Getenv("GITHUB_CLIENT_SECRET")
+	conf.OAuth.Github.APPID = os.Getenv("GITHUB_APP_ID")
+	conf.OAuth.Github.SecretKey = os.Getenv("GITHUB_SECRET")
 
 	conf.Agora.APPID = os.Getenv("AGORA_APP_ID")
 	conf.Agora.Certificate = os.Getenv("AGORA_APP_CERTIFICATE")
@@ -74,8 +74,8 @@ func readEnvInConf(conf *FlatConf) error {
 	conf.Agora.RestfulSecret = os.Getenv("AGORA_RESTFUL_SECRET")
 
 	conf.Agora.OSS.Vendor = os.Getenv("AGORA_OSS_VENDOR")
-	conf.Agora.OSS.AccessKey = os.Getenv("AGORA_OSS_ACCESS_KEY_ID")
-	conf.Agora.OSS.SecretKey = os.Getenv("AGORA_OSS_ACCESS_KEY_SECRET")
+	conf.Agora.OSS.AccessKey = os.Getenv("AGORA_OSS_ACCESS_KEY")
+	conf.Agora.OSS.SecretKey = os.Getenv("AGORA_OSS_SECRET_KEY")
 	conf.Agora.OSS.Region = os.Getenv("AGORA_OSS_REGION")
 	conf.Agora.OSS.Bucket = os.Getenv("AGORA_OSS_BUCKET")
 	conf.Agora.OSS.Folder = os.Getenv("AGORA_OSS_FOLDER")
@@ -84,43 +84,22 @@ func readEnvInConf(conf *FlatConf) error {
 	conf.Storage.Type = CloudStorageTypeConf{
 		OSS: CloudStorageOSSConf{
 			AccessKey: os.Getenv("CLOUD_STORAGE_OSS_ACCESS_KEY"),
-			SecretKey: os.Getenv("CLOUD_STORAGE_OSS_ACCESS_KEY_SECRET"),
+			SecretKey: os.Getenv("CLOUD_STORAGE_OSS_SECRET_KEY"),
 			Endpoint:  os.Getenv("CLOUD_STORAGE_OSS_ENDPOINT"),
 			Region:    os.Getenv("CLOUD_STORAGE_OSS_REGION"),
 			Bucket:    os.Getenv("CLOUD_STORAGE_OSS_BUCKET"),
 		},
 	}
-
-	concurrent := os.Getenv("CLOUD_STORAGE_CONCURRENT")
-
-	if concurrentInt, err := strconv.Atoi(concurrent); err == nil && concurrentInt > 0 {
-		conf.Storage.Concurrent = concurrentInt
-	}
-
-	singleFileSize := os.Getenv("CLOUD_STORAGE_SINGLE_FILE_SIZE")
-	if singleFileSizeInt, err := strconv.Atoi(singleFileSize); err == nil && singleFileSizeInt > 0 {
-		conf.Storage.Concurrent = singleFileSizeInt
-	}
-
-	totalSize := os.Getenv("CLOUD_STORAGE_TOTAL_SIZE")
-	if totalSizeInt, err := strconv.Atoi(totalSize); err == nil && totalSizeInt > 0 {
-		conf.Storage.Concurrent = totalSizeInt
-	}
-
-	if prefixPath := os.Getenv("CLOUD_STORAGE_PREFIX_PATH"); prefixPath != "" {
-		conf.Storage.PrefixPath = prefixPath
-	}
-
-	if allowFileSuffix := os.Getenv("CLOUD_STORAGE_ALLOW_FILE_SUFFIX"); allowFileSuffix != "" {
-		conf.Storage.AllowFileSuffix = allowFileSuffix
-	}
-
-	if allowUrlFileSuffix := os.Getenv("CLOUD_STORAGE_ALLOW_URL_FILE_SUFFIX"); allowUrlFileSuffix != "" {
-		conf.Storage.AllowURLFileSuffix = allowUrlFileSuffix
-	}
+	conf.Storage.Concurrent = assertStrToIntByEnv("CLOUD_STORAGE_CONCURRENT")
+	conf.Storage.SingleFileSize = assertStrToIntByEnv("CLOUD_STORAGE_SINGLE_FILE_SIZE")
+	conf.Storage.TotalSize = assertStrToIntByEnv("CLOUD_STORAGE_TOTAL_SIZE")
+	conf.Storage.PrefixPath = os.Getenv("CLOUD_STORAGE_PREFIX_PATH")
+	conf.Storage.AllowFileSuffix = os.Getenv("CLOUD_STORAGE_ALLOW_FILE_SUFFIX")
+	conf.Storage.AllowURLFileSuffix = os.Getenv("CLOUD_STORAGE_ALLOW_URL_FILE_SUFFIX")
 
 	conf.Whiteboard.AccessKey = os.Getenv("WHITEBOARD_ACCESS_KEY")
-	conf.Whiteboard.SecretKey = os.Getenv("WHITEBOARD_SECRET_ACCESS_KEY")
+	conf.Whiteboard.SecretKey = os.Getenv("WHITEBOARD_SECRET_KEY")
+
 	return nil
 }
 
@@ -145,16 +124,10 @@ func readFileInConf(conf *FlatConf, filePath string) error {
 		return fmt.Errorf("unsupport config file type: %s", fileType)
 	}
 
-	SafeSetDefault(conf)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
-func ServerPort() string {
+func ServerPort() int {
 	return conf.ServerPort
 }
 
@@ -200,4 +173,15 @@ func LogConfig() LoggerConf {
 
 func MetricsConfig() MetricsConf {
 	return conf.Metrics
+}
+
+func assertStrToIntByEnv(env string) int {
+	str := os.Getenv(env)
+	value, err := strconv.Atoi(env)
+
+	if err != nil {
+		log.Fatalf("conversion string to int failed. env %s, value: %s, error: %s", env, str, err)
+	}
+
+	return value
 }
