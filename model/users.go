@@ -4,6 +4,14 @@ import (
 	"time"
 )
 
+type Gender string
+
+const (
+	Man   Gender = "Man"
+	Woman Gender = "Woman"
+	None  Gender = "None"
+)
+
 // UsersColumns get sql column name.
 var UsersColumns = struct {
 	ID           string
@@ -39,7 +47,7 @@ type Users struct {
 	UserName     string    `gorm:"column:user_name;type:varchar(50);not null"`
 	UserPassword string    `gorm:"column:user_password;type:varchar(255);not null"`
 	AvatarURL    string    `gorm:"column:avatar_url;type:varchar(2083);not null"`
-	Gender       string    `gorm:"column:gender;type:enum('Man','Woman','None');not null;default:None"`
+	Gender       Gender    `gorm:"column:gender;type:enum('Man','Woman','None');not null;default:None"`
 	IsDelete     int8      `gorm:"index:users_is_delete_index;column:is_delete;type:tinyint(4);not null;default:0"`
 }
 
