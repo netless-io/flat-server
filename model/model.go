@@ -34,9 +34,6 @@ func OpenDBConn(conf conf.MySQLConf) error {
 		// not a primary key, no index defined and don't have default values
 		DefaultStringSize: 256,
 
-		// disable datetime precision support, which not supported before MySQL 5.6
-		DisableDatetimePrecision: true,
-
 		// drop & create index when rename index, rename index not supported before MySQL 5.7, MariaDB
 		DontSupportRenameIndex: true,
 

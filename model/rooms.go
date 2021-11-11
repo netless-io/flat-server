@@ -4,6 +4,16 @@ import (
 	"time"
 )
 
+type Region string
+
+const (
+	CN_ZH  Region = "cn-hz"
+	US_SV  Region = "us-sv"
+	SG     Region = "sg"
+	IN_MUM Region = "in-mum"
+	GB_LON Region = "gb-lon"
+)
+
 // RoomsColumns get sql column name.
 var RoomsColumns = struct {
 	ID                 string
@@ -55,7 +65,7 @@ type Rooms struct {
 	EndTime            time.Time `gorm:"column:end_time;type:datetime(3);not null"`                                                                // room end time
 	WhiteboardRoomUUID string    `gorm:"unique;column:whiteboard_room_uuid;type:varchar(40);not null"`
 	IsDelete           int8      `gorm:"index:rooms_is_delete_index;column:is_delete;type:tinyint(4);not null;default:0"`
-	Region             string    `gorm:"column:region;type:enum('cn-hz','us-sv','sg','in-mum','gb-lon');not null"`
+	Region             Region    `gorm:"column:region;type:enum('cn-hz','us-sv','sg','in-mum','gb-lon');not null"`
 }
 
 // TableName get sql table name.
