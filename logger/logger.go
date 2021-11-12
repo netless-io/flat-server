@@ -66,11 +66,11 @@ func createLogConf(loggerConf conf.LoggerConf) (*LogConfig, error) {
 	conf.CallerSkip = defaultConf.CallerSkip
 	conf.JsonFormat = defaultConf.JsonFormat
 
-	if loggerConf.Level == "" {
+	if conf.Level = loggerConf.Level; conf.Level == "" {
 		conf.Level = defaultConf.Level
 	}
 
-	if loggerConf.StackTraceLevel == "" {
+	if conf.StackTraceLevel = loggerConf.StackTraceLevel; conf.StackTraceLevel == "" {
 		conf.StackTraceLevel = defaultConf.StackTraceLevel
 	}
 
@@ -84,11 +84,11 @@ func createLogConf(loggerConf conf.LoggerConf) (*LogConfig, error) {
 		conf.File.Path = logFilePath
 		conf.File.Name = loggerConf.File.Name
 
-		if loggerConf.File.RotationCount <= 0 {
+		if conf.File.RotationCount = loggerConf.File.RotationCount; conf.File.RotationCount <= 0 {
 			conf.File.RotationCount = defaultConf.File.RotationCount
 		}
 
-		if loggerConf.File.RotationTime <= 0 {
+		if conf.File.RotationTime = loggerConf.File.RotationTime; conf.File.RotationTime <= 0 {
 			conf.File.RotationTime = defaultConf.File.RotationTime
 		}
 
