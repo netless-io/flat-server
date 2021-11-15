@@ -8,13 +8,13 @@ import (
 )
 
 func TestLog(t *testing.T) {
-	conf := conf.LoggerConf{}
-	conf.Level = "debug"
-	conf.StackTraceLevel = "warn"
-	conf.File.Name = "test"
-	conf.File.Path = "./testdata"
+	config := conf.LoggerConf{}
+	config.Level = "debug"
+	config.StackTraceLevel = "warn"
+	config.File.Name = "test"
+	config.File.Path = "./testdata"
 
-	err := New(conf)
+	err := Init(config)
 	if err != nil {
 		t.Fatal(err)
 	}

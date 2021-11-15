@@ -30,7 +30,7 @@ func init() {
 func main() {
 	fmt.Printf("environment: %s, version: %s\n", internal.ENV, Version)
 
-	if err := logger.New(conf.LogConfig()); err != nil {
+	if err := logger.Init(conf.LogConfig()); err != nil {
 		log.Fatal(err)
 	}
 
