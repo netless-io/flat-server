@@ -1,18 +1,11 @@
 package logger
 
 import (
-	"os"
-
 	"go.uber.org/zap"
-)
-
-var (
-	hostname, _ = os.Hostname()
 )
 
 type TraceLog struct {
 	requestID string
-	hostname  string
 	l         *zap.SugaredLogger
 }
 
@@ -20,12 +13,10 @@ func NewTraceLog(requestID string) *TraceLog {
 
 	tlog := &TraceLog{
 		requestID: requestID,
-		hostname:  hostname,
 	}
 
 	// copy new logger with key
-	tlog.l = logger.With(zap.String("request_id", tlog.requestID),
-		zap.String("hostname", tlog.hostname))
+	tlog.l = logger.With(zap.String("request_id", tlog.requestID))
 	return tlog
 }
 

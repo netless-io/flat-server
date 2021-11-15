@@ -65,6 +65,7 @@ func getEncoderConf() zapcore.EncoderConfig {
 		MessageKey:     "message",
 		CallerKey:      "caller",
 		StacktraceKey:  "stacktrace",
+		NameKey:        "hostname",
 		FunctionKey:    zapcore.OmitKey,
 		LineEnding:     zapcore.DefaultLineEnding,
 		EncodeLevel:    zapcore.CapitalLevelEncoder,
