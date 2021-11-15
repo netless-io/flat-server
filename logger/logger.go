@@ -40,66 +40,67 @@ type Logger interface {
 	Errorw(template string, args ...interface{})
 }
 
-func New(loggerConf conf.LoggerConf) error {
-	conf, err := createLogConf(loggerConf)
+func Init(loggerConf conf.LoggerConf) error {
+	c, err := createLogConf(loggerConf)
 	if err != nil {
 		return err
 	}
 
-	conf.applyLogConfig()
+	c.applyLogConfig()
+
 	return nil
 }
 
 func createLogConf(loggerConf conf.LoggerConf) (*LogConfig, error) {
-	conf := new(LogConfig)
+	config := new(LogConfig)
 	defaultConf := defaultLogConf()
 
 	defer func() {
-		conf.atomicLevel = zap.NewAtomicLevel()
+		config.atomicLevel = zap.NewAtomicLevel()
 	}()
 
 	// level filepath is null indicates that the log configuration is not specified
 	if loggerConf.Level == "" && loggerConf.File.Path == "" {
-		conf = defaultConf
-		return conf, nil
+		config = defaultConf
+		return config, nil
 	}
 
-	conf.CallerSkip = defaultConf.CallerSkip
-	conf.JsonFormat = defaultConf.JsonFormat
+	config.CallerSkip = defaultConf.CallerSkip
+	config.JsonFormat = defaultConf.JsonFormat
 
-	if conf.Level = loggerConf.Level; conf.Level == "" {
-		conf.Level = defaultConf.Level
+	if config.Level = loggerConf.Level; config.Level == "" {
+		config.Level = defaultConf.Level
 	}
 
-	if conf.StackTraceLevel = loggerConf.StackTraceLevel; conf.StackTraceLevel == "" {
-		conf.StackTraceLevel = defaultConf.StackTraceLevel
+	if config.StackTraceLevel = loggerConf.StackTraceLevel; config.StackTraceLevel == "" {
+		config.StackTraceLevel = defaultConf.StackTraceLevel
 	}
 
 	if loggerConf.File.Path != "" {
-		conf.File.Enable = true
+		config.File.Enable = true
 		logFilePath, err := filepath.Abs(loggerConf.File.Path)
 		if err != nil {
 			return nil, err
 		}
 
-		conf.File.Path = logFilePath
-		conf.File.Name = loggerConf.File.Name
+		config.File.Path = logFilePath
+		config.File.Name = loggerConf.File.Name
 
-		if conf.File.RotationCount = loggerConf.File.RotationCount; conf.File.RotationCount <= 0 {
-			conf.File.RotationCount = defaultConf.File.RotationCount
+		if config.File.RotationCount = loggerConf.File.RotationCount; config.File.RotationCount <= 0 {
+			config.File.RotationCount = defaultConf.File.RotationCount
 		}
 
-		if conf.File.RotationTime = loggerConf.File.RotationTime; conf.File.RotationTime <= 0 {
-			conf.File.RotationTime = defaultConf.File.RotationTime
+		if config.File.RotationTime = loggerConf.File.RotationTime; config.File.RotationTime <= 0 {
+			config.File.RotationTime = defaultConf.File.RotationTime
 		}
 
 	}
 
 	if !loggerConf.DisableConsole {
-		conf.Console = defaultConf.Console
+		config.Console = defaultConf.Console
 	}
 
-	return conf, nil
+	return config, nil
 }
 
 func (conf *LogConfig) applyLogConfig() {
