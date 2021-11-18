@@ -36,12 +36,18 @@ stages:
   variables:
     DOCKER_HOST: tcp://docker:2376
     DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_BUILDER_TAG: $CI_REGISTRY_IMAGE/flat-server:$CI_ENVIRONMENT_SLUG-cache-builder
+    DOCKER_BUILDER_DEPENDENCIES_TAG: $CI_REGISTRY_IMAGE/flat-server:$CI_ENVIRONMENT_SLUG-cache-builder-dependencies
+
     PROD_LATEST_IMAGE_TAG: $DOCKERHUB_USERNAME/flat-server:latest
     PROD_SHA_IMAGE_TAG: $DOCKERHUB_USERNAME/flat-server:$CI_COMMIT_SHA
     DEV_LATEST_IMAGE_TAG: $DOCKERHUB_USERNAME/flat-server:dev-latest
     DEV_SHA_IMAGE_TAG: $DOCKERHUB_USERNAME/flat-server:dev-$CI_COMMIT_SHA
-    DOCKER_BUILDER_TAG: $CI_REGISTRY_IMAGE/flat-server:$CI_ENVIRONMENT_SLUG-cache-builder
-    DOCKER_BUILDER_DEPENDENCIES_TAG: $CI_REGISTRY_IMAGE/flat-server:$CI_ENVIRONMENT_SLUG-cache-builder-dependencies
+
+    PRIVATE_PROD_LATEST_IMAGE_TAG: $PRIVATE_DOCKERHUB_USERNAME/flat-server:latest
+    PRIVATE_PROD_SHA_IMAGE_TAG: $PRIVATE_DOCKERHUB_USERNAME/flat-server:$CI_COMMIT_SHA
+    PRIVATE_DEV_LATEST_IMAGE_TAG: $PRIVATE_DOCKERHUB_USERNAME/flat-server:dev-latest
+    PRIVATE_DEV_SHA_IMAGE_TAG: $PRIVATE_DOCKERHUB_USERNAME/flat-server:dev-$CI_COMMIT_SHA
 
 docker_build_dev:
   <<: *DOCKER_BUILD
@@ -53,6 +59,10 @@ docker_build_dev:
   after_script:
     - docker push $DEV_LATEST_IMAGE_TAG
     - docker push $DEV_SHA_IMAGE_TAG
+
+    - docker login -u $PRIVATE_DOCKERHUB_USERNAME -p $PRIVATE_DOCKERHUB_PASSWORD $PRIVATE_DOCKERHUB_REGISTRY
+    - docker push $PRIVATE_DEV_LATEST_IMAGE_TAG
+    - docker push $PRIVATE_DEV_SHA_IMAGE_TAG
   <<: *DEV
 
 docker_build_prod:
@@ -63,6 +73,10 @@ docker_build_prod:
   after_script:
     - docker push $PROD_LATEST_IMAGE_TAG
     - docker push $PROD_SHA_IMAGE_TAG
+
+    - docker login -u $PRIVATE_DOCKERHUB_USERNAME -p $PRIVATE_DOCKERHUB_PASSWORD $PRIVATE_DOCKERHUB_REGISTRY
+    - docker push $PRIVATE_PROD_LATEST_IMAGE_TAG
+    - docker push $PRIVATE_DEV_SHA_IMAGE_TAG
   <<: *PROD
 
 .deploy: &DEPLOY
@@ -72,7 +86,7 @@ docker_build_prod:
     - mkdir ~/.kube
     - echo "$KUBE_CONFIG" > ~/.kube/config
 
-    - export IMAGE_REPO="$DOCKERHUB_USERNAME/flat-server"
+    - export IMAGE_REPO="$PRIVATE_DOCKERHUB_USERNAME/flat-server"
 
     - export VALUES=`envsubst < ./helm/values.yaml`
     - echo "$VALUES" > ./helm/values.yaml
