@@ -50,7 +50,7 @@ docker_build_dev:
     - echo $DEV_LATEST_IMAGE_TAG
     - echo $DEV_SHA_IMAGE_TAG
     - docker pull $DEV_LATEST_IMAGE_TAG || true
-    - docker build --cache-from $DOCKER_BUILDER_TAG --cache-from $DOCKER_BUILDER_DEPENDENCIES_TAG --cache-from $DEV_LATEST_IMAGE_TAG -t $DEV_SHA_IMAGE_TAG -t $DEV_LATEST_IMAGE_TAG -f Dockerfile .
+    - docker build --cache-from $DOCKER_BUILDER_TAG --cache-from $DOCKER_BUILDER_DEPENDENCIES_TAG --cache-from $DEV_LATEST_IMAGE_TAG -t $DEV_SHA_IMAGE_TAG -t $DEV_LATEST_IMAGE_TAG -t $PRIVATE_DOCKERHUB_REGISTRY/$DEV_LATEST_IMAGE_TAG -t $PRIVATE_DOCKERHUB_REGISTRY/$DEV_SHA_IMAGE_TAG -f Dockerfile .
   after_script:
     - docker push $DEV_LATEST_IMAGE_TAG
     - docker push $DEV_SHA_IMAGE_TAG
@@ -64,7 +64,7 @@ docker_build_prod:
   <<: *DOCKER_BUILD
   script:
     - docker pull $PROD_LATEST_IMAGE_TAG || true
-    - docker build --cache-from $DOCKER_BUILDER_TAG --cache-from $DOCKER_BUILDER_DEPENDENCIES_TAG --cache-from $PROD_LATEST_IMAGE_TAG -t $PROD_SHA_IMAGE_TAG -t $PROD_LATEST_IMAGE_TAG -f Dockerfile .
+    - docker build --cache-from $DOCKER_BUILDER_TAG --cache-from $DOCKER_BUILDER_DEPENDENCIES_TAG --cache-from $PROD_LATEST_IMAGE_TAG -t $PROD_SHA_IMAGE_TAG -t $PROD_LATEST_IMAGE_TAG -t $PRIVATE_DOCKERHUB_REGISTRY/$PROD_LATEST_IMAGE_TAG -t $PRIVATE_DOCKERHUB_REGISTRY/$PROD_SHA_IMAGE_TAG -f Dockerfile .
   after_script:
     - docker push $PROD_LATEST_IMAGE_TAG
     - docker push $PROD_SHA_IMAGE_TAG
@@ -81,7 +81,7 @@ docker_build_prod:
     - mkdir ~/.kube
     - echo "$KUBE_CONFIG" > ~/.kube/config
 
-    - export IMAGE_REPO="$PRIVATE_DOCKERHUB_USERNAME/flat-server"
+    - export IMAGE_REPO="$PRIVATE_DOCKERHUB_REGISTRY/$DOCKERHUB_USERNAME/flat-server"
 
     - export VALUES=`envsubst < ./helm/values.yaml`
     - echo "$VALUES" > ./helm/values.yaml
