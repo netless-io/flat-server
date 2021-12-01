@@ -4,6 +4,17 @@ import { LoginClassParams } from "./Type";
 import { ErrorCode } from "../../ErrorCode";
 import { ControllerError } from "../../error/ControllerError";
 import { Logger, LoggerAPI } from "../../logger";
+import { getDisposition, ossClient } from "../../v1/controller/cloudStorage/alibabaCloud/Utils";
+import { Region } from "../../constants/Project";
+import {
+    getFilePath,
+    getOSSFileURLPath,
+} from "../../v1/controller/cloudStorage/alibabaCloud/upload/Utils";
+import { ServiceCloudStorageConfigs } from "../../v1/service/cloudStorage/CloudStorageConfigs";
+import { EntityManager } from "typeorm/entity-manager/EntityManager";
+import { ServiceCloudStorageFiles } from "../../v1/service/cloudStorage/CloudStorageFiles";
+import { v4 } from "uuid";
+import { ServiceCloudStorageUserFiles } from "../../v1/service/cloudStorage/CloudStorageUserFiles";
 
 export abstract class AbstractLogin {
     protected readonly userUUID: string;
@@ -42,6 +53,56 @@ export abstract class AbstractLogin {
             }),
             60 * 60,
         );
+    }
+
+    protected async setGuidePPTX(
+        svc: {
+            cloudStorageConfigs: ServiceCloudStorageConfigs;
+            cloudStorageFiles: ServiceCloudStorageFiles;
+            cloudStorageUserFiles: ServiceCloudStorageUserFiles;
+        },
+        t: EntityManager,
+    ): Promise<any> {
+        const [cnFileUUID, enFileUUID] = [v4(), v4()];
+        const [cnName, enName] = ["开始使用 Flat.pptx", "Get Started with Flat.pptx"];
+        const [cnPPTXPath, enPPTXPath] = [
+            getFilePath(cnName, cnFileUUID),
+            getFilePath(enName, enFileUUID),
+        ];
+        const [cnFileSize, enFileSize] = [5027927, 5141265];
+
+        await Promise.all([
+            ossClient[Region.CN_HZ].copy(cnPPTXPath, AbstractLogin.guidePPTX, {
+                headers: { "Content-Disposition": getDisposition(cnName) },
+            }),
+            ossClient[Region.US_SV].copy(enPPTXPath, AbstractLogin.guidePPTX, {
+                headers: { "Content-Disposition": getDisposition(enName) },
+            }),
+        ]);
+
+        return Promise.all([
+            svc.cloudStorageConfigs.createOrUpdate(cnFileSize + enFileSize, t),
+            svc.cloudStorageFiles.create({
+                region: Region.CN_HZ,
+                fileURL: getOSSFileURLPath(cnPPTXPath, Region.CN_HZ),
+                fileSize: cnFileSize,
+                fileUUID: cnFileUUID,
+                fileName: cnName,
+            }),
+            svc.cloudStorageFiles.create({
+                region: Region.US_SV,
+                fileURL: getOSSFileURLPath(enPPTXPath, Region.US_SV),
+                fileSize: enFileSize,
+                fileUUID: enFileUUID,
+                fileName: enName,
+            }),
+            svc.cloudStorageUserFiles.create(cnFileUUID),
+            svc.cloudStorageUserFiles.create(enFileUUID),
+        ]);
+    }
+
+    private static get guidePPTX(): string {
+        return "guide-pptx/guide.pptx";
     }
 }
 

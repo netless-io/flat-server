@@ -6,6 +6,9 @@ import { Github } from "../../../../constants/Process";
 import { getConnection } from "typeorm";
 import { ServiceUser } from "../../../service/user/User";
 import { ServiceUserGithub } from "../../../service/user/UserGithub";
+import { ServiceCloudStorageFiles } from "../../../service/cloudStorage/CloudStorageFiles";
+import { ServiceCloudStorageUserFiles } from "../../../service/cloudStorage/CloudStorageUserFiles";
+import { ServiceCloudStorageConfigs } from "../../../service/cloudStorage/CloudStorageConfigs";
 
 @Login()
 export class LoginGithub extends AbstractLogin {
@@ -17,6 +20,9 @@ export class LoginGithub extends AbstractLogin {
         this.svc = {
             user: new ServiceUser(this.userUUID),
             userGithub: new ServiceUserGithub(this.userUUID),
+            cloudStorageFiles: new ServiceCloudStorageFiles(),
+            cloudStorageConfigs: new ServiceCloudStorageConfigs(this.userUUID),
+            cloudStorageUserFiles: new ServiceCloudStorageUserFiles(this.userUUID),
         };
     }
 
@@ -26,7 +32,11 @@ export class LoginGithub extends AbstractLogin {
 
             const createUserGithub = this.svc.userGithub.create(info, t);
 
-            return await Promise.all([createUser, createUserGithub]);
+            return await Promise.all([
+                createUser,
+                createUserGithub,
+                this.setGuidePPTX(this.svc, t),
+            ]);
         });
     }
 
@@ -89,6 +99,9 @@ export class LoginGithub extends AbstractLogin {
 interface RegisterService {
     user: ServiceUser;
     userGithub: ServiceUserGithub;
+    cloudStorageFiles: ServiceCloudStorageFiles;
+    cloudStorageUserFiles: ServiceCloudStorageUserFiles;
+    cloudStorageConfigs: ServiceCloudStorageConfigs;
 }
 
 interface RegisterInfo {
