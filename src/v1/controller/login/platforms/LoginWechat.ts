@@ -7,6 +7,9 @@ import { getConnection } from "typeorm";
 import { AxiosResponse } from "axios";
 import { ServiceUser } from "../../../service/user/User";
 import { ServiceUserWeChat } from "../../../service/user/UserWeChat";
+import { ServiceCloudStorageFiles } from "../../../service/cloudStorage/CloudStorageFiles";
+import { ServiceCloudStorageConfigs } from "../../../service/cloudStorage/CloudStorageConfigs";
+import { ServiceCloudStorageUserFiles } from "../../../service/cloudStorage/CloudStorageUserFiles";
 
 @Login()
 export class LoginWechat extends AbstractLogin {
@@ -18,6 +21,9 @@ export class LoginWechat extends AbstractLogin {
         this.svc = {
             user: new ServiceUser(this.userUUID),
             userWeChat: new ServiceUserWeChat(this.userUUID),
+            cloudStorageFiles: new ServiceCloudStorageFiles(),
+            cloudStorageConfigs: new ServiceCloudStorageConfigs(this.userUUID),
+            cloudStorageUserFiles: new ServiceCloudStorageUserFiles(this.userUUID),
         };
     }
 
@@ -25,9 +31,13 @@ export class LoginWechat extends AbstractLogin {
         await getConnection().transaction(async t => {
             const createUser = this.svc.user.create(info, t);
 
-            const createUserGithub = this.svc.userWeChat.create(info, t);
+            const createUserWeChat = this.svc.userWeChat.create(info, t);
 
-            return await Promise.all([createUser, createUserGithub]);
+            return await Promise.all([
+                createUser,
+                createUserWeChat,
+                this.setGuidePPTX(this.svc, t),
+            ]);
         });
     }
 
@@ -84,6 +94,9 @@ export class LoginWechat extends AbstractLogin {
 interface RegisterService {
     user: ServiceUser;
     userWeChat: ServiceUserWeChat;
+    cloudStorageFiles: ServiceCloudStorageFiles;
+    cloudStorageUserFiles: ServiceCloudStorageUserFiles;
+    cloudStorageConfigs: ServiceCloudStorageConfigs;
 }
 
 interface RegisterInfo {
