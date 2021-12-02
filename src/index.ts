@@ -2,7 +2,7 @@ import "source-map-support/register";
 import "reflect-metadata";
 import fastify from "fastify";
 import cors from "fastify-cors";
-import { Server, metricsConfig } from "./constants/Process";
+import { metricsConfig, Server } from "./constants/Process";
 import { Status } from "./constants/Project";
 import jwtVerify from "./plugins/JWT";
 import { ajvSelfPlugin } from "./plugins/Ajv";
@@ -43,6 +43,18 @@ app.setErrorHandler((err, _request, reply) => {
 
 void app.register(jwtVerify).then(() => {
     registerV1Routers(app, httpRouters);
+
+    app.get("/apple-app-site-association", (_, replay) => {
+        void replay
+            .code(200)
+            .header("Content-Type", "application/json; charset=utf-8")
+            .send({
+                applinks: {
+                    apps: [],
+                    details: [{ appID: "48TB6ZZL5S.io.agora.flat", paths: ["*"] }],
+                },
+            });
+    });
 });
 
 void app.register(cors, {
