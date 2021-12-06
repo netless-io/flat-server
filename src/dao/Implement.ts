@@ -24,6 +24,10 @@ export const DAOImplement: DAO<Model> = model => {
                         result = result.orderBy(config.order[0], config.order[1]);
                     }
 
+                    if (config.limit) {
+                        result = result.limit(config.limit);
+                    }
+
                     return result.getRawMany();
                 }
 

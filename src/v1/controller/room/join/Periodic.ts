@@ -9,6 +9,7 @@ import { ErrorCode } from "../../../../ErrorCode";
 import { Response } from "../../../../types/Server";
 import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicUserDAO, RoomUserDAO } from "../../../../dao";
 import { SHARE_SCREEN_AGORA_UID } from "./Constants";
+import { showGuide } from "./Utils";
 
 export const joinPeriodic = async (
     periodicUUID: string,
@@ -116,6 +117,7 @@ export const joinPeriodic = async (
             },
             rtmToken: await getRTMToken(userUUID),
             region: periodicRoomConfig.region,
+            showGuide: roomInfo.owner_uuid === userUUID && (await showGuide(userUUID, roomUUID)),
         },
     };
 };
