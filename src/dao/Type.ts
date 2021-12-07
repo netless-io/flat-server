@@ -27,6 +27,7 @@ type Find<M> = <T extends keyof M>(
     config?: {
         order?: [T, "ASC" | "DESC"];
         distinct?: boolean;
+        limit?: number;
     },
 ) => Promise<Pick<M, T>[]>;
 

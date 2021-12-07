@@ -8,6 +8,7 @@ import { ErrorCode } from "../../../../ErrorCode";
 import { Response } from "../../../../types/Server";
 import { RoomDAO, RoomUserDAO } from "../../../../dao";
 import { SHARE_SCREEN_AGORA_UID } from "./Constants";
+import { showGuide } from "./Utils";
 
 export const joinOrdinary = async (
     roomUUID: string,
@@ -84,6 +85,7 @@ export const joinOrdinary = async (
             },
             rtmToken: await getRTMToken(userUUID),
             region: roomInfo.region,
+            showGuide: roomInfo.owner_uuid === userUUID && (await showGuide(userUUID, roomUUID)),
         },
     };
 };
