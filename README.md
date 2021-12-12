@@ -74,7 +74,7 @@ MYSQL_DB=flat_server
    cd ~/Data/Docker/MySQL
    docker run -dit -p 3306:3306 --name mysql --restart always -v `pwd`/data:/var/lib/mysql -v `pwd`/conf.d:/etc/mysql/conf.d -e MYSQL_ROOT_PASSWORD=(value of MYSQL_PASSWORD) mysql
    docker exec -it mysql bash
-   mysql -uroot -p (value of MYSQL_PASSWORD)
+   mysql -u root -p (value of MYSQL_PASSWORD)
    CREATE DATABASE (value of MYSQL_DB);
    ```
 2. Find `createConnection` in file `src/v1/thirdPartyService/TypeORMService.ts`, add a property `synchronize: true` to the config object. This option is for synchronizing tables and fields to database.
