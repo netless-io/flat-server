@@ -33,14 +33,16 @@ export class UploadCancel extends AbstractController<RequestType, ResponseType> 
         const { fileUUIDs } = this.body;
         const userUUID = this.userUUID;
 
-        if (typeof fileUUIDs === "undefined") {
+        if (typeof fileUUIDs === "undefined" || fileUUIDs.length === 0) {
             const uploadingFiles = await RedisService.scan(
                 RedisKey.cloudStorageFileInfo(userUUID, "*"),
                 CloudStorage.CONCURRENT + 1,
                 true,
             );
 
-            await RedisService.del(uploadingFiles);
+            if (uploadingFiles.length > 0) {
+                await RedisService.del(uploadingFiles);
+            }
         } else {
             await RedisService.del(
                 fileUUIDs.map(fileUUID => RedisKey.cloudStorageFileInfo(userUUID, fileUUID)),
