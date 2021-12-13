@@ -158,7 +158,9 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
                 }
 
                 await Promise.all(commands);
-                await whiteboardBanRoom(roomInfo.region, roomInfo.whiteboard_room_uuid);
+                whiteboardBanRoom(roomInfo.region, roomInfo.whiteboard_room_uuid).catch(error => {
+                    this.logger.warn("ban room failed!", parseError(error));
+                });
 
                 if (this.readyRecycleInviteCode) {
                     readyRecycleInviteCode(roomInfo.periodic_uuid || roomUUID).catch(error => {
