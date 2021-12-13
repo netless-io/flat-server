@@ -71,7 +71,7 @@ MYSQL_DB=flat_server
    cd ~/Data/Docker/MySQL
    docker run -dit -p 3306:3306 --name mysql --restart always -v `pwd`/data:/var/lib/mysql -v `pwd`/conf.d:/etc/mysql/conf.d -e MYSQL_ROOT_PASSWORD=你在env里MYSQL_PASSWORD所填写的值  mysql
    docker exec -it mysql bash
-   mysql -uroot -p 你在env里MYSQL_PASSWORD所填写的值
+   mysql -u root -p 你在env里MYSQL_PASSWORD所填写的值
    CREATE DATABASE 你在env里MYSQL_DB所填写的值;
    ```
 2. 在项目 `src/v1/thirdPartyService/TypeORMService.ts` 的 `createConnection` 配置参数对象中，添加属性: `synchronize: true`。这个选项是为了同步数据库表、字段到数据库中。
