@@ -31,10 +31,9 @@ func Logger() gin.HandlerFunc {
 		start := time.Now()
 		path := c.Request.URL.Path
 
-		requestID := strings.ReplaceAll(uuid.New().String(), "-", "")
-		log := logger.NewTraceLog(requestID)
+		traceLog := NewTraceLog()
 
-		c.Set("logger", log)
+		c.Set("logger", traceLog)
 
 		// Process request
 		c.Next()
@@ -61,7 +60,12 @@ func Logger() gin.HandlerFunc {
 		param := make(map[string]PayLoad)
 		param[path] = payload
 
-		log.Infow("router info", zap.Any("payload", param))
+		traceLog.Infow("router info", zap.Any("payload", param))
 
 	}
+}
+
+func NewTraceLog() *logger.TraceLog {
+	requestID := strings.ReplaceAll(uuid.New().String(), "-", "")
+	return logger.NewTraceLog(requestID)
 }
