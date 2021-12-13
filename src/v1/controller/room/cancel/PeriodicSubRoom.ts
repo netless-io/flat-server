@@ -9,6 +9,7 @@ import { PeriodicStatus } from "../../../../model/room/Constants";
 import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import { parseError } from "../../../../logger";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -133,7 +134,9 @@ export class CancelPeriodicSubRoom extends AbstractController<RequestType, Respo
 
             await Promise.all(commands);
             if (roomInfo) {
-                await whiteboardBanRoom(region, roomInfo.whiteboard_room_uuid);
+                whiteboardBanRoom(region, roomInfo.whiteboard_room_uuid).catch(error => {
+                    this.logger.warn("ban room failed", parseError(error));
+                });
             }
         });
 

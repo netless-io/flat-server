@@ -15,6 +15,7 @@ import {
 } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import { parseError } from "../../../../logger";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -246,7 +247,9 @@ export class UpdatePeriodic extends AbstractController<RequestType, ResponseType
             );
 
             await Promise.all(commands);
-            await whiteboardBanRoom(region, roomInfo.whiteboard_room_uuid);
+            whiteboardBanRoom(region, roomInfo.whiteboard_room_uuid).catch(error => {
+                this.logger.warn("ban room failed", parseError(error));
+            });
         });
 
         return {
