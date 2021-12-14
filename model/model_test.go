@@ -4,6 +4,11 @@ import (
 	"testing"
 
 	"github.com/netless-io/flat-server/conf"
+	"gorm.io/gorm"
+)
+
+var (
+	dbConn *gorm.DB
 )
 
 func init() {
@@ -12,7 +17,7 @@ func init() {
 		panic(err)
 	}
 
-	err = OpenDBConn(conf.Mysql())
+	dbConn, err = OpenDBConn(conf.Mysql())
 	if err != nil {
 		panic(err)
 	}
@@ -21,7 +26,7 @@ func init() {
 
 func TestSelectUserLimit(t *testing.T) {
 	var users []Users
-	err := dbClient.Find(&users).Limit(10).Offset(1).Error
+	err := dbConn.Find(&users).Limit(10).Offset(1).Error
 	if err != nil {
 		t.Fatal(err)
 	}

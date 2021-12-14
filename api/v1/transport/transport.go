@@ -107,6 +107,10 @@ func (resp *Response) JSONWithHTTPCode(httpCode int) {
 func (resp *Response) JSON() {
 	defer resp.gCtx.JSON(resp.httpCode, resp)
 
+	if resp.Err == nil {
+		return
+	}
+
 	errCode, ok := resp.Err.(errors.Code)
 	if !ok {
 		resp.httpCode = http.StatusInternalServerError

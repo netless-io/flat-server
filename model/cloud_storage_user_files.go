@@ -1,7 +1,10 @@
 package model
 
 import (
+	"context"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 // CloudStorageUserFilesColumns get sql column name.
@@ -37,4 +40,31 @@ type CloudStorageUserFiles struct {
 // TableName get sql table name.
 func (m *CloudStorageUserFiles) TableName() string {
 	return "cloud_storage_user_files"
+}
+
+type CloudStorageUserFilesMgr struct {
+	db *gorm.DB
+}
+
+func NewCloudStorageUserFilesMgr(db *gorm.DB) *CloudStorageUserFilesMgr {
+
+	return &CloudStorageUserFilesMgr{db: db}
+}
+
+func (c *CloudStorageUserFilesMgr) GetTableName() string {
+	return "cloud_storage_user_files"
+}
+
+func (c *CloudStorageUserFilesMgr) FindUserStorageFiles(ctx context.Context, userUUID string, limit, offset int) (result []CloudStorageFiles, err error) {
+	err = c.db.WithContext(ctx).Model(&CloudStorageUserFiles{}).
+		Where(
+			&CloudStorageUserFiles{
+				UserUUID: userUUID,
+				IsDelete: 0,
+			},
+		).Joins(" INNER JOIN cloud_storage_files csf ON cloud_storage_user_files.file_uuid = csf.file_uuid").
+		Offset(offset).
+		Limit(limit).
+		Scan(&result).Error
+	return
 }
