@@ -9,6 +9,7 @@ export enum Status {
 export enum LoginPlatform {
     WeChat = "WeChat",
     Github = "Github",
+    Apple = "Apple",
 }
 
 export enum Gender {
