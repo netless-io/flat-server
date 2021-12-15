@@ -20,7 +20,7 @@ export class UserAppleModel extends Content {
     user_name: string;
 
     @Column({
-        length: 32,
+        length: 50,
         comment: "apple id",
     })
     union_uuid: string;
