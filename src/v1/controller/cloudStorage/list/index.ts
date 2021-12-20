@@ -56,6 +56,7 @@ export class CloudStorageList extends AbstractController<RequestType, ResponseTy
                     isDelete: false,
                 },
             )
+            .orderBy("f.created_at", "DESC")
             .offset((page - 1) * 50)
             .limit(50)
             .getRawMany();
