@@ -24,12 +24,23 @@ export class CloudStorageList extends AbstractController<RequestType, ResponseTy
                     maximum: 50,
                     minimum: 1,
                 },
+                size: {
+                    type: "integer",
+                    minimum: 1,
+                    maximum: 50,
+                    default: 50,
+                },
+                order: {
+                    type: "string",
+                    enum: ["ASC", "DESC"],
+                    default: "ASC",
+                },
             },
         },
     };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const { page } = this.querystring;
+        const { page, order, size } = this.querystring;
         const userUUID = this.userUUID;
 
         const userInfo = await CloudStorageConfigsDAO().findOne(["total_usage"], {
@@ -56,9 +67,9 @@ export class CloudStorageList extends AbstractController<RequestType, ResponseTy
                     isDelete: false,
                 },
             )
-            .orderBy("f.created_at", "DESC")
-            .offset((page - 1) * 50)
-            .limit(50)
+            .orderBy("f.created_at", order)
+            .offset((page - 1) * size)
+            .limit(size)
             .getRawMany();
 
         const resp = files.map((file: CloudStorageFile) => {
@@ -93,6 +104,8 @@ export class CloudStorageList extends AbstractController<RequestType, ResponseTy
 interface RequestType {
     querystring: {
         page: number;
+        size: number;
+        order: "ASC" | "DESC";
     };
 }
 
