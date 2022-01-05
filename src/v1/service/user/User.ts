@@ -3,6 +3,7 @@ import { Gender } from "../../../constants/Project";
 import { EntityManager, InsertResult } from "typeorm";
 import { ControllerError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
+import { UpdateResult } from "typeorm/query-builder/result/UpdateResult";
 
 export class ServiceUser {
     constructor(private readonly userUUID: string) {}
@@ -55,5 +56,16 @@ export class ServiceUser {
         }
 
         return result;
+    }
+
+    public async updateName(userName: string, t?: EntityManager): Promise<UpdateResult> {
+        return await UserDAO(t).update(
+            {
+                user_name: userName,
+            },
+            {
+                user_uuid: this.userUUID,
+            },
+        );
     }
 }
