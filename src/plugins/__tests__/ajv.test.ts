@@ -10,7 +10,13 @@ test(`${namespace} - inject self plugin`, ava => {
     const ajv = new Ajv();
     ajvSelfPlugin(ajv);
 
-    ava.deepEqual(Object.keys(ajv.formats), ["unix-timestamp", "uuid-v4", "file-suffix"]);
+    ava.deepEqual(Object.keys(ajv.formats), [
+        "unix-timestamp",
+        "uuid-v4",
+        "file-suffix",
+        "url-file-suffix",
+        "url",
+    ]);
 });
 
 test(`${namespace} - uuid-v4`, ava => {
@@ -178,8 +184,6 @@ test(`${namespace} - url`, ava => {
         };
 
         validate(testURLValidFail);
-
-        console.log(validate);
 
         ava.true(validate.errors !== null);
     }
