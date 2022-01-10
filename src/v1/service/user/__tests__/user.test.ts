@@ -131,3 +131,24 @@ test(`${namespace} - assert has name and avatar failed`, async ava => {
 
     ava.is(rawError.errorCode, ErrorCode.UserNotFound);
 });
+
+test(`${namespace} - update user name`, async ava => {
+    const [oldName, newName, userUUID, avatarURL] = [v4(), v4(), v4(), `https://test.com/${v4()}`];
+    await UserDAO().insert({
+        user_name: oldName,
+        avatar_url: avatarURL,
+        gender: Gender.Woman,
+        user_uuid: userUUID,
+        user_password: "",
+    });
+
+    const serviceUser = new ServiceUser(userUUID);
+
+    await serviceUser.updateName(newName);
+
+    const result = await UserDAO().findOne(["user_name"], {
+        user_uuid: userUUID,
+    });
+
+    ava.is(result?.user_name, newName);
+});
