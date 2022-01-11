@@ -41,9 +41,10 @@ spec:
             httpGet:
               path: /health-check
               port: http
-          envFrom:
-            - configMapRef:
-                name: {{ .Chart.Name }}-config
+          volumeMounts:
+            - name: flat-server-config
+              mountPath: /etc/flat-server
+              subPath: config.yaml
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -58,3 +59,8 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+      - name: flat-server-config
+        configMap:
+          name: {{ .Chart.Name }}-config
+
