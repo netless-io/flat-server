@@ -25,7 +25,7 @@ var CloudStorageConfigsColumns = struct {
 
 // CloudStorageConfigs [...]
 type CloudStorageConfigs struct {
-	ID         int64     `gorm:"primaryKey;column:id;type:bigint(20);not null"`
+	ID         int64     `gorm:"primaryKey;column:id;type:bigint(20);not null" `
 	CreatedAt  time.Time `gorm:"column:created_at;type:datetime(3);not null;default:CURRENT_TIMESTAMP(3)"`
 	UpdatedAt  time.Time `gorm:"column:updated_at;type:datetime(3);not null;default:CURRENT_TIMESTAMP(3)"`
 	Version    int       `gorm:"column:version;type:int(11);not null"`

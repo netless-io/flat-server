@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/netless-io/flat-server/conf"
+	"github.com/netless-io/flat-server/logger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -15,18 +16,14 @@ const (
 	defaultMaxIdleConns    = 10
 )
 
-var (
-	dbClient *gorm.DB
-)
-
-func OpenDBConn(conf conf.MySQLConf) error {
+func OpenDBConn(conf conf.MySQLConf) (*gorm.DB, error) {
 	var (
 		err error
 	)
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true&charset=utf8mb4", conf.Username, conf.Password, conf.Host, conf.Port, conf.Name)
 
-	dbClient, err = gorm.Open(mysql.New(mysql.Config{
+	dbConn, err := gorm.Open(mysql.New(mysql.Config{
 		// data source name, refer https://github.com/go-sql-driver/mysql#dsn-data-source-name
 		DSN: dsn,
 
@@ -42,16 +39,18 @@ func OpenDBConn(conf conf.MySQLConf) error {
 
 		// smart configure based on used version
 		SkipInitializeWithVersion: false,
-	}), &gorm.Config{})
+	}), &gorm.Config{
+		Logger: logger.NewDBLogger(),
+	})
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// see https://github.com/go-sql-driver/mysql
-	sqlConn, err := dbClient.DB()
+	sqlConn, err := dbConn.DB()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	var (
@@ -74,5 +73,5 @@ func OpenDBConn(conf conf.MySQLConf) error {
 	sqlConn.SetMaxOpenConns(maxOpenConns)
 	sqlConn.SetMaxIdleConns(maxIdleConns)
 
-	return nil
+	return dbConn, nil
 }

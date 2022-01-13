@@ -9,6 +9,7 @@ import (
 
 	"github.com/netless-io/flat-server/api"
 	"github.com/netless-io/flat-server/conf"
+	"github.com/netless-io/flat-server/dao"
 	"github.com/netless-io/flat-server/internal"
 	"github.com/netless-io/flat-server/logger"
 )
@@ -32,6 +33,12 @@ func main() {
 
 	if err := logger.Init(conf.LogConfig()); err != nil {
 		log.Fatal(err)
+	}
+
+	err := dao.RegistryModel(conf.Mysql())
+	if err != nil {
+		logger.Error(err)
+		return
 	}
 
 	app := api.New(internal.ENV)
