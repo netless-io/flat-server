@@ -2,8 +2,6 @@ package model
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 // CloudStorageFilesColumns get sql column name.
@@ -57,17 +55,4 @@ type CloudStorageFiles struct {
 // TableName get sql table name.
 func (m *CloudStorageFiles) TableName() string {
 	return "cloud_storage_files"
-}
-
-type CloudStorageFilesMgr struct {
-	db *gorm.DB
-}
-
-func NewCloudStorageFilesMgr(db *gorm.DB) *CloudStorageFilesMgr {
-
-	return &CloudStorageFilesMgr{db: db}
-}
-
-func (c *CloudStorageFilesMgr) GetTableName() string {
-	return "cloud_storage_configs"
 }

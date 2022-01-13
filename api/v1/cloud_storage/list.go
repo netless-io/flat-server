@@ -12,12 +12,12 @@ func HandleList(gCtx *gin.Context) {
 	defer resp.JSON()
 
 	//	userUUID:=resp.GetUserUUID()
-	traceLog := resp.GetLogger()
+	ctx := resp.GetContext()
 
 	// TODO test
 	userUUID := gCtx.Query("user_id")
 
-	result, err := services.CloudStorageUserFileList(traceLog, userUUID, 1, 50)
+	result, err := services.CloudStorageUserFileList(ctx, userUUID, 1, 50)
 	if err != nil {
 		resp.Err = err
 		return

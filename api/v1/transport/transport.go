@@ -1,12 +1,12 @@
 package transport
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/netless-io/flat-server/api/middleware"
 	"github.com/netless-io/flat-server/errors"
-	"github.com/netless-io/flat-server/logger"
 )
 
 type Status int
@@ -23,7 +23,6 @@ const (
 
 type Response struct {
 	gCtx        *gin.Context
-	traceLogger logger.Logger
 	httpCode    int
 	userUUID    string
 	loginSource string
@@ -47,20 +46,14 @@ func HandleNoRoute(gCtx *gin.Context) {
 }
 
 func NewResp(gCtx *gin.Context) *Response {
-	traceLogger := getLogger(gCtx)
 	userUUID, loginSource := getUserIDWithLoginSource(gCtx)
 
 	return &Response{
 		gCtx:        gCtx,
 		userUUID:    userUUID,
 		loginSource: loginSource,
-		traceLogger: traceLogger,
 		httpCode:    http.StatusOK,
 	}
-}
-
-func (resp *Response) GetLogger() logger.Logger {
-	return resp.traceLogger
 }
 
 func (resp *Response) GetUserUUID() string {
@@ -71,18 +64,17 @@ func (resp *Response) GetLoginSource() string {
 	return resp.loginSource
 }
 
-func getLogger(gCtx *gin.Context) logger.Logger {
-	traceLog, exists := gCtx.Get("logger")
-	if !exists {
-		return middleware.NewTraceLog()
+func (resp *Response) GetContext() context.Context {
+
+	ctx := context.Background()
+
+	requestID, exists := resp.gCtx.Get("request_id")
+	if exists {
+		ctx = context.WithValue(ctx, "request_id", requestID)
+		return ctx
 	}
 
-	traceLogger, ok := traceLog.(*logger.TraceLog)
-	if !ok {
-		return middleware.NewTraceLog()
-	}
-
-	return traceLogger
+	return ctx
 }
 
 func getUserIDWithLoginSource(gCtx *gin.Context) (string, string) {

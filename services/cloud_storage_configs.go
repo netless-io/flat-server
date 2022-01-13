@@ -1,10 +1,13 @@
 package services
 
 import (
+	"context"
+
 	"github.com/netless-io/flat-server/dao"
 	errCode "github.com/netless-io/flat-server/errors"
 	"github.com/netless-io/flat-server/logger"
 	"github.com/netless-io/flat-server/model"
+	"github.com/netless-io/flat-server/pkg/utils"
 )
 
 type ListStorageConfig struct {
@@ -12,12 +15,13 @@ type ListStorageConfig struct {
 	Files      []model.CloudStorageFiles `json:"files,omitempty"`
 }
 
-func CloudStorageUserFileList(traceLog logger.Logger, userUUID string, limit, offset int) (ListStorageConfig, error) {
-	traceLog.Info("CloudStorageUserFileList")
+func CloudStorageUserFileList(ctx context.Context, userUUID string, limit, offset int) (ListStorageConfig, error) {
 
-	files, totalUsage, err := dao.FindUserStorageUserFile(traceLog, userUUID, limit, offset)
+	logger.Infow("list cloud storage file", utils.GetCtxField(ctx))
+
+	files, totalUsage, err := dao.FindUserStorageUserFile(ctx, userUUID, limit, offset)
 	if err != nil {
-		traceLog.Error(err)
+		logger.Errorw(err.Error(), utils.GetCtxField(ctx))
 		return ListStorageConfig{}, errCode.ServerFail
 	}
 

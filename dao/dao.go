@@ -6,18 +6,19 @@ import (
 )
 
 var (
-	cloudStorageUserFilesModel *model.CloudStorageUserFilesMgr
-	cloudStorageConfigModel    *model.CloudStorageConfigMgr
+	cloudStorageUserFilesModel *CloudStorageUserFilesMgr
+	cloudStorageConfigModel    *CloudStorageConfigMgr
 )
 
 func RegistryModel(sqlConf conf.MySQLConf) error {
+
 	dbConn, err := model.OpenDBConn(sqlConf)
 	if err != nil {
 		return err
 	}
 
-	cloudStorageUserFilesModel = model.NewCloudStorageUserFilesMgr(dbConn)
-	cloudStorageConfigModel = model.NewCloudStorageConfigMgr(dbConn)
+	cloudStorageUserFilesModel = NewCloudStorageUserFilesMgr(dbConn)
+	cloudStorageConfigModel = NewCloudStorageConfigMgr(dbConn)
 
 	// TODO register other model ...
 	return nil

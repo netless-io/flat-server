@@ -1,10 +1,7 @@
 package model
 
 import (
-	"context"
 	"time"
-
-	"gorm.io/gorm"
 )
 
 // CloudStorageConfigsColumns get sql column name.
@@ -40,29 +37,4 @@ type CloudStorageConfigs struct {
 // TableName get sql table name.
 func (m *CloudStorageConfigs) TableName() string {
 	return "cloud_storage_configs"
-}
-
-type CloudStorageConfigMgr struct {
-	db *gorm.DB
-}
-
-func NewCloudStorageConfigMgr(db *gorm.DB) *CloudStorageConfigMgr {
-
-	return &CloudStorageConfigMgr{db: db}
-}
-
-func (c *CloudStorageConfigMgr) GetTableName() string {
-	return "cloud_storage_configs"
-}
-
-func (c *CloudStorageConfigMgr) FindOne(ctx context.Context, userUUID string) (result CloudStorageConfigs, err error) {
-	err = c.db.WithContext(ctx).Model(&CloudStorageConfigs{}).
-		Where(
-			&CloudStorageConfigs{
-				UserUUID: userUUID,
-				IsDelete: 0,
-			},
-		).
-		Find(&result).Error
-	return
 }

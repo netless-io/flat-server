@@ -25,28 +25,26 @@ func OpenConn(conf conf.RedisConf) error {
 	return redisClient.Ping(context.TODO()).Err()
 }
 
-func Set(key, value string, expire time.Duration) error {
+func Set(ctx context.Context, key, value string, expire time.Duration) error {
 	if expire <= 0 {
 		expire = -1
 	}
 
-	return redisClient.Set(context.TODO(), key, value, expire).Err()
+	return redisClient.Set(ctx, key, value, expire).Err()
 }
 
-func Get(key string) (string, error) {
-	return redisClient.Get(context.TODO(), key).Result()
+func Get(ctx context.Context, key string) (string, error) {
+	return redisClient.Get(ctx, key).Result()
 }
 
-func Del(keys ...string) error {
-	return redisClient.Del(context.TODO(), keys...).Err()
+func Del(ctx context.Context, keys ...string) error {
+	return redisClient.Del(ctx, keys...).Err()
 }
 
-func HMSet(key string, value map[string]string, expire time.Duration) error {
+func HMSet(ctx context.Context, key string, value map[string]string, expire time.Duration) error {
 	if expire <= 0 {
 		expire = -1
 	}
-
-	ctx := context.TODO()
 
 	err := redisClient.HMSet(ctx, key, value).Err()
 	if err != nil {
@@ -56,16 +54,15 @@ func HMSet(key string, value map[string]string, expire time.Duration) error {
 	return redisClient.Expire(ctx, key, expire).Err()
 }
 
-func HMGetWithField(key string, field ...string) (interface{}, error) {
-	return redisClient.HMGet(context.TODO(), key, field...).Result()
+func HMGetWithField(ctx context.Context, key string, field ...string) (interface{}, error) {
+	return redisClient.HMGet(ctx, key, field...).Result()
 }
 
-func MGet(keys ...string) (interface{}, error) {
-	return redisClient.MGet(context.TODO(), keys...).Result()
+func MGet(ctx context.Context, keys ...string) (interface{}, error) {
+	return redisClient.MGet(ctx, keys...).Result()
 }
 
-func Scan(match string, count int64) ([]string, error) {
-	ctx := context.TODO()
+func Scan(ctx context.Context, match string, count int64) ([]string, error) {
 
 	result := make([]string, 0)
 
@@ -81,8 +78,8 @@ func Scan(match string, count int64) ([]string, error) {
 	return result, nil
 }
 
-func VacantKey(keys ...string) ([]string, error) {
-	sliceCmd := redisClient.MGet(context.TODO(), keys...)
+func VacantKey(ctx context.Context, keys ...string) ([]string, error) {
+	sliceCmd := redisClient.MGet(ctx, keys...)
 	if err := sliceCmd.Err(); err != nil {
 		if err == redis.Nil {
 			return keys, nil

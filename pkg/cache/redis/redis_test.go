@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"context"
 	"strings"
 	"testing"
 
@@ -20,7 +21,7 @@ func init() {
 }
 
 func TestScan(t *testing.T) {
-	res, err := Scan("agora:rtm:userUUID*", 100)
+	res, err := Scan(context.TODO(), "agora:rtm:userUUID*", 100)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,7 +30,7 @@ func TestScan(t *testing.T) {
 
 func TestVacantKey(t *testing.T) {
 	k := []string{"room:invite:123123", "room:invite:123123-null", "agora:rtc:room:uuid:uid:123123", "agora:rtc:room:uuid:uid:123123-null"}
-	res, err := VacantKey(k...)
+	res, err := VacantKey(context.TODO(), k...)
 	if err != nil {
 		t.Fatal(err)
 	}
