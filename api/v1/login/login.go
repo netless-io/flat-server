@@ -7,7 +7,7 @@ func RegisterRoutes(loginGroup *gin.RouterGroup) {
 	{
 		loginRoutes.GET("/github/callback", HandleGithubCallback)
 
-		loginRoutes.GET("login/weChat/web/callback", HandleWechatWebCallback)
-		loginRoutes.GET("login/weChat/mobile/callback", HandleWechatMobileCallback)
+		loginRoutes.GET("/weChat/web/callback", HandleWechatWebCallback)
+		loginRoutes.GET("/weChat/mobile/callback", HandleWechatMobileCallback)
 	}
 }
