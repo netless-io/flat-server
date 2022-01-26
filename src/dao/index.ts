@@ -13,6 +13,7 @@ import { CloudStorageUserFilesModel } from "../model/cloudStorage/CloudStorageUs
 import { CloudStorageConfigsModel } from "../model/cloudStorage/CloudStorageConfigs";
 import { UserGithubModel } from "../model/user/Github";
 import { UserAppleModel } from "../model/user/Apple";
+import { UserAgoraModel } from "../model/user/Agora";
 
 export const UserDAO = DAOImplement(UserModel) as ReturnType<DAO<UserModel>>;
 
@@ -21,6 +22,8 @@ export const UserWeChatDAO = DAOImplement(UserWeChatModel) as ReturnType<DAO<Use
 export const UserGithubDAO = DAOImplement(UserGithubModel) as ReturnType<DAO<UserGithubModel>>;
 
 export const UserAppleDAO = DAOImplement(UserAppleModel) as ReturnType<DAO<UserAppleModel>>;
+
+export const UserAgoraDAO = DAOImplement(UserAgoraModel) as ReturnType<DAO<UserAgoraModel>>;
 
 export const RoomDAO = DAOImplement(RoomModel) as ReturnType<DAO<RoomModel>>;
 

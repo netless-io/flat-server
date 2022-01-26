@@ -6,6 +6,7 @@ import { Login } from "./Login";
 import { LoginProcess } from "./Process";
 import { ControllerClass } from "../../../abstract/controller";
 import { AppleJWT } from "./apple/jwt";
+import { AgoraCallback } from "./agora/Callback";
 
 export const loginRouters: Readonly<Array<ControllerClass<any, any>>> = Object.freeze([
     SetAuthUUID,
@@ -14,5 +15,6 @@ export const loginRouters: Readonly<Array<ControllerClass<any, any>>> = Object.f
     WechatMobileCallback,
     AppleJWT,
     GithubCallback,
+    AgoraCallback,
     Login,
 ]);

@@ -42,6 +42,11 @@ export const Github = {
     CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
 };
 
+export const AgoraLogin = {
+    CLIENT_ID: process.env.AGORA_LOGIN_CLIENT_ID,
+    CLIENT_SECRET: process.env.AGORA_LOGIN_CLIENT_SECRET,
+};
+
 export const Agora = {
     APP_ID: process.env.AGORA_APP_ID,
     APP_CERTIFICATE: process.env.AGORA_APP_CERTIFICATE,

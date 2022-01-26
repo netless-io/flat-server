@@ -17,6 +17,7 @@ import { CloudStorageUserFilesModel } from "../model/cloudStorage/CloudStorageUs
 import { CloudStorageFilesModel } from "../model/cloudStorage/CloudStorageFiles";
 import { UserGithubModel } from "../model/user/Github";
 import { UserAppleModel } from "../model/user/Apple";
+import { UserAgoraModel } from "../model/user/Agora";
 
 export type Where<M> = {
     [key in keyof M]?: M[key] | FindOperator<M[key]>;
@@ -64,6 +65,7 @@ export type Model =
     | UserWeChatModel
     | UserGithubModel
     | UserAppleModel
+    | UserAgoraModel
     | RoomModel
     | RoomUserModel
     | RoomPeriodicConfigModel
