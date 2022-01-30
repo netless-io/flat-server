@@ -215,3 +215,7 @@ If you need to deploy to a remote server, add the following variables additional
 - [Axios](https://github.com/axios/axios)
 - [date-fns](https://github.com/date-fns/date-fns)
 - [ioredis](https://github.com/luin/ioredis)
+
+## Disclaimer
+
+You may use Flat for commercial purposes but please note that we do not accept customizational commercial requirements and deployment supports. Nor do we offer customer supports for commercial usage. Please head to [Flexible Classroom](https://www.agora.io/en/products/flexible-classroom) for such requirements.

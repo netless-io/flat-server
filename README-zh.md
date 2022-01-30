@@ -213,3 +213,9 @@ docker run -dit -p 6379:6379 --name redis -v `pwd`/data:/data -v `pwd`/conf:/usr
 - [Axios](https://github.com/axios/axios)
 - [date-fns](https://github.com/date-fns/date-fns)
 - [ioredis](https://github.com/luin/ioredis)
+
+## 免责声明
+
+你可以将 Flat 用于商业用途但请注意我们不接受商业化需求定制与部署支持以及其它客户服务。如有相关需求请前往[灵动课堂](https://www.agora.io/cn/agora-flexible-classroom)。
+
+本项目仅用于学习和交流使用，请遵守所在国的法律法规，切勿用于涉及政治、宗教、色情、犯罪等领域，一切违法后果请自负。
