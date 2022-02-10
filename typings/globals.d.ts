@@ -14,6 +14,9 @@ declare namespace NodeJS {
         GITHUB_CLIENT_ID: string;
         GITHUB_CLIENT_SECRET: string;
 
+        AGORA_LOGIN_CLIENT_ID: string;
+        AGORA_LOGIN_CLIENT_SECRET: string;
+
         AGORA_APP_ID: string;
         AGORA_APP_CERTIFICATE: string;
         AGORA_RESTFUL_ID: string;
