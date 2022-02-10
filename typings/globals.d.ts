@@ -38,6 +38,8 @@ declare namespace NodeJS {
         MYSQL_PASSWORD: string;
         MYSQL_DB: string;
 
+        FLAT_WEBSITE: string;
+
         JWT_SECRET: string;
         JWT_ALGORITHMS: string;
 
