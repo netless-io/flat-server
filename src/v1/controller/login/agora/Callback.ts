@@ -33,6 +33,10 @@ export class AgoraCallback extends AbstractController<RequestType> {
     };
 
     public async execute(): Promise<void> {
+        void this.reply.headers({
+            "content-type": "text/html",
+        });
+
         const { state: authUUID, code } = this.querystring;
 
         await LoginAgora.assertHasAuthUUID(authUUID, this.logger);
@@ -68,22 +72,40 @@ export class AgoraCallback extends AbstractController<RequestType> {
             avatar: avatarURL,
         });
 
-        void this.reply.headers({
-            "content-type": "text/html",
-        });
-
-        return this.reply.redirect(process.env.FLAT_WEBSITE);
+        return this.reply.send(AgoraCallback.successHTML());
     }
 
     public async errorHandler(error: Error): Promise<ResponseError> {
-        void this.reply.headers({
-            "content-type": "text/html",
-        });
-
         await redisService.set(RedisKey.authFailed(this.querystring.state), error.message, 60 * 60);
 
         this.logger.error("request failed", parseError(error));
         return this.reply.send(AgoraCallback.failedHTML);
+    }
+
+    private static successHTML(): string {
+        return `<!doctype html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title>Login Success</title>
+            </head>
+            <body>
+                <svg style=max-width:80px;max-height:80px;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M40 0c22.0914 0 40 17.9086 40 40S62.0914 80 40 80 0 62.0914 0 40 17.9086 0 40 0zm0 4C20.1177 4 4 20.1177 4 40s16.1177 36 36 36 36-16.1177 36-36S59.8823 4 40 4zm22.6337 20.5395l2.7326 2.921-32.3889 30.2993L14.61 40.0046l2.78-2.876L33.022 52.24l29.6117-27.7005z" fill="#9FDF76" fill-rule="nonzero" />
+                </svg>
+                <div id="text" style=position:fixed;top:60%;left:50%;transform:translate(-50%,-50%)>Login Success. After 3s it will automatically jump to the home page</div>
+            </body>
+            <script>
+                if (navigator.language.startsWith("zh")) {
+                    document.getElementById("text").textContent = "登录成功，3秒后将自动跳转到首页"
+                }
+
+                setTimeout(() => {
+                  location.href = ${process.env.FLAT_WEBSITE};
+                }, 3000);
+            </script>
+            </html>
+        `;
     }
 
     private static get failedHTML(): string {
