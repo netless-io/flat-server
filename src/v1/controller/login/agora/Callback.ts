@@ -54,6 +54,7 @@ export class AgoraCallback extends AbstractController<RequestType> {
         if (!userUUIDByDB) {
             await loginAgora.register({
                 ...userInfo,
+                userName: userInfo.userName || "Agora User",
                 // apple does not provide the user's avatar information, so the default avatar is used here
                 // TODO: add user change avatar image api
                 avatarURL:
