@@ -101,7 +101,7 @@ export class AgoraCallback extends AbstractController<RequestType> {
                 }
 
                 setTimeout(() => {
-                  location.href = ${process.env.FLAT_WEBSITE};
+                  location.href = "${process.env.FLAT_WEBSITE}";
                 }, 3000);
             </script>
             </html>
