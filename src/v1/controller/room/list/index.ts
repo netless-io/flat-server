@@ -56,6 +56,7 @@ export class List extends AbstractController<RequestType, ResponseType> {
                 roomUUID: room.roomUUID,
                 periodicUUID: room.periodicUUID || null,
                 ownerUUID: room.ownerUUID,
+                ownerAvatarURL: room.ownerAvatarURL,
                 roomType: room.roomType,
                 title: room.title,
                 beginTime: room.beginTime.valueOf(),
