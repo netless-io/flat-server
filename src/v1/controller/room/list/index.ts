@@ -92,6 +92,7 @@ export class List extends AbstractController<RequestType, ResponseType> {
             .addSelect("r.room_status", "roomStatus")
             .addSelect("r.region", "region")
             .addSelect("u.user_name", "ownerName")
+            .addSelect("u.avatar_url", "ownerAvatarURL")
             .andWhere("ru.user_uuid = :userUUID", {
                 userUUID: this.userUUID,
             })
@@ -173,6 +174,7 @@ export type ResponseType = Array<{
     periodicUUID: string | null;
     roomType: RoomType;
     ownerUUID: string;
+    ownerAvatarURL: string;
     title: string;
     beginTime: number;
     endTime: number;
