@@ -127,6 +127,7 @@ export class PeriodicInfo extends AbstractController<RequestType, ResponseType> 
                 periodic: {
                     ownerUUID: owner_uuid,
                     ownerUserName: userInfo.user_name,
+                    ownerName: userInfo.user_name,
                     roomType: room_type,
                     endTime: end_time.valueOf(),
                     rate: rate || null,
@@ -163,6 +164,7 @@ interface ResponseType {
     periodic: {
         ownerUUID: string;
         ownerUserName: string;
+        ownerName: string;
         roomType: string;
         endTime: number;
         rate: number | null;
