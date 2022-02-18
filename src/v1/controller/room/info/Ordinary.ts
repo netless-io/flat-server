@@ -92,6 +92,7 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
                     roomStatus: room_status,
                     ownerUUID: owner_uuid,
                     ownerUserName: userInfo.user_name,
+                    ownerName: userInfo.user_name,
                     hasRecord: !!recordInfo,
                     region,
                     inviteCode: await getInviteCode(roomUUID, this.logger),
@@ -120,6 +121,7 @@ interface ResponseType {
         roomStatus: RoomStatus;
         ownerUUID: string;
         ownerUserName: string;
+        ownerName: string;
         hasRecord: boolean;
         region: Region;
         inviteCode: string;
