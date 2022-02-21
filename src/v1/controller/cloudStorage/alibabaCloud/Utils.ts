@@ -1,5 +1,5 @@
 import { addMinutes } from "date-fns/fp";
-import { AlibabaCloud } from "../../../../constants/Process";
+import { StorageService } from "../../../../constants/Config";
 import crypto from "crypto";
 import OSS from "ali-oss";
 import { Region } from "../../../../constants/Project";
@@ -33,7 +33,7 @@ export const policyTemplate = (
         expiration: addMinutes(expiration)(new Date()).toISOString(),
         conditions: [
             {
-                bucket: AlibabaCloud[region].OSS_BUCKET,
+                bucket: StorageService.oss[region].bucket,
             },
             ["content-length-range", fileSize, fileSize],
             ["eq", "$key", filePath],
@@ -43,7 +43,7 @@ export const policyTemplate = (
 
     const policy = Buffer.from(policyString).toString("base64");
     const signature = crypto
-        .createHmac("sha1", AlibabaCloud.OSS_ACCESS_KEY_SECRET)
+        .createHmac("sha1", StorageService.oss[region].accessKeySecret)
         .update(policy)
         .digest("base64");
 
@@ -55,11 +55,11 @@ export const policyTemplate = (
 
 const createOSSClient = (region: Region): OSS => {
     return new OSS({
-        bucket: AlibabaCloud[region].OSS_BUCKET,
-        region: AlibabaCloud[region].OSS_REGION,
-        endpoint: AlibabaCloud.OSS_ENDPOINT,
-        accessKeyId: AlibabaCloud.OSS_ACCESS_KEY,
-        accessKeySecret: AlibabaCloud.OSS_ACCESS_KEY_SECRET,
+        bucket: StorageService.oss[region].bucket,
+        region: StorageService.oss[region].region,
+        endpoint: StorageService.oss[region].endpoint,
+        accessKeyId: StorageService.oss[region].accessKey,
+        accessKeySecret: StorageService.oss[region].accessKeySecret,
         secure: true,
     });
 };

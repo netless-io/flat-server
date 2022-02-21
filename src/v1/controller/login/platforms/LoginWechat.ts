@@ -2,7 +2,7 @@ import { AbstractLogin } from "../../../../abstract/login";
 import { Login } from "../../../../decorator/Login";
 import { LoginClassParams } from "../../../../abstract/login/Type";
 import { ax } from "../../../utils/Axios";
-import { WeChat } from "../../../../constants/Process";
+import { WeChat } from "../../../../constants/Config";
 import { getConnection } from "typeorm";
 import { AxiosResponse } from "axios";
 import { ServiceUser } from "../../../service/user/User";
@@ -42,10 +42,10 @@ export class LoginWechat extends AbstractLogin {
     }
 
     public static async getToken(code: string, type: "WEB" | "MOBILE"): Promise<WeChatToken> {
+        const t = type.toLowerCase() as Lowercase<keyof typeof WeChat>;
         const result = await LoginWechat.wechatRequest<WeChatResponseToken>(
-            `https://api.weixin.qq.com/sns/oauth2/access_token?appid=${WeChat[type].APP_ID}&secret=${WeChat[type].APP_SECRET}&code=${code}&grant_type=authorization_code`,
+            `https://api.weixin.qq.com/sns/oauth2/access_token?appid=${WeChat[t].appId}&secret=${WeChat[t].appSecret}&code=${code}&grant_type=authorization_code`,
         );
-
         return {
             accessToken: result.access_token,
             openUUID: result.openid,

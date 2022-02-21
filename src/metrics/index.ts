@@ -1,6 +1,6 @@
-import { Registry, collectDefaultMetrics } from "prom-client";
+import { collectDefaultMetrics, Registry } from "prom-client";
 import fastify, { FastifyInstance } from "fastify";
-import { metricsConfig } from "../constants/Process";
+import { MetricsConfig } from "../constants/Config";
 import { loggerServer, parseError } from "../logger";
 
 type MetricsParams = {
@@ -11,10 +11,11 @@ type MetricsParams = {
 
 export class MetricsSever {
     private params: MetricsParams;
+
     constructor(appServer: FastifyInstance) {
         this.params = {
-            endpoint: metricsConfig.ENDPOINT,
-            port: metricsConfig.PORT,
+            endpoint: MetricsConfig.endpoint,
+            port: MetricsConfig.port,
             appServer: appServer,
         };
     }

@@ -13,11 +13,11 @@ import {
     AgoraCloudRecordUpdateLayoutRequestBody,
     AgoraCloudRecordUpdateLayoutResponse,
 } from "./Types";
-import { Agora } from "../../../../constants/Process";
+import { Agora } from "../../../../constants/Config";
 
-const agoraCloudRecording = `https://api.agora.io/v1/apps/${Agora.APP_ID}/cloud_recording`;
+const agoraCloudRecording = `https://api.agora.io/v1/apps/${Agora.appId}/cloud_recording`;
 const authorization =
-    "Basic" + Buffer.from(`${Agora.RESTFUL_ID}:${Agora.RESTFUL_SECRET}`).toString("base64");
+    "Basic" + Buffer.from(`${Agora.restfulId}:${Agora.restfulSecret}`).toString("base64");
 
 const agoraCloudRecordingRequest = async <REQ, RESP extends any>(
     path: string,

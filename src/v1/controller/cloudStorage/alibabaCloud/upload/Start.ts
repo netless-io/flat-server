@@ -1,5 +1,5 @@
 import { v4 } from "uuid";
-import { CloudStorage } from "../../../../../constants/Process";
+import { CloudStorage } from "../../../../../constants/Config";
 import { Region, Status } from "../../../../../constants/Project";
 
 import { ErrorCode } from "../../../../../ErrorCode";
@@ -30,7 +30,7 @@ export class AlibabaCloudUploadStart extends AbstractController<RequestType, Res
                 fileSize: {
                     type: "number",
                     minimum: 1,
-                    maximum: CloudStorage.SINGLE_FILE_SIZE,
+                    maximum: CloudStorage.singleFileSize,
                 },
                 region: {
                     type: "string",
@@ -48,11 +48,11 @@ export class AlibabaCloudUploadStart extends AbstractController<RequestType, Res
         {
             const uploadingFiles = await RedisService.scan(
                 RedisKey.cloudStorageFileInfo(userUUID, "*"),
-                CloudStorage.CONCURRENT + 1,
+                CloudStorage.concurrent + 1,
                 true,
             );
 
-            if (uploadingFiles.length >= CloudStorage.CONCURRENT) {
+            if (uploadingFiles.length >= CloudStorage.concurrent) {
                 return {
                     status: Status.Failed,
                     code: ErrorCode.UploadConcurrentLimit,
@@ -76,7 +76,7 @@ export class AlibabaCloudUploadStart extends AbstractController<RequestType, Res
                 return accFileSize + (Number(currentFileSize) || 0);
             }, Promise.resolve(totalUsage));
 
-            if (uploadingFileTotalSize > CloudStorage.TOTAL_SIZE) {
+            if (uploadingFileTotalSize > CloudStorage.totalSize) {
                 return {
                     status: Status.Failed,
                     code: ErrorCode.NotEnoughTotalUsage,

@@ -2,7 +2,7 @@ import "source-map-support/register";
 import "reflect-metadata";
 import fastify from "fastify";
 import cors from "fastify-cors";
-import { metricsConfig, Server } from "./constants/Process";
+import { MetricsConfig, Server } from "./constants/Config";
 import { Status } from "./constants/Project";
 import jwtVerify from "./plugins/JWT";
 import { ajvSelfPlugin } from "./plugins/Ajv";
@@ -20,7 +20,7 @@ const app = fastify({
     },
 });
 
-if (metricsConfig.ENABLED) {
+if (MetricsConfig.enabled) {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     new MetricsSever(app).start();
 }
@@ -68,7 +68,7 @@ app.get("/health-check", async (_req, reply) => {
 });
 
 void orm().then(() => {
-    app.listen(Server.PORT, "0.0.0.0", (err, address) => {
+    app.listen(Server.port, "0.0.0.0", (err, address) => {
         if (err) {
             loggerServer.error("server launch failed", parseError(err));
             process.exit(1);

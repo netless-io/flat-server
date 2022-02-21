@@ -8,6 +8,7 @@ import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { LoginAgora } from "../platforms/LoginAgora";
 import { ServiceUserAgora } from "../../../service/user/UserAgora";
+import { Website } from "../../../../constants/Config";
 
 @Controller<RequestType, any>({
     method: "get",
@@ -102,7 +103,7 @@ export class AgoraCallback extends AbstractController<RequestType> {
                 }
 
                 setTimeout(() => {
-                  location.href = "${process.env.FLAT_WEBSITE}";
+                  location.href = "${Website}";
                 }, 3000);
             </script>
             </html>

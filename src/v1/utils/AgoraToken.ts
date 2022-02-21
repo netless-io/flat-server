@@ -1,12 +1,12 @@
 import { RtcRole, RtcTokenBuilder, RtmRole, RtmTokenBuilder } from "agora-access-token";
-import { Agora } from "../../constants/Process";
+import { Agora } from "../../constants/Config";
 import { RedisKey } from "../../utils/Redis";
 import RedisService from "../../thirdPartyService/RedisService";
 
 const generateRTCToken = (title: string, uid: number): string => {
     return RtcTokenBuilder.buildTokenWithUid(
-        Agora.APP_ID,
-        Agora.APP_CERTIFICATE,
+        Agora.appId,
+        Agora.appCertificate,
         title,
         uid,
         RtcRole.PUBLISHER,
@@ -15,13 +15,7 @@ const generateRTCToken = (title: string, uid: number): string => {
 };
 
 const generateRTMToken = (uid: string): string => {
-    return RtmTokenBuilder.buildToken(
-        Agora.APP_ID,
-        Agora.APP_CERTIFICATE,
-        uid,
-        RtmRole.Rtm_User,
-        0,
-    );
+    return RtmTokenBuilder.buildToken(Agora.appId, Agora.appCertificate, uid, RtmRole.Rtm_User, 0);
 };
 
 export const getRTCToken = async (roomUUID: string, rtcUID: number): Promise<string> => {

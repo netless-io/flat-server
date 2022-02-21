@@ -7,7 +7,7 @@ import {
     TokenRole,
 } from "../NetlessToken";
 import queryString from "querystring";
-import { Netless } from "../../constants/Process";
+import { Whiteboard } from "../../constants/Config";
 import { v4 } from "uuid";
 
 const namespace = "[utils][utils-netless-token]";
@@ -30,7 +30,7 @@ test(`${namespace} - createWhiteboardSDKToken`, ava => {
 
     ava.deepEqual(Object.keys(tokenObject).sort(), ["ak", "expireAt", "nonce", "role", "sig"]);
 
-    ava.is(tokenObject.ak, Netless.ACCESS_KEY);
+    ava.is(tokenObject.ak, Whiteboard.accessKey);
 
     ava.true(Number(tokenObject.expireAt) >= expireAtOffset);
     ava.true(Number(tokenObject.expireAt) <= Date.now());
@@ -73,7 +73,7 @@ test(`${namespace} - createWhiteboardRoomToken`, ava => {
 
     ava.deepEqual(Object.keys(tokenObject).sort(), ["ak", "nonce", "role", "sig", "uuid"]);
 
-    ava.is(tokenObject.ak, Netless.ACCESS_KEY);
+    ava.is(tokenObject.ak, Whiteboard.accessKey);
     ava.is(tokenObject.uuid, roomUUID);
     ava.is(tokenObject.role, TokenRole.Reader);
 });
@@ -91,7 +91,7 @@ test(`${namespace} - createWhiteboardRoomToken default value`, ava => {
         string
     >;
 
-    ava.is(tokenObject.ak, Netless.ACCESS_KEY);
+    ava.is(tokenObject.ak, Whiteboard.accessKey);
     ava.is(tokenObject.uuid, roomUUID);
     ava.is(tokenObject.role, TokenRole.Writer);
 });
@@ -115,7 +115,7 @@ test(`${namespace} - createWhiteboardTaskToken`, ava => {
 
     ava.deepEqual(Object.keys(tokenObject).sort(), ["ak", "nonce", "role", "sig", "uuid"]);
 
-    ava.is(tokenObject.ak, Netless.ACCESS_KEY);
+    ava.is(tokenObject.ak, Whiteboard.accessKey);
     ava.is(tokenObject.uuid, roomUUID);
     ava.is(tokenObject.role, TokenRole.Reader);
 });
@@ -133,7 +133,7 @@ test(`${namespace} - createWhiteboardTaskToken default value`, ava => {
         string
     >;
 
-    ava.is(tokenObject.ak, Netless.ACCESS_KEY);
+    ava.is(tokenObject.ak, Whiteboard.accessKey);
     ava.is(tokenObject.uuid, roomUUID);
     ava.is(tokenObject.role, TokenRole.Reader);
 });

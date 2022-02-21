@@ -2,7 +2,7 @@ import { AbstractLogin } from "../../../../abstract/login";
 import { Login } from "../../../../decorator/Login";
 import { LoginClassParams } from "../../../../abstract/login/Type";
 import { ax } from "../../../utils/Axios";
-import { Github } from "../../../../constants/Process";
+import { Github } from "../../../../constants/Config";
 import { getConnection } from "typeorm";
 import { ServiceUser } from "../../../service/user/User";
 import { ServiceUserGithub } from "../../../service/user/UserGithub";
@@ -42,7 +42,7 @@ export class LoginGithub extends AbstractLogin {
 
     public static async getToken(code: string, authUUID: string): Promise<string> {
         const response = await ax.post<AccessToken | RequestFailed>(
-            `https://github.com/login/oauth/access_token?client_id=${Github.CLIENT_ID}&client_secret=${Github.CLIENT_SECRET}&code=${code}&state=${authUUID}`,
+            `https://github.com/login/oauth/access_token?client_id=${Github.clientId}&client_secret=${Github.clientSecret}&code=${code}&state=${authUUID}`,
             null,
             {
                 headers: {

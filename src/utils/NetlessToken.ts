@@ -4,7 +4,7 @@
 
 import { createHmac } from "crypto";
 import { v1 as uuidv1 } from "uuid";
-import { Netless } from "../constants/Process";
+import { Whiteboard } from "../constants/Config";
 
 export enum TokenRole {
     Admin = "0",
@@ -75,7 +75,7 @@ const roomToken = createToken<RoomTokenTags>(TokenPrefix.ROOM);
 const taskToken = createToken<RoomTokenTags>(TokenPrefix.TASK);
 
 export const createWhiteboardSDKToken = (lifespan = 1000 * 60 * 10): string => {
-    return sdkToken(Netless.ACCESS_KEY, Netless.SECRET_ACCESS_KEY, lifespan, {
+    return sdkToken(Whiteboard.accessKey, Whiteboard.secretAccessKey, lifespan, {
         role: TokenRole.Admin,
     });
 };
@@ -84,7 +84,7 @@ export const createWhiteboardRoomToken = (
     whiteboardRoomUUID: string,
     { readonly = false, lifespan = 0 }: { readonly?: boolean; lifespan?: number } = {},
 ): string => {
-    return roomToken(Netless.ACCESS_KEY, Netless.SECRET_ACCESS_KEY, lifespan, {
+    return roomToken(Whiteboard.accessKey, Whiteboard.secretAccessKey, lifespan, {
         uuid: whiteboardRoomUUID,
         role: readonly ? TokenRole.Reader : TokenRole.Writer,
     });
@@ -94,7 +94,7 @@ export const createWhiteboardTaskToken = (
     whiteboardTaskUUID: string,
     { lifespan = 0 }: { lifespan?: number } = {},
 ): string => {
-    return taskToken(Netless.ACCESS_KEY, Netless.SECRET_ACCESS_KEY, lifespan, {
+    return taskToken(Whiteboard.accessKey, Whiteboard.secretAccessKey, lifespan, {
         uuid: whiteboardTaskUUID,
         role: TokenRole.Reader,
     });

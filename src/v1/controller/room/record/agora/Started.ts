@@ -1,5 +1,5 @@
 import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
-import { Agora } from "../../../../../constants/Process";
+import { Agora } from "../../../../../constants/Config";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { RoomDAO, RoomRecordDAO } from "../../../../../dao";
@@ -83,12 +83,12 @@ export class RecordAgoraStarted extends AbstractController<RequestType, Response
                     ...agoraData.clientRequest,
                     token,
                     storageConfig: {
-                        vendor: Number(Agora.OSS_VENDOR),
-                        region: Number(Agora.OSS_REGION),
-                        bucket: Agora.OSS_BUCKET,
-                        accessKey: Agora.OSS_ACCESS_KEY_ID,
-                        secretKey: Agora.OSS_ACCESS_KEY_SECRET,
-                        fileNamePrefix: [Agora.OSS_FOLDER, roomUUID.replace(/-/g, "")],
+                        vendor: Number(Agora.ossVendor),
+                        region: Number(Agora.ossRegion),
+                        bucket: Agora.ossBucket,
+                        accessKey: Agora.ossAccessKeyId,
+                        secretKey: Agora.ossAccessKeySecret,
+                        fileNamePrefix: [Agora.ossFolder, roomUUID.replace(/-/g, "")],
                     },
                 },
             });

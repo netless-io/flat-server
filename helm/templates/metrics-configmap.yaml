@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-metrics-config
+data:
+{{- range $key, $value := .Values.configMapMetrics }}
+  {{ $key }}: {{ $value | quote }}
+{{- end -}}
