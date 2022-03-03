@@ -24,7 +24,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
     public static readonly schema: FastifySchema<RequestType> = {
         body: {
             type: "object",
-            required: ["title", "type", "beginTime", "region"],
+            required: ["title", "type", "region"],
             properties: {
                 title: {
                     type: "string",
@@ -37,6 +37,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
                 beginTime: {
                     type: "integer",
                     format: "unix-timestamp",
+                    nullable: true,
                 },
                 endTime: {
                     type: "integer",
@@ -93,11 +94,16 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
 
     private checkParams(): void {
         const { beginTime, endTime } = this.body;
-        if (timeExceedRedundancyOneMinute(beginTime)) {
+
+        if (beginTime && timeExceedRedundancyOneMinute(beginTime)) {
             throw new ControllerError(ErrorCode.ParamsCheckFailed);
         }
 
         if (endTime) {
+            if (!beginTime) {
+                throw new ControllerError(ErrorCode.ParamsCheckFailed);
+            }
+
             if (beginTimeLessEndTime(beginTime, endTime)) {
                 throw new ControllerError(ErrorCode.ParamsCheckFailed);
             }
@@ -113,7 +119,7 @@ export interface RequestType {
     body: {
         title: string;
         type: RoomType;
-        beginTime: number;
+        beginTime?: number;
         endTime?: number;
         region: Region;
     };

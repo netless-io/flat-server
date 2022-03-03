@@ -59,12 +59,14 @@ export class ServiceRoom {
             title: string;
             type: RoomType;
             region: Region;
-            beginTime: number | Date;
+            beginTime?: number | Date;
             endTime?: number | Date;
         },
         t?: EntityManager,
     ): Promise<InsertResult> {
-        const { title, type, region, beginTime, endTime } = data;
+        const { title, type, region, endTime } = data;
+        const beginTime = data.beginTime || Date.now();
+
         return await RoomDAO(t).insert({
             periodic_uuid: "",
             owner_uuid: this.userUUID,
