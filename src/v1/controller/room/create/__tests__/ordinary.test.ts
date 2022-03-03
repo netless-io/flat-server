@@ -98,6 +98,26 @@ test(`${namespace} - begin time is one minute earlier than now`, async ava => {
     }
 });
 
+test(`${namespace} - only has end time`, async ava => {
+    ava.plan(1);
+
+    const userUUID = v4();
+    const endTime = addHours(1)(Date.now()).valueOf();
+
+    const createOrdinary = createOrdinaryFn(userUUID, {
+        title: "test",
+        type: RoomType.OneToOne,
+        region: Region.CN_HZ,
+        endTime,
+    });
+
+    try {
+        await createOrdinary.execute();
+    } catch (error) {
+        ava.is(createOrdinary.errorHandler(error).code, ErrorCode.ParamsCheckFailed);
+    }
+});
+
 test(`${namespace} - begin time less end time`, async ava => {
     ava.plan(1);
 
