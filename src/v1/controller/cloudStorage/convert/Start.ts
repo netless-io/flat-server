@@ -129,7 +129,7 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
 
         switch (extname) {
             case ".pdf": {
-                return 1.8;
+                return 2.4;
             }
             default: {
                 return 1.2;
