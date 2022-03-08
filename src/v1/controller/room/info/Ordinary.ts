@@ -43,7 +43,16 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
         }
 
         const roomInfo = await RoomDAO().findOne(
-            ["title", "begin_time", "end_time", "room_type", "room_status", "owner_uuid", "region"],
+            [
+                "title",
+                "begin_time",
+                "end_time",
+                "room_type",
+                "room_status",
+                "owner_uuid",
+                "region",
+                "periodic_uuid",
+            ],
             {
                 room_uuid: roomUUID,
             },
@@ -64,6 +73,7 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
             room_status,
             owner_uuid,
             region,
+            periodic_uuid: periodicUUID,
         } = roomInfo;
 
         const userInfo = await UserDAO().findOne(["user_name"], {
@@ -95,7 +105,7 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
                     ownerName: userInfo.user_name,
                     hasRecord: !!recordInfo,
                     region,
-                    inviteCode: await getInviteCode(roomUUID, this.logger),
+                    inviteCode: await getInviteCode(periodicUUID || roomUUID, this.logger),
                 },
             },
         };
