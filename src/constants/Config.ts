@@ -48,6 +48,10 @@ export const Github = {
     clientSecret: config.login.github.client_secret,
 };
 
+export const Apple = {
+    enable: config.login.apple.enable,
+};
+
 export const AgoraLogin = {
     enable: config.login.agora.enable,
     clientId: config.login.agora.clientId,
