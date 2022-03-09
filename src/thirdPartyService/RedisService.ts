@@ -1,16 +1,16 @@
 import IORedis from "ioredis";
-import { Redis } from "../constants/Process";
+import { Redis } from "../constants/Config";
 
 class RedisService {
     public readonly client: IORedis.Redis;
 
     public constructor() {
         this.client = new IORedis({
-            host: Redis.HOST,
-            port: Number(Redis.PORT),
-            username: Redis.USERNAME,
-            password: Redis.PASSWORD,
-            db: Number(Redis.DB),
+            host: Redis.host,
+            port: Redis.port,
+            username: Redis.username,
+            password: Redis.password,
+            db: Redis.db,
         });
     }
 

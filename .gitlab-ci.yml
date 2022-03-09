@@ -85,6 +85,8 @@ docker_build_prod:
 
     - export VALUES=`envsubst < ./helm/values.yaml`
     - echo "$VALUES" > ./helm/values.yaml
+    - mkdir ./helm/files
+    - cp $PROJECT_CONFIG ./helm/files/production.yaml
   script:
     # link: https://github.com/stakater/Reloader
     - |

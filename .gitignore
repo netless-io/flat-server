@@ -106,3 +106,5 @@ Temporary Items
 config/.env.*.local
 certificate/*
 !certificate/.gitkeep
+config/*.yaml
+!config/defaults.yaml

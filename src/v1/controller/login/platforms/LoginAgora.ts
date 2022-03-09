@@ -8,7 +8,7 @@ import { ServiceCloudStorageConfigs } from "../../../service/cloudStorage/CloudS
 import { ServiceCloudStorageUserFiles } from "../../../service/cloudStorage/CloudStorageUserFiles";
 import { ServiceUserAgora } from "../../../service/user/UserAgora";
 import { ax } from "../../../utils/Axios";
-import { AgoraLogin } from "../../../../constants/Process";
+import { AgoraLogin } from "../../../../constants/Config";
 import { stringify } from "qs";
 
 @Login()
@@ -41,8 +41,8 @@ export class LoginAgora extends AbstractLogin {
         const result = await ax.post<AgoraResponseToken>(
             "https://sso2.agora.io/api/v0/oauth/token",
             stringify({
-                client_id: AgoraLogin.CLIENT_ID,
-                client_secret: AgoraLogin.CLIENT_SECRET,
+                client_id: AgoraLogin.clientId,
+                client_secret: AgoraLogin.clientSecret,
                 grant_type: "authorization_code",
                 code,
                 redirect_uri: "",

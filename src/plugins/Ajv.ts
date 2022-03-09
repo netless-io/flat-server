@@ -2,7 +2,7 @@ import { isValid } from "date-fns/fp";
 import { validate as uuidValidate, version as uuidVersion } from "uuid";
 import Ajv, { FormatDefinition } from "ajv";
 import path from "path";
-import { CloudStorage } from "../constants/Process";
+import { CloudStorage } from "../constants/Config";
 
 // link: https://github.com/ajv-validator/ajv/blob/cd7c6a8385464f818814ebb1e84cc703dc7ef02c/docs/api.md#ajvaddformatname-string-format-format-ajv
 // link: https://github.com/ajv-validator/ajv-formats/blob/ce49433448384b4c0b2407adafc345e43b85f8ea/src/formats.ts#L38
@@ -28,7 +28,7 @@ const fileSuffix: FormatDefinition<string> = {
     validate: fileName => {
         const suffix = path.extname(fileName).substr(1);
 
-        return CloudStorage.ALLOW_FILE_SUFFIX.includes(suffix);
+        return CloudStorage.allowFileSuffix.includes(suffix);
     },
 };
 
@@ -36,7 +36,7 @@ const urlFileSuffix: FormatDefinition<string> = {
     validate: fileName => {
         const suffix = path.extname(fileName).substr(1);
 
-        return CloudStorage.ALLOW_URL_FILE_SUFFIX.includes(suffix);
+        return CloudStorage.allowUrlFileSuffix.includes(suffix);
     },
 };
 

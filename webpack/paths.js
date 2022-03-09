@@ -9,5 +9,4 @@ module.exports = {
     testEntryFile: resolvePath("test", "index.ts"),
     testDist: resolvePath("dist-test"),
     tsConfig: resolvePath("tsconfig.json"),
-    envConfig: resolvePath("config"),
 };

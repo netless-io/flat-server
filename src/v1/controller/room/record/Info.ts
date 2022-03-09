@@ -1,5 +1,5 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { Agora } from "../../../../constants/Process";
+import { Agora } from "../../../../constants/Config";
 import { Region, Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomRecordDAO, RoomUserDAO } from "../../../../dao";
@@ -100,7 +100,7 @@ export class RecordInfo extends AbstractController<RequestType, ResponseType> {
                     beginTime: begin_time.valueOf(),
                     endTime: end_time.valueOf(),
                     videoURL: agora_sid
-                        ? `${Agora.OSS_PREFIX}/${Agora.OSS_FOLDER}/${roomUUID.replace(
+                        ? `${Agora.ossPrefix}/${Agora.ossFolder}/${roomUUID.replace(
                               /-/g,
                               "",
                           )}/${agora_sid}_${roomUUID}.m3u8`

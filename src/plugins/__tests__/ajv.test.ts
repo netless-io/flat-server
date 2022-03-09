@@ -2,7 +2,7 @@ import test from "ava";
 import Ajv from "ajv";
 import { ajvSelfPlugin } from "../Ajv";
 import { v4 } from "uuid";
-import { CloudStorage } from "../../constants/Process";
+import { CloudStorage } from "../../constants/Config";
 
 const namespace = "[plugins][plugins-ajv]";
 
@@ -118,7 +118,7 @@ test(`${namespace} - file-suffix`, ava => {
 
     {
         const testFileSuffixValidSuccess = {
-            fileName: `test.${CloudStorage.ALLOW_FILE_SUFFIX[0]}`,
+            fileName: `test.${CloudStorage.allowFileSuffix[0]}`,
         };
 
         validate(testFileSuffixValidSuccess);
@@ -154,7 +154,7 @@ test(`${namespace} - url-file-suffix`, ava => {
 
     {
         const testURLFileSuffixValidSuccess = {
-            fileName: `yes.${CloudStorage.ALLOW_URL_FILE_SUFFIX[0]}`,
+            fileName: `yes.${CloudStorage.allowUrlFileSuffix[0]}`,
         };
 
         validate(testURLFileSuffixValidSuccess);

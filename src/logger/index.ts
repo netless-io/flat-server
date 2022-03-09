@@ -1,11 +1,11 @@
 import os from "os";
 
 import { Logger, LoggerContext } from "./Logger";
-import { LoggerAPI, LoggerError, LoggerServer, LoggerBase } from "./LogConext";
+import { LoggerAPI, LoggerBase, LoggerError, LoggerServer } from "./LogConext";
 import { LoggerPluginFile } from "./plugins/LoggerPluginFile";
 import { LoggerPluginTerminal } from "./plugins/LoggerPluginTerminal";
 import { LoggerAbstractPlugin } from "./plugins/LoggerAbstractPlugin";
-import { LogConfig } from "../constants/Process";
+import { LogConfig } from "../constants/Config";
 
 export { Logger };
 export { LoggerServer, LoggerBase, LoggerAPI, LoggerError };
@@ -17,7 +17,7 @@ const baseContext = {
 
 const loggerPlugins = [
     new LoggerPluginTerminal(),
-    new LoggerPluginFile(LogConfig.PATHNAME, LogConfig.FILENAME),
+    new LoggerPluginFile(LogConfig.pathname, LogConfig.filename),
 ];
 
 export const createLoggerAPI = <R extends LoggerContext>(

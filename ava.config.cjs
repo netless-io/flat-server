@@ -1,6 +1,3 @@
-const path = require("path");
-const dotenv = require("dotenv-flow");
-
 module.exports = {
     extensions: ["ts"],
     require: ["ts-node/register"],
@@ -8,5 +5,8 @@ module.exports = {
     source: ["src/*.ts", "src/**/*.ts"],
     timeout: "1m",
     failFast: true,
-    environmentVariables: dotenv.parse(path.resolve(__dirname, "config", ".env.test"))
+    environmentVariables: {
+        IS_TEST: "yes",
+        NODE_ENV: "development"
+    }
 };

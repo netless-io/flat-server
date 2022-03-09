@@ -1,6 +1,4 @@
 const { merge } = require("webpack-merge");
-const DotenvFlow = require("dotenv-flow-webpack");
-const paths = require("./paths");
 const common = require("./webpack.common.js");
 const { NoEmitOnErrorsPlugin } = require("webpack");
 
@@ -18,12 +16,5 @@ module.exports = merge(common, {
         hot: true,
     },
 
-    plugins: [
-        new NoEmitOnErrorsPlugin(),
-        new DotenvFlow({
-            path: paths.envConfig,
-            system_vars: true,
-            default_node_env: "development",
-        }),
-    ],
+    plugins: [new NoEmitOnErrorsPlugin()],
 });

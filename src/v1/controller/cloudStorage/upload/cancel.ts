@@ -1,4 +1,4 @@
-import { CloudStorage } from "../../../../constants/Process";
+import { CloudStorage } from "../../../../constants/Config";
 import { Status } from "../../../../constants/Project";
 import { RedisKey } from "../../../../utils/Redis";
 import RedisService from "../../../../thirdPartyService/RedisService";
@@ -36,7 +36,7 @@ export class UploadCancel extends AbstractController<RequestType, ResponseType> 
         if (typeof fileUUIDs === "undefined" || fileUUIDs.length === 0) {
             const uploadingFiles = await RedisService.scan(
                 RedisKey.cloudStorageFileInfo(userUUID, "*"),
-                CloudStorage.CONCURRENT + 1,
+                CloudStorage.concurrent + 1,
                 true,
             );
 

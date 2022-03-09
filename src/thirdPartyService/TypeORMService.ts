@@ -2,7 +2,7 @@ import { Connection, createConnection } from "typeorm";
 import { CloudStorageConfigsModel } from "../model/cloudStorage/CloudStorageConfigs";
 import { CloudStorageFilesModel } from "../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../model/cloudStorage/CloudStorageUserFiles";
-import { isDev, isTest, MySQL } from "../constants/Process";
+import { isDev, isTest, MySQL } from "../constants/Config";
 import { RoomModel } from "../model/room/Room";
 import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
 import { RoomPeriodicConfigModel } from "../model/room/RoomPeriodicConfig";
@@ -19,11 +19,11 @@ import { UserAgoraModel } from "../model/user/Agora";
 export const orm = (): Promise<Connection> => {
     return createConnection({
         type: "mysql",
-        host: MySQL.HOST,
-        username: MySQL.USER,
-        password: MySQL.PASSWORD,
-        database: MySQL.DB,
-        port: Number(MySQL.PORT),
+        host: MySQL.host,
+        username: MySQL.user,
+        password: MySQL.password,
+        database: MySQL.db,
+        port: MySQL.port,
         entities: [
             UserModel,
             UserWeChatModel,

@@ -1,0 +1,132 @@
+server:
+  port: 80
+
+redis:
+  host:
+  port:
+  username:
+  password:
+  db:
+
+mysql:
+  host:
+  port:
+  username:
+  password:
+  db:
+
+jwt:
+  secret:
+  algorithms:
+
+website: https://flat-web-dev.whiteboard.agora.io
+
+# flag see: https://github.com/netless-io/flat-server/blob/main/src/utils/EnvVariable.ts
+log:
+  pathname: "{{PROJECT_DIR}}/logs"
+  filename: "{{DAY_DATE}}"
+
+cloud_storage:
+  # upload concurrent (default: 3)
+  concurrent: 3
+  # default: 500M
+  single_file_size: 524288000
+  # default: 2G
+  total_size: 2147483648
+  # storage service prefix path (default: cloud-storage)
+  prefix_path: cloud-storage
+  allow_file_suffix:
+    - ppt
+    - pptx
+    - doc
+    - docx
+    - pdf
+    - png
+    - jpg
+    - jpeg
+    - gif
+    - mp3
+    - mp4
+    - ice
+  url_file_suffix:
+    - vf
+
+login:
+  wechat:
+    web:
+      enable: false
+      app_id:
+      app_secret:
+    mobile:
+      enable: false
+      app_id:
+      app_secret:
+  github:
+    enable: false
+    client_id:
+    client_secret:
+  google:
+    enable: false
+    client_id:
+    client_secret:
+    redirect_uri:
+  apple:
+    enable: false
+  agora:
+    enable: false
+    clientId:
+    clientSecret:
+
+agora:
+  app:
+    id:
+    certificate:
+  restful:
+    id:
+    secret:
+  oss:
+    access_id:
+    access_secret:
+    vendor:
+    region:
+    bucket:
+    folder:
+    prefix:
+
+whiteboard:
+  access_key:
+  secret_access_key:
+
+storage_service:
+  type: oss
+  oss:
+    zh_hz:
+      access_key:
+      secret_key:
+      endpoint:
+      bucket:
+      region:
+    us_sv:
+      access_key:
+      secret_key:
+      endpoint:
+      bucket:
+      region:
+    sg:
+      access_key:
+      secret_key:
+      endpoint:
+      bucket:
+      region:
+    in_mum:
+      access_key:
+      secret_key:
+      endpoint:
+      bucket:
+      region:
+    gb_lon:
+      access_key:
+      secret_key:
+      endpoint:
+      bucket:
+      region:

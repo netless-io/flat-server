@@ -2,7 +2,7 @@ import test from "ava";
 import { orm } from "../TypeORMService";
 import sinon from "sinon";
 import { loggerServer } from "../../logger";
-import { MySQL } from "../../constants/Process";
+import { MySQL } from "../../constants/Config";
 
 const namespace = "[thirdPartyService][typeorm]";
 
@@ -18,15 +18,15 @@ test.serial(`${namespace} - connect failed`, async ava => {
     const stubExit = sinon.stub(process, "exit");
     const stubLoggerError = sinon.stub(loggerServer, "error");
 
-    const pwdBackup = MySQL.PASSWORD;
-    MySQL.PASSWORD = "test";
+    const pwdBackup = MySQL.password;
+    MySQL.password = "test";
 
     await orm().catch(() => {});
 
     // @ts-ignore
     ava.is(process.exit.args[0][0], 1);
 
-    MySQL.PASSWORD = pwdBackup;
+    MySQL.password = pwdBackup;
     stubExit.restore();
     stubLoggerError.restore();
 });

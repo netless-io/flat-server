@@ -17,9 +17,9 @@ spec:
         {{- with .Values.podAnnotations }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
-        {{- if (eq .Values.configMap.METRICS_ENABLED "true") }}
-        prometheus.io/path: {{- if (eq .Values.configMap.METRICS_ENDPOINT "") }} "/metrics" {{- else }} {{ .Values.configMap.METRICS_ENDPOINT | quote }} {{- end }}
-        prometheus.io/port: {{- if (eq .Values.configMap.METRICS_PORT "") }} {{ .Values.service.internalPort | quote }} {{- else }} {{ .Values.configMap.METRICS_PORT | quote }} {{- end }}
+        {{- if (eq .Values.configMapMetrics.METRICS_ENABLED "true") }}
+        prometheus.io/path: {{- if (eq .Values.configMapMetrics.METRICS_ENDPOINT "") }} "/metrics" {{- else }} {{ .Values.configMapMetrics.METRICS_ENDPOINT | quote }} {{- end }}
+        prometheus.io/port: {{- if (eq .Values.configMapMetrics.METRICS_PORT "") }} {{ .Values.service.internalPort | quote }} {{- else }} {{ .Values.configMapMetrics.METRICS_PORT | quote }} {{- end }}
         prometheus.io/scrape: "true"
         {{- end }}
       labels:
@@ -43,9 +43,16 @@ spec:
               port: http
           envFrom:
             - configMapRef:
-                name: {{ .Chart.Name }}-config
+                name: {{ .Chart.Name }}-metrics-config
+          volumeMounts:
+            - name: {{ .Chart.Name }}-config
+              mountPath: /usr/src/app/config
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: {{ .Chart.Name }}-config
+          configMap:
+            name: {{ .Chart.Name }}-config
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -1,7 +1,7 @@
 FROM node:16.3.0 as base
 LABEL maintainer="Black-Hole<158blackhole@gmail.com>"
 
-WORKDIR /usr/src/
+WORKDIR /usr/src/app/
 COPY . .
 
 # ----
@@ -9,8 +9,6 @@ COPY . .
 FROM base as builder
 
 RUN yarn --frozen-lockfile
-
-ENV CONTEXT="docker"
 
 RUN yarn build
 
@@ -24,10 +22,10 @@ RUN yarn install --production --frozen-lockfile
 
 FROM node:16.3.0
 
-WORKDIR /usr/src/
+WORKDIR /usr/src/app/
 
-COPY --from=builder /usr/src/dist ./dist
-COPY --from=prod-dependencies /usr/src/node_modules ./node_modules
+COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=prod-dependencies /usr/src/app/node_modules ./node_modules
 
 EXPOSE 80
 
