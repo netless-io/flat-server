@@ -17,6 +17,11 @@ const registerRouters = (version: `v${number}`) => (
             RouterMetadata.SKIP_AUTO_HANDLE,
             controller,
         ) as boolean;
+        const enable = Reflect.getMetadata(RouterMetadata.ENABLE, controller) as boolean;
+
+        if (!enable) {
+            return;
+        }
 
         (typeof path === "object" ? path : [path]).forEach(path => {
             const fullPath = `/${version}/${path}`;

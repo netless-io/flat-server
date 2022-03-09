@@ -6,11 +6,13 @@ import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
 import { Status } from "../../../../../constants/Project";
 import { parseError } from "../../../../../logger";
+import { WeChat } from "../../../../../constants/Config";
 
 @Controller<RequestType, ResponseType>({
     method: "get",
     path: "login/weChat/mobile/callback",
     auth: false,
+    enable: WeChat.mobile.enable,
 })
 export class WechatMobileCallback extends AbstractController<RequestType, ResponseType> {
     public static readonly schema: FastifySchema<RequestType> = {
@@ -28,6 +30,7 @@ export class WechatMobileCallback extends AbstractController<RequestType, Respon
             },
         },
     };
+
     public async execute(): Promise<Response<ResponseType>> {
         const { state: authUUID, code } = this.querystring;
 

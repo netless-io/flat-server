@@ -7,6 +7,9 @@ import { ServiceUserGithub } from "../../service/user/UserGithub";
 import { ServiceUserWeChat } from "../../service/user/UserWeChat";
 import { ServiceUserApple } from "../../service/user/UserApple";
 import { ServiceUserAgora } from "../../service/user/UserAgora";
+import { AgoraLogin, Github, WeChat } from "../../../constants/Config";
+import { ControllerError } from "../../../error/ControllerError";
+import { ErrorCode } from "../../../ErrorCode";
 
 @Controller<null, ResponseType>({
     method: "post",
@@ -37,6 +40,8 @@ export class Login extends AbstractController<RequestType, ResponseType> {
     }
 
     public async execute(): Promise<Response<ResponseType>> {
+        this.assertAccess();
+
         const { userName, avatarURL } = await this.svc.user.assertGetNameAndAvatar();
 
         switch (this.loginSource) {
@@ -69,6 +74,33 @@ export class Login extends AbstractController<RequestType, ResponseType> {
 
     public errorHandler(error: Error): ResponseError {
         return this.autoHandlerError(error);
+    }
+
+    private assertAccess(): void {
+        let enable = true;
+
+        switch (this.loginSource) {
+            case LoginPlatform.Agora: {
+                enable = AgoraLogin.enable;
+                break;
+            }
+            case LoginPlatform.Apple: {
+                enable = AgoraLogin.enable;
+                break;
+            }
+            case LoginPlatform.Github: {
+                enable = Github.enable;
+                break;
+            }
+            case LoginPlatform.WeChat: {
+                enable = WeChat.web.enable || WeChat.mobile.enable;
+                break;
+            }
+        }
+
+        if (!enable) {
+            throw new ControllerError(ErrorCode.UnsupportedPlatform);
+        }
     }
 }
 

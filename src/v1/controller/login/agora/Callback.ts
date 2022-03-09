@@ -8,13 +8,14 @@ import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { LoginAgora } from "../platforms/LoginAgora";
 import { ServiceUserAgora } from "../../../service/user/UserAgora";
-import { Website } from "../../../../constants/Config";
+import { AgoraLogin, Website } from "../../../../constants/Config";
 
 @Controller<RequestType, any>({
     method: "get",
     path: "login/agora/callback",
     auth: false,
     skipAutoHandle: true,
+    enable: AgoraLogin.enable,
 })
 export class AgoraCallback extends AbstractController<RequestType> {
     public static readonly schema: FastifySchema<RequestType> = {
