@@ -5,12 +5,14 @@ import { wechatCallback } from "../Utils";
 import { parseError } from "../../../../../logger";
 import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
+import { WeChat } from "../../../../../constants/Config";
 
 @Controller<RequestType, any>({
     method: "get",
     path: "login/weChat/web/callback",
     auth: false,
     skipAutoHandle: true,
+    enable: WeChat.web.enable,
 })
 export class WechatWebCallback extends AbstractController<RequestType> {
     public static readonly schema: FastifySchema<RequestType> = {

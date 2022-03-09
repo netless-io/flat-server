@@ -8,12 +8,14 @@ import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { LoginGithub } from "../platforms/LoginGithub";
 import { ServiceUserGithub } from "../../../service/user/UserGithub";
+import { Github } from "../../../../constants/Config";
 
 @Controller<RequestType, any>({
     method: "get",
     path: "login/github/callback",
     auth: false,
     skipAutoHandle: true,
+    enable: Github.enable,
 })
 export class GithubCallback extends AbstractController<RequestType> {
     public static readonly schema: FastifySchema<RequestType> = {
@@ -124,6 +126,7 @@ export class GithubCallback extends AbstractController<RequestType> {
             </html>
         `;
     }
+
     private static get failedHTML(): string {
         return `<!doctype html>
             <html lang="en">

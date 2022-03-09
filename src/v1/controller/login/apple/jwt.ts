@@ -6,11 +6,13 @@ import { AppleJWTToken, LoginApple } from "../platforms/LoginApple";
 import { ServiceUserApple } from "../../../service/user/UserApple";
 import { v4 } from "uuid";
 import { LoginPlatform, Status } from "../../../../constants/Project";
+import { Apple } from "../../../../constants/Config";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
     path: "login/apple/jwt",
     auth: false,
+    enable: Apple.enable,
 })
 export class AppleJWT extends AbstractController<RequestType, ResponseType> {
     public static readonly schema: FastifySchema<RequestType> = {
