@@ -3,6 +3,7 @@ import { Region, Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import {
+    RoomDAO,
     RoomPeriodicConfigDAO,
     RoomPeriodicDAO,
     RoomPeriodicUserDAO,
@@ -12,6 +13,7 @@ import { LessThan, MoreThan, Not } from "typeorm";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { getInviteCode } from "./Utils";
+import { ControllerError } from "../../../../error/ControllerError";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -50,10 +52,19 @@ export class PeriodicSubRoomInfo extends AbstractController<RequestType, Respons
         });
 
         if (periodicRoomUserInfo === undefined) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.PeriodicNotFound,
-            };
+            const periodicRoomInfo = await RoomPeriodicDAO().findOne(["id"], {
+                fake_room_uuid: roomUUID,
+                room_status: RoomStatus.Stopped,
+            });
+
+            if (periodicRoomInfo === undefined) {
+                return {
+                    status: Status.Failed,
+                    code: ErrorCode.PeriodicNotFound,
+                };
+            }
+
+            return await this.viewAlreadyEndSubRoomAtCanceledPeriodicRoom();
         }
 
         const periodicRoomInfo = await RoomPeriodicDAO().findOne(
@@ -154,6 +165,53 @@ export class PeriodicSubRoomInfo extends AbstractController<RequestType, Respons
                     periodic_uuid: periodicUUID,
                     room_status: Not(RoomStatus.Stopped),
                 }),
+            },
+        };
+    }
+
+    private async viewAlreadyEndSubRoomAtCanceledPeriodicRoom(): Promise<Response<ResponseType>> {
+        const roomInfo = await RoomDAO().findOne(
+            ["title", "begin_time", "end_time", "room_type", "room_status", "owner_uuid", "region"],
+            {
+                room_uuid: this.body.roomUUID,
+            },
+        );
+
+        if (roomInfo === undefined) {
+            throw new ControllerError(ErrorCode.PeriodicNotFound);
+        }
+
+        const {
+            title,
+            begin_time: beginTime,
+            end_time: endTime,
+            room_type: roomType,
+            room_status: roomStatus,
+            owner_uuid: ownerUUID,
+            region,
+        } = roomInfo;
+
+        const recordInfo = await RoomRecordDAO().findOne(["id"], {
+            room_uuid: this.body.roomUUID,
+        });
+
+        return {
+            status: Status.Success,
+            data: {
+                roomInfo: {
+                    title,
+                    beginTime: beginTime.valueOf(),
+                    endTime: endTime.valueOf(),
+                    roomType,
+                    roomStatus,
+                    ownerUUID,
+                    hasRecord: !!recordInfo,
+                    region,
+                    inviteCode: this.body.roomUUID,
+                },
+                nextPeriodicRoomEndTime: null,
+                previousPeriodicRoomBeginTime: null,
+                count: 1,
             },
         };
     }
