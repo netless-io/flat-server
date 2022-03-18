@@ -16,13 +16,13 @@ stages:
     - stable
     - merge_requests
 
-.envs_cn: &ENVS_CN
+.envs_cn:
   variables:
     HOST_NAME: $HOST_NAME_CHINA
     KUBE_CONFIG: $KUBE_CONFIG_CHINA
     PROJECT_CONFIG: $PROJECT_CONFIG_CHINA
 
-.envs_us: &ENVS_US
+.envs_us:
   variables:
     HOST_NAME: $HOST_NAME_UNITED_STATES
     KUBE_CONFIG: $KUBE_CONFIG_UNITED_STATES
@@ -113,29 +113,29 @@ docker_build_prod:
 
 deploy_dev_cn:
   <<: *DEPLOY
+  extends: .envs_cn
   variables:
     DOCKER_TAG: dev-$CI_COMMIT_SHA
-  <<: *ENVS_CN
   <<: *DEV
 
 deploy_dev_us:
   <<: *DEPLOY
+  extends: .envs_us
   variables:
     DOCKER_TAG: dev-$CI_COMMIT_SHA
-  <<: *ENVS_US
   <<: *DEV
 
 deploy_prod_cn:
   <<: *DEPLOY
+  extends: .envs_cn
   variables:
     DOCKER_TAG: $CI_COMMIT_SHA
-  <<: *ENVS_CN
   <<: *PROD
 
 deploy_prod_us:
   <<: *DEPLOY
+  extends: .envs_us
   variables:
     DOCKER_TAG: $CI_COMMIT_SHA
-  <<: *ENVS_US
   <<: *PROD
 
