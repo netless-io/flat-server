@@ -6,6 +6,7 @@ stages:
   environment:
     name: development
   only:
+    - test
     - main
     - merge_requests
 
@@ -15,6 +16,20 @@ stages:
   only:
     - stable
     - merge_requests
+
+.cn:
+  before_script:
+    - cp $PROJECT_CONFIG_CHINA ./helm/files/production.yaml
+  variables:
+    HOST_NAME: $HOST_NAME_CHINA
+    KUBE_CONFIG: $KUBE_CONFIG_CHINA
+
+.us:
+  before_script:
+    - cp $PROJECT_CONFIG_UNITED_STATES ./helm/files/production.yaml
+  variables:
+    HOST_NAME: $HOST_NAME_UNITED_STATES
+    KUBE_CONFIG: $KUBE_CONFIG_UNITED_STATES
 
 .docker_build: &DOCKER_BUILD
   stage: build_image
@@ -44,21 +59,21 @@ stages:
     DEV_LATEST_IMAGE_TAG: $DOCKERHUB_USERNAME/flat-server:dev-latest
     DEV_SHA_IMAGE_TAG: $DOCKERHUB_USERNAME/flat-server:dev-$CI_COMMIT_SHA
 
-docker_build_dev:
-  <<: *DOCKER_BUILD
-  script:
-    - echo $DEV_LATEST_IMAGE_TAG
-    - echo $DEV_SHA_IMAGE_TAG
-    - docker pull $DEV_LATEST_IMAGE_TAG || true
-    - docker build --cache-from $DOCKER_BUILDER_TAG --cache-from $DOCKER_BUILDER_DEPENDENCIES_TAG --cache-from $DEV_LATEST_IMAGE_TAG -t $DEV_SHA_IMAGE_TAG -t $DEV_LATEST_IMAGE_TAG -t $PRIVATE_DOCKERHUB_REGISTRY/$DEV_LATEST_IMAGE_TAG -t $PRIVATE_DOCKERHUB_REGISTRY/$DEV_SHA_IMAGE_TAG -f Dockerfile .
-  after_script:
-    - docker push $DEV_LATEST_IMAGE_TAG
-    - docker push $DEV_SHA_IMAGE_TAG
-
-    - docker login -u $PRIVATE_DOCKERHUB_USERNAME -p $PRIVATE_DOCKERHUB_PASSWORD $PRIVATE_DOCKERHUB_REGISTRY
-    - docker push $PRIVATE_DOCKERHUB_REGISTRY/$DEV_LATEST_IMAGE_TAG
-    - docker push $PRIVATE_DOCKERHUB_REGISTRY/$DEV_SHA_IMAGE_TAG
-  <<: *DEV
+#docker_build_dev:
+#  <<: *DOCKER_BUILD
+#  script:
+#    - echo $DEV_LATEST_IMAGE_TAG
+#    - echo $DEV_SHA_IMAGE_TAG
+#    - docker pull $DEV_LATEST_IMAGE_TAG || true
+#    - docker build --cache-from $DOCKER_BUILDER_TAG --cache-from $DOCKER_BUILDER_DEPENDENCIES_TAG --cache-from $DEV_LATEST_IMAGE_TAG -t $DEV_SHA_IMAGE_TAG -t $DEV_LATEST_IMAGE_TAG -t $PRIVATE_DOCKERHUB_REGISTRY/$DEV_LATEST_IMAGE_TAG -t $PRIVATE_DOCKERHUB_REGISTRY/$DEV_SHA_IMAGE_TAG -f Dockerfile .
+#  after_script:
+#    - docker push $DEV_LATEST_IMAGE_TAG
+#    - docker push $DEV_SHA_IMAGE_TAG
+#
+#    - docker login -u $PRIVATE_DOCKERHUB_USERNAME -p $PRIVATE_DOCKERHUB_PASSWORD $PRIVATE_DOCKERHUB_REGISTRY
+#    - docker push $PRIVATE_DOCKERHUB_REGISTRY/$DEV_LATEST_IMAGE_TAG
+#    - docker push $PRIVATE_DOCKERHUB_REGISTRY/$DEV_SHA_IMAGE_TAG
+#  <<: *DEV
 
 docker_build_prod:
   <<: *DOCKER_BUILD
@@ -77,7 +92,7 @@ docker_build_prod:
 .deploy: &DEPLOY
   stage: deploy
   image: dtzar/helm-kubectl
-  before_script:
+  script:
     - mkdir ~/.kube
     - echo "$KUBE_CONFIG" > ~/.kube/config
 
@@ -85,29 +100,43 @@ docker_build_prod:
 
     - export VALUES=`envsubst < ./helm/values.yaml`
     - echo "$VALUES" > ./helm/values.yaml
-    - mkdir ./helm/files
-    - cp $PROJECT_CONFIG ./helm/files/production.yaml
-  script:
+    - cat ./helm/files/production.yaml
     # link: https://github.com/stakater/Reloader
     - |
-      export DEPLOYED_RELOADER=$(helm ls --namespace $KUBE_NAMESPACE | grep "stakater-reloader" | wc -l)
-      if [ $DEPLOYED_RELOADER -eq 0 ]; then
-        helm repo add stakater https://stakater.github.io/stakater-charts
-        helm repo update
-        helm install stakater-reloader stakater/reloader --set reloader.watchGlobally=false --namespace $KUBE_NAMESPACE
-      fi
+    #      export DEPLOYED_RELOADER=$(helm ls --namespace $KUBE_NAMESPACE | grep "stakater-reloader" | wc -l)
+#      if [ $DEPLOYED_RELOADER -eq 0 ]; then
+#        helm repo add stakater https://stakater.github.io/stakater-charts
+#        helm repo update
+#        helm install stakater-reloader stakater/reloader --set reloader.watchGlobally=false --namespace $KUBE_NAMESPACE
+#      fi
+#
+#    - helm upgrade --install flat-server-$CI_ENVIRONMENT_SLUG helm
 
-    - helm upgrade --install flat-server-$CI_ENVIRONMENT_SLUG helm
-
-deploy_dev:
+deploy_dev_cn:
   <<: *DEPLOY
   variables:
     DOCKER_TAG: dev-$CI_COMMIT_SHA
+  extends: .cn
   <<: *DEV
 
-deploy_prod:
+deploy_dev_us:
   <<: *DEPLOY
+  extends: .us
   variables:
-    DOCKER_TAG: $CI_COMMIT_SHA
-  <<: *PROD
+    DOCKER_TAG: dev-$CI_COMMIT_SHA
+  <<: *DEV
+#
+#deploy_prod_cn:
+#  <<: *DEPLOY
+#  extends: .envs_cn
+#  variables:
+#    DOCKER_TAG: $CI_COMMIT_SHA
+#  <<: *PROD
+#
+#deploy_prod_us:
+#  <<: *DEPLOY
+#  extends: .envs_us
+#  variables:
+#    DOCKER_TAG: $CI_COMMIT_SHA
+#  <<: *PROD
 
