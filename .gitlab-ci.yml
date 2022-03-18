@@ -16,6 +16,18 @@ stages:
     - stable
     - merge_requests
 
+.envs_cn: &ENVS_CN
+  variables:
+    HOST_NAME: $HOST_NAME_CHINA
+    KUBE_CONFIG: $KUBE_CONFIG_CHINA
+    PROJECT_CONFIG: $PROJECT_CONFIG_CHINA
+
+.envs_us: &ENVS_US
+  variables:
+    HOST_NAME: $HOST_NAME_UNITED_STATES
+    KUBE_CONFIG: $KUBE_CONFIG_UNITED_STATES
+    PROJECT_CONFIG: $PROJECT_CONFIG_UNITED_STATES
+
 .docker_build: &DOCKER_BUILD
   stage: build_image
   image: docker:19.03.12
@@ -99,15 +111,31 @@ docker_build_prod:
 
     - helm upgrade --install flat-server-$CI_ENVIRONMENT_SLUG helm
 
-deploy_dev:
+deploy_dev_cn:
   <<: *DEPLOY
   variables:
     DOCKER_TAG: dev-$CI_COMMIT_SHA
+  <<: *ENVS_CN
   <<: *DEV
 
-deploy_prod:
+deploy_dev_us:
+  <<: *DEPLOY
+  variables:
+    DOCKER_TAG: dev-$CI_COMMIT_SHA
+  <<: *ENVS_US
+  <<: *DEV
+
+deploy_prod_cn:
   <<: *DEPLOY
   variables:
     DOCKER_TAG: $CI_COMMIT_SHA
+  <<: *ENVS_CN
+  <<: *PROD
+
+deploy_prod_us:
+  <<: *DEPLOY
+  variables:
+    DOCKER_TAG: $CI_COMMIT_SHA
+  <<: *ENVS_US
   <<: *PROD
 
