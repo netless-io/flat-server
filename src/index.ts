@@ -2,6 +2,7 @@ import "source-map-support/register";
 import "reflect-metadata";
 import fastify from "fastify";
 import cors from "fastify-cors";
+import cookie from "fastify-cookie";
 import { MetricsConfig, Server } from "./constants/Config";
 import { Status } from "./constants/Project";
 import jwtVerify from "./plugins/JWT";
@@ -62,6 +63,8 @@ void app.register(cors, {
     allowedHeaders: ["Content-Type", "Authorization"],
     maxAge: 100,
 });
+
+void app.register(cookie);
 
 app.get("/health-check", async (_req, reply) => {
     await reply.code(200).send();
