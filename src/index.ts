@@ -61,6 +61,7 @@ void app.register(jwtVerify).then(() => {
 void app.register(cors, {
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["set-cookie"],
     maxAge: 100,
 });
 
