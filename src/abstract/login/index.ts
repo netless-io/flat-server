@@ -39,7 +39,7 @@ export abstract class AbstractLogin {
 
     public async tempSaveUserInfo(
         authUUID: string,
-        userInfo: Omit<UserInfo, "userUUID">,
+        userInfo: Omit<UserInfo, "userUUID"> & { [key in string]: string },
     ): Promise<void> {
         const { name, avatar, token } = userInfo;
 
