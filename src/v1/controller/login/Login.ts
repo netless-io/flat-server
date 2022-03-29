@@ -67,6 +67,10 @@ export class Login extends AbstractController<RequestType, ResponseType> {
             data: {
                 name: userName,
                 avatar: avatarURL,
+                token: await this.reply.jwtSign({
+                    userUUID: this.userUUID,
+                    loginSource: this.loginSource,
+                }),
                 userUUID: this.userUUID,
             },
         };
@@ -109,5 +113,6 @@ interface RequestType {}
 interface ResponseType {
     name: string;
     avatar: string;
+    token: string;
     userUUID: string;
 }
