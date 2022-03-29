@@ -175,6 +175,8 @@ login:
         clientId:
         # Agora Client Secret
         clientSecret:
+        # Agora SSO Login Cookie Domain
+        cookie_domain: .agora.io
 
 agora:
     # For RTC and RTM. See: https://docs.agora.io/en/Agora%20Platform/get_appid_token?platform=All%20Platforms
