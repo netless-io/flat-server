@@ -81,6 +81,8 @@ export class LoginProcess extends AbstractController<RequestType, ResponseType> 
                 maxAge: thirtyDay,
                 domain: AgoraLogin.cookieDomain,
                 path: "/",
+                secure: true,
+                sameSite: "none",
             });
         }
 
