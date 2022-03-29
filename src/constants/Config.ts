@@ -54,8 +54,9 @@ export const Apple = {
 
 export const AgoraLogin = {
     enable: config.login.agora.enable,
-    clientId: config.login.agora.clientId,
-    clientSecret: config.login.agora.clientSecret,
+    clientId: config.login.agora.client_id,
+    clientSecret: config.login.agora.client_secret,
+    cookieDomain: config.login.agora.cookie_domain,
 };
 
 export const Agora = {
