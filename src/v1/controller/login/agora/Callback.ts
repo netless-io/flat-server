@@ -1,6 +1,5 @@
 import { FastifySchema, ResponseError } from "../../../../types/Server";
 import redisService from "../../../../thirdPartyService/RedisService";
-import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import { v4 } from "uuid";
 import { LoginPlatform } from "../../../../constants/Project";
@@ -77,18 +76,10 @@ export class AgoraCallback extends AbstractController<RequestType> {
                 loginSource: LoginPlatform.Agora,
             }),
             avatar: avatarURL,
+            loginID,
         });
 
-        const thirtyDay = 60 * 60 * 24 * 30;
-        RedisService.set(RedisKey.agoraSSOLoginID(loginID), userUUID, thirtyDay).catch(error => {
-            this.logger.error(error);
-        });
-
-        return this.reply
-            .setCookie("agora_sso_id", loginID, {
-                maxAge: thirtyDay,
-            })
-            .send(AgoraCallback.successHTML());
+        return this.reply.send(AgoraCallback.successHTML());
     }
 
     public async errorHandler(error: Error): Promise<ResponseError> {

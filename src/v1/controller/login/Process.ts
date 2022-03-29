@@ -49,9 +49,9 @@ export class LoginProcess extends AbstractController<RequestType, ResponseType> 
             };
         }
 
-        const userInfo = await RedisService.get(RedisKey.authUserInfo(authUUID));
+        const userInfoStr = await RedisService.get(RedisKey.authUserInfo(authUUID));
 
-        if (userInfo === null) {
+        if (userInfoStr === null) {
             return {
                 status: Status.Success,
                 data: {
@@ -63,9 +63,27 @@ export class LoginProcess extends AbstractController<RequestType, ResponseType> 
             };
         }
 
+        const userInfo = JSON.parse(userInfoStr);
+
+        // Agora SSO
+        if ("loginID" in userInfo) {
+            const thirtyDay = 60 * 60 * 24 * 30;
+            RedisService.set(
+                RedisKey.agoraSSOLoginID(userInfo.loginID),
+                userInfo.userUUID,
+                thirtyDay,
+            ).catch(error => {
+                this.logger.error(error);
+            });
+
+            await this.reply.setCookie("agora_sso_id", userInfo.loginID, {
+                maxAge: thirtyDay,
+            });
+        }
+
         return {
             status: Status.Success,
-            data: JSON.parse(userInfo),
+            data: userInfo,
         };
     }
 
