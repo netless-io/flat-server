@@ -76,7 +76,7 @@ export class LoginProcess extends AbstractController<RequestType, ResponseType> 
                 this.logger.error(error);
             });
 
-            await this.reply.setCookie("agora_sso_id", userInfo.loginID, {
+            void this.reply.setCookie("agora_sso_id", userInfo.loginID, {
                 maxAge: thirtyDay,
             });
         }
