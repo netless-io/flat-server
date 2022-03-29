@@ -169,9 +169,9 @@ login:
         # 是否开启 Agora 登录
         enable: false
         # Agora Client ID
-        clientId:
+        client_id:
         # Agora Client Secret
-        clientSecret:
+        client_secret:
         # Agora SSO 登录时 cookie 的 domain 信息
         cookie_domain: .agora.io
 

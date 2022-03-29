@@ -172,9 +172,9 @@ login:
         # Whether to enable Agora login
         enable: false
         # Agora Client ID
-        clientId:
+        client_id:
         # Agora Client Secret
-        clientSecret:
+        client_secret:
         # Agora SSO Login Cookie Domain
         cookie_domain: .agora.io
 
