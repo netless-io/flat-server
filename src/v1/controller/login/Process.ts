@@ -80,6 +80,7 @@ export class LoginProcess extends AbstractController<RequestType, ResponseType> 
             void this.reply.setCookie("agora_sso_id", userInfo.loginID, {
                 maxAge: thirtyDay,
                 domain: AgoraLogin.cookieDomain,
+                path: "/",
             });
         }
 
