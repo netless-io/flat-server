@@ -6,7 +6,6 @@ import { ErrorCode } from "../../../ErrorCode";
 import { AbstractController } from "../../../abstract/controller";
 import { Controller } from "../../../decorator/Controller";
 import { AbstractLogin } from "../../../abstract/login";
-import { AgoraLogin } from "../../../constants/Config";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -75,14 +74,6 @@ export class LoginProcess extends AbstractController<RequestType, ResponseType> 
                 thirtyDay,
             ).catch(error => {
                 this.logger.error(error);
-            });
-
-            void this.reply.setCookie("agora_sso_id", userInfo.loginID, {
-                maxAge: thirtyDay,
-                domain: AgoraLogin.cookieDomain,
-                path: "/",
-                secure: true,
-                sameSite: "none",
             });
         }
 
