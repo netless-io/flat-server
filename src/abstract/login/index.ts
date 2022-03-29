@@ -41,15 +41,11 @@ export abstract class AbstractLogin {
         authUUID: string,
         userInfo: Omit<UserInfo, "userUUID"> & { [key in string]: string },
     ): Promise<void> {
-        const { name, avatar, token } = userInfo;
-
         await redisService.set(
             RedisKey.authUserInfo(authUUID),
             JSON.stringify({
-                name,
-                avatar,
+                ...userInfo,
                 userUUID: this.userUUID,
-                token,
             }),
             60 * 60,
         );
