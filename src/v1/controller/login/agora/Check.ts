@@ -13,22 +13,32 @@ import { LoginPlatform, Status } from "../../../../constants/Project";
     auth: false,
 })
 export class CheckAgoraSSOLoginID extends AbstractController<RequestType, ResponseType> {
-    public static readonly schema: FastifySchema<RequestType> = {};
+    public static readonly schema: FastifySchema<RequestType> = {
+        body: {
+            type: "object",
+            required: ["loginID"],
+            properties: {
+                loginID: {
+                    type: "string",
+                },
+            },
+        },
+    };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const loginId = this.req.cookies.agora_sso_id as string | undefined;
+        const { loginID } = this.body;
 
-        if (!loginId) {
+        if (!loginID) {
             throw new ControllerError(ErrorCode.NeedLoginAgain);
         }
 
-        const userUUID = RedisKey.agoraSSOLoginID(loginId);
+        const userUUID = RedisKey.agoraSSOLoginID(loginID);
 
         if (!userUUID) {
             throw new ControllerError(ErrorCode.NeedLoginAgain);
         }
 
-        const isValid = await LoginAgora.checkLoginID(loginId);
+        const isValid = await LoginAgora.checkLoginID(loginID);
 
         if (!isValid) {
             throw new ControllerError(ErrorCode.NeedLoginAgain);
@@ -50,7 +60,11 @@ export class CheckAgoraSSOLoginID extends AbstractController<RequestType, Respon
     }
 }
 
-interface RequestType {}
+interface RequestType {
+    body: {
+        loginID: string;
+    };
+}
 
 interface ResponseType {
     jwtToken: string;

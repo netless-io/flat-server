@@ -97,7 +97,6 @@ type Config = {
             enable: boolean;
             client_id: string;
             client_secret: string;
-            cookie_domain: string;
         };
     };
     agora: {

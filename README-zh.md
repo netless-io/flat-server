@@ -172,8 +172,6 @@ login:
         client_id:
         # Agora Client Secret
         client_secret:
-        # Agora SSO 登录时 cookie 的 domain 信息
-        cookie_domain: .agora.io
 
 agora:
     # 用于 RTC 与 RTM。见: https://docs.agora.io/cn/Agora%20Platform/get_appid_token?platform=All%20Platforms

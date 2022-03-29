@@ -76,7 +76,6 @@ login:
     enable: false
     client_id:
     client_secret:
-    cookie_domain: .agora.io
 
 agora:
   app:
