@@ -76,7 +76,7 @@ export class AgoraCallback extends AbstractController<RequestType> {
                 loginSource: LoginPlatform.Agora,
             }),
             avatar: avatarURL,
-            loginID,
+            agoraSSOLoginID: loginID,
         });
 
         return this.reply.send(AgoraCallback.successHTML());
