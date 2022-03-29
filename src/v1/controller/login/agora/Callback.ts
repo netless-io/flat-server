@@ -1,5 +1,6 @@
 import { FastifySchema, ResponseError } from "../../../../types/Server";
 import redisService from "../../../../thirdPartyService/RedisService";
+import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import { v4 } from "uuid";
 import { LoginPlatform } from "../../../../constants/Project";
@@ -21,13 +22,16 @@ export class AgoraCallback extends AbstractController<RequestType> {
     public static readonly schema: FastifySchema<RequestType> = {
         querystring: {
             type: "object",
-            required: ["state"],
+            required: ["state", "code", "loginId"],
             properties: {
                 state: {
                     type: "string",
                     format: "uuid-v4",
                 },
                 code: {
+                    type: "string",
+                },
+                loginId: {
                     type: "string",
                 },
             },
@@ -39,7 +43,7 @@ export class AgoraCallback extends AbstractController<RequestType> {
             "content-type": "text/html",
         });
 
-        const { state: authUUID, code } = this.querystring;
+        const { state: authUUID, code, loginId: loginID } = this.querystring;
 
         await LoginAgora.assertHasAuthUUID(authUUID, this.logger);
 
@@ -75,7 +79,16 @@ export class AgoraCallback extends AbstractController<RequestType> {
             avatar: avatarURL,
         });
 
-        return this.reply.send(AgoraCallback.successHTML());
+        const thirtyDay = 60 * 60 * 24 * 30;
+        RedisService.set(RedisKey.agoraSSOLoginID(loginID), userUUID, thirtyDay).catch(error => {
+            this.logger.error(error);
+        });
+
+        return this.reply
+            .setCookie("agora_sso_id", loginID, {
+                maxAge: thirtyDay,
+            })
+            .send(AgoraCallback.successHTML());
     }
 
     public async errorHandler(error: Error): Promise<ResponseError> {
@@ -138,5 +151,6 @@ interface RequestType {
     querystring: {
         state: string;
         code: string;
+        loginId: string;
     };
 }
