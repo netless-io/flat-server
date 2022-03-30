@@ -33,7 +33,7 @@ export class CheckAgoraSSOLoginID extends AbstractController<RequestType, Respon
             throw new ControllerError(ErrorCode.NeedLoginAgain);
         }
 
-        const userUUID = RedisService.get(RedisKey.agoraSSOLoginID(loginID));
+        const userUUID = await RedisService.get(RedisKey.agoraSSOLoginID(loginID));
 
         if (!userUUID) {
             throw new ControllerError(ErrorCode.NeedLoginAgain);
