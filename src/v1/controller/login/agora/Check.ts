@@ -6,6 +6,7 @@ import { ErrorCode } from "../../../../ErrorCode";
 import { ControllerError } from "../../../../error/ControllerError";
 import { LoginAgora } from "../platforms/LoginAgora";
 import { LoginPlatform, Status } from "../../../../constants/Project";
+import RedisService from "../../../../thirdPartyService/RedisService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -32,7 +33,7 @@ export class CheckAgoraSSOLoginID extends AbstractController<RequestType, Respon
             throw new ControllerError(ErrorCode.NeedLoginAgain);
         }
 
-        const userUUID = RedisKey.agoraSSOLoginID(loginID);
+        const userUUID = RedisService.get(RedisKey.agoraSSOLoginID(loginID));
 
         if (!userUUID) {
             throw new ControllerError(ErrorCode.NeedLoginAgain);
