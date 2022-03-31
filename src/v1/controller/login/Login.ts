@@ -7,6 +7,7 @@ import { ServiceUserGithub } from "../../service/user/UserGithub";
 import { ServiceUserWeChat } from "../../service/user/UserWeChat";
 import { ServiceUserApple } from "../../service/user/UserApple";
 import { ServiceUserAgora } from "../../service/user/UserAgora";
+import { ServiceUserGoogle } from "../../service/user/UserGoogle";
 import { AgoraLogin, Github, WeChat } from "../../../constants/Config";
 import { ControllerError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
@@ -25,6 +26,7 @@ export class Login extends AbstractController<RequestType, ResponseType> {
         userWeChat: ServiceUserWeChat;
         userApple: ServiceUserApple;
         userAgora: ServiceUserAgora;
+        userGoogle: ServiceUserGoogle;
     };
 
     public constructor(params: ControllerClassParams) {
@@ -36,6 +38,7 @@ export class Login extends AbstractController<RequestType, ResponseType> {
             userWeChat: new ServiceUserWeChat(this.userUUID),
             userApple: new ServiceUserApple(this.userUUID),
             userAgora: new ServiceUserAgora(this.userUUID),
+            userGoogle: new ServiceUserGoogle(this.userUUID),
         };
     }
 
@@ -59,6 +62,11 @@ export class Login extends AbstractController<RequestType, ResponseType> {
             }
             case LoginPlatform.Agora: {
                 await this.svc.userAgora.assertExist();
+                break;
+            }
+            case LoginPlatform.Google: {
+                await this.svc.userGoogle.assertExist();
+                break;
             }
         }
 
