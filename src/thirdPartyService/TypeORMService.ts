@@ -15,6 +15,7 @@ import { UserGithubModel } from "../model/user/Github";
 import { loggerServer, parseError } from "../logger";
 import { UserAppleModel } from "../model/user/Apple";
 import { UserAgoraModel } from "../model/user/Agora";
+import { UserGoogleModel } from "../model/user/Google";
 
 export const orm = (): Promise<Connection> => {
     return createConnection({
@@ -30,6 +31,7 @@ export const orm = (): Promise<Connection> => {
             UserGithubModel,
             UserAppleModel,
             UserAgoraModel,
+            UserGoogleModel,
             RoomModel,
             RoomUserModel,
             RoomPeriodicConfigModel,

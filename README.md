@@ -10,7 +10,7 @@ classroom.
 - Login via
 - [x] Wechat
 - [x] Github
-- [ ] Google
+- [x] Google
 - Room scheduling
     - [x] Ordinary rooms
     - [x] Periodic rooms

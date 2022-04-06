@@ -58,6 +58,13 @@ export const AgoraLogin = {
     clientSecret: config.login.agora.client_secret,
 };
 
+export const Google = {
+    enable: config.login.google.enable,
+    clientId: config.login.google.client_id,
+    clientSecret: config.login.google.client_secret,
+    redirectURI: config.login.google.redirect_uri,
+};
+
 export const Agora = {
     appId: config.agora.app.id,
     appCertificate: config.agora.app.certificate,

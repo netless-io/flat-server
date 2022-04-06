@@ -8,6 +8,7 @@ import { ControllerClass } from "../../../abstract/controller";
 import { AppleJWT } from "./apple/jwt";
 import { AgoraCallback } from "./agora/Callback";
 import { CheckAgoraSSOLoginID } from "./agora/Check";
+import { GoogleCallback } from "./google/Callback";
 
 export const loginRouters: Readonly<Array<ControllerClass<any, any>>> = Object.freeze([
     SetAuthUUID,
@@ -18,5 +19,6 @@ export const loginRouters: Readonly<Array<ControllerClass<any, any>>> = Object.f
     GithubCallback,
     AgoraCallback,
     CheckAgoraSSOLoginID,
+    GoogleCallback,
     Login,
 ]);

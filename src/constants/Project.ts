@@ -11,6 +11,7 @@ export enum LoginPlatform {
     Github = "Github",
     Apple = "Apple",
     Agora = "Agora",
+    Google = "Google",
 }
 
 export enum Gender {
