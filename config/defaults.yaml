@@ -76,6 +76,25 @@ login:
     enable: false
     client_id:
     client_secret:
+  sms:
+    enable: false
+    force: false
+    chinese_mainland:
+      access_id:
+      access_secret:
+      template_code:
+      sign_name:
+    # hmt(Hong Kong, Macao and Taiwan regions of China)
+    hmt:
+      access_id:
+      access_secret:
+      template_code:
+      sign_name:
+    global:
+      access_id:
+      access_secret:
+      template_code:
+      sign_name:
 
 agora:
   app:

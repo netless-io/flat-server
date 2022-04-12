@@ -6,6 +6,7 @@ export enum ErrorCode {
     NeedLoginAgain, // user need login in again
     UnsupportedPlatform, // Unsupported login platform
     JWTSignFailed, // jwt sign failed
+    ExhaustiveAttack, // exhaustive attack
 
     RoomNotFound = 200000, // room not found
     RoomIsEnded, // room has been ended
@@ -36,4 +37,6 @@ export enum ErrorCode {
     LoginGithubSuspended = 900000, // https://docs.github.com/en/developers/apps/troubleshooting-authorization-request-errors
     LoginGithubURLMismatch,
     LoginGithubAccessDenied,
+
+    SMSVerificationCodeInvalid = 1000000, // verification code invalid
 }

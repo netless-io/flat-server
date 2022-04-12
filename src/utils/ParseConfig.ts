@@ -98,6 +98,13 @@ type Config = {
             client_id: string;
             client_secret: string;
         };
+        sms: {
+            enable: boolean;
+            force: boolean;
+            chinese_mainland: SMSConfig;
+            hmt: SMSConfig;
+            global: SMSConfig;
+        };
     };
     agora: {
         app: {
@@ -163,3 +170,10 @@ type Config = {
         };
     };
 };
+
+interface SMSConfig {
+    access_id: string;
+    access_secret: string;
+    template_code: string;
+    sign_name: string;
+}

@@ -65,6 +65,29 @@ export const Google = {
     redirectURI: config.login.google.redirect_uri,
 };
 
+export const PhoneSMS = {
+    enable: config.login.sms.enable,
+    force: config.login.sms.force,
+    chineseMainland: {
+        accessId: config.login.sms.chinese_mainland.access_id,
+        accessSecret: config.login.sms.chinese_mainland.access_secret,
+        templateCode: config.login.sms.chinese_mainland.template_code,
+        signName: config.login.sms.chinese_mainland.sign_name,
+    },
+    hmt: {
+        accessId: config.login.sms.hmt.access_id,
+        accessSecret: config.login.sms.hmt.access_secret,
+        templateCode: config.login.sms.hmt.template_code,
+        signName: config.login.sms.hmt.sign_name,
+    },
+    global: {
+        accessId: config.login.sms.global.access_id,
+        accessSecret: config.login.sms.global.access_secret,
+        templateCode: config.login.sms.global.template_code,
+        signName: config.login.sms.global.sign_name,
+    },
+};
+
 export const Agora = {
     appId: config.agora.app.id,
     appCertificate: config.agora.app.certificate,

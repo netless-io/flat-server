@@ -19,6 +19,7 @@ import { UserGithubModel } from "../model/user/Github";
 import { UserAppleModel } from "../model/user/Apple";
 import { UserAgoraModel } from "../model/user/Agora";
 import { UserGoogleModel } from "../model/user/Google";
+import { UserPhoneModel } from "../model/user/Phone";
 
 export type Where<M> = {
     [key in keyof M]?: M[key] | FindOperator<M[key]>;
@@ -68,6 +69,7 @@ export type Model =
     | UserAppleModel
     | UserAgoraModel
     | UserGoogleModel
+    | UserPhoneModel
     | RoomModel
     | RoomUserModel
     | RoomPeriodicConfigModel

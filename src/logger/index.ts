@@ -1,7 +1,7 @@
 import os from "os";
 
 import { Logger, LoggerContext } from "./Logger";
-import { LoggerAPI, LoggerBase, LoggerError, LoggerServer } from "./LogConext";
+import { LoggerAPI, LoggerBase, LoggerError, LoggerServer, LoggerSMS } from "./LogConext";
 import { LoggerPluginFile } from "./plugins/LoggerPluginFile";
 import { LoggerPluginTerminal } from "./plugins/LoggerPluginTerminal";
 import { LoggerAbstractPlugin } from "./plugins/LoggerAbstractPlugin";
@@ -40,3 +40,16 @@ export const loggerServer = new Logger<LoggerServer>(
     },
     loggerPlugins,
 );
+
+export const createLoggerSMS = <R extends LoggerContext>(
+    context: Partial<LoggerSMS & R>,
+): Logger<LoggerSMS & R> => {
+    return new Logger<LoggerSMS & R>(
+        "sms",
+        {
+            ...context,
+            ...baseContext,
+        },
+        loggerPlugins as LoggerAbstractPlugin<LoggerSMS & R>[],
+    );
+};
