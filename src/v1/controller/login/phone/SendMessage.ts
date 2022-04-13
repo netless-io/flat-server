@@ -60,8 +60,7 @@ export class SendMessage extends AbstractController<RequestType, ResponseType> {
 
         const elapsedTime = MessageExpirationSecond - ttl;
 
-        // 2 seconds of redundancy
-        return elapsedTime > MessageIntervalSecond - 2;
+        return elapsedTime > MessageIntervalSecond;
     }
 
     public errorHandler(error: Error): ResponseError {
