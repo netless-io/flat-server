@@ -39,4 +39,5 @@ export enum ErrorCode {
     LoginGithubAccessDenied,
 
     SMSVerificationCodeInvalid = 110000, // verification code invalid
+    SMSAlreadyExist, // phone already exist
 }
