@@ -59,6 +59,7 @@ export class LoginProcess extends AbstractController<RequestType, ResponseType> 
                     avatar: "",
                     userUUID: "",
                     token: "",
+                    hasPhone: false,
                 },
             };
         }
@@ -99,4 +100,5 @@ type ResponseType = {
     avatar: string;
     userUUID: string;
     token: string;
+    hasPhone: boolean;
 };

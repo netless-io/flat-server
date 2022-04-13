@@ -86,6 +86,7 @@ export class Login extends AbstractController<RequestType, ResponseType> {
                     loginSource: this.loginSource,
                 }),
                 userUUID: this.userUUID,
+                hasPhone: await this.svc.userPhone.exist(),
             },
         };
     }
@@ -133,4 +134,5 @@ interface ResponseType {
     avatar: string;
     token: string;
     userUUID: string;
+    hasPhone: boolean;
 }

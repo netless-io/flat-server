@@ -78,6 +78,7 @@ export class PhoneLogin extends AbstractController<RequestType, ResponseType> {
                     userUUID,
                     loginSource: LoginPlatform.Phone,
                 }),
+                hasPhone: true,
             },
         } as const;
 
@@ -135,4 +136,5 @@ interface ResponseType {
     avatar: string;
     userUUID: string;
     token: string;
+    hasPhone: true;
 }
