@@ -68,7 +68,7 @@ export class PhoneLogin extends AbstractController<RequestType, ResponseType> {
 
         const { userName, avatarURL } = (await loginPhone.svc.user.nameAndAvatar())!;
 
-        return {
+        const result = {
             status: Status.Success,
             data: {
                 name: userName,
@@ -79,7 +79,11 @@ export class PhoneLogin extends AbstractController<RequestType, ResponseType> {
                     loginSource: LoginPlatform.Phone,
                 }),
             },
-        };
+        } as const;
+
+        await PhoneLogin.clearVerificationCode(safePhone);
+
+        return result;
     }
 
     private static async assertCodeCorrect(safePhone: string, code: number): Promise<void> {
@@ -108,6 +112,10 @@ export class PhoneLogin extends AbstractController<RequestType, ResponseType> {
 
     private static async clearTryLoginCount(safePhone: string): Promise<void> {
         await RedisService.del(RedisKey.phoneTryLoginCount(safePhone));
+    }
+
+    private static async clearVerificationCode(safePhone: string): Promise<void> {
+        await RedisService.del(RedisKey.phoneLogin(safePhone));
     }
 
     public errorHandler(error: Error): ResponseError {
