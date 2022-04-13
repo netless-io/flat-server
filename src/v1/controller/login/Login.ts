@@ -8,7 +8,7 @@ import { ServiceUserWeChat } from "../../service/user/UserWeChat";
 import { ServiceUserApple } from "../../service/user/UserApple";
 import { ServiceUserAgora } from "../../service/user/UserAgora";
 import { ServiceUserGoogle } from "../../service/user/UserGoogle";
-import { AgoraLogin, Github, WeChat } from "../../../constants/Config";
+import { AgoraLogin, Github, PhoneSMS, WeChat } from "../../../constants/Config";
 import { ControllerError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
 import { ServiceUserPhone } from "../../service/user/UserPhone";
@@ -112,6 +112,10 @@ export class Login extends AbstractController<RequestType, ResponseType> {
             }
             case LoginPlatform.WeChat: {
                 enable = WeChat.web.enable || WeChat.mobile.enable;
+                break;
+            }
+            case LoginPlatform.Phone: {
+                enable = PhoneSMS.enable;
                 break;
             }
         }
