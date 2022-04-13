@@ -175,6 +175,29 @@ login:
         client_id:
         # Agora Client Secret
         client_secret:
+    # Phone message login
+    sms:
+        # Whether to enable SMS login
+        enable: true
+        # Is force binding phone
+        force: false
+        chinese_mainland:
+            # see:  https://help.aliyun.com/document_detail/419273.htm?spm=a2c4g.11186623.0.0.34371d58IYPbs3
+            access_id:
+            access_secret:
+            template_code:
+            sign_name:
+        # Hong Kong, Macao and Taiwan regions of China
+        hmt:
+            access_id:
+            access_secret:
+            template_code:
+            sign_name:
+        global:
+            access_id:
+            access_secret:
+            template_code:
+            sign_name:
 
 agora:
     # For RTC and RTM. See: https://docs.agora.io/en/Agora%20Platform/get_appid_token?platform=All%20Platforms

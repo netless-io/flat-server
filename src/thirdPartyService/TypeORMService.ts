@@ -16,6 +16,7 @@ import { loggerServer, parseError } from "../logger";
 import { UserAppleModel } from "../model/user/Apple";
 import { UserAgoraModel } from "../model/user/Agora";
 import { UserGoogleModel } from "../model/user/Google";
+import { UserPhoneModel } from "../model/user/Phone";
 
 export const orm = (): Promise<Connection> => {
     return createConnection({
@@ -32,6 +33,7 @@ export const orm = (): Promise<Connection> => {
             UserAppleModel,
             UserAgoraModel,
             UserGoogleModel,
+            UserPhoneModel,
             RoomModel,
             RoomUserModel,
             RoomPeriodicConfigModel,

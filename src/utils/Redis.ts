@@ -10,4 +10,6 @@ export const RedisKey = {
         `cloudStorage:${userUUID}:${fileUUID}`,
     roomInviteCode: (inviteCode: string): string => `room:invite:${inviteCode}`,
     roomInviteCodeReverse: (roomUUID: string): string => `room:inviteReverse:${roomUUID}`,
+    phoneLogin: (phone: string): string => `phone:login:${phone}`,
+    phoneTryLoginCount: (phone: string): string => `phone:count:login:${phone}`,
 };

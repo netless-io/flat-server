@@ -11,6 +11,7 @@ import { ServiceUserGoogle } from "../../service/user/UserGoogle";
 import { AgoraLogin, Github, WeChat } from "../../../constants/Config";
 import { ControllerError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
+import { ServiceUserPhone } from "../../service/user/UserPhone";
 
 @Controller<null, ResponseType>({
     method: "post",
@@ -27,6 +28,7 @@ export class Login extends AbstractController<RequestType, ResponseType> {
         userApple: ServiceUserApple;
         userAgora: ServiceUserAgora;
         userGoogle: ServiceUserGoogle;
+        userPhone: ServiceUserPhone;
     };
 
     public constructor(params: ControllerClassParams) {
@@ -39,6 +41,7 @@ export class Login extends AbstractController<RequestType, ResponseType> {
             userApple: new ServiceUserApple(this.userUUID),
             userAgora: new ServiceUserAgora(this.userUUID),
             userGoogle: new ServiceUserGoogle(this.userUUID),
+            userPhone: new ServiceUserPhone(this.userUUID),
         };
     }
 
@@ -67,6 +70,9 @@ export class Login extends AbstractController<RequestType, ResponseType> {
             case LoginPlatform.Google: {
                 await this.svc.userGoogle.assertExist();
                 break;
+            }
+            case LoginPlatform.Phone: {
+                await this.svc.userPhone.assertExist();
             }
         }
 

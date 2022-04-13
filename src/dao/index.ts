@@ -15,6 +15,7 @@ import { UserGithubModel } from "../model/user/Github";
 import { UserAppleModel } from "../model/user/Apple";
 import { UserAgoraModel } from "../model/user/Agora";
 import { UserGoogleModel } from "../model/user/Google";
+import { UserPhoneModel } from "../model/user/Phone";
 
 export const UserDAO = DAOImplement(UserModel) as ReturnType<DAO<UserModel>>;
 
@@ -27,6 +28,8 @@ export const UserAppleDAO = DAOImplement(UserAppleModel) as ReturnType<DAO<UserA
 export const UserAgoraDAO = DAOImplement(UserAgoraModel) as ReturnType<DAO<UserAgoraModel>>;
 
 export const UserGoogleDAO = DAOImplement(UserGoogleModel) as ReturnType<DAO<UserGoogleModel>>;
+
+export const UserPhoneDAO = DAOImplement(UserPhoneModel) as ReturnType<DAO<UserPhoneModel>>;
 
 export const RoomDAO = DAOImplement(RoomModel) as ReturnType<DAO<RoomModel>>;
 

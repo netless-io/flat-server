@@ -58,9 +58,12 @@
     "webpack-node-externals": "^2.5.2"
   },
   "dependencies": {
+    "@alicloud/dysmsapi20170525": "^2.0.9",
+    "@alicloud/openapi-client": "^0.4.1",
     "agora-access-token": "^2.0.4",
     "ajv": "^7.0.0-rc.5",
     "ali-oss": "^6.14.0",
+    "awesome-phonenumber": "^2.70.0",
     "axios": "^0.21.2",
     "crypto-random-string": "^3.3.0",
     "date-fns": "^2.16.1",

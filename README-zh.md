@@ -172,6 +172,29 @@ login:
         client_id:
         # Agora Client Secret
         client_secret:
+        # Phone message login
+    sms:
+        # 是否开启 SMS 登录
+        enable: true
+        # 是否强制开启绑定手机号
+        force: false
+        chinese_mainland:
+            # 见:  https://help.aliyun.com/document_detail/419273.htm?spm=a2c4g.11186623.0.0.34371d58IYPbs3
+            access_id:
+            access_secret:
+            template_code:
+            sign_name:
+        # 香港、澳门、台湾
+        hmt:
+            access_id:
+            access_secret:
+            template_code:
+            sign_name:
+        global:
+            access_id:
+            access_secret:
+            template_code:
+            sign_name:
 
 agora:
     # 用于 RTC 与 RTM。见: https://docs.agora.io/cn/Agora%20Platform/get_appid_token?platform=All%20Platforms

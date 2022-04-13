@@ -9,6 +9,8 @@ import { AppleJWT } from "./apple/jwt";
 import { AgoraCallback } from "./agora/Callback";
 import { CheckAgoraSSOLoginID } from "./agora/Check";
 import { GoogleCallback } from "./google/Callback";
+import { SendMessage } from "./phone/SendMessage";
+import { PhoneLogin } from "./phone/Phone";
 
 export const loginRouters: Readonly<Array<ControllerClass<any, any>>> = Object.freeze([
     SetAuthUUID,
@@ -20,5 +22,7 @@ export const loginRouters: Readonly<Array<ControllerClass<any, any>>> = Object.f
     AgoraCallback,
     CheckAgoraSSOLoginID,
     GoogleCallback,
+    SendMessage,
+    PhoneLogin,
     Login,
 ]);

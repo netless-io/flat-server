@@ -32,3 +32,18 @@ export type LoggerAPI = LoggerBase & {
     };
     durationMS: number;
 };
+
+export type LoggerSMS = LoggerBase & {
+    sms: {
+        phoneNumbers: string;
+        signName: string;
+        templateCode: string;
+        verificationCode: string;
+    };
+    smsDetail: {
+        code: string;
+        message: string;
+        bizId: string;
+        requestId: string;
+    };
+};

@@ -30,6 +30,18 @@ class RedisService {
         await this.client.del(typeof key === "string" ? [key] : key);
     }
 
+    public async incr(key: string): Promise<number> {
+        return await this.client.incr(key);
+    }
+
+    public async ttl(key: string): Promise<number> {
+        return await this.client.ttl(key);
+    }
+
+    public async expire(key: string, seconds: number): Promise<void> {
+        await this.client.expire(key, seconds);
+    }
+
     public async hmset(key: string, value: Record<string, string>, expire?: number): Promise<void> {
         await this.client.hmset(key, value);
 
