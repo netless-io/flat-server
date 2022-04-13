@@ -15,6 +15,7 @@ import { EntityManager } from "typeorm/entity-manager/EntityManager";
 import { ServiceCloudStorageFiles } from "../../v1/service/cloudStorage/CloudStorageFiles";
 import { v4 } from "uuid";
 import { ServiceCloudStorageUserFiles } from "../../v1/service/cloudStorage/CloudStorageUserFiles";
+import { ServiceUserPhone } from "../../v1/service/user/UserPhone";
 
 export abstract class AbstractLogin {
     protected readonly userUUID: string;
@@ -39,13 +40,14 @@ export abstract class AbstractLogin {
 
     public async tempSaveUserInfo(
         authUUID: string,
-        userInfo: Omit<UserInfo, "userUUID"> & { [key in string]: string },
+        userInfo: Omit<UserInfo, "userUUID"> & { [key in string]: any },
     ): Promise<void> {
         await redisService.set(
             RedisKey.authUserInfo(authUUID),
             JSON.stringify({
                 ...userInfo,
                 userUUID: this.userUUID,
+                hasPhone: await ServiceUserPhone.exist(this.userUUID),
             }),
             60 * 60,
         );
