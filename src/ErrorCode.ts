@@ -38,5 +38,5 @@ export enum ErrorCode {
     LoginGithubURLMismatch,
     LoginGithubAccessDenied,
 
-    SMSVerificationCodeInvalid = 1000000, // verification code invalid
+    SMSVerificationCodeInvalid = 110000, // verification code invalid
 }
