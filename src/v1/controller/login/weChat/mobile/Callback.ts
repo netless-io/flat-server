@@ -7,6 +7,7 @@ import { Controller } from "../../../../../decorator/Controller";
 import { Status } from "../../../../../constants/Project";
 import { parseError } from "../../../../../logger";
 import { WeChat } from "../../../../../constants/Config";
+import { ServiceUserPhone } from "../../../../service/user/UserPhone";
 
 @Controller<RequestType, ResponseType>({
     method: "get",
@@ -38,7 +39,10 @@ export class WechatMobileCallback extends AbstractController<RequestType, Respon
 
         return {
             status: Status.Success,
-            data: result,
+            data: {
+                ...result,
+                hasPhone: await ServiceUserPhone.exist(result.userUUID),
+            },
         };
     }
 
@@ -61,4 +65,5 @@ interface ResponseType {
     avatar: string;
     userUUID: string;
     token: string;
+    hasPhone: boolean;
 }
