@@ -43,16 +43,20 @@ export class BindingPhone extends AbstractController<RequestType, ResponseType> 
     private static ExhaustiveAttackCount = 10;
 
     public async execute(): Promise<Response<ResponseType>> {
-        const alreadyExist = await this.svc.userPhone.exist();
-        if (alreadyExist) {
-            throw new ControllerError(ErrorCode.SMSAlreadyExist);
-        }
-
         const { phone, code } = this.body;
 
         const safePhone = SMSUtils.safePhone(phone);
 
         await BindingPhone.notExhaustiveAttack(safePhone);
+
+        if (await this.svc.userPhone.exist()) {
+            throw new ControllerError(ErrorCode.SMSAlreadyExist);
+        }
+
+        if (await this.svc.userPhone.existPhone(phone)) {
+            throw new ControllerError(ErrorCode.SMSAlreadyBinding);
+        }
+
         await BindingPhone.assertCodeCorrect(safePhone, code);
         await BindingPhone.clearTryBindingCount(safePhone);
 

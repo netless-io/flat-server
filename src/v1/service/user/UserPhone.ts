@@ -34,6 +34,18 @@ export class ServiceUserPhone {
         return !!result;
     }
 
+    public async existPhone(phone: string): Promise<boolean> {
+        return await ServiceUserPhone.existPhone(phone);
+    }
+
+    public static async existPhone(phone: string): Promise<boolean> {
+        const result = await UserPhoneDAO().findOne(["id"], {
+            phone_number: phone,
+        });
+
+        return !!result;
+    }
+
     public async assertExist(): Promise<void> {
         const result = await UserPhoneDAO().findOne(["id"], {
             user_uuid: this.userUUID,

@@ -36,17 +36,20 @@ export class SendMessage extends AbstractController<RequestType, ResponseType> {
     };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const alreadyExist = await this.svc.userPhone.exist();
-        if (alreadyExist) {
-            throw new ControllerError(ErrorCode.SMSAlreadyExist);
-        }
-
         const { phone } = this.body;
         const sms = new SMS(phone);
 
         const safePhone = SMSUtils.safePhone(phone);
 
         if (await SendMessage.canSend(safePhone)) {
+            if (await this.svc.userPhone.exist()) {
+                throw new ControllerError(ErrorCode.SMSAlreadyExist);
+            }
+
+            if (await this.svc.userPhone.existPhone(phone)) {
+                throw new ControllerError(ErrorCode.SMSAlreadyBinding);
+            }
+
             await sms.send();
             await RedisService.set(
                 RedisKey.phoneBinding(safePhone),
