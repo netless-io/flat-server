@@ -7,6 +7,9 @@ import { RedisKey } from "../../../../utils/Redis";
 import { SMS, SMSUtils } from "../../../../utils/SMS";
 import { Status } from "../../../../constants/Project";
 import { MessageExpirationSecond, MessageIntervalSecond } from "./Constants";
+import { ServiceUserPhone } from "../../../service/user/UserPhone";
+import { ControllerError } from "../../../../error/ControllerError";
+import { ErrorCode } from "../../../../ErrorCode";
 
 @Controller<RequestType, any>({
     method: "post",
@@ -35,6 +38,10 @@ export class SendMessage extends AbstractController<RequestType, ResponseType> {
         const safePhone = SMSUtils.safePhone(phone);
 
         if (await SendMessage.canSend(safePhone)) {
+            if (await ServiceUserPhone.existPhone(phone)) {
+                throw new ControllerError(ErrorCode.SMSAlreadyBinding);
+            }
+
             await sms.send();
             await RedisService.set(
                 RedisKey.phoneLogin(safePhone),

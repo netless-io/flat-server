@@ -45,6 +45,11 @@ export class PhoneLogin extends AbstractController<RequestType, ResponseType> {
         const safePhone = SMSUtils.safePhone(this.body.phone);
 
         await PhoneLogin.notExhaustiveAttack(safePhone);
+
+        if (await ServiceUserPhone.existPhone(phone)) {
+            throw new ControllerError(ErrorCode.SMSAlreadyBinding);
+        }
+
         await PhoneLogin.assertCodeCorrect(safePhone, code);
         await PhoneLogin.clearTryLoginCount(safePhone);
 
