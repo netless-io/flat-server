@@ -1,5 +1,5 @@
 import { UserGoogleDAO } from "../../../dao";
-import { EntityManager, InsertResult } from "typeorm";
+import { DeleteResult, EntityManager, InsertResult } from "typeorm";
 import { ControllerError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
 
@@ -38,5 +38,11 @@ export class ServiceUserGoogle {
         });
 
         return result ? result.user_uuid : null;
+    }
+
+    public async physicalDeletion(t?: EntityManager): Promise<DeleteResult> {
+        return await UserGoogleDAO(t).physicalDeletion({
+            user_uuid: this.userUUID,
+        });
     }
 }

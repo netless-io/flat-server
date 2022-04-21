@@ -111,6 +111,9 @@ export const DAOImplement: DAO<Model> = model => {
                     where: noDelete(where),
                 });
             },
+            physicalDeletion: where => {
+                return managerOrRepo.createQueryBuilder().delete().where(where).execute();
+            },
         };
     };
 };

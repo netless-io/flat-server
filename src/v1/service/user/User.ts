@@ -1,6 +1,6 @@
 import { UserDAO } from "../../../dao";
 import { Gender } from "../../../constants/Project";
-import { EntityManager, InsertResult } from "typeorm";
+import { DeleteResult, EntityManager, InsertResult } from "typeorm";
 import { ControllerError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
 import { UpdateResult } from "typeorm/query-builder/result/UpdateResult";
@@ -67,5 +67,11 @@ export class ServiceUser {
                 user_uuid: this.userUUID,
             },
         );
+    }
+
+    public async physicalDeletion(t?: EntityManager): Promise<DeleteResult> {
+        return await UserDAO(t).physicalDeletion({
+            user_uuid: this.userUUID,
+        });
     }
 }

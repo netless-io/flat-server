@@ -20,6 +20,7 @@ export enum ErrorCode {
     PeriodicSubRoomHasRunning, // periodic sub room has running
 
     UserNotFound = 400000, // user not found
+    UserRoomListNotEmpty, // user room list is not empty.
 
     RecordNotFound = 500000, // record info not found
 
