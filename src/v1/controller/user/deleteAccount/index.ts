@@ -3,7 +3,6 @@ import { Controller } from "../../../../decorator/Controller";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { ServiceUser } from "../../../service/user/User";
 import { Status } from "../../../../constants/Project";
-import { ServiceRoomUser } from "../../../service";
 import { ControllerError } from "../../../../error/ControllerError";
 import { ErrorCode } from "../../../../ErrorCode";
 import { ServiceUserPhone } from "../../../service/user/UserPhone";
@@ -15,6 +14,7 @@ import { ServiceUserAgora } from "../../../service/user/UserAgora";
 import { getConnection } from "typeorm";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
+import { alreadyJoinedRoomCount } from "./utils/AlreadyJoinedRoomCount";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -35,9 +35,7 @@ export class DeleteAccount extends AbstractController<RequestType, ResponseType>
     };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const alreadyJoinedRoomCount = await ServiceRoomUser.joinCount(this.userUUID);
-
-        if (alreadyJoinedRoomCount !== 0) {
+        if ((await alreadyJoinedRoomCount(this.userUUID)) !== 0) {
             throw new ControllerError(ErrorCode.UserRoomListNotEmpty);
         }
 

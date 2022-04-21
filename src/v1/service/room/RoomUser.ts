@@ -21,10 +21,4 @@ export class ServiceRoomUser {
             rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
         });
     }
-
-    public static async joinCount(userUUID: string): Promise<number> {
-        return await RoomUserDAO().count({
-            user_uuid: userUUID,
-        });
-    }
 }
