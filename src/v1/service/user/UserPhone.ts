@@ -1,4 +1,4 @@
-import { EntityManager, InsertResult } from "typeorm";
+import { DeleteResult, EntityManager, InsertResult } from "typeorm";
 import { UserPhoneDAO } from "../../../dao";
 import { ControllerError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
@@ -62,5 +62,11 @@ export class ServiceUserPhone {
         });
 
         return result ? result.user_uuid : null;
+    }
+
+    public async physicalDeletion(t?: EntityManager): Promise<DeleteResult> {
+        return await UserPhoneDAO(t).physicalDeletion({
+            user_uuid: this.userUUID,
+        });
     }
 }

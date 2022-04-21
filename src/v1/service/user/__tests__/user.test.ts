@@ -152,3 +152,37 @@ test(`${namespace} - update user name`, async ava => {
 
     ava.is(result?.user_name, newName);
 });
+
+test(`${namespace} - delete user`, async ava => {
+    const [oldName, userUUID, avatarURL] = [v4(), v4(), `https://test.com/${v4()}`];
+    await UserDAO().insert({
+        user_name: oldName,
+        avatar_url: avatarURL,
+        gender: Gender.Woman,
+        user_uuid: userUUID,
+        user_password: "",
+    });
+
+    const serviceUser = new ServiceUser(userUUID);
+
+    await serviceUser.physicalDeletion();
+
+    const result = await UserDAO().findOne(["id"], {
+        user_uuid: userUUID,
+    });
+
+    ava.is(result, undefined);
+});
+
+test(`${namespace} - delete not exist user`, async ava => {
+    const userUUID = v4();
+    const serviceUser = new ServiceUser(userUUID);
+
+    await serviceUser.physicalDeletion();
+
+    const result = await UserDAO().findOne(["id"], {
+        user_uuid: userUUID,
+    });
+
+    ava.is(result, undefined);
+});

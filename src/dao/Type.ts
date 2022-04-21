@@ -1,5 +1,5 @@
 import { UpdateResult } from "typeorm/query-builder/result/UpdateResult";
-import { FindOperator } from "typeorm";
+import { DeleteResult, FindOperator } from "typeorm";
 import { InsertResult } from "typeorm/query-builder/result/InsertResult";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 import { RoomModel } from "../model/room/Room";
@@ -62,6 +62,8 @@ type Remove<M> = (where: Where<M>) => Promise<UpdateResult>;
 
 type Count<M> = (where: Where<M>) => Promise<number>;
 
+type PhysicalDeletion<M> = (where: Where<M>) => Promise<DeleteResult>;
+
 export type Model =
     | UserModel
     | UserWeChatModel
@@ -91,4 +93,5 @@ export type DAO<T extends Model> = (
     update: Update<T>;
     insert: Insert<T>;
     count: Count<T>;
+    physicalDeletion: PhysicalDeletion<T>;
 };
