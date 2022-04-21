@@ -129,8 +129,8 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
                         }
 
                         const { title, room_type } = periodicRoomConfig;
-                        commands.concat(
-                            await updateNextPeriodicRoomInfo({
+                        commands.push(
+                            ...(await updateNextPeriodicRoomInfo({
                                 transaction: t,
                                 periodic_uuid,
                                 user_uuid: userUUID,
@@ -138,7 +138,7 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
                                 room_type,
                                 region: roomInfo.region,
                                 ...nextRoomPeriodicInfo,
-                            }),
+                            })),
                         );
                     } else {
                         this.readyRecycleInviteCode = true;
