@@ -112,7 +112,12 @@ export const DAOImplement: DAO<Model> = model => {
                 });
             },
             physicalDeletion: where => {
-                return managerOrRepo.createQueryBuilder().delete().where(where).execute();
+                return managerOrRepo
+                    .createQueryBuilder()
+                    .delete()
+                    .from(model)
+                    .where(where)
+                    .execute();
             },
         };
     };
