@@ -84,6 +84,11 @@ export class RecordInfo extends AbstractController<RequestType, ResponseType> {
             region,
         } = roomInfo;
 
+        const resourcesURLPrefix = `${Agora.ossPrefix}/${Agora.ossFolder}/${roomUUID.replace(
+            /-/g,
+            "",
+        )}`;
+
         return {
             status: Status.Success,
             data: {
@@ -100,11 +105,10 @@ export class RecordInfo extends AbstractController<RequestType, ResponseType> {
                     beginTime: begin_time.valueOf(),
                     endTime: end_time.valueOf(),
                     videoURL: agora_sid
-                        ? `${Agora.ossPrefix}/${Agora.ossFolder}/${roomUUID.replace(
-                              /-/g,
-                              "",
-                          )}/${agora_sid}_${roomUUID}.m3u8`
+                        ? `${resourcesURLPrefix}/${agora_sid}_${roomUUID}.m3u8`
                         : "",
+                    resourcesURLPrefix,
+                    agoraSID: agora_sid,
                 })),
             },
         };
@@ -133,5 +137,6 @@ interface ResponseType {
         beginTime: number;
         endTime: number;
         videoURL: string;
+        agoraSID: string;
     }>;
 }
