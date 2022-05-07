@@ -137,6 +137,7 @@ interface ResponseType {
         beginTime: number;
         endTime: number;
         videoURL: string;
+        resourcesURLPrefix: string;
         agoraSID: string;
     }>;
 }
