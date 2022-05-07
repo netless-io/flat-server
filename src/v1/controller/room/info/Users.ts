@@ -17,7 +17,7 @@ export class UserInfo extends AbstractController<RequestType, ResponseType> {
     public static readonly schema: FastifySchema<RequestType> = {
         body: {
             type: "object",
-            required: ["roomUUID", "usersUUID"],
+            required: ["roomUUID"],
             properties: {
                 roomUUID: {
                     type: "string",
@@ -30,6 +30,7 @@ export class UserInfo extends AbstractController<RequestType, ResponseType> {
                         format: "uuid-v4",
                     },
                     minItems: 1,
+                    nullable: true,
                 },
             },
         },
@@ -51,23 +52,25 @@ export class UserInfo extends AbstractController<RequestType, ResponseType> {
             };
         }
 
-        const roomUsersInfo = await createQueryBuilder(RoomUserModel, "ru")
+        const roomUsersInfoBasic = createQueryBuilder(RoomUserModel, "ru")
             .addSelect("ru.rtc_uid", "rtc_uid")
             .addSelect("ru.user_uuid", "user_uuid")
             .addSelect("u.user_name", "user_name")
             .addSelect("u.avatar_url", "avatar_url")
             .innerJoin(UserModel, "u", "ru.user_uuid = u.user_uuid")
-            .where(
-                `room_uuid = :roomUUID
-                AND ru.user_uuid IN (:...usersUUID)
-                AND ru.is_delete = false
-                AND u.is_delete = false`,
-                {
-                    roomUUID,
-                    usersUUID,
-                },
-            )
-            .getRawMany<RoomUsersInfo>();
+            .andWhere("room_uuid = :roomUUID", {
+                roomUUID,
+            })
+            .andWhere("ru.is_delete = false")
+            .andWhere("u.is_delete = false");
+
+        if (usersUUID) {
+            roomUsersInfoBasic.andWhere("ru.user_uuid IN (:...usersUUID)", {
+                usersUUID,
+            });
+        }
+
+        const roomUsersInfo = await roomUsersInfoBasic.getRawMany<RoomUsersInfo>();
 
         if (roomUsersInfo.length === 0) {
             return {
@@ -99,7 +102,7 @@ export class UserInfo extends AbstractController<RequestType, ResponseType> {
 interface RequestType {
     body: {
         roomUUID: string;
-        usersUUID: string[];
+        usersUUID?: string[];
     };
 }
 
