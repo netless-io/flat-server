@@ -133,9 +133,12 @@ class RTCScreenshot {
     }
 
     private async start(resourceID: string): Promise<string> {
+        const fileNamePrefix = [Agora.screenshot.oss.folder, this.data.roomUUID.replace(/-/g, "")];
+
         this.logger.debug("start screenshot", {
             rtcDetail: {
                 roomUUID: this.data.roomUUID,
+                fileNamePrefix: fileNamePrefix.join("/"),
             },
         });
 
@@ -165,10 +168,7 @@ class RTCScreenshot {
                         bucket: Agora.screenshot.oss.bucket,
                         secretKey: Agora.screenshot.oss.accessKeySecret,
                         vendor: Agora.screenshot.oss.vendor,
-                        fileNamePrefix: [
-                            Agora.screenshot.oss.folder,
-                            this.data.roomUUID.replace(/-/g, ""),
-                        ],
+                        fileNamePrefix,
                     },
                 },
             },
