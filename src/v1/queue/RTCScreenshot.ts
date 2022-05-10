@@ -133,12 +133,9 @@ class RTCScreenshot {
     }
 
     private async start(resourceID: string): Promise<string> {
-        const fileNamePrefix = [Agora.screenshot.oss.folder, this.data.roomUUID.replace(/-/g, "")];
-
         this.logger.debug("start screenshot", {
             rtcDetail: {
                 roomUUID: this.data.roomUUID,
-                fileNamePrefix: fileNamePrefix.join("/"),
             },
         });
 
@@ -168,7 +165,10 @@ class RTCScreenshot {
                         bucket: Agora.screenshot.oss.bucket,
                         secretKey: Agora.screenshot.oss.accessKeySecret,
                         vendor: Agora.screenshot.oss.vendor,
-                        fileNamePrefix,
+                        fileNamePrefix: [
+                            Agora.screenshot.oss.folder,
+                            this.data.roomUUID.replace(/-/g, ""),
+                        ],
                     },
                 },
             },
@@ -187,6 +187,11 @@ class RTCScreenshot {
 
     private async stop(resourceID: string): Promise<void> {
         if (!this.data.sid) {
+            this.logger.debug("skip stop screenshot", {
+                rtcDetail: {
+                    roomUUID: this.data.roomUUID,
+                },
+            });
             return;
         }
 
@@ -220,7 +225,14 @@ class RTCScreenshot {
                 });
             })
             .catch(error => {
-                this.logger.warn("stop screenshot failed", parseError(error));
+                this.logger.warn("stop screenshot failed", {
+                    ...parseError(error),
+                    rtcDetail: {
+                        roomUUID: this.data.roomUUID,
+                        resourceID,
+                        sid: this.data.sid,
+                    },
+                });
             });
     }
 
