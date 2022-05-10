@@ -70,6 +70,8 @@ redis:
     password:
     # Redis 连接 db 名
     db:
+    # 基于 Redis 实现的延迟队列 db 名
+    queueDB:
 
 mysql:
     # MySQL 连接地址
@@ -219,6 +221,16 @@ agora:
         bucket:
         folder:
         prefix:
+    # https://docs.agora.io/cn/cloud-recording/cloud_recording_screen_capture?platform=RESTful
+    screenshot:
+        enable: false
+        oss:
+            access_id:
+            access_secret:
+            vendor:
+            region:
+            bucket:
+            folder:
 
 # 见: https://docs.agora.io/cn/whiteboard/generate_whiteboard_token_at_app_server?platform=RESTful
 whiteboard:

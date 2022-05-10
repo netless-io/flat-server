@@ -17,6 +17,7 @@ export const Redis = {
     username: config.redis.username || "",
     password: config.redis.password,
     db: config.redis.db,
+    queueDB: config.redis.queueDB,
 };
 
 export const MySQL = {
@@ -100,6 +101,17 @@ export const Agora = {
     ossBucket: config.agora.oss.bucket,
     ossFolder: config.agora.oss.folder,
     ossPrefix: config.agora.oss.prefix,
+    screenshot: {
+        enable: config.agora.screenshot.enable,
+        oss: {
+            vendor: config.agora.screenshot.oss.vendor,
+            accessKeyId: config.agora.screenshot.oss.access_id,
+            accessKeySecret: config.agora.screenshot.oss.access_secret,
+            region: config.agora.screenshot.oss.region,
+            bucket: config.agora.screenshot.oss.bucket,
+            folder: config.agora.screenshot.oss.folder,
+        },
+    },
 };
 
 export const JWT = {

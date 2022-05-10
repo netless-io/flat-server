@@ -20,6 +20,7 @@ export interface AgoraCloudRecordAcquireRequestBody {
         scene?: number;
     };
 }
+
 export interface AgoraCloudRecordAcquireResponse {
     resourceId: string;
 }
@@ -104,6 +105,7 @@ export interface AgoraCloudRecordStartedRequestBody {
         };
     };
 }
+
 export interface AgoraCloudRecordStartedResponse {
     sid: string;
     resourceId: string;
@@ -127,6 +129,7 @@ export interface AgoraCloudRecordUpdateLayoutRequestBody {
         }>;
     };
 }
+
 export interface AgoraCloudRecordUpdateLayoutResponse {
     sid: string;
     resourceId: string;
@@ -186,9 +189,11 @@ export interface AgoraCloudRecordQueryResponse<T extends "string" | "json" | und
 export interface AgoraCloudRecordStoppedRequestBody {
     cname: string;
     uid: string;
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    clientRequest: {};
+    clientRequest: {
+        async_stop?: boolean;
+    };
 }
+
 export interface AgoraCloudRecordStoppedResponse {
     sid: string;
     resourceId: string;

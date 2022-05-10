@@ -1,7 +1,14 @@
 import os from "os";
 
 import { Logger, LoggerContext } from "./Logger";
-import { LoggerAPI, LoggerBase, LoggerError, LoggerServer, LoggerSMS } from "./LogConext";
+import {
+    LoggerAPI,
+    LoggerBase,
+    LoggerError,
+    LoggerRTCScreenshot,
+    LoggerServer,
+    LoggerSMS,
+} from "./LogConext";
 import { LoggerPluginFile } from "./plugins/LoggerPluginFile";
 import { LoggerPluginTerminal } from "./plugins/LoggerPluginTerminal";
 import { LoggerAbstractPlugin } from "./plugins/LoggerAbstractPlugin";
@@ -51,5 +58,18 @@ export const createLoggerSMS = <R extends LoggerContext>(
             ...baseContext,
         },
         loggerPlugins as LoggerAbstractPlugin<LoggerSMS & R>[],
+    );
+};
+
+export const createLoggerRTCScreenshot = <R extends LoggerContext>(
+    context: Partial<LoggerRTCScreenshot & R>,
+): Logger<LoggerRTCScreenshot & R> => {
+    return new Logger<LoggerRTCScreenshot & R>(
+        "queue",
+        {
+            ...context,
+            ...baseContext,
+        },
+        loggerPlugins as LoggerAbstractPlugin<LoggerRTCScreenshot & R>[],
     );
 };

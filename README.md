@@ -73,6 +73,8 @@ redis:
     password:
     # Redis db name
     db:
+    # Redis-based implementation of the deferred queue db name
+    queueDB:
 
 mysql:
     # MySQL host
@@ -222,6 +224,16 @@ agora:
         bucket:
         folder:
         prefix:
+    # https://docs.agora.io/en/cloud-recording/cloud_recording_screen_capture?platform=RESTful
+    screenshot:
+        enable: false
+        oss:
+            access_id:
+            access_secret:
+            vendor:
+            region:
+            bucket:
+            folder:
 
 # See: https://docs.agora.io/en/whiteboard/generate_whiteboard_token_at_app_server?platform=RESTful
 whiteboard:
