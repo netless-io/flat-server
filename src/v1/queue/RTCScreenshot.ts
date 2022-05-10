@@ -44,7 +44,15 @@ export class RTCScreenshotQueue {
                         }
                     }
                 } catch (error) {
-                    this.logger.error("handler error", parseError(error));
+                    this.logger.error("handler error", {
+                        queueDetail: {
+                            jobID: String(job.id),
+                        },
+                        rtcDetail: {
+                            roomUUID: job.data.roomUUID,
+                        },
+                        ...parseError(error),
+                    });
                     this.add(job.data);
                 }
             });
@@ -55,10 +63,13 @@ export class RTCScreenshotQueue {
         if (Agora.screenshot.enable) {
             this.queue
                 .add(data, {
-                    delay: immediate ? 1000 * 60 : undefined,
+                    delay: immediate ? undefined : 1000 * 60,
                 })
                 .catch(error => {
-                    this.logger.error("add task error", parseError(error));
+                    this.logger.error("add task error", {
+                        ...parseError(error),
+                        rtcDetail: data,
+                    });
                 });
         }
     }
