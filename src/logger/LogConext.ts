@@ -62,7 +62,6 @@ export type LoggerQueue = LoggerBase & {
 export type LoggerRTCScreenshot = LoggerQueue & {
     rtcDetail?: {
         roomUUID: string;
-        fileNamePrefix?: string;
         resourceID?: string;
         sid?: string;
     };
