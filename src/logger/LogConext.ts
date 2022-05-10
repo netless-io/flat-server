@@ -47,3 +47,22 @@ export type LoggerSMS = LoggerBase & {
         requestId: string;
     };
 };
+
+export type LoggerQueue = LoggerBase & {
+    queue: {
+        name: string;
+    };
+    queueDetail?: {
+        jobID: string;
+        status?: string;
+        progress?: string;
+    };
+};
+
+export type LoggerRTCScreenshot = LoggerQueue & {
+    rtcDetail?: {
+        roomUUID: string;
+        resourceID?: string;
+        sid?: string;
+    };
+};

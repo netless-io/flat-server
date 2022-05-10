@@ -7,6 +7,7 @@ redis:
   username:
   password:
   db:
+  queueDB:
 
 mysql:
   host:
@@ -111,6 +112,15 @@ agora:
     bucket:
     folder:
     prefix:
+  screenshot:
+    enable: false
+    oss:
+      access_id:
+      access_secret:
+      vendor:
+      region:
+      bucket:
+      folder:
 
 whiteboard:
   access_key:

@@ -36,6 +36,7 @@ type Config = {
         username: string | null;
         password: string;
         db: number;
+        queueDB: number;
     };
     mysql: {
         host: string;
@@ -123,6 +124,17 @@ type Config = {
             bucket: string;
             folder: string;
             prefix: string;
+        };
+        screenshot: {
+            enable: boolean;
+            oss: {
+                access_id: string;
+                access_secret: string;
+                vendor: number;
+                region: number;
+                bucket: string;
+                folder: string;
+            };
         };
     };
     whiteboard: {

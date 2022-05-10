@@ -13,6 +13,7 @@ import { Controller } from "../../../../decorator/Controller";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { parseError } from "../../../../logger";
 import { RedisKey } from "../../../../utils/Redis";
+import { rtcScreenshotQueue } from "../../../queue";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -79,6 +80,7 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
             }
         }
 
+        let nextRoomUUID = null;
         await getConnection().transaction(
             async (t): Promise<void> => {
                 const commands: Promise<unknown>[] = [];
@@ -116,6 +118,7 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
                     );
 
                     if (nextRoomPeriodicInfo) {
+                        nextRoomUUID = nextRoomPeriodicInfo.fake_room_uuid;
                         const periodicRoomConfig = await RoomPeriodicConfigDAO().findOne(
                             ["title", "room_type"],
                             {
@@ -172,6 +175,12 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
                 }
             },
         );
+
+        if (nextRoomUUID) {
+            rtcScreenshotQueue.add({
+                roomUUID: nextRoomUUID,
+            });
+        }
 
         return {
             status: Status.Success,
