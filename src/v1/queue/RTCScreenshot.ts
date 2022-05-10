@@ -140,6 +140,8 @@ class RTCScreenshot {
                     token: await getRTCToken(this.data.roomUUID, RTCScreenshot.AGORA_UID),
                     recordingConfig: {
                         channelType: 1,
+                        streamTypes: 1,
+                        subscribeUidGroup: 0,
                         subscribeVideoUids: ["#allstream#"],
                     },
                     snapshotConfig: {
