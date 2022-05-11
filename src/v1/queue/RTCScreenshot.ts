@@ -213,7 +213,7 @@ class RTCScreenshot {
             {
                 ...this.agoraBasicReqData,
                 clientRequest: {
-                    async_stop: true,
+                    async_stop: false,
                 },
             },
         )
