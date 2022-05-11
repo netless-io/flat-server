@@ -13,7 +13,7 @@ import { Agora } from "../../constants/Config";
 import { Not } from "typeorm";
 
 export class RTCScreenshotQueue {
-    public static readonly queueName = "RTCScreenshot";
+    private static readonly queueName = "RTCScreenshot";
 
     private readonly queue: Queue<JobData>;
     private readonly logger: Logger<LoggerRTCScreenshot>;
@@ -250,7 +250,7 @@ class RTCScreenshot {
     private get agoraBasicReqData(): { uid: string; cname: string } {
         return {
             uid: String(RTCScreenshot.AGORA_UID),
-            cname: `${RTCScreenshotQueue.queueName}-${this.data.roomUUID}`,
+            cname: this.data.roomUUID,
         };
     }
 }
