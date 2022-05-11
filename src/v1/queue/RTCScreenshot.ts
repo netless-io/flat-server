@@ -92,15 +92,15 @@ class RTCScreenshot {
             };
         }
 
-        const resourceID = await this.acquire();
-        await this.stop(resourceID);
+        await this.tryStopPreviousService();
 
-        const sid = await this.start(resourceID);
+        const { resourceID, sid } = await this.start();
 
         return {
             status: "ADD",
             data: {
                 sid,
+                resourceID,
                 roomUUID: this.data.roomUUID,
             },
         };
@@ -132,7 +132,9 @@ class RTCScreenshot {
         return resourceId;
     }
 
-    private async start(resourceID: string): Promise<string> {
+    private async start(): Promise<{ resourceID: string; sid: string }> {
+        const resourceID = await this.acquire();
+
         this.logger.debug("start screenshot", {
             rtcDetail: {
                 roomUUID: this.data.roomUUID,
@@ -182,11 +184,11 @@ class RTCScreenshot {
             },
         });
 
-        return sid;
+        return { resourceID, sid };
     }
 
-    private async stop(resourceID: string): Promise<void> {
-        if (!this.data.sid) {
+    private async tryStopPreviousService(): Promise<void> {
+        if (!this.data.sid || !this.data.resourceID) {
             this.logger.debug("skip stop screenshot", {
                 rtcDetail: {
                     roomUUID: this.data.roomUUID,
@@ -206,7 +208,7 @@ class RTCScreenshot {
             {
                 sid: this.data.sid,
                 mode: "individual",
-                resourceid: resourceID,
+                resourceid: this.data.resourceID,
             },
             {
                 ...this.agoraBasicReqData,
@@ -219,7 +221,7 @@ class RTCScreenshot {
                 this.logger.debug("stop screenshot success", {
                     rtcDetail: {
                         roomUUID: this.data.roomUUID,
-                        resourceID,
+                        resourceID: this.data.resourceID,
                         sid: this.data.sid,
                     },
                 });
@@ -229,7 +231,7 @@ class RTCScreenshot {
                     ...parseError(error),
                     rtcDetail: {
                         roomUUID: this.data.roomUUID,
-                        resourceID,
+                        resourceID: this.data.resourceID,
                         sid: this.data.sid,
                     },
                 });
@@ -255,6 +257,7 @@ class RTCScreenshot {
 
 type JobData = {
     sid?: string;
+    resourceID?: string;
     roomUUID: string;
 };
 
