@@ -110,6 +110,7 @@ export const Agora = {
             region: config.agora.screenshot.oss.region,
             bucket: config.agora.screenshot.oss.bucket,
             folder: config.agora.screenshot.oss.folder,
+            prefix: config.agora.screenshot.oss.prefix,
         },
     },
 };

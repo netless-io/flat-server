@@ -134,6 +134,7 @@ type Config = {
                 region: number;
                 bucket: string;
                 folder: string;
+                prefix: string;
             };
         };
     };

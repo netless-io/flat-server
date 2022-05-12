@@ -221,6 +221,7 @@ agora:
         bucket:
         folder:
         prefix:
+    # 视频截图服务
     # https://docs.agora.io/cn/cloud-recording/cloud_recording_screen_capture?platform=RESTful
     screenshot:
         enable: false
@@ -231,6 +232,7 @@ agora:
             region:
             bucket:
             folder:
+            prefix:
 
 # 见: https://docs.agora.io/cn/whiteboard/generate_whiteboard_token_at_app_server?platform=RESTful
 whiteboard:
