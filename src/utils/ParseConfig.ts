@@ -137,6 +137,14 @@ type Config = {
                 prefix: string;
             };
         };
+        messageNotification: {
+            enable: boolean;
+            events: Array<{
+                productID: number;
+                eventType: number;
+                secret: string;
+            }>;
+        };
     };
     whiteboard: {
         access_key: string;
@@ -179,6 +187,17 @@ type Config = {
                 endpoint: string;
                 bucket: string;
                 region: string;
+            };
+        };
+    };
+    censorship: {
+        video: {
+            enable: boolean;
+            type: string;
+            aliCloud: {
+                access_id: string;
+                access_secret: string;
+                endpoint: string;
             };
         };
     };

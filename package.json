@@ -69,6 +69,7 @@
     "bull": "^4.8.2",
     "crypto-random-string": "^3.3.0",
     "date-fns": "^2.16.1",
+    "fast-jwt": "^1.5.4",
     "fastify": "^3.9.1",
     "fastify-cors": "^5.1.0",
     "fastify-jwt": "^2.1.3",

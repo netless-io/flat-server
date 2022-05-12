@@ -236,6 +236,15 @@ agora:
             bucket:
             folder:
             prefix:
+    # Message notification service
+    # See: https://docs-preprod.agora.io/en/Agora%20Platform/ncs
+    messageNotification:
+        enable: false
+        events:
+            # Currently only supported `productID: 3` and `eventType: 45`
+            -   productID:
+                eventType:
+                secret:
 
 # See: https://docs.agora.io/en/whiteboard/generate_whiteboard_token_at_app_server?platform=RESTful
 whiteboard:
@@ -284,6 +293,22 @@ storage_service:
             endpoint:
             bucket:
             region:
+
+# Content censorship
+censorship:
+    # Need to configure screenshot and messageNotification services under agora
+    # messageNotification needs to be added: productID: 3 and eventType: 45 (see: https://docs.agora.io/en/cloud-recording/cloud_recording_callback_rest)
+    # The principle is to take a screenshot of all the video streams in the room at regular intervals, get the screenshot address through the message notification service, and call a third party (e.g. AliCloud) to review the API to check it
+    video:
+        enable: false
+        # Current only support aliCloud
+        type: aliCloud
+        # See: https://www.alibabacloud.com/help/en/content-moderation/latest/development-preparations-1
+        aliCloud:
+            access_id:
+            access_secret:
+            endpoint:
+
 ```
 
 If deployment is required then you need to ensure that the following variables are present in the environment variables

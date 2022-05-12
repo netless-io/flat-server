@@ -233,6 +233,15 @@ agora:
             bucket:
             folder:
             prefix:
+    # 消息通知服务
+    # 见: https://docs-preprod.agora.io/cn/Agora%20Platform/ncs
+    messageNotification:
+        enable: false
+        events:
+            # 目前只支持 `productID: 3` 和 `eventType: 45`
+            -   productID:
+                eventType:
+                secret:
 
 # 见: https://docs.agora.io/cn/whiteboard/generate_whiteboard_token_at_app_server?platform=RESTful
 whiteboard:
@@ -281,6 +290,21 @@ storage_service:
             endpoint:
             bucket:
             region:
+
+# 内容审查
+censorship:
+    # 需要配置 agora 下的 screenshot 和 messageNotification 服务
+    # messageNotification 需要加上: productID: 3 以及 eventType: 45 (有关这一点，请看: https://docs.agora.io/cn/cloud-recording/cloud_recording_callback_rest)
+    # 其原理是对房间内的所有视频流进行定时截图，通过消息通知服务得知截图地址，并调用第三方(如: 阿里云) 的审查 API 对其进行检查
+    video:
+        enable: false
+        # 目前只支持阿里云
+        type: aliCloud
+        # 见: https://help.aliyun.com/document_detail/63004.html
+        aliCloud:
+            access_id:
+            access_secret:
+            endpoint:
 ```
 
 如果需要部署，那么需要确保在部署的环境变量中存在以下变量:

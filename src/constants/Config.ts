@@ -113,6 +113,10 @@ export const Agora = {
             prefix: config.agora.screenshot.oss.prefix,
         },
     },
+    messageNotification: {
+        enable: config.agora.messageNotification.enable,
+        events: config.agora.messageNotification.events,
+    },
 };
 
 export const JWT = {
@@ -178,6 +182,18 @@ export const StorageService = {
 export const LogConfig = {
     pathname: config.log.pathname,
     filename: config.log.filename,
+};
+
+export const Censorship = {
+    video: {
+        enable: config.censorship.video.enable,
+        type: config.censorship.video.type,
+        aliCloud: {
+            accessID: config.censorship.video.aliCloud.access_id,
+            accessSecret: config.censorship.video.aliCloud.access_secret,
+            endpoint: config.censorship.video.aliCloud.endpoint,
+        },
+    },
 };
 
 export const MetricsConfig = {
