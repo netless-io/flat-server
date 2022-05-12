@@ -224,7 +224,8 @@ agora:
         bucket:
         folder:
         prefix:
-    # https://docs.agora.io/en/cloud-recording/cloud_recording_screen_capture?platform=RESTful
+    # Video screenshot service
+    # See: https://docs.agora.io/en/cloud-recording/cloud_recording_screen_capture?platform=RESTful
     screenshot:
         enable: false
         oss:
@@ -234,6 +235,7 @@ agora:
             region:
             bucket:
             folder:
+            prefix:
 
 # See: https://docs.agora.io/en/whiteboard/generate_whiteboard_token_at_app_server?platform=RESTful
 whiteboard:

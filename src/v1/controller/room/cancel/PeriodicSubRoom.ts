@@ -10,6 +10,7 @@ import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardR
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { parseError } from "../../../../logger";
+import { rtcScreenshotQueue } from "../../../queue";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -84,6 +85,7 @@ export class CancelPeriodicSubRoom extends AbstractController<RequestType, Respo
             };
         }
 
+        let nextRoomUUID = null;
         await getConnection().transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
@@ -107,6 +109,7 @@ export class CancelPeriodicSubRoom extends AbstractController<RequestType, Respo
                 );
 
                 if (nextRoomPeriodicInfo) {
+                    nextRoomUUID = nextRoomPeriodicInfo.fake_room_uuid;
                     commands.push(
                         ...(await updateNextPeriodicRoomInfo({
                             transaction: t,
@@ -139,6 +142,12 @@ export class CancelPeriodicSubRoom extends AbstractController<RequestType, Respo
                 });
             }
         });
+
+        if (nextRoomUUID) {
+            rtcScreenshotQueue.add({
+                roomUUID: nextRoomUUID,
+            });
+        }
 
         return {
             status: Status.Success,

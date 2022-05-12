@@ -121,6 +121,7 @@ agora:
       region:
       bucket:
       folder:
+      prefix:
 
 whiteboard:
   access_key:
