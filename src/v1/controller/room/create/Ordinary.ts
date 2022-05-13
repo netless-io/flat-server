@@ -84,7 +84,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
             {
                 roomUUID: this.roomUUID,
             },
-            true,
+            0,
         );
 
         return {
