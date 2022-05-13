@@ -120,9 +120,7 @@ export class MessageCallback extends AbstractController<RequestType> {
     private assertSignatureCorrect(secret: string): void {
         const text = JSON.stringify(this.req.body);
 
-        const localKey = createHmac("sha256", secret)
-            .update(JSON.stringify(text), "utf8")
-            .digest("hex");
+        const localKey = createHmac("sha256", secret).update(text, "utf8").digest("hex");
 
         const remoteKey = this.req.headers["agora-signature-v2"] as string;
 
