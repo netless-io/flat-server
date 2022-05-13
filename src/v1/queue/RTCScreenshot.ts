@@ -36,7 +36,7 @@ export class RTCScreenshotQueue {
 
                     switch (result.status) {
                         case "ADD": {
-                            this.add(result.data);
+                            this.add(result.data, result.delay);
                             break;
                         }
                         case "Break": {
@@ -53,17 +53,16 @@ export class RTCScreenshotQueue {
                         },
                         ...parseError(error),
                     });
-                    this.add(job.data);
                 }
             });
         }
     }
 
-    public add(data: JobData, immediate = false): void {
+    public add(data: JobData, delay?: number): void {
         if (Agora.screenshot.enable) {
             this.queue
                 .add(data, {
-                    delay: immediate ? undefined : 1000 * 60,
+                    delay: delay || 1000 * 60,
                 })
                 .catch(error => {
                     this.logger.error("add task error", {
@@ -92,12 +91,13 @@ class RTCScreenshot {
             };
         }
 
-        await this.tryStopPreviousService();
+        const delay = (await this.tryStopPreviousService()) || undefined;
 
         const { resourceID, sid } = await this.start();
 
         return {
             status: "ADD",
+            delay,
             data: {
                 sid,
                 resourceID,
@@ -187,7 +187,7 @@ class RTCScreenshot {
         return { resourceID, sid };
     }
 
-    private async tryStopPreviousService(): Promise<void> {
+    private async tryStopPreviousService(): Promise<number | void> {
         if (!this.data.sid || !this.data.resourceID) {
             this.logger.debug("skip stop screenshot", {
                 rtcDetail: {
@@ -204,7 +204,7 @@ class RTCScreenshot {
         });
 
         // see: https://docs.agora.io/en/cloud-recording/cloud_recording_screen_capture?platform=RESTful#start-recording
-        await agoraCloudRecordStoppedRequest(
+        return await agoraCloudRecordStoppedRequest(
             {
                 sid: this.data.sid,
                 mode: "individual",
@@ -227,7 +227,7 @@ class RTCScreenshot {
                 });
             })
             .catch(error => {
-                this.logger.warn("stop screenshot failed", {
+                this.logger.debug("stop screenshot failed. Maybe cannot find any stream", {
                     ...parseError(error),
                     rtcDetail: {
                         roomUUID: this.data.roomUUID,
@@ -235,6 +235,9 @@ class RTCScreenshot {
                         sid: this.data.sid,
                     },
                 });
+
+                // The probability of failure is that there are no streams in the room, at which point the delay should be increased. Avoid wasting resources
+                return 1000 * 60 * 30;
             });
     }
 
@@ -264,6 +267,7 @@ type JobData = {
 type RTCScreenshotStatus =
     | {
           status: "ADD";
+          delay: number | undefined;
           data: Required<JobData>;
       }
     | {
