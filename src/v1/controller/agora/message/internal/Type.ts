@@ -13,7 +13,6 @@ export interface CloudRecording<D> {
     uid: string;
     sid: string;
     sequence: number;
-    serviceScene: string;
     sendts: number;
     serviceType: number;
     details: D;
