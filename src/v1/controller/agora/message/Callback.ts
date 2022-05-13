@@ -23,11 +23,8 @@ export class MessageCallback extends AbstractController<RequestType> {
     public static readonly schema: FastifySchema<RequestType> = {
         headers: {
             type: "object",
-            required: ["agora-signature", "agora-signature-v2"],
+            required: ["agora-signature-v2"],
             properties: {
-                "agora-signature": {
-                    type: "string",
-                },
                 "agora-signature-v2": {
                     type: "string",
                 },
@@ -57,7 +54,6 @@ export class MessageCallback extends AbstractController<RequestType> {
                         "sid",
                         "sendts",
                         "sequence",
-                        "serviceScene",
                         "serviceType",
                         "details",
                     ],
@@ -76,9 +72,6 @@ export class MessageCallback extends AbstractController<RequestType> {
                         },
                         sequence: {
                             type: "integer",
-                        },
-                        serviceScene: {
-                            type: "string",
                         },
                         serviceType: {
                             type: "integer",
@@ -149,7 +142,6 @@ export class MessageCallback extends AbstractController<RequestType> {
 interface RequestType {
     body: MessageNotificationPublicField<CloudRecording<IRecorderSnapshotFile>>;
     headers: {
-        "agora-signature": string;
         "agora-signature-v2": string;
     };
 }
