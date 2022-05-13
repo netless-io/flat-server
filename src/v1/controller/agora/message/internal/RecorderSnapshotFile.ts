@@ -67,10 +67,15 @@ class CensorshipVideo {
 
     public async execute(): Promise<void> {
         if (await this.isIllegal()) {
+            const key = RedisKey.videoIllegalCount(this.roomUUID);
             // Redis incr init value is 0
-            const count = (await RedisService.incr(RedisKey.videoIllegalCount(this.roomUUID))) + 1;
+            const count = (await RedisService.incr(key)) + 1;
 
-            if (count >= 2) {
+            if (count === 1) {
+                await RedisService.expire(key, 60 * 30);
+            }
+
+            if (count >= 3) {
                 await this.banRoom();
             }
         }
