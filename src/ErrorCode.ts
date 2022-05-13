@@ -7,6 +7,7 @@ export enum ErrorCode {
     UnsupportedPlatform, // Unsupported login platform
     JWTSignFailed, // jwt sign failed
     ExhaustiveAttack, // exhaustive attack
+    RequestSignatureIncorrect, // request signature incorrect
 
     RoomNotFound = 200000, // room not found
     RoomIsEnded, // room has been ended

@@ -4,6 +4,7 @@ import { Logger, LoggerContext } from "./Logger";
 import {
     LoggerAPI,
     LoggerBase,
+    LoggerContentCensorship,
     LoggerError,
     LoggerRTCScreenshot,
     LoggerServer,
@@ -71,5 +72,18 @@ export const createLoggerRTCScreenshot = <R extends LoggerContext>(
             ...baseContext,
         },
         loggerPlugins as LoggerAbstractPlugin<LoggerRTCScreenshot & R>[],
+    );
+};
+
+export const createLoggerContentCensorship = <R extends LoggerContext>(
+    context: Partial<LoggerContentCensorship & R>,
+): Logger<LoggerContentCensorship & R> => {
+    return new Logger<LoggerContentCensorship & R>(
+        "censorship",
+        {
+            ...context,
+            ...baseContext,
+        },
+        loggerPlugins as LoggerAbstractPlugin<LoggerContentCensorship & R>[],
     );
 };

@@ -66,3 +66,16 @@ export type LoggerRTCScreenshot = LoggerQueue & {
         sid?: string;
     };
 };
+
+export type LoggerContentCensorship = LoggerBase & {
+    censorship: {
+        roomUUID: string;
+    };
+    censorshipDetail?: {
+        jwtToken?: string;
+        serverURL?: string;
+        imageURL?: string;
+        mockUserUUID?: string;
+    };
+    censorshipResult?: string;
+};

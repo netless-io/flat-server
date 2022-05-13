@@ -122,6 +122,12 @@ agora:
       bucket:
       folder:
       prefix:
+  messageNotification:
+    enable: false
+    events:
+      - productID:
+        eventType:
+        secret:
 
 whiteboard:
   access_key:
@@ -160,3 +166,12 @@ storage_service:
       endpoint:
       bucket:
       region:
+
+censorship:
+  video:
+    enable: false
+    type: aliCloud
+    aliCloud:
+      access_id:
+      access_secret:
+      endpoint:
