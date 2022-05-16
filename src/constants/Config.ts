@@ -194,6 +194,15 @@ export const Censorship = {
             endpoint: config.censorship.video.aliCloud.endpoint,
         },
     },
+    voice: {
+        enable: config.censorship.voice.enable,
+        type: config.censorship.voice.type,
+        aliCloud: {
+            accessID: config.censorship.voice.aliCloud.access_id,
+            accessSecret: config.censorship.voice.aliCloud.access_secret,
+            callbackAddress: config.censorship.voice.aliCloud.callback_address,
+        },
+    },
 };
 
 export const MetricsConfig = {

@@ -7,6 +7,7 @@ import {
     LoggerContentCensorship,
     LoggerError,
     LoggerRTCScreenshot,
+    LoggerRTCVoice,
     LoggerServer,
     LoggerSMS,
 } from "./LogConext";
@@ -72,6 +73,19 @@ export const createLoggerRTCScreenshot = <R extends LoggerContext>(
             ...baseContext,
         },
         loggerPlugins as LoggerAbstractPlugin<LoggerRTCScreenshot & R>[],
+    );
+};
+
+export const createLoggerRTCVoice = <R extends LoggerContext>(
+    context: Partial<LoggerRTCVoice & R>,
+): Logger<LoggerRTCVoice & R> => {
+    return new Logger<LoggerRTCVoice & R>(
+        "queue",
+        {
+            ...context,
+            ...baseContext,
+        },
+        loggerPlugins as LoggerAbstractPlugin<LoggerRTCVoice & R>[],
     );
 };
 

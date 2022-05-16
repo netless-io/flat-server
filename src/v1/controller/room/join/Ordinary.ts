@@ -7,8 +7,8 @@ import { getRTCToken, getRTMToken } from "../../../utils/AgoraToken";
 import { ErrorCode } from "../../../../ErrorCode";
 import { Response } from "../../../../types/Server";
 import { RoomDAO, RoomUserDAO } from "../../../../dao";
-import { SHARE_SCREEN_AGORA_UID } from "./Constants";
 import { showGuide } from "./Utils";
+import { AGORA_SHARE_SCREEN_UID } from "../../../../constants/Agora";
 
 export const joinOrdinary = async (
     roomUUID: string,
@@ -80,8 +80,8 @@ export const joinOrdinary = async (
             rtcUID: Number(rtcUID),
             rtcToken: await getRTCToken(roomUUID, Number(rtcUID)),
             rtcShareScreen: {
-                uid: SHARE_SCREEN_AGORA_UID,
-                token: await getRTCToken(roomUUID, SHARE_SCREEN_AGORA_UID),
+                uid: AGORA_SHARE_SCREEN_UID,
+                token: await getRTCToken(roomUUID, AGORA_SHARE_SCREEN_UID),
             },
             rtmToken: await getRTMToken(userUUID),
             region: roomInfo.region,

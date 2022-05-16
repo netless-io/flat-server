@@ -53,6 +53,9 @@ const registerRouters = (version: `v${number}`) => (
                             query: {
                                 ...req.query,
                             },
+                            headers: {
+                                ...req.headers,
+                            },
                         },
                     }) as Logger<LoggerAPI>;
 

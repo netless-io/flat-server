@@ -81,12 +81,14 @@ export interface AgoraCloudRecordStartedRequestBody {
             extensionServices: Array<{
                 serviceName?: string;
                 errorHandlePolicy?: string;
+                streamTypes?: number;
                 serviceParam?: {
-                    serviceParam: string;
-                    secretKey: string;
-                    regionId: string;
+                    serviceParam?: string;
+                    secretKey?: string;
+                    regionId?: string;
+                    callbackAddr?: string;
                     apiData: {
-                        videoData: {
+                        videoData?: {
                             title: string;
                             description?: string;
                             coverUrl?: string;
@@ -97,6 +99,8 @@ export interface AgoraCloudRecordStartedRequestBody {
                             storageLocation?: string;
                             workflowI?: string;
                         };
+                        accessKey?: string;
+                        secretKey?: string;
                     };
                 };
             }>;

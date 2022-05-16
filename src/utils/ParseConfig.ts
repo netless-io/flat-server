@@ -200,6 +200,15 @@ type Config = {
                 endpoint: string;
             };
         };
+        voice: {
+            enable: boolean;
+            type: string;
+            aliCloud: {
+                access_id: string;
+                access_secret: string;
+                callback_address: string;
+            };
+        };
     };
 };
 
