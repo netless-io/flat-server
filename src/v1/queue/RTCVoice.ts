@@ -13,6 +13,7 @@ import { Censorship } from "../../constants/Config";
 import { Not } from "typeorm";
 import { RoomModel } from "../../model/room/Room";
 import { AGORA_SCREENSHOT_UID, AGORA_VOICE_UID } from "../../constants/Agora";
+import { createHmac } from "crypto";
 
 export class RTCVoiceQueue {
     private static readonly queueName = "RTCVoice";
@@ -168,6 +169,12 @@ class RTCVoice {
                                     apiData: {
                                         accessKey: Censorship.voice.aliCloud.accessID,
                                         secretKey: Censorship.voice.aliCloud.accessSecret,
+                                        callbackSeed: createHmac(
+                                            "sha256",
+                                            Censorship.voice.aliCloud.accessSecret,
+                                        )
+                                            .update(this.data.roomUUID, "utf8")
+                                            .digest("hex"),
                                     },
                                 },
                             },
