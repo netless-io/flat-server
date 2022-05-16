@@ -67,6 +67,14 @@ export type LoggerRTCScreenshot = LoggerQueue & {
     };
 };
 
+export type LoggerRTCVoice = LoggerQueue & {
+    rtcDetail?: {
+        roomUUID: string;
+        resourceID?: string;
+        sid?: string;
+    };
+};
+
 export type LoggerContentCensorship = LoggerBase & {
     censorship: {
         roomUUID: string;

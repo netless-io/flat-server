@@ -305,6 +305,16 @@ censorship:
             access_id:
             access_secret:
             endpoint:
+    # 见: https://docs.agora.io/cn/cloud-recording/audio_inspect_restful?platform=RESTful
+    # 注意: 目前只有中文说明
+    voice:
+        enable: false
+        # 当前只支持阿里云
+        type: aliCloud
+        aliCloud:
+            access_id:
+            access_secret:
+            callback_address:
 ```
 
 如果需要部署，那么需要确保在部署的环境变量中存在以下变量:

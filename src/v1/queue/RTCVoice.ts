@@ -1,6 +1,6 @@
 import { Queue } from "./Create";
-import { createLoggerRTCScreenshot, Logger, parseError } from "../../logger";
-import { LoggerRTCScreenshot } from "../../logger/LogConext";
+import { createLoggerRTCVoice, Logger, parseError } from "../../logger";
+import { LoggerRTCVoice } from "../../logger/LogConext";
 import { RoomDAO } from "../../dao";
 import { RoomStatus, RoomType } from "../../model/room/Constants";
 import {
@@ -9,32 +9,32 @@ import {
     agoraCloudRecordStoppedRequest,
 } from "../utils/request/agora/Agora";
 import { getRTCToken } from "../utils/AgoraToken";
-import { Agora } from "../../constants/Config";
+import { Censorship } from "../../constants/Config";
 import { Not } from "typeorm";
 import { RoomModel } from "../../model/room/Room";
 import { AGORA_SCREENSHOT_UID, AGORA_VOICE_UID } from "../../constants/Agora";
 
-export class RTCScreenshotQueue {
-    private static readonly queueName = "RTCScreenshot";
+export class RTCVoiceQueue {
+    private static readonly queueName = "RTCVoice";
 
     private readonly queue: Queue<JobData>;
-    private readonly logger: Logger<LoggerRTCScreenshot>;
+    private readonly logger: Logger<LoggerRTCVoice>;
 
     public constructor() {
-        if (Agora.screenshot.enable) {
-            this.logger = createLoggerRTCScreenshot({
+        if (Censorship.voice.enable) {
+            this.logger = createLoggerRTCVoice({
                 queue: {
-                    name: RTCScreenshotQueue.queueName,
+                    name: RTCVoiceQueue.queueName,
                 },
             });
 
-            this.queue = new Queue(RTCScreenshotQueue.queueName, this.logger);
+            this.queue = new Queue(RTCVoiceQueue.queueName, this.logger);
 
             this.queue.handler(async job => {
-                const rtcScreenshot = new RTCScreenshot(job.data, this.logger);
+                const rtcVoice = new RTCVoice(job.data, this.logger);
 
                 try {
-                    const result = await rtcScreenshot.handler();
+                    const result = await rtcVoice.handler();
 
                     switch (result.status) {
                         case "ADD": {
@@ -61,7 +61,7 @@ export class RTCScreenshotQueue {
     }
 
     public add(data: JobData, delay?: number): void {
-        if (Agora.screenshot.enable) {
+        if (Censorship.voice.enable) {
             this.queue
                 .add(data, {
                     delay: delay || 1000 * 60,
@@ -76,16 +76,13 @@ export class RTCScreenshotQueue {
     }
 }
 
-export const rtcScreenshotQueue = new RTCScreenshotQueue();
+export const rtcVoiceQueue = new RTCVoiceQueue();
 
-class RTCScreenshot {
-    constructor(
-        private readonly data: JobData,
-        private readonly logger: Logger<LoggerRTCScreenshot>,
-    ) {}
+class RTCVoice {
+    constructor(private readonly data: JobData, private readonly logger: Logger<LoggerRTCVoice>) {}
 
-    public async handler(): Promise<RTCScreenshotStatus> {
-        const roomInfo = await RTCScreenshot.roomInfo(this.data.roomUUID);
+    public async handler(): Promise<RTCVoiceStatus> {
+        const roomInfo = await RTCVoice.roomInfo(this.data.roomUUID);
         if (!roomInfo) {
             return {
                 status: "Break",
@@ -116,7 +113,8 @@ class RTCScreenshot {
             },
         });
 
-        // see: https://docs.agora.io/en/cloud-recording/cloud_recording_screen_capture?platform=RESTful#get-a-resource-id
+        // see: https://docs.agora.io/cn/cloud-recording/audio_inspect_restful?platform=RESTful#获取审核资源的-api
+        // NOTE: No English description available at the moment
         const { resourceId } = await agoraCloudRecordAcquireRequest({
             ...this.agoraBasicReqData,
             clientRequest: {
@@ -138,49 +136,49 @@ class RTCScreenshot {
     private async start(roomType: RoomType): Promise<{ resourceID: string; sid: string }> {
         const resourceID = await this.acquire();
 
-        this.logger.debug("start screenshot", {
+        this.logger.debug("start voice", {
             rtcDetail: {
                 roomUUID: this.data.roomUUID,
             },
         });
 
-        // see: https://docs.agora.io/en/cloud-recording/cloud_recording_screen_capture?platform=RESTful#start-recording
+        // see: https://docs.agora.io/cn/cloud-recording/audio_inspect_restful?platform=RESTful#开始审核的-api
         const { sid } = await agoraCloudRecordStartedRequest(
             {
-                mode: "individual",
+                mode: "mix",
                 resourceid: resourceID,
             },
             {
                 ...this.agoraBasicReqData,
                 clientRequest: {
-                    token: await getRTCToken(this.data.roomUUID, AGORA_SCREENSHOT_UID),
+                    token: await getRTCToken(this.data.roomUUID, AGORA_VOICE_UID),
                     recordingConfig: {
                         channelType: roomType === RoomType.BigClass ? 1 : 0,
-                        streamTypes: 1,
+                        streamTypes: 0,
                         subscribeUidGroup: roomType === RoomType.BigClass ? 1 : 0,
-                        subscribeVideoUids: ["#allstream#"],
-                        unSubscribeVideoUids: [String(AGORA_VOICE_UID)],
+                        subscribeAudioUids: ["#allstream#"],
+                        unSubscribeAudioUids: [String(AGORA_SCREENSHOT_UID)],
                     },
-                    snapshotConfig: {
-                        captureInterval: 15,
-                        fileType: ["jpg"],
-                    },
-                    storageConfig: {
-                        accessKey: Agora.screenshot.oss.accessKeyId,
-                        region: Agora.screenshot.oss.region,
-                        bucket: Agora.screenshot.oss.bucket,
-                        secretKey: Agora.screenshot.oss.accessKeySecret,
-                        vendor: Agora.screenshot.oss.vendor,
-                        fileNamePrefix: [
-                            Agora.screenshot.oss.folder,
-                            this.data.roomUUID.replace(/-/g, ""),
+                    extensionServiceConfig: {
+                        extensionServices: [
+                            {
+                                serviceName: "aliyun_voice_async_scan",
+                                streamTypes: 0,
+                                serviceParam: {
+                                    callbackAddr: Censorship.voice.aliCloud.callbackAddress,
+                                    apiData: {
+                                        accessKey: Censorship.voice.aliCloud.accessID,
+                                        secretKey: Censorship.voice.aliCloud.accessSecret,
+                                    },
+                                },
+                            },
                         ],
                     },
                 },
             },
         );
 
-        this.logger.debug("start screenshot success", {
+        this.logger.debug("start voice success", {
             rtcDetail: {
                 roomUUID: this.data.roomUUID,
                 resourceID,
@@ -193,7 +191,7 @@ class RTCScreenshot {
 
     private async tryStopPreviousService(): Promise<number | void> {
         if (!this.data.sid || !this.data.resourceID) {
-            this.logger.debug("skip stop screenshot", {
+            this.logger.debug("skip stop voice", {
                 rtcDetail: {
                     roomUUID: this.data.roomUUID,
                 },
@@ -201,17 +199,17 @@ class RTCScreenshot {
             return;
         }
 
-        this.logger.debug("stop screenshot", {
+        this.logger.debug("stop voice", {
             rtcDetail: {
                 roomUUID: this.data.roomUUID,
             },
         });
 
-        // see: https://docs.agora.io/en/cloud-recording/cloud_recording_screen_capture?platform=RESTful#start-recording
+        // see: https://docs.agora.io/cn/cloud-recording/audio_inspect_restful?platform=RESTful#停止审核的-api
         return await agoraCloudRecordStoppedRequest(
             {
                 sid: this.data.sid,
-                mode: "individual",
+                mode: "mix",
                 resourceid: this.data.resourceID,
             },
             {
@@ -222,7 +220,7 @@ class RTCScreenshot {
             },
         )
             .then(() => {
-                this.logger.debug("stop screenshot success", {
+                this.logger.debug("stop voice success", {
                     rtcDetail: {
                         roomUUID: this.data.roomUUID,
                         resourceID: this.data.resourceID,
@@ -231,7 +229,7 @@ class RTCScreenshot {
                 });
             })
             .catch(error => {
-                this.logger.debug("stop screenshot failed. Maybe cannot find any stream", {
+                this.logger.debug("stop voice failed. Maybe cannot find any stream", {
                     ...parseError(error),
                     rtcDetail: {
                         roomUUID: this.data.roomUUID,
@@ -258,7 +256,7 @@ class RTCScreenshot {
 
     private get agoraBasicReqData(): { uid: string; cname: string } {
         return {
-            uid: String(AGORA_SCREENSHOT_UID),
+            uid: String(AGORA_VOICE_UID),
             cname: this.data.roomUUID,
         };
     }
@@ -270,7 +268,7 @@ type JobData = {
     roomUUID: string;
 };
 
-type RTCScreenshotStatus =
+type RTCVoiceStatus =
     | {
           status: "ADD";
           delay: number | undefined;

@@ -308,7 +308,16 @@ censorship:
             access_id:
             access_secret:
             endpoint:
-
+    # See: https://docs.agora.io/cn/cloud-recording/audio_inspect_restful?platform=RESTful
+    # NOTE: No English description available at the moment
+    voice:
+        enable: false
+        # Current only support aliCloud
+        type: aliCloud
+        aliCloud:
+            access_id:
+            access_secret:
+            callback_address:
 ```
 
 If deployment is required then you need to ensure that the following variables are present in the environment variables
