@@ -93,7 +93,9 @@ class RTCScreenshot {
             };
         }
 
-        const delay = (await this.tryStopPreviousService()) || undefined;
+        // Wait 30 minute on failure
+        // Wait 10 minute on success
+        const delay = (await this.tryStopPreviousService()) || 1000 * 60 * 10;
 
         const { resourceID, sid } = await this.start(roomInfo.room_type);
 
