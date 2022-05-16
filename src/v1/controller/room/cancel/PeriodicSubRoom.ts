@@ -10,7 +10,7 @@ import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardR
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { parseError } from "../../../../logger";
-import { rtcScreenshotQueue } from "../../../queue";
+import { rtcQueue } from "../../../queue";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -144,9 +144,7 @@ export class CancelPeriodicSubRoom extends AbstractController<RequestType, Respo
         });
 
         if (nextRoomUUID) {
-            rtcScreenshotQueue.add({
-                roomUUID: nextRoomUUID,
-            });
+            rtcQueue(nextRoomUUID);
         }
 
         return {

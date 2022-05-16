@@ -20,7 +20,7 @@ import { checkBeginAndEndTime } from "../utils/CheckTime";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { generateRoomInviteCode } from "./Utils";
-import { rtcScreenshotQueue } from "../../../queue";
+import { rtcQueue } from "../../../queue";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -199,9 +199,7 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
 
         await generateRoomInviteCode(this.periodicUUID, this.logger);
 
-        rtcScreenshotQueue.add({
-            roomUUID: roomData[0].fake_room_uuid,
-        });
+        rtcQueue(roomData[0].fake_room_uuid);
 
         return {
             status: Status.Success,

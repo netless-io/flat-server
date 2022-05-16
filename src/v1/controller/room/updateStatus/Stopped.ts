@@ -13,7 +13,7 @@ import { Controller } from "../../../../decorator/Controller";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { parseError } from "../../../../logger";
 import { RedisKey } from "../../../../utils/Redis";
-import { rtcScreenshotQueue } from "../../../queue";
+import { rtcQueue } from "../../../queue";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -177,9 +177,7 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
         );
 
         if (nextRoomUUID) {
-            rtcScreenshotQueue.add({
-                roomUUID: nextRoomUUID,
-            });
+            rtcQueue(nextRoomUUID);
         }
 
         return {

@@ -14,7 +14,7 @@ import { ControllerError } from "../../../../error/ControllerError";
 import { ServiceRoom, ServiceRoomUser } from "../../../service";
 import { getConnection } from "typeorm";
 import { generateRoomInviteCode } from "./Utils";
-import { rtcScreenshotQueue } from "../../../queue";
+import { rtcQueue } from "../../../queue";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -80,12 +80,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
             ]);
         });
 
-        rtcScreenshotQueue.add(
-            {
-                roomUUID: this.roomUUID,
-            },
-            0,
-        );
+        rtcQueue(this.roomUUID, 0);
 
         return {
             status: Status.Success,
