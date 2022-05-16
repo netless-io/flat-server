@@ -101,6 +101,7 @@ export interface AgoraCloudRecordStartedRequestBody {
                         };
                         accessKey?: string;
                         secretKey?: string;
+                        callbackSeed?: string;
                     };
                 };
             }>;
