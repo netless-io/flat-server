@@ -92,19 +92,23 @@ class RTCVoice {
 
         // Wait 30 minute on failure
         // Wait 10 minute on success
-        const delay = (await this.tryStopPreviousService()) || 1000 * 60 * 10;
+        // const delay = (await this.tryStopPreviousService()) || 1000 * 60 * 10;
 
-        const { resourceID, sid } = await this.start(roomInfo.room_type);
+        await this.start(roomInfo.room_type);
 
         return {
-            status: "ADD",
-            delay,
-            data: {
-                sid,
-                resourceID,
-                roomUUID: this.data.roomUUID,
-            },
+            status: "Break",
         };
+
+        // return {
+        //     status: "ADD",
+        //     delay,
+        //     data: {
+        //         sid,
+        //         resourceID,
+        //         roomUUID: this.data.roomUUID,
+        //     },
+        // };
     }
 
     private async acquire(): Promise<string> {
@@ -195,6 +199,7 @@ class RTCVoice {
         return { resourceID, sid };
     }
 
+    // @ts-ignore
     private async tryStopPreviousService(): Promise<number | void> {
         if (!this.data.sid || !this.data.resourceID) {
             this.logger.debug("skip stop voice", {
