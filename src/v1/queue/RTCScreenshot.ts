@@ -2,7 +2,7 @@ import { Queue } from "./Create";
 import { createLoggerRTCScreenshot, Logger, parseError } from "../../logger";
 import { LoggerRTCScreenshot } from "../../logger/LogConext";
 import { RoomDAO } from "../../dao";
-import { RoomStatus } from "../../model/room/Constants";
+import { RoomStatus, RoomType } from "../../model/room/Constants";
 import {
     agoraCloudRecordAcquireRequest,
     agoraCloudRecordStartedRequest,
@@ -11,6 +11,7 @@ import {
 import { getRTCToken } from "../utils/AgoraToken";
 import { Agora } from "../../constants/Config";
 import { Not } from "typeorm";
+import { RoomModel } from "../../model/room/Room";
 
 export class RTCScreenshotQueue {
     private static readonly queueName = "RTCScreenshot";
@@ -85,7 +86,8 @@ class RTCScreenshot {
     ) {}
 
     public async handler(): Promise<RTCScreenshotStatus> {
-        if (await RTCScreenshot.roomIsStopped(this.data.roomUUID)) {
+        const roomInfo = await RTCScreenshot.roomInfo(this.data.roomUUID);
+        if (!roomInfo) {
             return {
                 status: "Break",
             };
@@ -93,7 +95,7 @@ class RTCScreenshot {
 
         const delay = (await this.tryStopPreviousService()) || undefined;
 
-        const { resourceID, sid } = await this.start();
+        const { resourceID, sid } = await this.start(roomInfo.room_type);
 
         return {
             status: "ADD",
@@ -132,7 +134,7 @@ class RTCScreenshot {
         return resourceId;
     }
 
-    private async start(): Promise<{ resourceID: string; sid: string }> {
+    private async start(roomType: RoomType): Promise<{ resourceID: string; sid: string }> {
         const resourceID = await this.acquire();
 
         this.logger.debug("start screenshot", {
@@ -152,9 +154,9 @@ class RTCScreenshot {
                 clientRequest: {
                     token: await getRTCToken(this.data.roomUUID, RTCScreenshot.AGORA_UID),
                     recordingConfig: {
-                        channelType: 1,
+                        channelType: roomType === RoomType.BigClass ? 1 : 0,
                         streamTypes: 1,
-                        subscribeUidGroup: 0,
+                        subscribeUidGroup: roomType === RoomType.BigClass ? 1 : 0,
                         subscribeVideoUids: ["#allstream#"],
                     },
                     snapshotConfig: {
@@ -241,13 +243,15 @@ class RTCScreenshot {
             });
     }
 
-    private static async roomIsStopped(roomUUID: string): Promise<boolean> {
-        const result = await RoomDAO().findOne(["id"], {
+    private static async roomInfo(
+        roomUUID: string,
+    ): Promise<Pick<RoomModel, "room_type"> | undefined> {
+        const result = await RoomDAO().findOne(["room_type"], {
             room_uuid: roomUUID,
             room_status: Not(RoomStatus.Stopped),
         });
 
-        return !result;
+        return result;
     }
 
     private get agoraBasicReqData(): { uid: string; cname: string } {
