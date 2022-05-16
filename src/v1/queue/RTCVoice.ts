@@ -156,7 +156,6 @@ class RTCVoice {
                         channelType: roomType === RoomType.BigClass ? 1 : 0,
                         streamTypes: 0,
                         subscribeUidGroup: roomType === RoomType.BigClass ? 1 : 0,
-                        subscribeAudioUids: ["#allstream#"],
                         unSubscribeAudioUids: [String(AGORA_SCREENSHOT_UID)],
                     },
                     extensionServiceConfig: {

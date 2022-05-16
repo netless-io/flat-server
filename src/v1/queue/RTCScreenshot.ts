@@ -158,7 +158,6 @@ class RTCScreenshot {
                         channelType: roomType === RoomType.BigClass ? 1 : 0,
                         streamTypes: 1,
                         subscribeUidGroup: roomType === RoomType.BigClass ? 1 : 0,
-                        subscribeVideoUids: ["#allstream#"],
                         unSubscribeVideoUids: [String(AGORA_VOICE_UID)],
                     },
                     snapshotConfig: {
