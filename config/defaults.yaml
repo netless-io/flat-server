@@ -172,6 +172,7 @@ censorship:
     enable: false
     type: aliCloud
     aliCloud:
+      uid:
       access_id:
       access_secret:
       endpoint:

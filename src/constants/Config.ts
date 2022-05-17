@@ -198,6 +198,7 @@ export const Censorship = {
         enable: config.censorship.voice.enable,
         type: config.censorship.voice.type,
         aliCloud: {
+            uid: config.censorship.voice.aliCloud.uid,
             accessID: config.censorship.voice.aliCloud.access_id,
             accessSecret: config.censorship.voice.aliCloud.access_secret,
             callbackAddress: config.censorship.voice.aliCloud.callback_address,

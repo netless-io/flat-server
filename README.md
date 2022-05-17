@@ -315,6 +315,7 @@ censorship:
         # Current only support aliCloud
         type: aliCloud
         aliCloud:
+            uid:
             access_id:
             access_secret:
             callback_address:

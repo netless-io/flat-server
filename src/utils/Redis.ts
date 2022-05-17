@@ -16,4 +16,5 @@ export const RedisKey = {
     phoneTryBindingCount: (phone: string): string => `phone:count:binding:${phone}`,
     userDelete: (userUUID: string): string => `user:delete:${userUUID}`,
     videoIllegalCount: (roomUUID: string): string => `illegal:video:${roomUUID}`,
+    voiceIllegalCount: (roomUUID: string): string => `illegal:voice:${roomUUID}`,
 };

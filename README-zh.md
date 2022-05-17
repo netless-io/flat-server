@@ -312,6 +312,7 @@ censorship:
         # 当前只支持阿里云
         type: aliCloud
         aliCloud:
+            uid:
             access_id:
             access_secret:
             callback_address:
