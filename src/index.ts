@@ -12,6 +12,8 @@ import { loggerServer, parseError } from "./logger";
 import { MetricsSever } from "./metrics";
 import { registerV1Routers } from "./utils/RegistryRouters";
 import { httpRouters } from "./v1/Routes";
+// @ts-ignore
+import formbody from "fastify-formbody";
 
 const app = fastify({
     caseSensitive: true,
@@ -62,6 +64,8 @@ void app.register(cors, {
     allowedHeaders: ["Content-Type", "Authorization"],
     maxAge: 100,
 });
+
+void app.register(formbody);
 
 app.get("/health-check", async (_req, reply) => {
     await reply.code(200).send();
