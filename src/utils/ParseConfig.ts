@@ -204,6 +204,7 @@ type Config = {
             enable: boolean;
             type: string;
             aliCloud: {
+                uid: number;
                 access_id: string;
                 access_secret: string;
                 callback_address: string;
