@@ -37,9 +37,25 @@ export class RTCVoiceQueue {
                 try {
                     const result = await rtcVoice.handler();
 
-                    switch (result.status) {
-                        case "ADD": {
-                            this.add(result.data, result.delay);
+                    switch (result.nextStatus) {
+                        case "Start": {
+                            this._add(
+                                {
+                                    ...result.data,
+                                    status: "Start",
+                                },
+                                result.delay,
+                            );
+                            break;
+                        }
+                        case "Stop": {
+                            this._add(
+                                {
+                                    ...result.data,
+                                    status: "Stop",
+                                },
+                                result.delay,
+                            );
                             break;
                         }
                         case "Break": {
@@ -61,11 +77,21 @@ export class RTCVoiceQueue {
         }
     }
 
-    public add(data: JobData, delay?: number): void {
+    public add(roomUUID: string, delay?: number): void {
+        this._add(
+            {
+                status: "Start",
+                roomUUID,
+            },
+            delay || 1000 * 60,
+        );
+    }
+
+    private _add(data: JobData, delay: number): void {
         if (Censorship.voice.enable) {
             this.queue
                 .add(data, {
-                    delay: delay || 1000 * 60,
+                    delay,
                 })
                 .catch(error => {
                     this.logger.error("add task error", {
@@ -86,29 +112,39 @@ class RTCVoice {
         const roomInfo = await RTCVoice.roomInfo(this.data.roomUUID);
         if (!roomInfo) {
             return {
-                status: "Break",
+                nextStatus: "Break",
             };
         }
 
-        // Wait 30 minute on failure
-        // Wait 10 minute on success
-        // const delay = (await this.tryStopPreviousService()) || 1000 * 60 * 10;
+        switch (this.data.status) {
+            case "Start": {
+                const { resourceID, sid } = await this.start(roomInfo.room_type);
 
-        await this.start(roomInfo.room_type);
+                return {
+                    nextStatus: "Stop",
+                    delay: 1000 * 60,
+                    data: {
+                        resourceID,
+                        sid,
+                        roomUUID: this.data.roomUUID,
+                    },
+                };
+            }
+            case "Stop": {
+                const stopSuccess = await this.tryStopPreviousService();
 
-        return {
-            status: "Break",
-        };
-
-        // return {
-        //     status: "ADD",
-        //     delay,
-        //     data: {
-        //         sid,
-        //         resourceID,
-        //         roomUUID: this.data.roomUUID,
-        //     },
-        // };
+                return {
+                    nextStatus: "Start",
+                    // Wait 10 minute on success
+                    // Wait 30 minute on failure
+                    // The probability of failure is that there are no streams in the room, at which point the delay should be increased. Avoid wasting resources
+                    delay: stopSuccess ? 1000 * 60 * 10 : 1000 * 60 * 30,
+                    data: {
+                        roomUUID: this.data.roomUUID,
+                    },
+                };
+            }
+        }
     }
 
     private async acquire(): Promise<string> {
@@ -274,6 +310,7 @@ class RTCVoice {
 }
 
 type JobData = {
+    status: "Start" | "Stop";
     sid?: string;
     resourceID?: string;
     roomUUID: string;
@@ -281,10 +318,15 @@ type JobData = {
 
 type RTCVoiceStatus =
     | {
-          status: "ADD";
-          delay: number | undefined;
-          data: Required<JobData>;
+          nextStatus: "Start";
+          delay: number;
+          data: Omit<JobData, "status">;
       }
     | {
-          status: "Break";
+          nextStatus: "Stop";
+          delay: number;
+          data: Required<Omit<JobData, "status">>;
+      }
+    | {
+          nextStatus: "Break";
       };
