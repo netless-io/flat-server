@@ -36,9 +36,25 @@ export class RTCScreenshotQueue {
                 try {
                     const result = await rtcScreenshot.handler();
 
-                    switch (result.status) {
-                        case "ADD": {
-                            this.add(result.data, result.delay);
+                    switch (result.nextStatus) {
+                        case "Start": {
+                            this._add(
+                                {
+                                    ...result.data,
+                                    status: "Start",
+                                },
+                                result.delay,
+                            );
+                            break;
+                        }
+                        case "Stop": {
+                            this._add(
+                                {
+                                    ...result.data,
+                                    status: "Stop",
+                                },
+                                result.delay,
+                            );
                             break;
                         }
                         case "Break": {
@@ -60,11 +76,21 @@ export class RTCScreenshotQueue {
         }
     }
 
-    public add(data: JobData, delay?: number): void {
+    public add(roomUUID: string, delay?: number): void {
+        this._add(
+            {
+                status: "Start",
+                roomUUID,
+            },
+            delay || 1000 * 60,
+        );
+    }
+
+    private _add(data: JobData, delay: number): void {
         if (Agora.screenshot.enable) {
             this.queue
                 .add(data, {
-                    delay: delay || 1000 * 60,
+                    delay,
                 })
                 .catch(error => {
                     this.logger.error("add task error", {
@@ -88,25 +114,39 @@ class RTCScreenshot {
         const roomInfo = await RTCScreenshot.roomInfo(this.data.roomUUID);
         if (!roomInfo) {
             return {
-                status: "Break",
+                nextStatus: "Break",
             };
         }
 
-        // Wait 30 minute on failure
-        // Wait 10 minute on success
-        const delay = (await this.tryStopPreviousService()) || 1000 * 60 * 10;
+        switch (this.data.status) {
+            case "Start": {
+                const { resourceID, sid } = await this.start(roomInfo.room_type);
 
-        const { resourceID, sid } = await this.start(roomInfo.room_type);
+                return {
+                    nextStatus: "Stop",
+                    delay: 1000 * 60,
+                    data: {
+                        resourceID,
+                        sid,
+                        roomUUID: this.data.roomUUID,
+                    },
+                };
+            }
+            case "Stop": {
+                const stopSuccess = await this.tryStopPreviousService();
 
-        return {
-            status: "ADD",
-            delay,
-            data: {
-                sid,
-                resourceID,
-                roomUUID: this.data.roomUUID,
-            },
-        };
+                return {
+                    nextStatus: "Start",
+                    // Wait 10 minute on success
+                    // Wait 30 minute on failure
+                    // The probability of failure is that there are no streams in the room, at which point the delay should be increased. Avoid wasting resources
+                    delay: stopSuccess ? 1000 * 60 * 10 : 1000 * 60 * 30,
+                    data: {
+                        roomUUID: this.data.roomUUID,
+                    },
+                };
+            }
+        }
     }
 
     private async acquire(): Promise<string> {
@@ -190,14 +230,14 @@ class RTCScreenshot {
         return { resourceID, sid };
     }
 
-    private async tryStopPreviousService(): Promise<number | void> {
+    private async tryStopPreviousService(): Promise<boolean> {
         if (!this.data.sid || !this.data.resourceID) {
             this.logger.debug("skip stop screenshot", {
                 rtcDetail: {
                     roomUUID: this.data.roomUUID,
                 },
             });
-            return;
+            return true;
         }
 
         this.logger.debug("stop screenshot", {
@@ -228,6 +268,7 @@ class RTCScreenshot {
                         sid: this.data.sid,
                     },
                 });
+                return true;
             })
             .catch(error => {
                 this.logger.debug("stop screenshot failed. Maybe cannot find any stream", {
@@ -239,8 +280,7 @@ class RTCScreenshot {
                     },
                 });
 
-                // The probability of failure is that there are no streams in the room, at which point the delay should be increased. Avoid wasting resources
-                return 1000 * 60 * 30;
+                return false;
             });
     }
 
@@ -264,6 +304,7 @@ class RTCScreenshot {
 }
 
 type JobData = {
+    status: "Start" | "Stop";
     sid?: string;
     resourceID?: string;
     roomUUID: string;
@@ -271,10 +312,15 @@ type JobData = {
 
 type RTCScreenshotStatus =
     | {
-          status: "ADD";
-          delay: number | undefined;
-          data: Required<JobData>;
+          nextStatus: "Start";
+          delay: number;
+          data: Omit<JobData, "status">;
       }
     | {
-          status: "Break";
+          nextStatus: "Stop";
+          delay: number;
+          data: Required<Omit<JobData, "status">>;
+      }
+    | {
+          nextStatus: "Break";
       };
