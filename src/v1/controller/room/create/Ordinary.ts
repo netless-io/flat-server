@@ -15,6 +15,7 @@ import { ServiceRoom, ServiceRoomUser } from "../../../service";
 import { getConnection } from "typeorm";
 import { generateRoomInviteCode } from "./Utils";
 import { rtcQueue } from "../../../queue";
+import { aliGreenText } from "../../../utils/AliGreen";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -70,7 +71,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
     }
 
     public async execute(): Promise<Response<ResponseType>> {
-        this.checkParams();
+        await this.checkParams();
 
         await getConnection().transaction(async t => {
             // prettier-ignore
@@ -95,8 +96,8 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
         return this.autoHandlerError(error);
     }
 
-    private checkParams(): void {
-        const { beginTime, endTime } = this.body;
+    private async checkParams(): Promise<void> {
+        const { beginTime, endTime, title } = this.body;
 
         if (beginTime && timeExceedRedundancyOneMinute(beginTime)) {
             throw new ControllerError(ErrorCode.ParamsCheckFailed);
@@ -114,6 +115,10 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
             if (timeIntervalLessThanFifteenMinute(beginTime, endTime)) {
                 throw new ControllerError(ErrorCode.ParamsCheckFailed);
             }
+        }
+
+        if (await aliGreenText.textNonCompliant(title)) {
+            throw new ControllerError(ErrorCode.NonCompliant);
         }
     }
 }

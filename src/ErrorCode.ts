@@ -8,6 +8,7 @@ export enum ErrorCode {
     JWTSignFailed, // jwt sign failed
     ExhaustiveAttack, // exhaustive attack
     RequestSignatureIncorrect, // request signature incorrect
+    NonCompliant, // non compliant
 
     RoomNotFound = 200000, // room not found
     RoomIsEnded, // room has been ended

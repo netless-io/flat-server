@@ -3,6 +3,9 @@ import { Controller } from "../../../../decorator/Controller";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { ServiceUser } from "../../../service/user/User";
 import { Status } from "../../../../constants/Project";
+import { aliGreenText } from "../../../utils/AliGreen";
+import { ControllerError } from "../../../../error/ControllerError";
+import { ErrorCode } from "../../../../ErrorCode";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -37,6 +40,10 @@ export class Rename extends AbstractController<RequestType, ResponseType> {
     }
 
     public async execute(): Promise<Response<ResponseType>> {
+        if (await aliGreenText.textNonCompliant(this.body.name)) {
+            throw new ControllerError(ErrorCode.NonCompliant);
+        }
+
         await this.svc.user.updateName(this.body.name);
 
         return {

@@ -21,6 +21,8 @@ import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { generateRoomInviteCode } from "./Utils";
 import { rtcQueue } from "../../../queue";
+import { aliGreenText } from "../../../utils/AliGreen";
+import { ControllerError } from "../../../../error/ControllerError";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -105,6 +107,10 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
     public async execute(): Promise<Response<ResponseType>> {
         const { title, type, beginTime, endTime, region, periodic } = this.body;
         const userUUID = this.userUUID;
+
+        if (await aliGreenText.textNonCompliant(title)) {
+            throw new ControllerError(ErrorCode.NonCompliant);
+        }
 
         if (!checkBeginAndEndTime(beginTime, endTime)) {
             return {

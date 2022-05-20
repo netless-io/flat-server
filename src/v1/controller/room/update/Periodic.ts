@@ -16,6 +16,8 @@ import {
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { parseError } from "../../../../logger";
+import { aliGreenText } from "../../../utils/AliGreen";
+import { ControllerError } from "../../../../error/ControllerError";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -98,6 +100,10 @@ export class UpdatePeriodic extends AbstractController<RequestType, ResponseType
     public async execute(): Promise<Response<ResponseType>> {
         const { periodicUUID, beginTime, endTime, title, type, periodic } = this.body;
         const userUUID = this.userUUID;
+
+        if (await aliGreenText.textNonCompliant(title)) {
+            throw new ControllerError(ErrorCode.NonCompliant);
+        }
 
         const periodicConfigInfo = await RoomPeriodicConfigDAO().findOne(
             ["room_origin_begin_time", "room_origin_end_time", "end_time", "rate", "region"],
