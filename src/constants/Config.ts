@@ -204,6 +204,15 @@ export const Censorship = {
             callbackAddress: config.censorship.voice.aliCloud.callback_address,
         },
     },
+    text: {
+        enable: config.censorship.text.enable,
+        type: config.censorship.text.type,
+        aliCloud: {
+            accessID: config.censorship.text.aliCloud.access_id,
+            accessSecret: config.censorship.text.aliCloud.access_secret,
+            endpoint: config.censorship.text.aliCloud.endpoint,
+        },
+    },
 };
 
 export const MetricsConfig = {

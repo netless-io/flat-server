@@ -319,6 +319,15 @@ censorship:
             access_id:
             access_secret:
             callback_address:
+    text:
+        enable: false
+        # Current only support aliCloud
+        type: aliCloud
+        # See: https://www.alibabacloud.com/help/en/content-moderation/latest/development-preparations-1
+        aliCloud:
+            access_id:
+            access_secret:
+            endpoint:
 ```
 
 If deployment is required then you need to ensure that the following variables are present in the environment variables

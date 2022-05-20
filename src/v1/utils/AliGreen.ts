@@ -1,6 +1,7 @@
 import { createHash, createHmac } from "crypto";
 import { v4 } from "uuid";
 import { ax } from "./Axios";
+import { Censorship } from "../../constants/Config";
 
 export class AliGreen {
     private static greenVersion = "2017-01-12";
@@ -36,6 +37,39 @@ export class AliGreen {
                 status: false as const,
                 error,
             }));
+    }
+
+    public async textNonCompliant(text: string): Promise<boolean> {
+        if (!Censorship.text.enable) {
+            return false;
+        }
+
+        const requestBody = {
+            scenes: ["antispam"],
+            tasks: [
+                {
+                    content: text,
+                },
+            ],
+        };
+        const path = "/green/text/scan";
+
+        const headers = this.headers(requestBody, path);
+
+        return await ax
+            .post<AliTextResp>(`https://${this.endpoint}${path}`, requestBody, {
+                headers,
+            })
+            .then(({ data }) => {
+                return data.data[0].results.some(
+                    item =>
+                        item.suggestion === "block" &&
+                        ["politics", "terrorism", "abuse", "porn", "contraband"].includes(
+                            item.label,
+                        ),
+                );
+            })
+            .catch(() => false);
     }
 
     private headers(requestBody: Record<string, any>, path: string): Record<string, string> {
@@ -78,6 +112,18 @@ export class AliGreen {
     }
 }
 
+export const aliGreenVideo = new AliGreen(
+    Censorship.video.aliCloud.accessID,
+    Censorship.video.aliCloud.accessSecret,
+    Censorship.video.aliCloud.endpoint,
+);
+
+export const aliGreenText = new AliGreen(
+    Censorship.video.aliCloud.accessID,
+    Censorship.video.aliCloud.accessSecret,
+    Censorship.video.aliCloud.endpoint,
+);
+
 type AliImageResp = {
     code: number;
     data: [
@@ -102,3 +148,18 @@ type ScanImage =
           status: false;
           error: Error;
       };
+
+type AliTextResp = {
+    code: number;
+    data: [
+        {
+            code: number;
+            results: Array<{
+                label: string;
+                rate: number;
+                scene: string;
+                suggestion: string;
+            }>;
+        },
+    ];
+};

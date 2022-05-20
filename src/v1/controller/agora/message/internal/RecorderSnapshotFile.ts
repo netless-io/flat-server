@@ -12,7 +12,7 @@ import { createSigner } from "fast-jwt";
 import { Algorithm } from "jsonwebtoken";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
-import { AliGreen } from "../../../../utils/AliGreen";
+import { aliGreenVideo } from "../../../../utils/AliGreen";
 
 export class RecorderSnapshotFile {
     public static productId = 3;
@@ -49,12 +49,6 @@ class CensorshipVideo {
         expiresIn: 1000 * 60 * 3,
     });
 
-    private static aliGreen = new AliGreen(
-        Censorship.video.aliCloud.accessID,
-        Censorship.video.aliCloud.accessSecret,
-        Censorship.video.aliCloud.endpoint,
-    );
-
     private logger: Logger<LoggerContentCensorship>;
 
     public constructor(private readonly payload: CloudRecording<IRecorderSnapshotFile>) {
@@ -90,7 +84,7 @@ class CensorshipVideo {
             },
         });
 
-        const result = await CensorshipVideo.aliGreen.imageScan(this.imageURL);
+        const result = await aliGreenVideo.imageScan(this.imageURL);
 
         if (!result.status) {
             this.logger.error("image scan request failed", parseError(result.error));

@@ -210,6 +210,15 @@ type Config = {
                 callback_address: string;
             };
         };
+        text: {
+            enable: boolean;
+            type: string;
+            aliCloud: {
+                access_id: string;
+                access_secret: string;
+                endpoint: string;
+            };
+        };
     };
 };
 

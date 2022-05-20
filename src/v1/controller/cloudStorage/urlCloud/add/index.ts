@@ -5,6 +5,9 @@ import { getConnection } from "typeorm";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../../dao";
 import { v4 } from "uuid";
 import { Status } from "../../../../../constants/Project";
+import { aliGreenText } from "../../../../utils/AliGreen";
+import { ControllerError } from "../../../../../error/ControllerError";
+import { ErrorCode } from "../../../../../ErrorCode";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -33,6 +36,10 @@ export class URLCloudAdd extends AbstractController<RequestType, ResponseType> {
 
     public async execute(): Promise<Response<ResponseType>> {
         const { fileName, url } = this.body;
+
+        if (await aliGreenText.textNonCompliant(fileName)) {
+            throw new ControllerError(ErrorCode.NonCompliant);
+        }
 
         const fileUUID = v4();
 

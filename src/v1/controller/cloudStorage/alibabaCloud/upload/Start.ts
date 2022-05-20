@@ -10,6 +10,8 @@ import { RedisKey } from "../../../../../utils/Redis";
 import { checkTotalUsage, getFilePath, getOSSDomain } from "./Utils";
 import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
+import { aliGreenText } from "../../../../utils/AliGreen";
+import { ControllerError } from "../../../../../error/ControllerError";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -43,6 +45,10 @@ export class AlibabaCloudUploadStart extends AbstractController<RequestType, Res
     public async execute(): Promise<Response<ResponseType>> {
         const { fileName, fileSize, region } = this.body;
         const userUUID = this.userUUID;
+
+        if (await aliGreenText.textNonCompliant(fileName)) {
+            throw new ControllerError(ErrorCode.NonCompliant);
+        }
 
         // check upload concurrent and file size and total usage
         {

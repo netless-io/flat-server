@@ -7,6 +7,8 @@ import { toDate } from "date-fns/fp";
 import { checkUpdateBeginAndEndTime } from "./Utils";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import { aliGreenText } from "../../../utils/AliGreen";
+import { ControllerError } from "../../../../error/ControllerError";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -46,6 +48,10 @@ export class UpdateOrdinary extends AbstractController<RequestType, ResponseType
     public async execute(): Promise<Response<ResponseType>> {
         const { roomUUID, beginTime, endTime, title, type } = this.body;
         const userUUID = this.userUUID;
+
+        if (await aliGreenText.textNonCompliant(title)) {
+            throw new ControllerError(ErrorCode.NonCompliant);
+        }
 
         const roomInfo = await RoomDAO().findOne(["room_status", "begin_time", "end_time"], {
             room_uuid: roomUUID,

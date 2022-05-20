@@ -316,6 +316,15 @@ censorship:
             access_id:
             access_secret:
             callback_address:
+    text:
+        enable: false
+        # 当前只支持阿里云
+        type: aliCloud
+        # 见: https://help.aliyun.com/document_detail/63004.html
+        aliCloud:
+            access_id:
+            access_secret:
+            endpoint:
 ```
 
 如果需要部署，那么需要确保在部署的环境变量中存在以下变量:

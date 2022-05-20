@@ -176,3 +176,19 @@ censorship:
       access_id:
       access_secret:
       endpoint:
+  voice:
+    enable: false
+    type: aliCloud
+    aliCloud:
+      uid:
+      access_id:
+      access_secret:
+      callback_address:
+  text:
+    enable: false
+    type: aliCloud
+    aliCloud:
+      access_id:
+      access_secret:
+      endpoint:
+

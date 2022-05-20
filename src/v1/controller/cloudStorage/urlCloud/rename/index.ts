@@ -5,6 +5,8 @@ import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../../d
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import path from "path";
+import { aliGreenText } from "../../../../utils/AliGreen";
+import { ControllerError } from "../../../../../error/ControllerError";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -33,6 +35,10 @@ export class URLCloudRename extends AbstractController<RequestType, ResponseType
     public async execute(): Promise<Response<ResponseType>> {
         const { fileUUID, fileName } = this.body;
         const userUUID = this.userUUID;
+
+        if (await aliGreenText.textNonCompliant(fileName)) {
+            throw new ControllerError(ErrorCode.NonCompliant);
+        }
 
         const userFileInfo = await CloudStorageUserFilesDAO().findOne(["id"], {
             file_uuid: fileUUID,

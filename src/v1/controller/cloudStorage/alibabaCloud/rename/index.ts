@@ -8,6 +8,8 @@ import { getDisposition, ossClient } from "../Utils";
 import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
 import { URL } from "url";
+import { aliGreenText } from "../../../../utils/AliGreen";
+import { ControllerError } from "../../../../../error/ControllerError";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -36,6 +38,10 @@ export class AlibabaCloudRename extends AbstractController<RequestType, Response
     public async execute(): Promise<Response<ResponseType>> {
         const { fileUUID, fileName } = this.body;
         const userUUID = this.userUUID;
+
+        if (await aliGreenText.textNonCompliant(fileName)) {
+            throw new ControllerError(ErrorCode.NonCompliant);
+        }
 
         const userFileInfo = await CloudStorageUserFilesDAO().findOne(["id"], {
             file_uuid: fileUUID,
