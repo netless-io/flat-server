@@ -3,9 +3,9 @@ import sinon from "sinon";
 import { ax } from "../../Axios";
 import {
     whiteboardBanRoom,
-    whiteboardCreateConversionTask,
+    whiteboardCreateConversionTaskByStatic,
     whiteboardCreateRoom,
-    whiteboardQueryConversionTask,
+    whiteboardQueryConversionTaskByStatic,
 } from "./WhiteboardRequest";
 import { Region } from "../../../../constants/Project";
 import { v4 } from "uuid";
@@ -39,7 +39,7 @@ test.serial(`${namespace} - ban room`, async ava => {
 test.serial(`${namespace} - create conversion task`, async ava => {
     const stubAxios = sinon.stub(ax, "post");
 
-    await whiteboardCreateConversionTask(Region.CN_HZ, {} as any);
+    await whiteboardCreateConversionTaskByStatic(Region.CN_HZ, {} as any);
 
     ava.is(stubAxios.callCount, 1);
 
@@ -49,7 +49,7 @@ test.serial(`${namespace} - create conversion task`, async ava => {
 test.serial(`${namespace} - query conversion task`, async ava => {
     const stubAxios = sinon.stub(ax, "get");
 
-    await whiteboardQueryConversionTask(Region.CN_HZ, "1", "static");
+    await whiteboardQueryConversionTaskByStatic(Region.CN_HZ, "1");
 
     ava.is(stubAxios.callCount, 1);
 

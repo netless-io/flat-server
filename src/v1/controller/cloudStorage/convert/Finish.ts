@@ -2,7 +2,10 @@ import { Region, Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { whiteboardQueryConversionTask } from "../../../utils/request/whiteboard/WhiteboardRequest";
+import {
+    whiteboardQueryConversionTaskByDynamic,
+    whiteboardQueryConversionTaskByStatic,
+} from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
 import { determineType, isConvertDone, isConvertFailed, isCourseware } from "./Utils";
 import { AbstractController } from "../../../../abstract/controller";
@@ -101,6 +104,7 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
                     data: {},
                 };
             }
+            case "Abort":
             case "Fail": {
                 await CloudStorageFilesDAO().update(
                     {
@@ -136,7 +140,7 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
         resource: string,
         taskUUID: string,
         region: Region,
-    ): Promise<"Waiting" | "Converting" | "Finished" | "Fail"> {
+    ): Promise<"Waiting" | "Converting" | "Finished" | "Fail" | "Abort"> {
         if (isCourseware(resource)) {
             const fileName = path.basename(resource);
             const dir = resource.substr(0, resource.length - fileName.length);
@@ -154,7 +158,10 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
             }
         } else {
             const resourceType = determineType(resource);
-            const result = await whiteboardQueryConversionTask(region, taskUUID, resourceType);
+            const result =
+                resourceType === "static"
+                    ? await whiteboardQueryConversionTaskByStatic(region, taskUUID)
+                    : await whiteboardQueryConversionTaskByDynamic(region, taskUUID);
             return result.data.status;
         }
     }
