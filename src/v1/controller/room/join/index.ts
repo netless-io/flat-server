@@ -2,7 +2,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../types/Server
 import { joinOrdinary } from "./Ordinary";
 import { joinPeriodic } from "./Periodic";
 import { ResponseType } from "./Type";
-import { RoomPeriodicConfigDAO } from "../../../../dao";
+import { RoomDAO } from "../../../../dao";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import RedisService from "../../../../thirdPartyService/RedisService";
@@ -52,15 +52,16 @@ export class JoinRoom extends AbstractController<RequestType, ResponseType> {
             }
         }
 
-        const uuidIsPeriodicUUID = await RoomPeriodicConfigDAO().findOne(["id"], {
-            periodic_uuid: uuid,
+        const isOrdinaryRoomUUID = await RoomDAO().findOne(["id"], {
+            room_uuid: uuid,
+            periodic_uuid: "",
         });
 
-        if (uuidIsPeriodicUUID) {
-            return await joinPeriodic(uuid, userUUID);
-        } else {
+        if (isOrdinaryRoomUUID) {
             return await joinOrdinary(uuid, userUUID);
         }
+
+        return await joinPeriodic(uuid, userUUID);
     }
 
     public errorHandler(error: Error): ResponseError {
