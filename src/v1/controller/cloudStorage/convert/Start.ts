@@ -3,12 +3,9 @@ import { ErrorCode } from "../../../../ErrorCode";
 import { createWhiteboardTaskToken } from "../../../../utils/NetlessToken";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import {
-    whiteboardCreateConversionTaskByDynamic,
-    whiteboardCreateConversionTaskByStatic,
-} from "../../../utils/request/whiteboard/WhiteboardRequest";
+import { whiteboardCreateConversionTask } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
-import { determineType, isConvertDone, isConvertFailed, isConverting } from "./Utils";
+import { determineType, isConverting, isConvertDone, isConvertFailed } from "./Utils";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import path from "path";
@@ -91,13 +88,14 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
 
         const resourceType = determineType(resource);
 
-        const result =
-            resourceType === "static"
-                ? await whiteboardCreateConversionTaskByStatic(region, {
-                      resource,
-                      scale: FileConvertStart.scaleByFileType(resource),
-                  })
-                : await whiteboardCreateConversionTaskByDynamic(region, resource);
+        const result = await whiteboardCreateConversionTask(region, {
+            resource,
+            type: resourceType,
+            scale: FileConvertStart.scaleByFileType(resource),
+            preview: resourceType === "dynamic",
+            pack: resourceType === "static",
+            canvasVersion: resourceType === "dynamic",
+        });
 
         const taskUUID = result.data.uuid;
         const taskToken = createWhiteboardTaskToken(taskUUID);

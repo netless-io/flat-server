@@ -47,17 +47,13 @@ export const whiteboardBanRoom = async (
     );
 };
 
-export const whiteboardCreateConversionTaskByStatic = async (
+export const whiteboardCreateConversionTask = async (
     region: Region,
-    body: CreateStaticConversionTaskParams,
-): Promise<AxiosResponse<StaticTaskCreated>> => {
-    return await ax.post<StaticTaskCreated>(
+    body: CreateConversionTaskParams,
+): Promise<AxiosResponse<TaskCreated>> => {
+    return await ax.post<TaskCreated>(
         "https://api.netless.link/v5/services/conversion/tasks",
-        {
-            ...body,
-            pack: true,
-            type: "static",
-        },
+        body,
         {
             headers: {
                 token: createWhiteboardSDKToken(),
@@ -67,58 +63,51 @@ export const whiteboardCreateConversionTaskByStatic = async (
     );
 };
 
+export const whiteboardQueryConversionTask = async (
+    region: Region,
+    uuid: string,
+    type: "static" | "dynamic",
+): Promise<AxiosResponse<TaskStatus>> => {
+    return await ax.get<TaskStatus>(
+        `https://api.netless.link/v5/services/conversion/tasks/${uuid}?type=${type}`,
+        {
+            headers: {
+                token: createWhiteboardSDKToken(),
+                region,
+            },
+        },
+    );
+};
+
+type CreateConversionTaskParams =
+    | CreateStaticConversionTaskParams
+    | CreateDynamicConversionTaskParams;
+
 interface CreateStaticConversionTaskParams {
     resource: string;
-    scale: number;
+    type: "static";
+    /** @default 1.2 */
+    scale?: number;
+    /** @default 'png' */
+    outputFormat?: "png" | "jpg" | "jpeg" | "webp";
+    pack?: boolean;
 }
 
-export interface StaticTaskCreated {
+interface CreateDynamicConversionTaskParams {
+    resource: string;
+    type: "dynamic";
+    /** @default false */
+    preview?: boolean;
+    canvasVersion: boolean;
+}
+
+export interface TaskCreated {
     uuid: string;
     type: "static" | "dynamic";
     status: "Waiting" | "Converting" | "Finished" | "Fail";
 }
 
-export const whiteboardCreateConversionTaskByDynamic = async (
-    region: Region,
-    resource: string,
-): Promise<AxiosResponse<DynamicTaskCreated>> => {
-    return await ax.post<DynamicTaskCreated>(
-        "https://api.netless.link/v5/projector/tasks",
-        {
-            resource,
-            pack: false,
-            preview: true,
-        },
-        {
-            headers: {
-                token: createWhiteboardSDKToken(),
-                region,
-            },
-        },
-    );
-};
-
-export interface DynamicTaskCreated {
-    uuid: string;
-    status: "Waiting" | "Converting" | "Finished" | "Fail" | "Abort";
-}
-
-export const whiteboardQueryConversionTaskByStatic = async (
-    region: Region,
-    uuid: string,
-): Promise<AxiosResponse<StaticTaskStatus>> => {
-    return await ax.get<StaticTaskStatus>(
-        `https://api.netless.link/v5/services/conversion/tasks/${uuid}?type=static`,
-        {
-            headers: {
-                token: createWhiteboardSDKToken(),
-                region,
-            },
-        },
-    );
-};
-
-interface StaticTaskStatus {
+interface TaskStatus {
     uuid: string;
     type: "static" | "dynamic";
     status: "Waiting" | "Converting" | "Finished" | "Fail";
@@ -135,28 +124,6 @@ interface StaticTaskStatus {
         }[];
         currentStep: "Extracting" | "Packaging" | "GeneratingPreview" | "MediaTranscode";
     };
-}
-
-export const whiteboardQueryConversionTaskByDynamic = async (
-    region: Region,
-    uuid: string,
-): Promise<AxiosResponse<DynamicTaskStatus>> => {
-    return await ax.get<DynamicTaskStatus>(`https://api.netless.link/v5/projector/tasks/${uuid}`, {
-        headers: {
-            token: createWhiteboardSDKToken(),
-            region,
-        },
-    });
-};
-
-interface DynamicTaskStatus {
-    uuid: string;
-    type: "static" | "dynamic";
-    status: "Waiting" | "Converting" | "Finished" | "Fail" | "Abort";
-    errorCode?: string;
-    errorMessage?: string;
-    convertedPercentage?: number;
-    prefix?: string;
 }
 
 interface Room {
