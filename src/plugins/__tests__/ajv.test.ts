@@ -16,6 +16,7 @@ test(`${namespace} - inject self plugin`, ava => {
         "file-suffix",
         "url-file-suffix",
         "url",
+        "phone",
     ]);
 });
 
@@ -194,6 +195,42 @@ test(`${namespace} - url`, ava => {
         };
 
         validate(testURLValidSuccess);
+
+        ava.is(validate.errors, null);
+    }
+});
+
+test(`${namespace} - phone`, ava => {
+    const ajv = new Ajv();
+    ajvSelfPlugin(ajv);
+
+    const validate = ajv.compile({
+        type: "object",
+        required: ["phone"],
+        properties: {
+            phone: {
+                type: "string",
+                format: "phone",
+            },
+        },
+    });
+
+    {
+        const testPhoneValidFail = {
+            phone: "+8601111111111",
+        };
+
+        validate(testPhoneValidFail);
+
+        ava.true(validate.errors !== null);
+    }
+
+    {
+        const testPhoneValidSuccess = {
+            phone: "+8615555555555",
+        };
+
+        validate(testPhoneValidSuccess);
 
         ava.is(validate.errors, null);
     }
