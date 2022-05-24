@@ -5,19 +5,6 @@ import { v4 } from "uuid";
 
 const namespace = "[utils][utils-redis]";
 
-test(`${namespace} - Match Redis Keys`, ava => {
-    ava.deepEqual(Object.keys(RedisKey).sort(), [
-        "agoraRTCRoomUserToken",
-        "agoraRTMUserToken",
-        "authFailed",
-        "authUUID",
-        "authUserInfo",
-        "cloudStorageFileInfo",
-        "roomInviteCode",
-        "roomInviteCodeReverse",
-    ]);
-});
-
 test(`${namespace} - authUUID`, ava => {
     const uuid = v4();
 
