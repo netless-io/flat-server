@@ -7,6 +7,7 @@ import { ErrorCode } from "../../../../../ErrorCode";
 import path from "path";
 import { aliGreenText } from "../../../../utils/AliGreen";
 import { ControllerError } from "../../../../../error/ControllerError";
+import { FileAffiliation } from "../../../../../model/cloudStorage/Constants";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -52,8 +53,9 @@ export class URLCloudRename extends AbstractController<RequestType, ResponseType
             };
         }
 
-        const fileInfo = await CloudStorageFilesDAO().findOne(["file_name", "region"], {
+        const fileInfo = await CloudStorageFilesDAO().findOne(["file_name"], {
             file_uuid: fileUUID,
+            affiliation: FileAffiliation.OnlineCourseware,
         });
 
         if (fileInfo === undefined) {
@@ -68,10 +70,6 @@ export class URLCloudRename extends AbstractController<RequestType, ResponseType
                 status: Status.Failed,
                 code: ErrorCode.ParamsCheckFailed,
             };
-        }
-
-        if (fileInfo.region !== "none") {
-            throw new Error("unsupported current file rename");
         }
 
         await CloudStorageFilesDAO().update(

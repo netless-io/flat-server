@@ -4,3 +4,9 @@ export enum FileConvertStep {
     Done = "Done",
     Failed = "Failed",
 }
+
+export enum FileAffiliation {
+    WhiteboardConvert = "WhiteboardConvert",
+    LocalCourseware = "LocalCourseware",
+    OnlineCourseware = "OnlineCourseware",
+}

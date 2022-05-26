@@ -16,6 +16,8 @@ import { URL } from "url";
 import path from "path";
 import { ossClient } from "../Utils";
 import OSS from "ali-oss";
+import { FileAffiliation } from "../../../../../model/cloudStorage/Constants";
+import { FilePayload } from "../../../../../model/cloudStorage/Types";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -53,12 +55,17 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
             .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
             .where(
                 `f.file_uuid IN (:...fileUUIDs)
+                AND f.affiliation IN (:...affiliation)
                 AND fc.user_uuid = :userUUID
                 AND fc.is_delete = false
                 AND f.is_delete = false`,
                 {
                     fileUUIDs,
                     userUUID,
+                    affiliation: [
+                        FileAffiliation.WhiteboardConvert,
+                        FileAffiliation.LocalCourseware,
+                    ],
                 },
             )
             .getRawMany();
@@ -83,10 +90,12 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
             const fileList: FileListType = {};
             let remainingTotalUsage = totalUsage;
 
-            fileInfo.forEach(({ file_url, file_size, region }) => {
-                if (region === "none") {
+            fileInfo.forEach(({ file_url, file_size, payload }) => {
+                if (!("region" in payload)) {
                     throw new Error("unsupported current file remove");
                 }
+
+                const region = payload.region;
 
                 if (typeof fileList[region] === "undefined") {
                     fileList[region] = [];
@@ -234,5 +243,5 @@ type FileListType = {
 interface FileInfoType {
     file_size: number;
     file_url: string;
-    region: Region | "none";
+    payload: FilePayload;
 }

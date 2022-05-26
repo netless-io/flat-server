@@ -1,14 +1,18 @@
-import { Region, Status } from "../../../../constants/Project";
+import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { whiteboardQueryConversionTask } from "../../../utils/request/whiteboard/WhiteboardRequest";
-import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
-import { determineType, isConvertDone, isConvertFailed, isCourseware } from "./Utils";
+import { FileAffiliation, FileConvertStep } from "../../../../model/cloudStorage/Constants";
+import { determineType, isConvertDone, isConvertFailed } from "./Utils";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import path from "path";
 import axios from "axios";
+import {
+    LocalCoursewarePayload,
+    WhiteboardConvertPayload,
+} from "../../../../model/cloudStorage/Types";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -46,7 +50,7 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
         }
 
         const fileInfo = await CloudStorageFilesDAO().findOne(
-            ["file_url", "convert_step", "task_uuid", "region"],
+            ["file_url", "affiliation", "payload"],
             {
                 file_uuid: fileUUID,
             },
@@ -59,37 +63,44 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
             };
         }
 
-        const { file_url: resource, convert_step, task_uuid, region } = fileInfo;
+        const { file_url: resource, payload, affiliation } = fileInfo;
 
-        if (isConvertDone(convert_step)) {
+        if (!("region" in payload) || !payload.convertStep) {
+            throw new Error("unsupported current file conversion");
+        }
+
+        if (isConvertDone(payload.convertStep)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.FileIsConverted,
             };
         }
 
-        if (isConvertFailed(convert_step)) {
+        if (isConvertFailed(payload.convertStep)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.FileConvertFailed,
             };
         }
 
-        if (region === "none") {
-            throw new Error("unsupported current file conversion");
-        }
-
         const convertStatus = await FileConvertFinish.queryConversionStatus(
             resource,
-            task_uuid,
-            region,
+            payload,
+            affiliation,
         );
+
+        if (convertStatus === null) {
+            throw new Error("unsupported current file conversion");
+        }
 
         switch (convertStatus) {
             case "Finished": {
                 await CloudStorageFilesDAO().update(
                     {
-                        convert_step: FileConvertStep.Done,
+                        payload: {
+                            ...payload,
+                            convertStep: FileConvertStep.Done,
+                        },
                     },
                     {
                         file_uuid: fileUUID,
@@ -104,7 +115,10 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
             case "Fail": {
                 await CloudStorageFilesDAO().update(
                     {
-                        convert_step: FileConvertStep.Failed,
+                        payload: {
+                            ...payload,
+                            convertStep: FileConvertStep.Failed,
+                        },
                     },
                     {
                         file_uuid: fileUUID,
@@ -134,10 +148,10 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
 
     private static async queryConversionStatus(
         resource: string,
-        taskUUID: string,
-        region: Region,
-    ): Promise<"Waiting" | "Converting" | "Finished" | "Fail"> {
-        if (isCourseware(resource)) {
+        payload: WhiteboardConvertPayload | LocalCoursewarePayload,
+        affiliation: FileAffiliation,
+    ): Promise<"Waiting" | "Converting" | "Finished" | "Fail" | null> {
+        if (affiliation === FileAffiliation.LocalCourseware) {
             const fileName = path.basename(resource);
             const dir = resource.substr(0, resource.length - fileName.length);
             const resultPath = `${dir}result`;
@@ -152,11 +166,14 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
 
                 throw error;
             }
-        } else {
+        } else if (affiliation === FileAffiliation.WhiteboardConvert) {
+            const { taskUUID, region } = payload as WhiteboardConvertPayload;
             const resourceType = determineType(resource);
             const result = await whiteboardQueryConversionTask(region, taskUUID, resourceType);
             return result.data.status;
         }
+
+        return null;
     }
 }
 

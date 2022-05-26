@@ -1,7 +1,7 @@
 import { Column, Entity, Index } from "typeorm";
 import { Content } from "../Content";
-import { FileConvertStep } from "./Constants";
-import { Region } from "../../constants/Project";
+import { FileAffiliation } from "./Constants";
+import { FilePayload } from "./Types";
 
 @Entity({
     name: "cloud_storage_files",
@@ -35,36 +35,17 @@ export class CloudStorageFilesModel extends Content {
     file_url: string;
 
     @Column({
-        type: "enum",
-        enum: [
-            FileConvertStep.None,
-            FileConvertStep.Converting,
-            FileConvertStep.Done,
-            FileConvertStep.Failed,
-        ],
-        default: FileConvertStep.None,
+        type: "json",
+        default: {},
     })
-    convert_step: FileConvertStep;
+    payload: FilePayload;
 
+    @Index("cloud_storage_files_affiliation_index")
     @Column({
-        length: 40,
-        comment: "netless conversion task uuid v1",
-        default: "",
+        length: 20,
+        type: "string",
     })
-    task_uuid: string;
-
-    @Column({
-        length: 256,
-        comment: "generated from sdk token and task uuid",
-        default: "",
-    })
-    task_token: string;
-
-    @Column({
-        type: "enum",
-        enum: [Region.CN_HZ, Region.US_SV, Region.SG, Region.IN_MUM, Region.GB_LON, "none"],
-    })
-    region: Region | "none";
+    affiliation: FileAffiliation;
 
     @Index("cloud_storage_files_is_delete_index")
     @Column({

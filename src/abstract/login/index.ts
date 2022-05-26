@@ -81,14 +81,18 @@ export abstract class AbstractLogin {
         return Promise.all([
             svc.cloudStorageConfigs.createOrUpdate(cnFileSize + enFileSize, t),
             svc.cloudStorageFiles.create({
-                region: Region.CN_HZ,
+                payload: {
+                    region: Region.CN_HZ,
+                },
                 fileURL: getOSSFileURLPath(cnPPTXPath, Region.CN_HZ),
                 fileSize: cnFileSize,
                 fileUUID: cnFileUUID,
                 fileName: cnName,
             }),
             svc.cloudStorageFiles.create({
-                region: Region.US_SV,
+                payload: {
+                    region: Region.US_SV,
+                },
                 fileURL: getOSSFileURLPath(enPPTXPath, Region.US_SV),
                 fileSize: enFileSize,
                 fileUUID: enFileUUID,
