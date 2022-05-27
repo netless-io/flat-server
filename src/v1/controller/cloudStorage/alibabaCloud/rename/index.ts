@@ -63,6 +63,7 @@ export class AlibabaCloudRename extends AbstractController<RequestType, Response
                 affiliation: In([
                     FileAffiliation.WhiteboardConvert,
                     FileAffiliation.LocalCourseware,
+                    FileAffiliation.NormalResources,
                 ]),
             },
         );

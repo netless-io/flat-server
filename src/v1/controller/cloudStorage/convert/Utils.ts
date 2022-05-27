@@ -4,8 +4,18 @@ export const determineType = (resource: string): "static" | "dynamic" => {
     return resource.endsWith(".pptx") ? "dynamic" : "static";
 };
 
-export const isCourseware = (resource: string): boolean => {
+export const isLocalCourseware = (resource: string): boolean => {
     return resource.endsWith(".ice");
+};
+
+export const isWhiteboardCourseware = (resource: string): boolean => {
+    return (
+        resource.endsWith(".ppt") ||
+        resource.endsWith(".pptx") ||
+        resource.endsWith(".pdf") ||
+        resource.endsWith(".doc") ||
+        resource.endsWith(".docx")
+    );
 };
 
 export const isConverting = (convertStep: FileConvertStep): boolean => {

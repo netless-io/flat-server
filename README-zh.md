@@ -52,6 +52,9 @@ yarn install --frozen-lockfile
 
 本地开发不需要部署。如果需要上线，依据你习惯的方式部署。
 
+> **Warning**
+> 如果你之前部署过此项目, 请先查看 [迁移文档](./scripts/migration/README-zh.md)
+
 ## 环境变量值参考
 
 ```yaml

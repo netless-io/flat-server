@@ -36,14 +36,14 @@ export class CloudStorageFilesModel extends Content {
 
     @Column({
         type: "json",
-        default: {},
+        default: () => "('{}')",
     })
     payload: FilePayload;
 
     @Index("cloud_storage_files_affiliation_index")
     @Column({
         length: 20,
-        type: "string",
+        type: "varchar",
     })
     affiliation: FileAffiliation;
 

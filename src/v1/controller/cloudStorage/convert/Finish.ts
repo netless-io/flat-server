@@ -65,7 +65,7 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
 
         const { file_url: resource, payload, affiliation } = fileInfo;
 
-        if (!("region" in payload) || !payload.convertStep) {
+        if (!("region" in payload) || !("convertStep" in payload)) {
             throw new Error("unsupported current file conversion");
         }
 

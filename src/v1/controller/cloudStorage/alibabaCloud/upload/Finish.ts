@@ -13,7 +13,7 @@ import { checkTotalUsage, getFilePath, getOSSFileURLPath } from "./Utils";
 import { isExistObject } from "../Utils";
 import { Controller } from "../../../../../decorator/Controller";
 import { AbstractController } from "../../../../../abstract/controller";
-import { isCourseware } from "../../convert/Utils";
+import { isLocalCourseware, isWhiteboardCourseware } from "../../convert/Utils";
 import { FileAffiliation, FileConvertStep } from "../../../../../model/cloudStorage/Constants";
 
 @Controller<RequestType, ResponseType>({
@@ -86,13 +86,15 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
                     file_uuid: fileUUID,
                     payload: {
                         region,
-                        convert_step: isCourseware(fileName)
+                        convert_step: isLocalCourseware(fileName)
                             ? FileConvertStep.Converting
                             : FileConvertStep.None,
                     },
-                    affiliation: isCourseware(fileName)
+                    affiliation: isLocalCourseware(fileName)
                         ? FileAffiliation.LocalCourseware
-                        : FileAffiliation.WhiteboardConvert,
+                        : isWhiteboardCourseware(fileName)
+                        ? FileAffiliation.WhiteboardConvert
+                        : FileAffiliation.NormalResources,
                 }),
             );
 
