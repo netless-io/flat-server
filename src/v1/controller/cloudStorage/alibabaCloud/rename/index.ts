@@ -1,5 +1,5 @@
 import path from "path";
-import { getConnection } from "typeorm";
+import { getConnection, In } from "typeorm";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../../dao";
@@ -10,6 +10,7 @@ import { Controller } from "../../../../../decorator/Controller";
 import { URL } from "url";
 import { aliGreenText } from "../../../../utils/AliGreen";
 import { ControllerError } from "../../../../../error/ControllerError";
+import { FileAffiliation } from "../../../../../model/cloudStorage/Constants";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -55,9 +56,17 @@ export class AlibabaCloudRename extends AbstractController<RequestType, Response
             };
         }
 
-        const fileInfo = await CloudStorageFilesDAO().findOne(["file_name", "file_url", "region"], {
-            file_uuid: fileUUID,
-        });
+        const fileInfo = await CloudStorageFilesDAO().findOne(
+            ["file_name", "file_url", "payload"],
+            {
+                file_uuid: fileUUID,
+                affiliation: In([
+                    FileAffiliation.WhiteboardConvert,
+                    FileAffiliation.LocalCourseware,
+                    FileAffiliation.NormalResources,
+                ]),
+            },
+        );
 
         if (fileInfo === undefined) {
             return {
@@ -83,12 +92,12 @@ export class AlibabaCloudRename extends AbstractController<RequestType, Response
                 },
             );
 
-            if (fileInfo.region === "none") {
+            if (!("region" in fileInfo.payload)) {
                 throw new Error("unsupported current file rename");
             }
 
             const filePath = new URL(fileInfo.file_url).pathname.slice(1);
-            await ossClient[fileInfo.region].copy(filePath, filePath, {
+            await ossClient[fileInfo.payload.region].copy(filePath, filePath, {
                 headers: { "Content-Disposition": getDisposition(fileName) },
             });
         });

@@ -55,6 +55,9 @@ You should see `ready on http://0.0.0.0:80` if everything is OK.
 
 Deployment is not needed for local development. If you want to bring the server up online, deploy anyway you like.
 
+> **Warning**
+> If you have deployed this project before, please see the [migration documentation](./scripts/migration/README.md)
+
 ## Environment Variables Reference
 
 ```yaml

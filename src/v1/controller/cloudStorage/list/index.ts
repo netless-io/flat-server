@@ -7,6 +7,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../types/Server
 import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import { FilePayload } from "../../../../model/cloudStorage/Types";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -52,11 +53,8 @@ export class CloudStorageList extends AbstractController<RequestType, ResponseTy
             .addSelect("f.file_name", "file_name")
             .addSelect("f.file_size", "file_size")
             .addSelect("f.file_url", "file_url")
-            .addSelect("f.convert_step", "convert_step")
-            .addSelect("f.task_uuid", "task_uuid")
-            .addSelect("f.task_token", "task_token")
             .addSelect("f.created_at", "create_at")
-            .addSelect("f.region", "region")
+            .addSelect("f.payload", "payload")
             .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
             .where(
                 `fc.user_uuid = :userUUID
@@ -73,17 +71,18 @@ export class CloudStorageList extends AbstractController<RequestType, ResponseTy
             .getRawMany();
 
         const resp = files.map((file: CloudStorageFile) => {
+            const payload = file.payload as Record<string, any>;
             return {
                 fileUUID: file.file_uuid,
                 fileName: file.file_name,
                 fileSize: file.file_size,
                 fileURL: file.file_url,
-                convertStep: file.convert_step,
-                taskUUID: file.task_uuid,
-                taskToken: file.task_token,
+                convertStep: payload?.convert_step || FileConvertStep.None,
+                taskUUID: payload?.task_uuid || "",
+                taskToken: payload?.task_token || "",
                 createAt: file.create_at.valueOf(),
-                region: file.region,
-                external: file.region === "none",
+                region: payload.region || "none",
+                external: payload.region === "none",
             };
         });
 
@@ -130,9 +129,6 @@ interface CloudStorageFile {
     file_name: string;
     file_size: number;
     file_url: string;
-    convert_step: FileConvertStep;
-    task_uuid: string;
-    task_token: string;
     create_at: Date;
-    region: Region | "none";
+    payload: FilePayload;
 }
