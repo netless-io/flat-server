@@ -4,7 +4,7 @@ import { createWhiteboardTaskToken } from "../../../../utils/NetlessToken";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { whiteboardCreateConversionTask } from "../../../utils/request/whiteboard/WhiteboardRequest";
-import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
+import { FileAffiliation, FileConvertStep } from "../../../../model/cloudStorage/Constants";
 import { determineType, isConvertDone, isConvertFailed, isConverting } from "./Utils";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
@@ -47,6 +47,7 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
 
         const fileInfo = await CloudStorageFilesDAO().findOne(["file_url", "payload"], {
             file_uuid: fileUUID,
+            affiliation: FileAffiliation.WhiteboardConvert,
         });
 
         if (fileInfo === undefined) {
@@ -58,25 +59,23 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
 
         const { file_url: resource, payload } = fileInfo;
 
-        if (!("region" in payload) || !("convertStep" in payload)) {
-            throw new Error("unsupported current file conversion");
-        }
+        const { convertStep, region } = payload as any;
 
-        if (isConverting(payload.convertStep)) {
+        if (isConverting(convertStep)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.FileConvertFailed,
             };
         }
 
-        if (isConvertDone(payload.convertStep)) {
+        if (isConvertDone(convertStep)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.FileIsConverted,
             };
         }
 
-        if (isConvertFailed(payload.convertStep)) {
+        if (isConvertFailed(convertStep)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.FileConvertFailed,
@@ -85,7 +84,7 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
 
         const resourceType = determineType(resource);
 
-        const result = await whiteboardCreateConversionTask(payload.region, {
+        const result = await whiteboardCreateConversionTask(region, {
             resource,
             type: resourceType,
             scale: FileConvertStart.scaleByFileType(resource),
@@ -101,7 +100,7 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
                 payload: {
                     taskUUID,
                     taskToken,
-                    region: payload.region,
+                    region,
                     convertStep: FileConvertStep.Converting,
                 },
             },
