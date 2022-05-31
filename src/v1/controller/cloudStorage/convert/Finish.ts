@@ -65,18 +65,16 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
 
         const { file_url: resource, payload, affiliation } = fileInfo;
 
-        if (!("region" in payload) || !("convertStep" in payload)) {
-            throw new Error("unsupported current file conversion");
-        }
+        const { convertStep } = payload as any;
 
-        if (isConvertDone(payload.convertStep)) {
+        if (isConvertDone(convertStep)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.FileIsConverted,
             };
         }
 
-        if (isConvertFailed(payload.convertStep)) {
+        if (isConvertFailed(convertStep)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.FileConvertFailed,
@@ -85,6 +83,7 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
 
         const convertStatus = await FileConvertFinish.queryConversionStatus(
             resource,
+            // @ts-ignore
             payload,
             affiliation,
         );
