@@ -2,12 +2,13 @@ import { AbstractController } from "../../../../../abstract/controller";
 import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
 import { Controller } from "../../../../../decorator/Controller";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../../dao";
-import { Region, Status } from "../../../../../constants/Project";
+import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { createQueryBuilder, getConnection, In } from "typeorm";
 import { ControllerError } from "../../../../../error/ControllerError";
 import { CloudStorageUserFilesModel } from "../../../../../model/cloudStorage/CloudStorageUserFiles";
 import { CloudStorageFilesModel } from "../../../../../model/cloudStorage/CloudStorageFiles";
+import { FileAffiliation } from "../../../../../model/cloudStorage/Constants";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -39,17 +40,17 @@ export class URLCloudRemove extends AbstractController<RequestType, ResponseType
         await this.assertFilesOwnerIsCurrentUser();
 
         const fileInfo: FileInfoType[] = await createQueryBuilder(CloudStorageUserFilesModel, "fc")
-            .addSelect("f.file_size", "file_size")
-            .addSelect("f.region", "region")
             .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
             .where(
                 `f.file_uuid IN (:...fileUUIDs)
+                AND AND f.affiliation IN (:...affiliation)
                 AND fc.user_uuid = :userUUID
                 AND fc.is_delete = false
                 AND f.is_delete = false`,
                 {
                     fileUUIDs,
                     userUUID,
+                    affiliation: [FileAffiliation.OnlineCourseware],
                 },
             )
             .getRawMany();
@@ -59,12 +60,6 @@ export class URLCloudRemove extends AbstractController<RequestType, ResponseType
                 status: Status.Success,
                 data: {},
             };
-        }
-
-        for (const info of fileInfo) {
-            if (info.region !== "none" || info.file_size !== 0) {
-                throw new Error("unsupported current file remove");
-            }
         }
 
         await getConnection().transaction(async t => {
@@ -119,5 +114,4 @@ interface ResponseType {}
 
 interface FileInfoType {
     file_size: number;
-    region: Region | "none";
 }

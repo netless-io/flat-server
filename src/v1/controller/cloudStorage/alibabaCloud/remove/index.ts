@@ -51,7 +51,7 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
         const fileInfo: FileInfoType[] = await createQueryBuilder(CloudStorageUserFilesModel, "fc")
             .addSelect("f.file_size", "file_size")
             .addSelect("f.file_url", "file_url")
-            .addSelect("f.region", "region")
+            .addSelect("f.payload", "payload")
             .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
             .where(
                 `f.file_uuid IN (:...fileUUIDs)
