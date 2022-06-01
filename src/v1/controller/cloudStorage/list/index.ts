@@ -4,7 +4,7 @@ import { CloudStorageConfigsDAO } from "../../../../dao";
 import { CloudStorageFilesModel } from "../../../../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../../../../model/cloudStorage/CloudStorageUserFiles";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { FileConvertStep } from "../../../../model/cloudStorage/Constants";
+import { FileAffiliation, FileConvertStep } from "../../../../model/cloudStorage/Constants";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { FilePayload } from "../../../../model/cloudStorage/Types";
@@ -55,6 +55,7 @@ export class CloudStorageList extends AbstractController<RequestType, ResponseTy
             .addSelect("f.file_url", "file_url")
             .addSelect("f.created_at", "create_at")
             .addSelect("f.payload", "payload")
+            .addSelect("f.affiliation", "affiliation")
             .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
             .where(
                 `fc.user_uuid = :userUUID
@@ -83,6 +84,7 @@ export class CloudStorageList extends AbstractController<RequestType, ResponseTy
                 createAt: file.create_at.valueOf(),
                 region: payload.region || "none",
                 external: payload.region === "none",
+                affiliation: file.affiliation,
             };
         });
 
@@ -121,6 +123,7 @@ interface ResponseType {
         createAt: number;
         region: Region | "none";
         external: boolean;
+        affiliation: FileAffiliation;
     }>;
 }
 
@@ -131,4 +134,5 @@ interface CloudStorageFile {
     file_url: string;
     create_at: Date;
     payload: FilePayload;
+    affiliation: FileAffiliation;
 }

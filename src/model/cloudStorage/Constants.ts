@@ -10,4 +10,5 @@ export enum FileAffiliation {
     LocalCourseware = "LocalCourseware",
     OnlineCourseware = "OnlineCourseware",
     NormalResources = "NormalResources",
+    WhiteboardProjector = "WhiteboardProjector",
 }

@@ -31,12 +31,16 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
                     type: "string",
                     format: "uuid-v4",
                 },
+                isWhiteboardProjector: {
+                    type: "boolean",
+                    nullable: true,
+                },
             },
         },
     };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const { fileUUID } = this.body;
+        const { fileUUID, isWhiteboardProjector } = this.body;
         const userUUID = this.userUUID;
 
         const fileInfo = await RedisService.hmget(
@@ -86,11 +90,14 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
                     file_uuid: fileUUID,
                     payload: {
                         region,
-                        convert_step: isLocalCourseware(fileName)
-                            ? FileConvertStep.Converting
-                            : FileConvertStep.None,
+                        convert_step:
+                            isWhiteboardProjector || !isLocalCourseware(fileName)
+                                ? FileConvertStep.None
+                                : FileConvertStep.Converting,
                     },
-                    affiliation: isLocalCourseware(fileName)
+                    affiliation: isWhiteboardProjector
+                        ? FileAffiliation.WhiteboardProjector
+                        : isLocalCourseware(fileName)
                         ? FileAffiliation.LocalCourseware
                         : isWhiteboardCourseware(fileName)
                         ? FileAffiliation.WhiteboardConvert
@@ -137,6 +144,7 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
 interface RequestType {
     body: {
         fileUUID: string;
+        isWhiteboardProjector?: boolean;
     };
 }
 

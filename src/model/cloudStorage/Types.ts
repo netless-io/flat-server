@@ -24,8 +24,14 @@ export interface OnlineCoursewarePayload {}
 // e.g: mp4 / mp3 / png
 export interface ResourcesPayload extends CloudStorageBasicPayload {}
 
+export interface WhiteboardProjectorPayload extends CloudStorageBasicPayload, Convert {
+    taskUUID: string;
+    taskToken: string;
+}
+
 export type FilePayload =
     | WhiteboardConvertPayload
     | LocalCoursewarePayload
     | OnlineCoursewarePayload
-    | ResourcesPayload;
+    | ResourcesPayload
+    | WhiteboardProjectorPayload;
