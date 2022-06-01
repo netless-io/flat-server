@@ -8,7 +8,7 @@ import { Status } from "../../../../../constants/Project";
 import { aliGreenText } from "../../../../utils/AliGreen";
 import { ControllerError } from "../../../../../error/ControllerError";
 import { ErrorCode } from "../../../../../ErrorCode";
-import { FileAffiliation } from "../../../../../model/cloudStorage/Constants";
+import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -53,7 +53,7 @@ export class URLCloudAdd extends AbstractController<RequestType, ResponseType> {
                     file_size: 0,
                     file_url: url,
                     file_uuid: fileUUID,
-                    affiliation: FileAffiliation.OnlineCourseware,
+                    resource_type: FileResourceType.OnlineCourseware,
                 }),
             );
 

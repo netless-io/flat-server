@@ -26,7 +26,7 @@ export interface IFindDataPacket extends IFindData, RowDataPacket {}
 
 export type ITransformData = {
     id: number;
-    affiliation: string;
+    resourceType: string;
     payload:
         | {
               region: string;

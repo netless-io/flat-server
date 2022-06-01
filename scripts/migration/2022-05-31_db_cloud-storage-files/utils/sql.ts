@@ -16,13 +16,13 @@ export const SQLCreatePayloadField = async (connection: Connection) => {
     );
 };
 
-// create affiliation field in cloud_storage_files
-export const SQLCreateAffiliationField = async (connection: Connection) => {
+// create resource_type field in cloud_storage_files
+export const SQLCreateResourceTypeField = async (connection: Connection) => {
     await connection.query(
-        `ALTER TABLE cloud_storage_files ADD COLUMN affiliation varchar(20) NOT NULL AFTER payload;`,
+        `ALTER TABLE cloud_storage_files ADD COLUMN resource_type varchar(20) NOT NULL AFTER payload;`,
     );
     await connection.query(
-        `CREATE INDEX cloud_storage_files_affiliation_index ON cloud_storage_files (affiliation);`,
+        `CREATE INDEX cloud_storage_files_resource_type_index ON cloud_storage_files (resource_type);`,
     );
 };
 
@@ -59,13 +59,13 @@ export function* generatorFindData(
     }
 }
 
-// update payload and affiliation in cloud_storage_files
+// update payload and resource_type in cloud_storage_files
 export const SQLUpdate = async (connection: Connection, items: ITransformData[]) => {
     const sqlList = items
         .map(item => {
             return `UPDATE cloud_storage_files SET payload='${JSON.stringify(
                 item.payload,
-            )}', affiliation='${item.affiliation}' where id=${item.id};`;
+            )}', resource_type='${item.resourceType}' where id=${item.id};`;
         })
         .join("\n");
 

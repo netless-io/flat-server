@@ -7,7 +7,7 @@ import { ErrorCode } from "../../../../../ErrorCode";
 import path from "path";
 import { aliGreenText } from "../../../../utils/AliGreen";
 import { ControllerError } from "../../../../../error/ControllerError";
-import { FileAffiliation } from "../../../../../model/cloudStorage/Constants";
+import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -55,7 +55,7 @@ export class URLCloudRename extends AbstractController<RequestType, ResponseType
 
         const fileInfo = await CloudStorageFilesDAO().findOne(["file_name"], {
             file_uuid: fileUUID,
-            affiliation: FileAffiliation.OnlineCourseware,
+            resource_type: FileResourceType.OnlineCourseware,
         });
 
         if (fileInfo === undefined) {
