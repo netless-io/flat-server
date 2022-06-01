@@ -79,6 +79,77 @@ export const whiteboardQueryConversionTask = async (
     );
 };
 
+export const whiteboardCreateProjectorTask = async (
+    region: Region,
+    body: CreateProjectorTaskParams,
+): Promise<AxiosResponse<ProjectorTaskCreated>> => {
+    return await ax.post<ProjectorTaskCreated>(
+        "https://api.netless.link/v5/projector/tasks",
+        {
+            ...body,
+            preview: true,
+            pack: false,
+        },
+        {
+            headers: {
+                token: createWhiteboardSDKToken(),
+                region,
+            },
+        },
+    );
+};
+
+export const whiteboardQueryProjectorTask = async (
+    region: Region,
+    uuid: string,
+): Promise<AxiosResponse<ProjectorTaskStatus>> => {
+    return await ax.get<ProjectorTaskStatus>(
+        `https://api.netless.link/v5/projector/tasks/${uuid}`,
+        {
+            headers: {
+                token: createWhiteboardSDKToken(),
+                region,
+            },
+        },
+    );
+};
+
+interface CreateProjectorTaskParams {
+    resource: string;
+    preview?: boolean;
+    pack?: boolean;
+    webhookEndpoint?: string;
+    webhookRetry?: number;
+    targetStorageDriver?: {
+        ak?: string;
+        sk?: string;
+        token?: string;
+        bucket: string;
+        path?: string;
+        provider: "aliyun" | "qiniu" | "aws" | "qcloud" | "ucloud" | "huaweicloud";
+        region: string;
+        domain?: string;
+    };
+}
+
+interface ProjectorTaskCreated {
+    uuid: string;
+    status: "Waiting" | "Converting" | "Finished" | "Fail" | "Abort";
+    errorCode?: string;
+    errorMessage?: string;
+    convertedPercentage?: number;
+    prefix?: string;
+}
+
+interface ProjectorTaskStatus {
+    uuid: string;
+    status: "Waiting" | "Converting" | "Finished" | "Fail" | "Abort";
+    errorCode?: string;
+    errorMessage?: string;
+    convertedPercentage?: number;
+    prefix?: string;
+}
+
 type CreateConversionTaskParams =
     | CreateStaticConversionTaskParams
     | CreateDynamicConversionTaskParams;

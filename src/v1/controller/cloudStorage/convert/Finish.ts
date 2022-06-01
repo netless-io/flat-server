@@ -2,7 +2,10 @@ import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { whiteboardQueryConversionTask } from "../../../utils/request/whiteboard/WhiteboardRequest";
+import {
+    whiteboardQueryConversionTask,
+    whiteboardQueryProjectorTask,
+} from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { FileAffiliation, FileConvertStep } from "../../../../model/cloudStorage/Constants";
 import { determineType, isConvertDone, isConvertFailed } from "./Utils";
 import { AbstractController } from "../../../../abstract/controller";
@@ -12,6 +15,7 @@ import axios from "axios";
 import {
     LocalCoursewarePayload,
     WhiteboardConvertPayload,
+    WhiteboardProjectorPayload,
 } from "../../../../model/cloudStorage/Types";
 
 @Controller<RequestType, ResponseType>({
@@ -111,6 +115,7 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
                     data: {},
                 };
             }
+            case "Abort":
             case "Fail": {
                 await CloudStorageFilesDAO().update(
                     {
@@ -149,7 +154,7 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
         resource: string,
         payload: WhiteboardConvertPayload | LocalCoursewarePayload,
         affiliation: FileAffiliation,
-    ): Promise<"Waiting" | "Converting" | "Finished" | "Fail" | null> {
+    ): Promise<"Waiting" | "Converting" | "Finished" | "Fail" | "Abort" | null> {
         if (affiliation === FileAffiliation.LocalCourseware) {
             const fileName = path.basename(resource);
             const dir = resource.substr(0, resource.length - fileName.length);
@@ -169,6 +174,10 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
             const { taskUUID, region } = payload as WhiteboardConvertPayload;
             const resourceType = determineType(resource);
             const result = await whiteboardQueryConversionTask(region, taskUUID, resourceType);
+            return result.data.status;
+        } else if (affiliation === FileAffiliation.WhiteboardProjector) {
+            const { taskUUID, region } = payload as WhiteboardProjectorPayload;
+            const result = await whiteboardQueryProjectorTask(region, taskUUID);
             return result.data.status;
         }
 

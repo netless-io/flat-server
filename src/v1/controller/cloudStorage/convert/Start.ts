@@ -3,12 +3,16 @@ import { ErrorCode } from "../../../../ErrorCode";
 import { createWhiteboardTaskToken } from "../../../../utils/NetlessToken";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { whiteboardCreateConversionTask } from "../../../utils/request/whiteboard/WhiteboardRequest";
+import {
+    whiteboardCreateConversionTask,
+    whiteboardCreateProjectorTask,
+} from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { FileAffiliation, FileConvertStep } from "../../../../model/cloudStorage/Constants";
 import { determineType, isConvertDone, isConvertFailed, isConverting } from "./Utils";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import path from "path";
+import { In } from "typeorm";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -25,12 +29,16 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
                     type: "string",
                     format: "uuid-v4",
                 },
+                isWhiteboardProjector: {
+                    type: "boolean",
+                    nullable: true,
+                },
             },
         },
     };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const { fileUUID } = this.body;
+        const { fileUUID, isWhiteboardProjector } = this.body;
         const userUUID = this.userUUID;
 
         const userFileInfo = await CloudStorageUserFilesDAO().findOne(["id"], {
@@ -47,7 +55,10 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
 
         const fileInfo = await CloudStorageFilesDAO().findOne(["file_url", "payload"], {
             file_uuid: fileUUID,
-            affiliation: FileAffiliation.WhiteboardConvert,
+            affiliation: In([
+                FileAffiliation.WhiteboardConvert,
+                FileAffiliation.WhiteboardProjector,
+            ]),
         });
 
         if (fileInfo === undefined) {
@@ -84,14 +95,18 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
 
         const resourceType = determineType(resource);
 
-        const result = await whiteboardCreateConversionTask(region, {
-            resource,
-            type: resourceType,
-            scale: FileConvertStart.scaleByFileType(resource),
-            preview: resourceType === "dynamic",
-            pack: resourceType === "static",
-            canvasVersion: resourceType === "dynamic",
-        });
+        const result = isWhiteboardProjector
+            ? await whiteboardCreateProjectorTask(region, {
+                  resource,
+              })
+            : await whiteboardCreateConversionTask(region, {
+                  resource,
+                  type: resourceType,
+                  scale: FileConvertStart.scaleByFileType(resource),
+                  preview: resourceType === "dynamic",
+                  pack: resourceType === "static",
+                  canvasVersion: resourceType === "dynamic",
+              });
 
         const taskUUID = result.data.uuid;
         const taskToken = createWhiteboardTaskToken(taskUUID);
@@ -140,6 +155,7 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
 interface RequestType {
     body: {
         fileUUID: string;
+        isWhiteboardProjector?: boolean;
     };
 }
 
