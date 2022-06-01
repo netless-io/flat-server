@@ -7,7 +7,7 @@ import {
     whiteboardCreateConversionTask,
     whiteboardCreateProjectorTask,
 } from "../../../utils/request/whiteboard/WhiteboardRequest";
-import { FileAffiliation, FileConvertStep } from "../../../../model/cloudStorage/Constants";
+import { FileConvertStep, FileResourceType } from "../../../../model/cloudStorage/Constants";
 import { determineType, isConvertDone, isConvertFailed, isConverting } from "./Utils";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
@@ -55,9 +55,9 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
 
         const fileInfo = await CloudStorageFilesDAO().findOne(["file_url", "payload"], {
             file_uuid: fileUUID,
-            affiliation: In([
-                FileAffiliation.WhiteboardConvert,
-                FileAffiliation.WhiteboardProjector,
+            resource_type: In([
+                FileResourceType.WhiteboardConvert,
+                FileResourceType.WhiteboardProjector,
             ]),
         });
 

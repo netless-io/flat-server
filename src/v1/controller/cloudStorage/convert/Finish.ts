@@ -6,7 +6,7 @@ import {
     whiteboardQueryConversionTask,
     whiteboardQueryProjectorTask,
 } from "../../../utils/request/whiteboard/WhiteboardRequest";
-import { FileAffiliation, FileConvertStep } from "../../../../model/cloudStorage/Constants";
+import { FileConvertStep, FileResourceType } from "../../../../model/cloudStorage/Constants";
 import { determineType, isConvertDone, isConvertFailed } from "./Utils";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
@@ -54,7 +54,7 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
         }
 
         const fileInfo = await CloudStorageFilesDAO().findOne(
-            ["file_url", "affiliation", "payload"],
+            ["file_url", "resource_type", "payload"],
             {
                 file_uuid: fileUUID,
             },
@@ -67,7 +67,7 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
             };
         }
 
-        const { file_url: resource, payload, affiliation } = fileInfo;
+        const { file_url: resource, payload, resource_type } = fileInfo;
 
         const { convertStep } = payload as any;
 
@@ -89,7 +89,7 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
             resource,
             // @ts-ignore
             payload,
-            affiliation,
+            resource_type,
         );
 
         if (convertStatus === null) {
@@ -153,9 +153,9 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
     private static async queryConversionStatus(
         resource: string,
         payload: WhiteboardConvertPayload | LocalCoursewarePayload,
-        affiliation: FileAffiliation,
+        resourceType: FileResourceType,
     ): Promise<"Waiting" | "Converting" | "Finished" | "Fail" | "Abort" | null> {
-        if (affiliation === FileAffiliation.LocalCourseware) {
+        if (resourceType === FileResourceType.LocalCourseware) {
             const fileName = path.basename(resource);
             const dir = resource.substr(0, resource.length - fileName.length);
             const resultPath = `${dir}result`;
@@ -170,12 +170,12 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
 
                 throw error;
             }
-        } else if (affiliation === FileAffiliation.WhiteboardConvert) {
+        } else if (resourceType === FileResourceType.WhiteboardConvert) {
             const { taskUUID, region } = payload as WhiteboardConvertPayload;
             const resourceType = determineType(resource);
             const result = await whiteboardQueryConversionTask(region, taskUUID, resourceType);
             return result.data.status;
-        } else if (affiliation === FileAffiliation.WhiteboardProjector) {
+        } else if (resourceType === FileResourceType.WhiteboardProjector) {
             const { taskUUID, region } = payload as WhiteboardProjectorPayload;
             const result = await whiteboardQueryProjectorTask(region, taskUUID);
             return result.data.status;

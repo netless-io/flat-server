@@ -10,7 +10,7 @@ import { Controller } from "../../../../../decorator/Controller";
 import { URL } from "url";
 import { aliGreenText } from "../../../../utils/AliGreen";
 import { ControllerError } from "../../../../../error/ControllerError";
-import { FileAffiliation } from "../../../../../model/cloudStorage/Constants";
+import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -60,10 +60,10 @@ export class AlibabaCloudRename extends AbstractController<RequestType, Response
             ["file_name", "file_url", "payload"],
             {
                 file_uuid: fileUUID,
-                affiliation: In([
-                    FileAffiliation.WhiteboardConvert,
-                    FileAffiliation.LocalCourseware,
-                    FileAffiliation.NormalResources,
+                resource_type: In([
+                    FileResourceType.WhiteboardConvert,
+                    FileResourceType.LocalCourseware,
+                    FileResourceType.NormalResources,
                 ]),
             },
         );

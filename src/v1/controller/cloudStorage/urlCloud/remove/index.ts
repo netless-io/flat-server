@@ -8,7 +8,7 @@ import { createQueryBuilder, getConnection, In } from "typeorm";
 import { ControllerError } from "../../../../../error/ControllerError";
 import { CloudStorageUserFilesModel } from "../../../../../model/cloudStorage/CloudStorageUserFiles";
 import { CloudStorageFilesModel } from "../../../../../model/cloudStorage/CloudStorageFiles";
-import { FileAffiliation } from "../../../../../model/cloudStorage/Constants";
+import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -43,14 +43,14 @@ export class URLCloudRemove extends AbstractController<RequestType, ResponseType
             .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
             .where(
                 `f.file_uuid IN (:...fileUUIDs)
-                AND AND f.affiliation IN (:...affiliation)
+                AND AND f.resource_type IN (:...resourceType)
                 AND fc.user_uuid = :userUUID
                 AND fc.is_delete = false
                 AND f.is_delete = false`,
                 {
                     fileUUIDs,
                     userUUID,
-                    affiliation: [FileAffiliation.OnlineCourseware],
+                    resourceType: [FileResourceType.OnlineCourseware],
                 },
             )
             .getRawMany();

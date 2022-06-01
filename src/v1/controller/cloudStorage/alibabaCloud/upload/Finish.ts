@@ -14,7 +14,7 @@ import { isExistObject } from "../Utils";
 import { Controller } from "../../../../../decorator/Controller";
 import { AbstractController } from "../../../../../abstract/controller";
 import { isLocalCourseware, isWhiteboardCourseware } from "../../convert/Utils";
-import { FileAffiliation, FileConvertStep } from "../../../../../model/cloudStorage/Constants";
+import { FileConvertStep, FileResourceType } from "../../../../../model/cloudStorage/Constants";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -95,13 +95,13 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
                                 ? FileConvertStep.None
                                 : FileConvertStep.Converting,
                     },
-                    affiliation: isWhiteboardProjector
-                        ? FileAffiliation.WhiteboardProjector
+                    resource_type: isWhiteboardProjector
+                        ? FileResourceType.WhiteboardProjector
                         : isLocalCourseware(fileName)
-                        ? FileAffiliation.LocalCourseware
+                        ? FileResourceType.LocalCourseware
                         : isWhiteboardCourseware(fileName)
-                        ? FileAffiliation.WhiteboardConvert
-                        : FileAffiliation.NormalResources,
+                        ? FileResourceType.WhiteboardConvert
+                        : FileResourceType.NormalResources,
                 }),
             );
 

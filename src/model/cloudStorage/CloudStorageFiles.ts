@@ -1,6 +1,6 @@
 import { Column, Entity, Index } from "typeorm";
 import { Content } from "../Content";
-import { FileAffiliation } from "./Constants";
+import { FileResourceType } from "./Constants";
 import { FilePayload } from "./Types";
 
 @Entity({
@@ -40,12 +40,12 @@ export class CloudStorageFilesModel extends Content {
     })
     payload: FilePayload;
 
-    @Index("cloud_storage_files_affiliation_index")
+    @Index("cloud_storage_files_resource_type_index")
     @Column({
         length: 20,
         type: "varchar",
     })
-    affiliation: FileAffiliation;
+    resource_type: FileResourceType;
 
     @Index("cloud_storage_files_is_delete_index")
     @Column({

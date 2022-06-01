@@ -4,8 +4,8 @@ import { getConnection } from "./utils/mysql";
 import {
     generatorFindData,
     SQLCount,
-    SQLCreateAffiliationField,
     SQLCreatePayloadField,
+    SQLCreateResourceTypeField,
     SQLDeleteUnlessColumns,
     SQLFindData,
     SQLUpdate,
@@ -20,8 +20,8 @@ const main = async () => {
     console.log(`create payload field`);
     await SQLCreatePayloadField(connection);
 
-    console.log(`create affiliation field`);
-    await SQLCreateAffiliationField(connection);
+    console.log(`create resource_type field`);
+    await SQLCreateResourceTypeField(connection);
 
     const count = await SQLCount(connection);
     console.log(`cloud_storage_files count is: ${count}`);

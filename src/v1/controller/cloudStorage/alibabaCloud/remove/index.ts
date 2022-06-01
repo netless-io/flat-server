@@ -16,7 +16,7 @@ import { URL } from "url";
 import path from "path";
 import { ossClient } from "../Utils";
 import OSS from "ali-oss";
-import { FileAffiliation } from "../../../../../model/cloudStorage/Constants";
+import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
 import { FilePayload } from "../../../../../model/cloudStorage/Types";
 
 @Controller<RequestType, ResponseType>({
@@ -55,18 +55,18 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
             .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
             .where(
                 `f.file_uuid IN (:...fileUUIDs)
-                AND f.affiliation IN (:...affiliation)
+                AND f.resource_type IN (:...resourceType)
                 AND fc.user_uuid = :userUUID
                 AND fc.is_delete = false
                 AND f.is_delete = false`,
                 {
                     fileUUIDs,
                     userUUID,
-                    affiliation: [
-                        FileAffiliation.WhiteboardConvert,
-                        FileAffiliation.LocalCourseware,
-                        FileAffiliation.NormalResources,
-                        FileAffiliation.WhiteboardProjector,
+                    resourceType: [
+                        FileResourceType.WhiteboardConvert,
+                        FileResourceType.LocalCourseware,
+                        FileResourceType.NormalResources,
+                        FileResourceType.WhiteboardProjector,
                     ],
                 },
             )

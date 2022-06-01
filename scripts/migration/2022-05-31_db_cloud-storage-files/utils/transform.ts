@@ -1,6 +1,6 @@
 import { IFindData, ITransformData } from "../type";
 
-const getFileServiceType = (
+const getFileResourceType = (
     data: IFindData,
 ): "WhiteboardConvert" | "LocalCourseware" | "OnlineCourseware" | "NormalResources" => {
     if (data.task_token !== "" && data.task_token !== "" && data.region !== "none") {
@@ -20,9 +20,9 @@ const getFileServiceType = (
 
 export const transformData = (data: IFindData): ITransformData => {
     let payload = {};
-    const fileServiceType = getFileServiceType(data);
+    const fileResourceType = getFileResourceType(data);
 
-    switch (getFileServiceType(data)) {
+    switch (fileResourceType) {
         case "LocalCourseware": {
             payload = {
                 region: data.region,
@@ -53,7 +53,7 @@ export const transformData = (data: IFindData): ITransformData => {
 
     return {
         id: data.id,
-        affiliation: fileServiceType,
+        resourceType: fileResourceType,
         payload,
     };
 };

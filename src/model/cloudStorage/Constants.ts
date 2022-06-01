@@ -5,7 +5,7 @@ export enum FileConvertStep {
     Failed = "Failed",
 }
 
-export enum FileAffiliation {
+export enum FileResourceType {
     WhiteboardConvert = "WhiteboardConvert",
     LocalCourseware = "LocalCourseware",
     OnlineCourseware = "OnlineCourseware",
