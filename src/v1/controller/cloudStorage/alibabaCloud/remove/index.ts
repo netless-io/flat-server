@@ -66,6 +66,7 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
                         FileAffiliation.WhiteboardConvert,
                         FileAffiliation.LocalCourseware,
                         FileAffiliation.NormalResources,
+                        FileAffiliation.WhiteboardProjector,
                     ],
                 },
             )
