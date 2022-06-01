@@ -134,5 +134,5 @@ interface CloudStorageFile {
     file_url: string;
     create_at: Date;
     payload: FilePayload;
-    resourceType: FileResourceType;
+    resource_type: FileResourceType;
 }
