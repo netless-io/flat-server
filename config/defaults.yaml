@@ -1,5 +1,6 @@
 server:
   port: 80
+  env: dev
 
 redis:
   host:
@@ -80,6 +81,9 @@ login:
   sms:
     enable: false
     force: false
+    test_users:
+      - phone:
+        code:
     chinese_mainland:
       access_id:
       access_secret:
