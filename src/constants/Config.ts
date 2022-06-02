@@ -70,7 +70,12 @@ export const Google = {
 export const PhoneSMS = {
     enable: config.login.sms.enable,
     force: config.login.sms.force,
-    testUsers: config.login.sms.test_users,
+    testUsers: config.login.sms.test_users.map(user => {
+        return {
+            phone: String(user.phone),
+            code: user.code,
+        };
+    }),
     chineseMainland: {
         accessId: config.login.sms.chinese_mainland.access_id,
         accessSecret: config.login.sms.chinese_mainland.access_secret,
