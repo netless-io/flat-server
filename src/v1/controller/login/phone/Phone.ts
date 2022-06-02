@@ -1,5 +1,5 @@
 import { Controller } from "../../../../decorator/Controller";
-import { PhoneSMS } from "../../../../constants/Config";
+import { PhoneSMS, Server } from "../../../../constants/Config";
 import { AbstractController } from "../../../../abstract/controller";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { ServiceUserPhone } from "../../../service/user/UserPhone";
@@ -88,6 +88,14 @@ export class PhoneLogin extends AbstractController<RequestType, ResponseType> {
     }
 
     private static async assertCodeCorrect(safePhone: string, code: number): Promise<void> {
+        if (Server.env === "dev") {
+            for (const user of PhoneSMS.testUsers) {
+                if (user.phone === safePhone && user.code === code) {
+                    return;
+                }
+            }
+        }
+
         const value = await RedisService.get(RedisKey.phoneLogin(safePhone));
 
         if (String(code) !== value) {

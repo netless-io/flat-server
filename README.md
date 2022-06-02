@@ -186,6 +186,13 @@ login:
         enable: true
         # Is force binding phone
         force: false
+        # Test user (Only valid if server.env is dev)
+        # You need to run MYSQL yourself to insert the user
+        # INSERT INTO user_phone (version, user_uuid, user_name, phone_number) VALUES (1, 'uuid', 'name', 'phone');
+        # INSERT INTO users (version, user_uuid, user_name, user_password, avatar_url) VALUES (1, 'uuid', 'name', '', 'url');
+        test_users:
+            -   phone:
+                code:
         chinese_mainland:
             # see:  https://help.aliyun.com/document_detail/419273.htm?spm=a2c4g.11186623.0.0.34371d58IYPbs3
             access_id:

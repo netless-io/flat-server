@@ -29,6 +29,7 @@ export const config = yaml.load(yamlContent) as Config;
 type Config = {
     server: {
         port: number;
+        env: string;
     };
     redis: {
         host: string;
@@ -102,6 +103,10 @@ type Config = {
         sms: {
             enable: boolean;
             force: boolean;
+            test_users: Array<{
+                phone: string;
+                code: number;
+            }>;
             chinese_mainland: SMSConfig;
             hmt: SMSConfig;
             global: SMSConfig;
