@@ -45,6 +45,10 @@ cloud_storage:
     - mp3
     - mp4
     - ice
+  allow_avatar_suffix:
+    - png
+    - jpg
+    - jpeg
   url_file_suffix:
     - vf
 

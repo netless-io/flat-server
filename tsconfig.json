@@ -27,6 +27,7 @@
         "declaration": true,
         "declarationMap": true,
         "baseUrl": "src",
+        "skipLibCheck": true
     },
     "exclude": ["node_modules"],
     "include": ["./src/**/*.ts", "./typings/*.ts", "./test/**/*.ts"]

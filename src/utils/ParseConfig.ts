@@ -66,6 +66,7 @@ type Config = {
         total_size: number;
         prefix_path: string;
         allow_file_suffix: string[];
+        allow_avatar_suffix: string[];
         url_file_suffix: string[];
     };
     login: {

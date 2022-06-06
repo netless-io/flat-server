@@ -58,6 +58,17 @@ export class ServiceUser {
         return result;
     }
 
+    public async updateAvatar(avatarURL: string, t?: EntityManager): Promise<UpdateResult> {
+        return await UserDAO(t).update(
+            {
+                avatar_url: avatarURL,
+            },
+            {
+                user_uuid: this.userUUID,
+            },
+        );
+    }
+
     public async updateName(userName: string, t?: EntityManager): Promise<UpdateResult> {
         return await UserDAO(t).update(
             {

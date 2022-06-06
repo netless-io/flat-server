@@ -27,15 +27,23 @@ const uuidV4: FormatDefinition<string> = {
 
 const fileSuffix: FormatDefinition<string> = {
     validate: fileName => {
-        const suffix = path.extname(fileName).substr(1);
+        const suffix = path.extname(fileName).slice(1);
 
         return CloudStorage.allowFileSuffix.includes(suffix);
     },
 };
 
+const avatarSuffix: FormatDefinition<string> = {
+    validate: fileName => {
+        const suffix = path.extname(fileName).slice(1);
+
+        return CloudStorage.allowAvatarSuffix.includes(suffix);
+    },
+};
+
 const urlFileSuffix: FormatDefinition<string> = {
     validate: fileName => {
-        const suffix = path.extname(fileName).substr(1);
+        const suffix = path.extname(fileName).slice(1);
 
         return CloudStorage.allowUrlFileSuffix.includes(suffix);
     },
@@ -66,6 +74,7 @@ export const ajvSelfPlugin = (ajv: Ajv): void => {
     ajv.addFormat("unix-timestamp", unixTimestamp);
     ajv.addFormat("uuid-v4", uuidV4);
     ajv.addFormat("file-suffix", fileSuffix);
+    ajv.addFormat("avatar-suffix", avatarSuffix);
     ajv.addFormat("url-file-suffix", urlFileSuffix);
     ajv.addFormat("url", url);
     ajv.addFormat("phone", phone);

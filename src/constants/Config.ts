@@ -142,6 +142,7 @@ export const CloudStorage = {
     totalSize: config.cloud_storage.total_size,
     prefixPath: config.cloud_storage.prefix_path,
     allowFileSuffix: config.cloud_storage.allow_file_suffix,
+    allowAvatarSuffix: config.cloud_storage.allow_avatar_suffix,
     allowUrlFileSuffix: config.cloud_storage.url_file_suffix,
 };
 

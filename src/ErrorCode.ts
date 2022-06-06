@@ -44,4 +44,6 @@ export enum ErrorCode {
     SMSVerificationCodeInvalid = 110000, // verification code invalid
     SMSAlreadyExist, // phone already exist by current user
     SMSAlreadyBinding, // phone are binding by other users
+
+    CensorshipFailed = 120000, // censorship failed
 }
