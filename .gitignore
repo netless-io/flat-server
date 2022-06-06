@@ -108,4 +108,5 @@ certificate/*
 !certificate/.gitkeep
 config/*.yaml
 !config/defaults.yaml
+!config/test.yaml
 scripts/migration/*/.env.yaml
