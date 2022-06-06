@@ -1,0 +1,193 @@
+server:
+  port: 8761
+  env: dev
+
+redis:
+  host: 127.0.0.1
+  port: 7528
+  username:
+  password: flat-server-test
+  db: 0
+  queueDB: 1
+
+mysql:
+  host: 127.0.0.1
+  port: 7519
+  username: root
+  password: flat-server-test
+  db: flat_server
+
+jwt:
+  secret: test
+  algorithms: HS256
+
+website: https://flat-web-dev.whiteboard.agora.io
+
+log:
+  pathname: "{{PROJECT_DIR}}/logs"
+  filename: "{{DAY_DATE}}"
+
+cloud_storage:
+  concurrent: 3
+  single_file_size: 524288000
+  total_size: 2147483648
+  prefix_path: cloud-storage
+  allow_file_suffix:
+    - ppt
+    - pptx
+    - doc
+    - docx
+    - pdf
+    - png
+    - jpg
+    - jpeg
+    - gif
+    - mp3
+    - mp4
+    - ice
+  url_file_suffix:
+    - vf
+
+login:
+  wechat:
+    web:
+      enable: false
+      app_id:
+      app_secret:
+    mobile:
+      enable: false
+      app_id:
+      app_secret:
+  github:
+    enable: false
+    client_id:
+    client_secret:
+  google:
+    enable: false
+    client_id:
+    client_secret:
+    redirect_uri:
+  apple:
+    enable: false
+  agora:
+    enable: false
+    client_id:
+    client_secret:
+  sms:
+    enable: false
+    force: false
+    test_users:
+      - phone:
+        code:
+    chinese_mainland:
+      access_id:
+      access_secret:
+      template_code:
+      sign_name:
+    # hmt(Hong Kong, Macao and Taiwan regions of China)
+    hmt:
+      access_id:
+      access_secret:
+      template_code:
+      sign_name:
+    global:
+      access_id:
+      access_secret:
+      template_code:
+      sign_name:
+
+agora:
+  app:
+    id:
+    certificate:
+  restful:
+    id:
+    secret:
+  oss:
+    access_id:
+    access_secret:
+    vendor:
+    region:
+    bucket:
+    folder:
+    prefix:
+  screenshot:
+    enable:
+    oss:
+      access_id:
+      access_secret:
+      vendor:
+      region:
+      bucket:
+      folder:
+      prefix:
+  messageNotification:
+    enable: false
+    events:
+      - productID:
+        eventType:
+        secret:
+
+
+whiteboard:
+  access_key: ""
+  secret_access_key: ""
+
+storage_service:
+  type: oss
+  oss:
+    zh_hz:
+      access_key:
+      secret_key:
+      endpoint:
+      bucket:
+      region:
+    us_sv:
+      access_key:
+      secret_key:
+      endpoint:
+      bucket:
+      region:
+    sg:
+      access_key:
+      secret_key:
+      endpoint:
+      bucket:
+      region:
+    in_mum:
+      access_key:
+      secret_key:
+      endpoint:
+      bucket:
+      region:
+    gb_lon:
+      access_key:
+      secret_key:
+      endpoint:
+      bucket:
+      region:
+
+censorship:
+  video:
+    enable: false
+    type: aliCloud
+    aliCloud:
+      uid:
+      access_id:
+      access_secret:
+      endpoint:
+  voice:
+    enable: false
+    type: aliCloud
+    aliCloud:
+      uid:
+      access_id:
+      access_secret:
+      callback_address:
+  text:
+    enable: false
+    type: aliCloud
+    aliCloud:
+      access_id:
+      access_secret:
+      endpoint:
