@@ -66,18 +66,6 @@ export class LoginProcess extends AbstractController<RequestType, ResponseType> 
 
         const userInfo = JSON.parse(userInfoStr);
 
-        // Agora SSO
-        if ("agoraSSOLoginID" in userInfo) {
-            const thirtyDay = 60 * 60 * 24 * 30;
-            RedisService.set(
-                RedisKey.agoraSSOLoginID(userInfo.agoraSSOLoginID),
-                userInfo.userUUID,
-                thirtyDay,
-            ).catch(error => {
-                this.logger.error(error);
-            });
-        }
-
         return {
             status: Status.Success,
             data: userInfo,

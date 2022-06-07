@@ -5,7 +5,6 @@ export const RedisKey = {
     agoraRTCRoomUserToken: (roomUUID: string, uid: string | number): string =>
         `agora:rtc:room:${roomUUID}:uid:${uid}`,
     agoraRTMUserToken: (userUUID: string): string => `agora:rtm:userUUID:${userUUID}`,
-    agoraSSOLoginID: (loginID: string): string => `agora:sso:loginID:${loginID}`,
     cloudStorageFileInfo: (userUUID: string, fileUUID: string): string =>
         `cloudStorage:${userUUID}:${fileUUID}`,
     roomInviteCode: (inviteCode: string): string => `room:invite:${inviteCode}`,
