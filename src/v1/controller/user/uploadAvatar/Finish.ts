@@ -86,21 +86,20 @@ export class UploadAvatarFinish extends AbstractController<RequestType, Response
 
         // Delete previous avatar and set new avatar.
         await getConnection().transaction(async t => {
-            const commands: Promise<unknown>[] = [];
-
-            commands.push(this.svc.user.updateAvatar(alibabaCloudFileURL, t));
+            await this.svc.user.updateAvatar(alibabaCloudFileURL, t);
 
             const avatarURL = (await this.svc.user.nameAndAvatar())?.avatarURL;
             if (avatarURL) {
                 // prefix = "https://bucket.endpoint"
                 const prefix = getOSSDomain(region);
                 if (avatarURL.startsWith(prefix)) {
-                    commands.push(deleteObject(avatarURL.slice(prefix.length), region));
+                    await deleteObject(avatarURL.slice(prefix.length), region);
                 }
             }
 
-            await Promise.all(commands);
-            await RedisService.del(redisKey);
+            await RedisService.del(redisKey).catch(error => {
+                this.logger.warn("delete redis key failed", parseError(error));
+            });
         });
 
         return {
