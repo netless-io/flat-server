@@ -74,24 +74,6 @@ export class LoginAgora extends AbstractLogin {
         const token = await LoginAgora.getToken(code);
         return await LoginAgora.getUserInfoByAPI(token);
     }
-
-    public static async checkLoginID(loginID: string): Promise<boolean> {
-        const result = await ax.post<{ isValid: boolean }>(
-            "https://sso-power.agora.io/api/v1/visitor/check-login-id",
-            {
-                loginId: loginID,
-            },
-            {
-                headers: {
-                    Authorization: Buffer.from(
-                        `${AgoraLogin.clientId}:${AgoraLogin.clientSecret}`,
-                    ).toString("base64"),
-                },
-            },
-        );
-
-        return result.data.isValid || false;
-    }
 }
 
 interface RegisterService {
