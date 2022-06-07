@@ -60,6 +60,7 @@ export class UploadAvatarStart extends AbstractController<RequestType, ResponseT
         return {
             status: Status.Success,
             data: {
+                fileUUID,
                 filePath,
                 policy,
                 policyURL: getOSSDomain(region),
@@ -82,6 +83,7 @@ interface RequestType {
 }
 
 interface ResponseType {
+    fileUUID: string;
     filePath: string;
     policy: string;
     policyURL: string;
