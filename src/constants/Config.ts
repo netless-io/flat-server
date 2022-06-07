@@ -186,6 +186,13 @@ export const StorageService = {
     },
 };
 
+export const User = {
+    avatar: {
+        size: config.user.avatar.size,
+        allowSuffix: config.user.avatar.allow_suffix,
+    },
+};
+
 export const LogConfig = {
     pathname: config.log.pathname,
     filename: config.log.filename,

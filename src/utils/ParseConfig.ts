@@ -68,6 +68,12 @@ type Config = {
         allow_file_suffix: string[];
         url_file_suffix: string[];
     };
+    user: {
+        avatar: {
+            size: number;
+            allow_suffix: string[];
+        };
+    };
     login: {
         wechat: {
             web: {

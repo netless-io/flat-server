@@ -6,4 +6,10 @@ module.exports = {
     'arrowParens': 'avoid',
     'trailingComma': 'all',
     'bracketSpacing': true,
+    'overrides': [{
+        'files': '*.yaml',
+        'options': {
+            'tabWidth': 2
+        }
+    }]
 }

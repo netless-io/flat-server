@@ -53,6 +53,15 @@ cloud_storage:
   url_file_suffix:
     - vf
 
+user:
+  avatar:
+    # 5M
+    size: 5242880
+    allow_suffix:
+      - png
+      - jpg
+      - jpeg
+
 login:
   wechat:
     web:
@@ -195,4 +204,3 @@ censorship:
       access_id:
       access_secret:
       endpoint:
-

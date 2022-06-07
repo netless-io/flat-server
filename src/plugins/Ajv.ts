@@ -2,7 +2,7 @@ import { isValid } from "date-fns/fp";
 import { validate as uuidValidate, version as uuidVersion } from "uuid";
 import Ajv, { FormatDefinition } from "ajv";
 import path from "path";
-import { CloudStorage } from "../constants/Config";
+import { CloudStorage, User } from "../constants/Config";
 import PhoneNumber from "awesome-phonenumber";
 
 // link: https://github.com/ajv-validator/ajv/blob/cd7c6a8385464f818814ebb1e84cc703dc7ef02c/docs/api.md#ajvaddformatname-string-format-format-ajv
@@ -27,15 +27,23 @@ const uuidV4: FormatDefinition<string> = {
 
 const fileSuffix: FormatDefinition<string> = {
     validate: fileName => {
-        const suffix = path.extname(fileName).substr(1);
+        const suffix = path.extname(fileName).slice(1);
 
         return CloudStorage.allowFileSuffix.includes(suffix);
     },
 };
 
+const avatarSuffix: FormatDefinition<string> = {
+    validate: fileName => {
+        const suffix = path.extname(fileName).slice(1);
+
+        return User.avatar.allowSuffix.includes(suffix);
+    },
+};
+
 const urlFileSuffix: FormatDefinition<string> = {
     validate: fileName => {
-        const suffix = path.extname(fileName).substr(1);
+        const suffix = path.extname(fileName).slice(1);
 
         return CloudStorage.allowUrlFileSuffix.includes(suffix);
     },
@@ -66,6 +74,7 @@ export const ajvSelfPlugin = (ajv: Ajv): void => {
     ajv.addFormat("unix-timestamp", unixTimestamp);
     ajv.addFormat("uuid-v4", uuidV4);
     ajv.addFormat("file-suffix", fileSuffix);
+    ajv.addFormat("avatar-suffix", avatarSuffix);
     ajv.addFormat("url-file-suffix", urlFileSuffix);
     ajv.addFormat("url", url);
     ajv.addFormat("phone", phone);

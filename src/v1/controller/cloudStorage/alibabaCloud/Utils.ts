@@ -88,3 +88,15 @@ export async function isExistObject(fullPath: string, region: Region): Promise<b
         return false;
     }
 }
+
+/**
+ * Delete a file in the bucket.
+ */
+export async function deleteObject(fullPath: string, region: Region): Promise<boolean> {
+    try {
+        await ossClient[region].delete(fullPath);
+        return true;
+    } catch {
+        return false;
+    }
+}
