@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { AbstractController } from "../../../../abstract/controller";
-import { CloudStorage } from "../../../../constants/Config";
+import { User } from "../../../../constants/Config";
 import { Region, Status } from "../../../../constants/Project";
 import { Controller } from "../../../../decorator/Controller";
 import RedisService from "../../../../thirdPartyService/RedisService";
@@ -29,7 +29,7 @@ export class UploadAvatarStart extends AbstractController<RequestType, ResponseT
                 fileSize: {
                     type: "number",
                     minimum: 1,
-                    maximum: CloudStorage.singleFileSize,
+                    maximum: User.avatar.size,
                 },
                 region: {
                     type: "string",
@@ -48,7 +48,7 @@ export class UploadAvatarStart extends AbstractController<RequestType, ResponseT
         const { policy, signature } = policyTemplate(fileName, filePath, fileSize, region);
 
         await RedisService.hmset(
-            RedisKey.cloudStorageFileInfo(userUUID, fileUUID),
+            RedisKey.userAvatarFileInfo(userUUID, fileUUID),
             {
                 fileName,
                 fileSize: String(fileSize),

@@ -142,7 +142,6 @@ export const CloudStorage = {
     totalSize: config.cloud_storage.total_size,
     prefixPath: config.cloud_storage.prefix_path,
     allowFileSuffix: config.cloud_storage.allow_file_suffix,
-    allowAvatarSuffix: config.cloud_storage.allow_avatar_suffix,
     allowUrlFileSuffix: config.cloud_storage.url_file_suffix,
 };
 
@@ -184,6 +183,13 @@ export const StorageService = {
             accessKeySecret: config.storage_service.oss.gb_lon.secret_key,
             endpoint: config.storage_service.oss.gb_lon.endpoint,
         },
+    },
+};
+
+export const User = {
+    avatar: {
+        size: config.user.avatar.size,
+        allowSuffix: config.user.avatar.allow_suffix,
     },
 };
 

@@ -8,6 +8,8 @@ export const RedisKey = {
     agoraSSOLoginID: (loginID: string): string => `agora:sso:loginID:${loginID}`,
     cloudStorageFileInfo: (userUUID: string, fileUUID: string): string =>
         `cloudStorage:${userUUID}:${fileUUID}`,
+    userAvatarFileInfo: (userUUID: string, fileUUID: string): string =>
+        `user:avatar:${userUUID}:${fileUUID}`,
     roomInviteCode: (inviteCode: string): string => `room:invite:${inviteCode}`,
     roomInviteCodeReverse: (roomUUID: string): string => `room:inviteReverse:${roomUUID}`,
     phoneLogin: (phone: string): string => `phone:login:${phone}`,

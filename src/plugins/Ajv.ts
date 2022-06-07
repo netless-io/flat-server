@@ -2,7 +2,7 @@ import { isValid } from "date-fns/fp";
 import { validate as uuidValidate, version as uuidVersion } from "uuid";
 import Ajv, { FormatDefinition } from "ajv";
 import path from "path";
-import { CloudStorage } from "../constants/Config";
+import { CloudStorage, User } from "../constants/Config";
 import PhoneNumber from "awesome-phonenumber";
 
 // link: https://github.com/ajv-validator/ajv/blob/cd7c6a8385464f818814ebb1e84cc703dc7ef02c/docs/api.md#ajvaddformatname-string-format-format-ajv
@@ -37,7 +37,7 @@ const avatarSuffix: FormatDefinition<string> = {
     validate: fileName => {
         const suffix = path.extname(fileName).slice(1);
 
-        return CloudStorage.allowAvatarSuffix.includes(suffix);
+        return User.avatar.allowSuffix.includes(suffix);
     },
 };
 

@@ -3,8 +3,7 @@ import { AbstractController, ControllerClassParams } from "../../../../abstract/
 import { Region, Status } from "../../../../constants/Project";
 import { Controller } from "../../../../decorator/Controller";
 import { ErrorCode } from "../../../../ErrorCode";
-import { createLoggerContentCensorship, Logger, parseError } from "../../../../logger";
-import { LoggerContentCensorship } from "../../../../logger/LogConext";
+import { createLoggerContentCensorship, parseError } from "../../../../logger";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { RedisKey } from "../../../../utils/Redis";
@@ -37,7 +36,7 @@ export class UploadAvatarFinish extends AbstractController<RequestType, Response
         user: ServiceUser;
     };
 
-    public logger: Logger<LoggerContentCensorship>;
+    private static readonly censorshipLogger = createLoggerContentCensorship({});
 
     public constructor(params: ControllerClassParams) {
         super(params);
@@ -45,18 +44,14 @@ export class UploadAvatarFinish extends AbstractController<RequestType, Response
         this.svc = {
             user: new ServiceUser(this.userUUID),
         };
-
-        this.logger = createLoggerContentCensorship({});
     }
 
     public async execute(): Promise<Response<ResponseType>> {
         const { fileUUID } = this.body;
         const userUUID = this.userUUID;
 
-        const fileInfo = await RedisService.hmget(
-            RedisKey.cloudStorageFileInfo(userUUID, fileUUID),
-            ["fileName", "fileSize", "region"],
-        );
+        const redisKey = RedisKey.userAvatarFileInfo(userUUID, fileUUID);
+        const fileInfo = await RedisService.hmget(redisKey, ["fileName", "fileSize", "region"]);
 
         const fileName = fileInfo[0];
         const fileSize = Number(fileInfo[1]);
@@ -80,7 +75,7 @@ export class UploadAvatarFinish extends AbstractController<RequestType, Response
 
         const alibabaCloudFileURL = getOSSFileURLPath(filePath, region);
 
-        if (await this.isIllegal(alibabaCloudFileURL)) {
+        if (await UploadAvatarFinish.isIllegal(alibabaCloudFileURL)) {
             await deleteObject(filePath, region);
 
             return {
@@ -93,27 +88,19 @@ export class UploadAvatarFinish extends AbstractController<RequestType, Response
         await getConnection().transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
-            commands.push(
-                this.svc.user.nameAndAvatar().then(nameAndAvatar => {
-                    if (nameAndAvatar) {
-                        // prefix = "https://bucket.endpoint"
-                        const prefix = getOSSDomain(region);
-
-                        if (nameAndAvatar.avatarURL.startsWith(prefix)) {
-                            return deleteObject(
-                                nameAndAvatar.avatarURL.slice(prefix.length + 1),
-                                region,
-                            );
-                        }
-                    }
-                    return;
-                }),
-            );
-
             commands.push(this.svc.user.updateAvatar(alibabaCloudFileURL, t));
 
+            const avatarURL = (await this.svc.user.nameAndAvatar())?.avatarURL;
+            if (avatarURL) {
+                // prefix = "https://bucket.endpoint"
+                const prefix = getOSSDomain(region);
+                if (avatarURL.startsWith(prefix)) {
+                    commands.push(deleteObject(avatarURL.slice(prefix.length), region));
+                }
+            }
+
             await Promise.all(commands);
-            await RedisService.del(RedisKey.cloudStorageFileInfo(userUUID, fileUUID));
+            await RedisService.del(redisKey);
         });
 
         return {
@@ -128,8 +115,8 @@ export class UploadAvatarFinish extends AbstractController<RequestType, Response
         return this.autoHandlerError(error);
     }
 
-    private async isIllegal(imageURL: string): Promise<boolean> {
-        this.logger.debug("check image url", {
+    private static async isIllegal(imageURL: string): Promise<boolean> {
+        UploadAvatarFinish.censorshipLogger.debug("check user avatar url", {
             censorshipDetail: {
                 imageURL,
             },
@@ -138,7 +125,10 @@ export class UploadAvatarFinish extends AbstractController<RequestType, Response
         const result = await aliGreenVideo.imageScan(imageURL);
 
         if (!result.status) {
-            this.logger.error("image scan request failed", parseError(result.error));
+            UploadAvatarFinish.censorshipLogger.error(
+                "user avatar scan request failed",
+                parseError(result.error),
+            );
             return false;
         }
 
@@ -146,7 +136,7 @@ export class UploadAvatarFinish extends AbstractController<RequestType, Response
             return false;
         }
 
-        this.logger.debug("video illegal", {
+        UploadAvatarFinish.censorshipLogger.debug("user avatar illegal", {
             censorshipDetail: {
                 imageURL,
             },
