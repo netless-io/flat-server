@@ -16,6 +16,7 @@ import { ServiceCloudStorageFiles } from "../../v1/service/cloudStorage/CloudSto
 import { v4 } from "uuid";
 import { ServiceCloudStorageUserFiles } from "../../v1/service/cloudStorage/CloudStorageUserFiles";
 import { ServiceUserPhone } from "../../v1/service/user/UserPhone";
+import { FileConvertStep, FileResourceType } from "../../model/cloudStorage/Constants";
 
 export abstract class AbstractLogin {
     protected readonly userUUID: string;
@@ -83,20 +84,24 @@ export abstract class AbstractLogin {
             svc.cloudStorageFiles.create({
                 payload: {
                     region: Region.CN_HZ,
+                    convertStep: FileConvertStep.None,
                 },
                 fileURL: getOSSFileURLPath(cnPPTXPath, Region.CN_HZ),
                 fileSize: cnFileSize,
                 fileUUID: cnFileUUID,
                 fileName: cnName,
+                resourceType: FileResourceType.WhiteboardProjector,
             }),
             svc.cloudStorageFiles.create({
                 payload: {
                     region: Region.US_SV,
+                    convertStep: FileConvertStep.None,
                 },
                 fileURL: getOSSFileURLPath(enPPTXPath, Region.US_SV),
                 fileSize: enFileSize,
                 fileUUID: enFileUUID,
                 fileName: enName,
+                resourceType: FileResourceType.WhiteboardProjector,
             }),
             svc.cloudStorageUserFiles.create(cnFileUUID),
             svc.cloudStorageUserFiles.create(enFileUUID),
