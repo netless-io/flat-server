@@ -2,7 +2,7 @@ import test from "ava";
 import Ajv from "ajv";
 import { ajvSelfPlugin } from "../Ajv";
 import { v4 } from "uuid";
-import { CloudStorage } from "../../constants/Config";
+import { CloudStorage, User } from "../../constants/Config";
 
 const namespace = "[plugins][plugins-ajv]";
 
@@ -14,6 +14,7 @@ test(`${namespace} - inject self plugin`, ava => {
         "unix-timestamp",
         "uuid-v4",
         "file-suffix",
+        "avatar-suffix",
         "url-file-suffix",
         "url",
         "phone",
@@ -126,6 +127,62 @@ test(`${namespace} - file-suffix`, ava => {
 
         ava.is(validate.errors, null);
     }
+
+    {
+        const testFileSuffixValidSuccess = {
+            fileName: `test.${CloudStorage.allowFileSuffix[0].toUpperCase()}`,
+        };
+
+        validate(testFileSuffixValidSuccess);
+
+        ava.is(validate.errors, null);
+    }
+});
+
+test(`${namespace} - avatar-suffix`, ava => {
+    const ajv = new Ajv();
+    ajvSelfPlugin(ajv);
+
+    const validate = ajv.compile({
+        type: "object",
+        required: ["fileName"],
+        properties: {
+            fileName: {
+                type: "string",
+                format: "avatar-suffix",
+            },
+        },
+    });
+
+    {
+        const testAvatarSuffixValidFail = {
+            fileName: v4(),
+        };
+
+        validate(testAvatarSuffixValidFail);
+
+        ava.true(validate.errors !== null);
+    }
+
+    {
+        const testAvatarSuffixValidSuccess = {
+            fileName: `test.${User.avatar.allowSuffix[0]}`,
+        };
+
+        validate(testAvatarSuffixValidSuccess);
+
+        ava.is(validate.errors, null);
+    }
+
+    {
+        const testAvatarSuffixValidSuccess = {
+            fileName: `test.${User.avatar.allowSuffix[0].toUpperCase()}`,
+        };
+
+        validate(testAvatarSuffixValidSuccess);
+
+        ava.is(validate.errors, null);
+    }
 });
 
 test(`${namespace} - url-file-suffix`, ava => {
@@ -156,6 +213,16 @@ test(`${namespace} - url-file-suffix`, ava => {
     {
         const testURLFileSuffixValidSuccess = {
             fileName: `yes.${CloudStorage.allowUrlFileSuffix[0]}`,
+        };
+
+        validate(testURLFileSuffixValidSuccess);
+
+        ava.is(validate.errors, null);
+    }
+
+    {
+        const testURLFileSuffixValidSuccess = {
+            fileName: `yes.${CloudStorage.allowUrlFileSuffix[0].toUpperCase()}`,
         };
 
         validate(testURLFileSuffixValidSuccess);
