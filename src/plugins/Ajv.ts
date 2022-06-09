@@ -27,7 +27,7 @@ const uuidV4: FormatDefinition<string> = {
 
 const fileSuffix: FormatDefinition<string> = {
     validate: fileName => {
-        const suffix = path.extname(fileName).slice(1);
+        const suffix = path.extname(fileName).slice(1).toLowerCase();
 
         return CloudStorage.allowFileSuffix.includes(suffix);
     },
@@ -35,7 +35,7 @@ const fileSuffix: FormatDefinition<string> = {
 
 const avatarSuffix: FormatDefinition<string> = {
     validate: fileName => {
-        const suffix = path.extname(fileName).slice(1);
+        const suffix = path.extname(fileName).slice(1).toLowerCase();
 
         return User.avatar.allowSuffix.includes(suffix);
     },
@@ -43,7 +43,7 @@ const avatarSuffix: FormatDefinition<string> = {
 
 const urlFileSuffix: FormatDefinition<string> = {
     validate: fileName => {
-        const suffix = path.extname(fileName).slice(1);
+        const suffix = path.extname(fileName).slice(1).toLowerCase();
 
         return CloudStorage.allowUrlFileSuffix.includes(suffix);
     },
