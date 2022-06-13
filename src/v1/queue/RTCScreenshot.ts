@@ -138,9 +138,9 @@ class RTCScreenshot {
                 return {
                     nextStatus: "Start",
                     // Wait 10 minute on success
-                    // Wait 30 minute on failure
+                    // Wait 120 minute on failure
                     // The probability of failure is that there are no streams in the room, at which point the delay should be increased. Avoid wasting resources
-                    delay: stopSuccess ? 1000 * 60 * 10 : 1000 * 60 * 30,
+                    delay: stopSuccess ? 1000 * 60 * 10 : 1000 * 60 * 60 * 2,
                     data: {
                         roomUUID: this.data.roomUUID,
                     },
