@@ -9,6 +9,7 @@ import { UploadAvatarFinish } from "./uploadAvatar/Finish";
 import { BindingMobile, BindingWeb } from "./bindingWechat/Binding";
 import { SetAuthUUID } from "./binding/SetAuthUUID";
 import { BindingProcess } from "./binding/Process";
+import { BindingList } from "./binding/List";
 
 export const userRouters: Readonly<Array<ControllerClass<any, any>>> = Object.freeze([
     Rename,
@@ -18,6 +19,7 @@ export const userRouters: Readonly<Array<ControllerClass<any, any>>> = Object.fr
     BindingMobile,
     SetAuthUUID,
     BindingProcess,
+    BindingList,
     DeleteAccountValidate,
     DeleteAccount,
     UploadAvatarStart,
