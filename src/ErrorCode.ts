@@ -23,6 +23,7 @@ export enum ErrorCode {
 
     UserNotFound = 400000, // user not found
     UserRoomListNotEmpty, // user room list is not empty.
+    UserAlreadyBinding, // user already binding
 
     RecordNotFound = 500000, // record info not found
 
