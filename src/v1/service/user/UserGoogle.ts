@@ -32,6 +32,14 @@ export class ServiceUserGoogle {
         }
     }
 
+    public async exist(): Promise<boolean> {
+        const result = await UserGoogleDAO().findOne(["id"], {
+            user_uuid: this.userUUID,
+        });
+
+        return !!result;
+    }
+
     public static async userUUIDByUnionUUID(unionUUID: string): Promise<string | null> {
         const result = await UserGoogleDAO().findOne(["user_uuid"], {
             union_uuid: String(unionUUID),

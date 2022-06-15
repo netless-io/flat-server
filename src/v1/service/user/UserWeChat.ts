@@ -34,6 +34,14 @@ export class ServiceUserWeChat {
         }
     }
 
+    public async exist(): Promise<boolean> {
+        const result = await UserWeChatDAO().findOne(["id"], {
+            user_uuid: this.userUUID,
+        });
+
+        return !!result;
+    }
+
     public static async userUUIDByUnionUUID(unionUUID: string): Promise<string | null> {
         const result = await UserWeChatDAO().findOne(["user_uuid"], {
             union_uuid: unionUUID,

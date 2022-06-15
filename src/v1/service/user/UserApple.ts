@@ -32,6 +32,14 @@ export class ServiceUserApple {
         }
     }
 
+    public async exist(): Promise<boolean> {
+        const result = await UserAppleDAO().findOne(["id"], {
+            user_uuid: this.userUUID,
+        });
+
+        return !!result;
+    }
+
     public static async userUUIDByUnionUUID(unionUUID: string): Promise<string | null> {
         const result = await UserAppleDAO().findOne(["user_uuid"], {
             union_uuid: String(unionUUID),

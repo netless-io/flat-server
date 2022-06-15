@@ -32,6 +32,14 @@ export class ServiceUserGithub {
         }
     }
 
+    public async exist(): Promise<boolean> {
+        const result = await UserGithubDAO().findOne(["id"], {
+            user_uuid: this.userUUID,
+        });
+
+        return !!result;
+    }
+
     public static async userUUIDByUnionUUID(unionUUID: string): Promise<string | null> {
         const result = await UserGithubDAO().findOne(["user_uuid"], {
             union_uuid: String(unionUUID),
