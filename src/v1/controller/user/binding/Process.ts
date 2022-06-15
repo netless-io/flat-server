@@ -5,6 +5,7 @@ import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import { Status } from "../../../../constants/Project";
 import { ControllerError } from "../../../../error/ControllerError";
+import { ErrorCode } from "../../../../ErrorCode";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -30,21 +31,21 @@ export class BindingProcess extends AbstractController<RequestType, ResponseType
 
         const bindingAuthStatus = await RedisService.get(RedisKey.bindingAuthStatus(authUUID));
 
+        this.logger.debug(`binding auth status is: ${String(bindingAuthStatus)}`);
+
         if (bindingAuthStatus === null) {
             return {
                 status: Status.Process,
             };
         }
 
-        if (bindingAuthStatus !== "true" && bindingAuthStatus !== "false") {
-            throw new ControllerError(Number(bindingAuthStatus));
+        if (bindingAuthStatus === "false") {
+            throw new ControllerError(ErrorCode.CurrentProcessFailed);
         }
 
         return {
             status: Status.Success,
-            data: {
-                status: bindingAuthStatus === "true",
-            },
+            data: {},
         };
     }
 
@@ -59,6 +60,4 @@ interface RequestType {
     };
 }
 
-type ResponseType = {
-    status: boolean;
-};
+type ResponseType = {};
