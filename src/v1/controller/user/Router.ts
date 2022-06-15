@@ -6,11 +6,18 @@ import { DeleteAccountValidate } from "./deleteAccount/Validate";
 import { DeleteAccount } from "./deleteAccount";
 import { UploadAvatarStart } from "./uploadAvatar/Start";
 import { UploadAvatarFinish } from "./uploadAvatar/Finish";
+import { BindingMobile, BindingWeb } from "./bindingWechat/Binding";
+import { SetAuthUUID } from "./binding/SetAuthUUID";
+import { BindingProcess } from "./binding/Process";
 
 export const userRouters: Readonly<Array<ControllerClass<any, any>>> = Object.freeze([
     Rename,
     SendMessage,
     BindingPhone,
+    BindingWeb,
+    BindingMobile,
+    SetAuthUUID,
+    BindingProcess,
     DeleteAccountValidate,
     DeleteAccount,
     UploadAvatarStart,
