@@ -30,6 +30,12 @@ export class BindingProcess extends AbstractController<RequestType, ResponseType
 
         const bindingAuthStatus = await RedisService.get(RedisKey.bindingAuthStatus(authUUID));
 
+        if (bindingAuthStatus === null) {
+            return {
+                status: Status.Process,
+            };
+        }
+
         if (bindingAuthStatus !== "true" && bindingAuthStatus !== "false") {
             throw new ControllerError(Number(bindingAuthStatus));
         }

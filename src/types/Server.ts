@@ -1,8 +1,7 @@
 import { FastifyRequest } from "fastify";
 import { JSONSchemaType } from "ajv/dist/types/json-schema";
-import { Status } from "../constants/Project";
+import { LoginPlatform, Status } from "../constants/Project";
 import { ErrorCode } from "../ErrorCode";
-import { LoginPlatform } from "../constants/Project";
 
 export interface PatchRequest<T = any> extends FastifyRequest<T> {
     user: {
@@ -41,4 +40,9 @@ export type ResponseSuccess<T = any> = {
     data: T;
 };
 
-export type Response<T = any> = ResponseError | ResponseSuccess<T>;
+export type Response<T = any> =
+    | ResponseError
+    | ResponseSuccess<T>
+    | {
+          status: Status.Process;
+      };
