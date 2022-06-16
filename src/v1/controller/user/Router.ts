@@ -10,6 +10,7 @@ import { BindingMobile, BindingWeb } from "./bindingWechat/Binding";
 import { SetAuthUUID } from "./binding/SetAuthUUID";
 import { BindingProcess } from "./binding/Process";
 import { BindingList } from "./binding/List";
+import { RemoveBinding } from "./binding/Remove";
 
 export const userRouters: Readonly<Array<ControllerClass<any, any>>> = Object.freeze([
     Rename,
@@ -20,6 +21,7 @@ export const userRouters: Readonly<Array<ControllerClass<any, any>>> = Object.fr
     SetAuthUUID,
     BindingProcess,
     BindingList,
+    RemoveBinding,
     DeleteAccountValidate,
     DeleteAccount,
     UploadAvatarStart,

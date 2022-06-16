@@ -8,7 +8,6 @@ import { ServiceUserAgora } from "../../../service/user/UserAgora";
 import { ServiceUserApple } from "../../../service/user/UserApple";
 import { ServiceUserGithub } from "../../../service/user/UserGithub";
 import { ServiceUserGoogle } from "../../../service/user/UserGoogle";
-import { AgoraLogin, Apple, Github, Google, PhoneSMS, WeChat } from "../../../../constants/Config";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -31,15 +30,12 @@ export class BindingList extends AbstractController<RequestType, ResponseType> {
         return {
             status: Status.Success,
             data: {
-                wechat:
-                    WeChat.web.enable || WeChat.mobile.enable
-                        ? await this.svc.userWeChat.exist()
-                        : false,
-                phone: PhoneSMS.enable ? await this.svc.userPhone.exist() : false,
-                agora: AgoraLogin.enable ? await this.svc.userAgora.exist() : false,
-                apple: Apple.enable ? await this.svc.userApple.exist() : false,
-                github: Github.enable ? await this.svc.userGithub.exist() : false,
-                google: Google.enable ? await this.svc.userGoogle.exist() : false,
+                wechat: await this.svc.userWeChat.exist(),
+                phone: await this.svc.userPhone.exist(),
+                agora: await this.svc.userAgora.exist(),
+                apple: await this.svc.userApple.exist(),
+                github: await this.svc.userGithub.exist(),
+                google: await this.svc.userGoogle.exist(),
             },
         };
     }

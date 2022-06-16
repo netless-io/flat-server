@@ -2,6 +2,7 @@ import { UserAgoraDAO } from "../../../dao";
 import { DeleteResult, EntityManager, InsertResult } from "typeorm";
 import { ControllerError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
+import { AgoraLogin } from "../../../constants/Config";
 
 export class ServiceUserAgora {
     constructor(private readonly userUUID: string) {}
@@ -23,9 +24,7 @@ export class ServiceUserAgora {
     }
 
     public async assertExist(): Promise<void> {
-        const result = await UserAgoraDAO().findOne(["id"], {
-            user_uuid: this.userUUID,
-        });
+        const result = await this.exist();
 
         if (result === undefined) {
             throw new ControllerError(ErrorCode.UserNotFound);
@@ -33,6 +32,10 @@ export class ServiceUserAgora {
     }
 
     public async exist(): Promise<boolean> {
+        if (!ServiceUserAgora.enable) {
+            return false;
+        }
+
         const result = await UserAgoraDAO().findOne(["id"], {
             user_uuid: this.userUUID,
         });
@@ -52,5 +55,9 @@ export class ServiceUserAgora {
         return await UserAgoraDAO(t).physicalDeletion({
             user_uuid: this.userUUID,
         });
+    }
+
+    private static get enable(): boolean {
+        return AgoraLogin.enable;
     }
 }
