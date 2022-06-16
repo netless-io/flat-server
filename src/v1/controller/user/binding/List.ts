@@ -1,7 +1,7 @@
 import { Controller } from "../../../../decorator/Controller";
 import { AbstractController } from "../../../../abstract/controller";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { Status } from "../../../../constants/Project";
+import { LoginPlatform, Status } from "../../../../constants/Project";
 import { ServiceUserWeChat } from "../../../service/user/UserWeChat";
 import { ServiceUserPhone } from "../../../service/user/UserPhone";
 import { ServiceUserAgora } from "../../../service/user/UserAgora";
@@ -18,25 +18,28 @@ export class BindingList extends AbstractController<RequestType, ResponseType> {
     public static readonly schema: FastifySchema<RequestType> = {};
 
     private readonly svc = {
-        userWeChat: new ServiceUserWeChat(this.userUUID),
-        userPhone: new ServiceUserPhone(this.userUUID),
-        userAgora: new ServiceUserAgora(this.userUUID),
-        userApple: new ServiceUserApple(this.userUUID),
-        userGithub: new ServiceUserGithub(this.userUUID),
-        userGoogle: new ServiceUserGoogle(this.userUUID),
+        [LoginPlatform.WeChat]: new ServiceUserWeChat(this.userUUID),
+        [LoginPlatform.Phone]: new ServiceUserPhone(this.userUUID),
+        [LoginPlatform.Agora]: new ServiceUserAgora(this.userUUID),
+        [LoginPlatform.Apple]: new ServiceUserApple(this.userUUID),
+        [LoginPlatform.Github]: new ServiceUserGithub(this.userUUID),
+        [LoginPlatform.Google]: new ServiceUserGoogle(this.userUUID),
     };
 
     public async execute(): Promise<Response<ResponseType>> {
+        const result = {} as Record<Lowercase<LoginPlatform>, boolean>;
+
+        await Promise.all(
+            Object.keys(this.svc).map(svc => {
+                return this.svc[svc as LoginPlatform].exist().then(exist => {
+                    result[svc.toLowerCase() as Lowercase<LoginPlatform>] = exist;
+                });
+            }),
+        );
+
         return {
             status: Status.Success,
-            data: {
-                wechat: await this.svc.userWeChat.exist(),
-                phone: await this.svc.userPhone.exist(),
-                agora: await this.svc.userAgora.exist(),
-                apple: await this.svc.userApple.exist(),
-                github: await this.svc.userGithub.exist(),
-                google: await this.svc.userGoogle.exist(),
-            },
+            data: result,
         };
     }
 
@@ -47,11 +50,4 @@ export class BindingList extends AbstractController<RequestType, ResponseType> {
 
 interface RequestType {}
 
-type ResponseType = {
-    wechat: boolean;
-    phone: boolean;
-    agora: boolean;
-    apple: boolean;
-    github: boolean;
-    google: boolean;
-};
+type ResponseType = Record<Lowercase<LoginPlatform>, boolean>;
