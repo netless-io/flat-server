@@ -55,8 +55,9 @@ export class BindingGithub extends AbstractController<RequestType, any> {
             throw new ControllerError(ErrorCode.ParamsCheckFailed);
         }
 
-        const exist = await new ServiceUserGithub(userUUID).exist();
+        const githubSVC = new ServiceUserGithub(userUUID);
 
+        const exist = await githubSVC.exist();
         if (exist) {
             throw new ControllerError(ErrorCode.UnsupportedOperation);
         }
@@ -67,7 +68,6 @@ export class BindingGithub extends AbstractController<RequestType, any> {
             throw new ControllerError(ErrorCode.UserAlreadyBinding);
         }
 
-        const githubSVC = new ServiceUserGithub(userUUID);
         await githubSVC.create(userInfo);
 
         await redisService.set(RedisKey.bindingAuthStatus(this.querystring.state), "true", 60 * 60);
