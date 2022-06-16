@@ -55,6 +55,12 @@ export class BindingGithub extends AbstractController<RequestType, any> {
             throw new ControllerError(ErrorCode.ParamsCheckFailed);
         }
 
+        const exist = await new ServiceUserGithub(userUUID).exist();
+
+        if (exist) {
+            throw new ControllerError(ErrorCode.UnsupportedOperation);
+        }
+
         const userInfo = await LoginGithub.getUserInfoAndToken(code, authUUID);
         const userUUIDByDB = await ServiceUserGithub.userUUIDByUnionUUID(userInfo.unionUUID);
         if (userUUIDByDB) {
