@@ -1,12 +1,12 @@
 import { ControllerClass } from "../../../abstract/controller";
 import { Rename } from "./rename";
-import { SendMessage } from "./bindingPhone/SendMessage";
-import { BindingPhone } from "./bindingPhone/Binding";
+import { SendMessage } from "./binding/platform/phone/SendMessage";
+import { BindingPhone } from "./binding/platform/phone/Binding";
 import { DeleteAccountValidate } from "./deleteAccount/Validate";
 import { DeleteAccount } from "./deleteAccount";
 import { UploadAvatarStart } from "./uploadAvatar/Start";
 import { UploadAvatarFinish } from "./uploadAvatar/Finish";
-import { BindingMobile, BindingWeb } from "./bindingWechat/Binding";
+import { BindingWeChatMobile, BindingWeChatWeb } from "./binding/platform/wechat/Binding";
 import { SetAuthUUID } from "./binding/SetAuthUUID";
 import { BindingProcess } from "./binding/Process";
 import { BindingList } from "./binding/List";
@@ -16,8 +16,8 @@ export const userRouters: Readonly<Array<ControllerClass<any, any>>> = Object.fr
     Rename,
     SendMessage,
     BindingPhone,
-    BindingWeb,
-    BindingMobile,
+    BindingWeChatWeb,
+    BindingWeChatMobile,
     SetAuthUUID,
     BindingProcess,
     BindingList,
