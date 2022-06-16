@@ -2,6 +2,7 @@ import { UserWeChatDAO } from "../../../dao";
 import { DeleteResult, EntityManager, InsertResult } from "typeorm";
 import { ControllerError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
+import { WeChat } from "../../../constants/Config";
 
 export class ServiceUserWeChat {
     constructor(private readonly userUUID: string) {}
@@ -25,9 +26,7 @@ export class ServiceUserWeChat {
     }
 
     public async assertExist(): Promise<void> {
-        const result = await UserWeChatDAO().findOne(["id"], {
-            user_uuid: this.userUUID,
-        });
+        const result = await this.exist();
 
         if (result === undefined) {
             throw new ControllerError(ErrorCode.UserNotFound);
@@ -35,6 +34,10 @@ export class ServiceUserWeChat {
     }
 
     public async exist(): Promise<boolean> {
+        if (!ServiceUserWeChat.enable) {
+            return false;
+        }
+
         const result = await UserWeChatDAO().findOne(["id"], {
             user_uuid: this.userUUID,
         });
@@ -54,5 +57,9 @@ export class ServiceUserWeChat {
         return await UserWeChatDAO(t).physicalDeletion({
             user_uuid: this.userUUID,
         });
+    }
+
+    private static get enable(): boolean {
+        return WeChat.web.enable || WeChat.mobile.enable;
     }
 }

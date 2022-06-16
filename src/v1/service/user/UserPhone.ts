@@ -2,6 +2,7 @@ import { DeleteResult, EntityManager, InsertResult } from "typeorm";
 import { UserPhoneDAO } from "../../../dao";
 import { ControllerError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
+import { PhoneSMS } from "../../../constants/Config";
 
 export class ServiceUserPhone {
     constructor(private readonly userUUID: string) {}
@@ -27,6 +28,10 @@ export class ServiceUserPhone {
     }
 
     public static async exist(userUUID: string): Promise<boolean> {
+        if (!ServiceUserPhone.enable) {
+            return false;
+        }
+
         const result = await UserPhoneDAO().findOne(["id"], {
             user_uuid: userUUID,
         });
@@ -39,6 +44,10 @@ export class ServiceUserPhone {
     }
 
     public static async existPhone(phone: string): Promise<boolean> {
+        if (!ServiceUserPhone.enable) {
+            return false;
+        }
+
         const result = await UserPhoneDAO().findOne(["id"], {
             phone_number: phone,
         });
@@ -47,9 +56,7 @@ export class ServiceUserPhone {
     }
 
     public async assertExist(): Promise<void> {
-        const result = await UserPhoneDAO().findOne(["id"], {
-            user_uuid: this.userUUID,
-        });
+        const result = await this.exist();
 
         if (result === undefined) {
             throw new ControllerError(ErrorCode.UserNotFound);
@@ -68,5 +75,9 @@ export class ServiceUserPhone {
         return await UserPhoneDAO(t).physicalDeletion({
             user_uuid: this.userUUID,
         });
+    }
+
+    private static get enable(): boolean {
+        return PhoneSMS.enable;
     }
 }

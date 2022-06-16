@@ -9,6 +9,7 @@ export enum ErrorCode {
     ExhaustiveAttack, // exhaustive attack
     RequestSignatureIncorrect, // request signature incorrect
     NonCompliant, // non compliant
+    UnsupportedOperation, // operation not supported
 
     RoomNotFound = 200000, // room not found
     RoomIsEnded, // room has been ended

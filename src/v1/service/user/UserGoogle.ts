@@ -2,6 +2,7 @@ import { UserGoogleDAO } from "../../../dao";
 import { DeleteResult, EntityManager, InsertResult } from "typeorm";
 import { ControllerError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
+import { Google } from "../../../constants/Config";
 
 export class ServiceUserGoogle {
     constructor(private readonly userUUID: string) {}
@@ -23,9 +24,7 @@ export class ServiceUserGoogle {
     }
 
     public async assertExist(): Promise<void> {
-        const result = await UserGoogleDAO().findOne(["id"], {
-            user_uuid: this.userUUID,
-        });
+        const result = await this.exist();
 
         if (result === undefined) {
             throw new ControllerError(ErrorCode.UserNotFound);
@@ -33,6 +32,10 @@ export class ServiceUserGoogle {
     }
 
     public async exist(): Promise<boolean> {
+        if (!ServiceUserGoogle.enable) {
+            return false;
+        }
+
         const result = await UserGoogleDAO().findOne(["id"], {
             user_uuid: this.userUUID,
         });
@@ -52,5 +55,9 @@ export class ServiceUserGoogle {
         return await UserGoogleDAO(t).physicalDeletion({
             user_uuid: this.userUUID,
         });
+    }
+
+    private static get enable(): boolean {
+        return Google.enable;
     }
 }

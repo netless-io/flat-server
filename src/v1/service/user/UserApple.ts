@@ -2,6 +2,7 @@ import { UserAppleDAO } from "../../../dao";
 import { DeleteResult, EntityManager, InsertResult } from "typeorm";
 import { ControllerError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
+import { Apple } from "../../../constants/Config";
 
 export class ServiceUserApple {
     constructor(private readonly userUUID: string) {}
@@ -23,9 +24,7 @@ export class ServiceUserApple {
     }
 
     public async assertExist(): Promise<void> {
-        const result = await UserAppleDAO().findOne(["id"], {
-            user_uuid: this.userUUID,
-        });
+        const result = await this.exist();
 
         if (result === undefined) {
             throw new ControllerError(ErrorCode.UserNotFound);
@@ -33,6 +32,10 @@ export class ServiceUserApple {
     }
 
     public async exist(): Promise<boolean> {
+        if (!ServiceUserApple.enable) {
+            return false;
+        }
+
         const result = await UserAppleDAO().findOne(["id"], {
             user_uuid: this.userUUID,
         });
@@ -52,5 +55,9 @@ export class ServiceUserApple {
         return await UserAppleDAO(t).physicalDeletion({
             user_uuid: this.userUUID,
         });
+    }
+
+    private static get enable(): boolean {
+        return Apple.enable;
     }
 }
