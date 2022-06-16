@@ -121,8 +121,9 @@ const wechatCallback = async (
         throw new ControllerError(ErrorCode.ParamsCheckFailed);
     }
 
-    const exist = await new ServiceUserWeChat(userUUID).exist();
+    const wechatSVC = new ServiceUserWeChat(userUUID);
 
+    const exist = await wechatSVC.exist();
     if (exist) {
         throw new ControllerError(ErrorCode.UnsupportedOperation);
     }
@@ -134,8 +135,6 @@ const wechatCallback = async (
     if (userUUIDByDB) {
         throw new ControllerError(ErrorCode.UserAlreadyBinding);
     }
-
-    const wechatSVC = new ServiceUserWeChat(userUUID);
 
     await wechatSVC.create(userInfo);
 };
