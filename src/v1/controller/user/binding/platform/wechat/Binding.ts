@@ -121,6 +121,12 @@ const wechatCallback = async (
         throw new ControllerError(ErrorCode.ParamsCheckFailed);
     }
 
+    const exist = await new ServiceUserWeChat(userUUID).exist();
+
+    if (exist) {
+        throw new ControllerError(ErrorCode.UnsupportedOperation);
+    }
+
     const userInfo = await LoginWechat.getUserInfoAndToken(code, type);
 
     const userUUIDByDB = await ServiceUserWeChat.userUUIDByUnionUUID(userInfo.unionUUID);
