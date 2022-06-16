@@ -11,6 +11,7 @@ import { SetAuthUUID } from "./binding/SetAuthUUID";
 import { BindingProcess } from "./binding/Process";
 import { BindingList } from "./binding/List";
 import { RemoveBinding } from "./binding/Remove";
+import { BindingAgora } from "./binding/platform/agora/Binding";
 
 export const userRouters: Readonly<Array<ControllerClass<any, any>>> = Object.freeze([
     Rename,
@@ -18,6 +19,7 @@ export const userRouters: Readonly<Array<ControllerClass<any, any>>> = Object.fr
     BindingPhone,
     BindingWeChatWeb,
     BindingWeChatMobile,
+    BindingAgora,
     SetAuthUUID,
     BindingProcess,
     BindingList,
