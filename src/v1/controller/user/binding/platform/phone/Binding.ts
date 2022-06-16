@@ -1,19 +1,19 @@
-import { Controller } from "../../../../decorator/Controller";
-import { PhoneSMS } from "../../../../constants/Config";
-import { AbstractController } from "../../../../abstract/controller";
-import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import RedisService from "../../../../thirdPartyService/RedisService";
-import { RedisKey } from "../../../../utils/Redis";
-import { SMSUtils } from "../../../../utils/SMS";
-import { ControllerError } from "../../../../error/ControllerError";
-import { ErrorCode } from "../../../../ErrorCode";
-import { Status } from "../../../../constants/Project";
-import { ServiceUserPhone } from "../../../service/user/UserPhone";
-import { UserDAO } from "../../../../dao";
+import { Controller } from "../../../../../../decorator/Controller";
+import { PhoneSMS } from "../../../../../../constants/Config";
+import { AbstractController } from "../../../../../../abstract/controller";
+import { FastifySchema, Response, ResponseError } from "../../../../../../types/Server";
+import RedisService from "../../../../../../thirdPartyService/RedisService";
+import { RedisKey } from "../../../../../../utils/Redis";
+import { SMSUtils } from "../../../../../../utils/SMS";
+import { ControllerError } from "../../../../../../error/ControllerError";
+import { ErrorCode } from "../../../../../../ErrorCode";
+import { Status } from "../../../../../../constants/Project";
+import { ServiceUserPhone } from "../../../../../service/user/UserPhone";
+import { UserDAO } from "../../../../../../dao";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
-    path: "user/bindingPhone",
+    path: ["user/bindingPhone", "user/binding/platform/phone"],
     auth: true,
     enable: PhoneSMS.enable,
 })

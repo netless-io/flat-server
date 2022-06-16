@@ -1,19 +1,19 @@
-import { Controller } from "../../../../decorator/Controller";
-import { PhoneSMS } from "../../../../constants/Config";
-import { AbstractController } from "../../../../abstract/controller";
-import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import RedisService from "../../../../thirdPartyService/RedisService";
-import { RedisKey } from "../../../../utils/Redis";
-import { SMS, SMSUtils } from "../../../../utils/SMS";
-import { Status } from "../../../../constants/Project";
+import { Controller } from "../../../../../../decorator/Controller";
+import { PhoneSMS } from "../../../../../../constants/Config";
+import { AbstractController } from "../../../../../../abstract/controller";
+import { FastifySchema, Response, ResponseError } from "../../../../../../types/Server";
+import RedisService from "../../../../../../thirdPartyService/RedisService";
+import { RedisKey } from "../../../../../../utils/Redis";
+import { SMS, SMSUtils } from "../../../../../../utils/SMS";
+import { Status } from "../../../../../../constants/Project";
 import { MessageExpirationSecond, MessageIntervalSecond } from "./Constants";
-import { ServiceUserPhone } from "../../../service/user/UserPhone";
-import { ControllerError } from "../../../../error/ControllerError";
-import { ErrorCode } from "../../../../ErrorCode";
+import { ServiceUserPhone } from "../../../../../service/user/UserPhone";
+import { ControllerError } from "../../../../../../error/ControllerError";
+import { ErrorCode } from "../../../../../../ErrorCode";
 
 @Controller<RequestType, any>({
     method: "post",
-    path: "user/bindingPhone/sendMessage",
+    path: ["user/bindingPhone/sendMessage", "user/binding/platform/phone/sendMessage"],
     auth: true,
     enable: PhoneSMS.enable,
 })

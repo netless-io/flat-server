@@ -1,25 +1,25 @@
-import { Controller } from "../../../../decorator/Controller";
-import { WeChat } from "../../../../constants/Config";
-import { AbstractController } from "../../../../abstract/controller";
-import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { Logger, LoggerAPI } from "../../../../logger";
-import redisService from "../../../../thirdPartyService/RedisService";
-import RedisService from "../../../../thirdPartyService/RedisService";
-import { RedisKey } from "../../../../utils/Redis";
-import { LoginWechat } from "../../login/platforms/LoginWechat";
-import { ServiceUserWeChat } from "../../../service/user/UserWeChat";
-import { ControllerError } from "../../../../error/ControllerError";
-import { ErrorCode } from "../../../../ErrorCode";
-import { Status } from "../../../../constants/Project";
+import { Controller } from "../../../../../../decorator/Controller";
+import { WeChat } from "../../../../../../constants/Config";
+import { AbstractController } from "../../../../../../abstract/controller";
+import { FastifySchema, Response, ResponseError } from "../../../../../../types/Server";
+import { Logger, LoggerAPI } from "../../../../../../logger";
+import redisService from "../../../../../../thirdPartyService/RedisService";
+import RedisService from "../../../../../../thirdPartyService/RedisService";
+import { RedisKey } from "../../../../../../utils/Redis";
+import { LoginWechat } from "../../../../login/platforms/LoginWechat";
+import { ServiceUserWeChat } from "../../../../../service/user/UserWeChat";
+import { ControllerError } from "../../../../../../error/ControllerError";
+import { ErrorCode } from "../../../../../../ErrorCode";
+import { Status } from "../../../../../../constants/Project";
 
 @Controller<RequestType, any>({
     method: "get",
-    path: "user/bindingWechat/binding/web",
+    path: "user/binding/platform/wechat/web",
     auth: false,
     skipAutoHandle: true,
     enable: WeChat.web.enable,
 })
-export class BindingWeb extends AbstractController<RequestType, any> {
+export class BindingWeChatWeb extends AbstractController<RequestType, any> {
     public static readonly schema: FastifySchema<RequestType> = {
         querystring: {
             type: "object",
@@ -62,12 +62,12 @@ export class BindingWeb extends AbstractController<RequestType, any> {
 
 @Controller<RequestType, any>({
     method: "get",
-    path: "user/bindingWechat/binding/mobile",
+    path: "user/binding/platform/wechat/mobile",
     auth: false,
     skipAutoHandle: true,
     enable: WeChat.mobile.enable,
 })
-export class BindingMobile extends AbstractController<RequestType, any> {
+export class BindingWeChatMobile extends AbstractController<RequestType, any> {
     public static readonly schema: FastifySchema<RequestType> = {
         querystring: {
             type: "object",
