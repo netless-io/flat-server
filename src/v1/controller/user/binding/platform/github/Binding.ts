@@ -14,7 +14,7 @@ import { parseError } from "../../../../../../logger";
 
 @Controller<RequestType, any>({
     method: "get",
-    path: "user/binding/platform/github",
+    path: ["user/binding/platform/github", "login/github/callback/binding"],
     auth: false,
     skipAutoHandle: true,
     enable: Github.enable,
