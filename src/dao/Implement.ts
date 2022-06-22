@@ -39,7 +39,6 @@ export const DAOImplement: DAO<Model> = model => {
             },
             findOne: (select, where, order) => {
                 if (order) {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                     return dataSource
                         .getRepository(model)
                         .createQueryBuilder()
@@ -48,12 +47,21 @@ export const DAOImplement: DAO<Model> = model => {
                             ...noDelete(where),
                         })
                         .orderBy(order[0], order[1])
-                        .getRawOne() as any;
+                        .getRawOne()
+                        .then(data => {
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                            return data || undefined;
+                        });
                 }
-                return dataSource.getRepository(model).findOne({
-                    select,
-                    where: noDelete(where),
-                });
+                return dataSource
+                    .getRepository(model)
+                    .findOne({
+                        select,
+                        where: noDelete(where),
+                    })
+                    .then(data => {
+                        return data || undefined;
+                    });
             },
             insert: (data, flag) => {
                 if (flag?.orUpdate) {
