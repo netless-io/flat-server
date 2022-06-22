@@ -3,9 +3,9 @@ import { RoomDAO, RoomPeriodicDAO } from "../../../../dao";
 import { ErrorCode } from "../../../../ErrorCode";
 import { Status } from "../../../../constants/Project";
 import { RoomStatus } from "../../../../model/room/Constants";
-import { getConnection } from "typeorm";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -56,7 +56,7 @@ export class UpdateStatusPaused extends AbstractController<RequestType, Response
             };
         }
 
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
             commands.push(

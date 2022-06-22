@@ -1,12 +1,12 @@
 import { AbstractLogin } from "../../../../abstract/login";
 import { Login } from "../../../../decorator/Login";
 import { LoginClassParams } from "../../../../abstract/login/Type";
-import { getConnection } from "typeorm";
 import { ServiceUser } from "../../../service/user/User";
 import { ServiceCloudStorageFiles } from "../../../service/cloudStorage/CloudStorageFiles";
 import { ServiceCloudStorageConfigs } from "../../../service/cloudStorage/CloudStorageConfigs";
 import { ServiceCloudStorageUserFiles } from "../../../service/cloudStorage/CloudStorageUserFiles";
 import { ServiceUserPhone } from "../../../service/user/UserPhone";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Login()
 export class LoginPhone extends AbstractLogin {
@@ -29,7 +29,7 @@ export class LoginPhone extends AbstractLogin {
             ...data,
             userName: data.phone.slice(-4),
         };
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const createUser = this.svc.user.create(info, t);
 
             const createUserPhone = this.svc.userPhone.create(info, t);

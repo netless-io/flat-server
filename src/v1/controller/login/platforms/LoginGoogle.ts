@@ -3,10 +3,10 @@ import { AbstractLogin } from "../../../../abstract/login";
 import { LoginClassParams } from "../../../../abstract/login/Type";
 import { ServiceUser } from "../../../service/user/User";
 import { ServiceUserGoogle } from "../../../service/user/UserGoogle";
-import { getConnection } from "typeorm";
 import { ax } from "../../../utils/Axios";
 import { Google } from "../../../../constants/Config";
 import { URLSearchParams } from "url";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Login()
 export class LoginGoogle extends AbstractLogin {
@@ -22,7 +22,7 @@ export class LoginGoogle extends AbstractLogin {
     }
 
     public async register(info: RegisterInfo): Promise<void> {
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const createUser = this.svc.user.create(info, t);
 
             const createUserGoogle = this.svc.userGoogle.create(info, t);

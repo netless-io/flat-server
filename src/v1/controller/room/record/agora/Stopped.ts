@@ -8,11 +8,11 @@ import {
     AgoraCloudRecordStoppedResponse as ResponseType,
 } from "../../../../utils/request/agora/Types";
 import { agoraCloudRecordStoppedRequest } from "../../../../utils/request/agora/Agora";
-import { getConnection } from "typeorm";
 import { getCloudRecordData } from "../../utils/Agora";
 import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
 import { timeExceedRedundancyOneMinute } from "../../utils/CheckTime";
+import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -73,7 +73,7 @@ export class RecordAgoraStopped extends AbstractController<RequestType, Response
         }
 
         let agoraResponse: ResponseType;
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             await RoomRecordDAO(t).update(
                 {
                     end_time: new Date(),

@@ -1,15 +1,16 @@
 import { DAO, Model } from "./Type";
-import { getRepository } from "typeorm";
 import { noDelete } from "./Utils";
+import { dataSource } from "../thirdPartyService/TypeORMService";
 
 export const DAOImplement: DAO<Model> = model => {
     return transaction => {
-        const managerOrRepo = transaction || getRepository(model);
+        const managerOrRepo = transaction || dataSource.getRepository(model);
 
         return {
             find: (select, where, config) => {
                 if (config?.order || config?.distinct) {
-                    let result = getRepository(model)
+                    let result = dataSource
+                        .getRepository(model)
                         .createQueryBuilder()
                         .select(select)
                         .where({
@@ -31,23 +32,25 @@ export const DAOImplement: DAO<Model> = model => {
                     return result.getRawMany();
                 }
 
-                return getRepository(model).find({
+                return dataSource.getRepository(model).find({
                     select,
                     where: noDelete(where),
                 });
             },
             findOne: (select, where, order) => {
                 if (order) {
-                    return getRepository(model)
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                    return dataSource
+                        .getRepository(model)
                         .createQueryBuilder()
                         .select(select)
                         .where({
                             ...noDelete(where),
                         })
                         .orderBy(order[0], order[1])
-                        .getRawOne();
+                        .getRawOne() as any;
                 }
-                return getRepository(model).findOne({
+                return dataSource.getRepository(model).findOne({
                     select,
                     where: noDelete(where),
                 });
@@ -107,7 +110,7 @@ export const DAOImplement: DAO<Model> = model => {
                     .execute();
             },
             count: where => {
-                return getRepository(model).count({
+                return dataSource.getRepository(model).count({
                     where: noDelete(where),
                 });
             },

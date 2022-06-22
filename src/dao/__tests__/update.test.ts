@@ -1,18 +1,16 @@
 import test from "ava";
-import { Connection } from "typeorm";
-import { orm } from "../../thirdPartyService/TypeORMService";
+import { dataSource } from "../../thirdPartyService/TypeORMService";
 import { v4 } from "uuid";
 import { CloudStorageUserFilesDAO } from "./..";
 
 const namespace = "[dao][dao-update]";
 
-let connection: Connection;
-test.before(`${namespace} - connection orm`, async () => {
-    connection = await orm();
+test.before(`${namespace} - initialize dataSource`, async () => {
+    await dataSource.initialize();
 });
 
-test.after(`${namespace} - close orm`, async () => {
-    await connection.close();
+test.after(`${namespace} - destroy dataSource`, async () => {
+    await dataSource.destroy();
 });
 
 test(`${namespace} - update normal`, async ava => {

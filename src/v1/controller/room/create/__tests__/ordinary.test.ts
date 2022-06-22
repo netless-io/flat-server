@@ -1,6 +1,5 @@
 import test from "ava";
-import { Connection } from "typeorm";
-import { orm } from "../../../../../thirdPartyService/TypeORMService";
+import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 import { v4 } from "uuid";
 import { addHours, addMinutes, subMinutes } from "date-fns/fp";
 import { RoomType } from "../../../../../model/room/Constants";
@@ -13,13 +12,12 @@ import { ErrorCode } from "../../../../../ErrorCode";
 
 const namespace = "[api][api-v1][api-room][api-room-create][api-room-create-ordinary]";
 
-let connection: Connection;
-test.before(`${namespace} - connection orm`, async () => {
-    connection = await orm();
+test.before(`${namespace} - initialize dataSource`, async () => {
+    await dataSource.initialize();
 });
 
-test.after(`${namespace} - close orm`, async () => {
-    await connection.close();
+test.after(`${namespace} - destroy dataSource`, async () => {
+    await dataSource.destroy();
 });
 
 test(`${namespace} - create normal`, async ava => {

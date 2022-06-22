@@ -1,5 +1,5 @@
 import path from "path";
-import { getConnection, In } from "typeorm";
+import { In } from "typeorm";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../../dao";
@@ -11,6 +11,7 @@ import { URL } from "url";
 import { aliGreenText } from "../../../../utils/AliGreen";
 import { ControllerError } from "../../../../../error/ControllerError";
 import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
+import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -82,7 +83,7 @@ export class AlibabaCloudRename extends AbstractController<RequestType, Response
             };
         }
 
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             await CloudStorageFilesDAO(t).update(
                 {
                     file_name: fileName,

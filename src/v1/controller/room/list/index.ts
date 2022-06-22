@@ -1,5 +1,5 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { createQueryBuilder, SelectQueryBuilder } from "typeorm";
+import { SelectQueryBuilder } from "typeorm";
 import { RoomUserModel } from "../../../../model/room/RoomUser";
 import { RoomModel } from "../../../../model/room/Room";
 import { UserModel } from "../../../../model/user/User";
@@ -11,6 +11,7 @@ import { Controller } from "../../../../decorator/Controller";
 import { RoomRecordModel } from "../../../../model/room/RoomRecord";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -80,7 +81,8 @@ export class List extends AbstractController<RequestType, ResponseType> {
     }
 
     private basisQuery(): SelectQueryBuilder<RoomUserModel> {
-        return createQueryBuilder(RoomUserModel, "ru")
+        return dataSource
+            .createQueryBuilder(RoomUserModel, "ru")
             .innerJoin(RoomModel, "r", "ru.room_uuid = r.room_uuid")
             .innerJoin(UserModel, "u", "u.user_uuid = r.owner_uuid")
             .addSelect("r.title", "title")

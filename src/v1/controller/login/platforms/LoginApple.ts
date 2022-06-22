@@ -1,7 +1,6 @@
 import { AbstractLogin } from "../../../../abstract/login";
 import { Login } from "../../../../decorator/Login";
 import { LoginClassParams } from "../../../../abstract/login/Type";
-import { getConnection } from "typeorm";
 import { ServiceUser } from "../../../service/user/User";
 import { ServiceCloudStorageFiles } from "../../../service/cloudStorage/CloudStorageFiles";
 import { ServiceCloudStorageUserFiles } from "../../../service/cloudStorage/CloudStorageUserFiles";
@@ -10,6 +9,7 @@ import { ServiceUserApple } from "../../../service/user/UserApple";
 import NodeRSA from "node-rsa";
 import jwt, { Algorithm } from "jsonwebtoken";
 import { ax } from "../../../utils/Axios";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Login()
 export class LoginApple extends AbstractLogin {
@@ -28,7 +28,7 @@ export class LoginApple extends AbstractLogin {
     }
 
     public async register(info: RegisterInfo): Promise<void> {
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const createUser = this.svc.user.create(info, t);
 
             const createUserApple = this.svc.userApple.create(info, t);

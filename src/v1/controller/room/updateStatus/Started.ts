@@ -1,11 +1,11 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { getConnection } from "typeorm";
 import { Status } from "../../../../constants/Project";
 import { PeriodicStatus, RoomStatus } from "../../../../model/room/Constants";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../../dao";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -59,7 +59,7 @@ export class UpdateStatusStarted extends AbstractController<RequestType, Respons
             };
         }
 
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
             const beginTime =

@@ -1,5 +1,4 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { getConnection } from "typeorm";
 import { Status } from "../../../../constants/Project";
 import { PeriodicStatus, RoomStatus } from "../../../../model/room/Constants";
 import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
@@ -14,6 +13,7 @@ import RedisService from "../../../../thirdPartyService/RedisService";
 import { parseError } from "../../../../logger";
 import { RedisKey } from "../../../../utils/Redis";
 import { rtcQueue } from "../../../queue";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -81,7 +81,7 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
         }
 
         let nextRoomUUID = null;
-        await getConnection().transaction(
+        await dataSource.transaction(
             async (t): Promise<void> => {
                 const commands: Promise<unknown>[] = [];
                 const roomDAO = RoomDAO(t);

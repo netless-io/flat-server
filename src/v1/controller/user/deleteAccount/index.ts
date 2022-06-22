@@ -11,10 +11,10 @@ import { ServiceUserGithub } from "../../../service/user/UserGithub";
 import { ServiceUserGoogle } from "../../../service/user/UserGoogle";
 import { ServiceUserWeChat } from "../../../service/user/UserWeChat";
 import { ServiceUserAgora } from "../../../service/user/UserAgora";
-import { getConnection } from "typeorm";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import { alreadyJoinedRoomCount } from "./utils/AlreadyJoinedRoomCount";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -39,7 +39,7 @@ export class DeleteAccount extends AbstractController<RequestType, ResponseType>
             throw new ControllerError(ErrorCode.UserRoomListNotEmpty);
         }
 
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
             commands.push(

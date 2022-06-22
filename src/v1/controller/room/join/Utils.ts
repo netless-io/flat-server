@@ -1,7 +1,7 @@
-import { createQueryBuilder } from "typeorm";
 import { CloudStorageUserFilesModel } from "../../../../model/cloudStorage/CloudStorageUserFiles";
 import { CloudStorageFilesModel } from "../../../../model/cloudStorage/CloudStorageFiles";
 import { RoomDAO } from "../../../../dao";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 export const showGuide = async (userUUID: string, roomUUID: string): Promise<boolean> => {
     const rooms = await RoomDAO().find(
@@ -22,7 +22,8 @@ export const showGuide = async (userUUID: string, roomUUID: string): Promise<boo
 
     const guideFileNames = ["开始使用 Flat.pptx", "Get Started with Flat.pptx"];
 
-    const hasGuidePPTX = await createQueryBuilder(CloudStorageUserFilesModel, "fc")
+    const hasGuidePPTX = await dataSource
+        .createQueryBuilder(CloudStorageUserFilesModel, "fc")
         .select("fc.id")
         .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
         .where(

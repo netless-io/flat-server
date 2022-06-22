@@ -1,4 +1,4 @@
-import { getConnection, In, Not } from "typeorm";
+import { In, Not } from "typeorm";
 import { Status } from "../../../../constants/Project";
 import { PeriodicStatus, RoomStatus } from "../../../../model/room/Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
@@ -10,6 +10,7 @@ import { Response } from "../../../../types/Server";
 import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicUserDAO, RoomUserDAO } from "../../../../dao";
 import { showGuide } from "./Utils";
 import { AGORA_SHARE_SCREEN_UID } from "../../../../constants/Agora";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 export const joinPeriodic = async (
     periodicUUID: string,
@@ -65,7 +66,7 @@ export const joinPeriodic = async (
     } else {
         rtcUID = cryptoRandomString({ length: 6, type: "numeric" });
 
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
             commands.push(

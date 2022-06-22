@@ -1,7 +1,6 @@
 import { AbstractLogin } from "../../../../abstract/login";
 import { Login } from "../../../../decorator/Login";
 import { LoginClassParams } from "../../../../abstract/login/Type";
-import { getConnection } from "typeorm";
 import { ServiceUser } from "../../../service/user/User";
 import { ServiceCloudStorageFiles } from "../../../service/cloudStorage/CloudStorageFiles";
 import { ServiceCloudStorageConfigs } from "../../../service/cloudStorage/CloudStorageConfigs";
@@ -10,6 +9,7 @@ import { ServiceUserAgora } from "../../../service/user/UserAgora";
 import { ax } from "../../../utils/Axios";
 import { AgoraLogin } from "../../../../constants/Config";
 import { stringify } from "qs";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Login()
 export class LoginAgora extends AbstractLogin {
@@ -28,7 +28,7 @@ export class LoginAgora extends AbstractLogin {
     }
 
     public async register(info: RegisterInfo): Promise<void> {
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const createUser = this.svc.user.create(info, t);
 
             const createUserAgora = this.svc.userAgora.create(info, t);

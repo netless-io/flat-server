@@ -1,5 +1,4 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { createQueryBuilder } from "typeorm";
 import { Region, Status } from "../../../../constants/Project";
 import { PeriodicStatus, RoomStatus, Week } from "../../../../model/room/Constants";
 import { ErrorCode } from "../../../../ErrorCode";
@@ -9,6 +8,7 @@ import { Controller } from "../../../../decorator/Controller";
 import { RoomPeriodicModel } from "../../../../model/room/RoomPeriodic";
 import { RoomRecordModel } from "../../../../model/room/RoomRecord";
 import { getInviteCode } from "./Utils";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -97,7 +97,8 @@ export class PeriodicInfo extends AbstractController<RequestType, ResponseType> 
             };
         }
 
-        const rooms: Array<PeriodicSubRooms> = await createQueryBuilder(RoomPeriodicModel, "rp")
+        const rooms: Array<PeriodicSubRooms> = await dataSource
+            .createQueryBuilder(RoomPeriodicModel, "rp")
             .leftJoin(
                 RoomRecordModel,
                 "rr",

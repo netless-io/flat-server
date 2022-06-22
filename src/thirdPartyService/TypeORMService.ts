@@ -1,4 +1,4 @@
-import { Connection, createConnection } from "typeorm";
+import { DataSource } from "typeorm";
 import { CloudStorageConfigsModel } from "../model/cloudStorage/CloudStorageConfigs";
 import { CloudStorageFilesModel } from "../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../model/cloudStorage/CloudStorageUserFiles";
@@ -18,37 +18,39 @@ import { UserAgoraModel } from "../model/user/Agora";
 import { UserGoogleModel } from "../model/user/Google";
 import { UserPhoneModel } from "../model/user/Phone";
 
-export const orm = (): Promise<Connection> => {
-    return createConnection({
-        type: "mysql",
-        host: MySQL.host,
-        username: MySQL.user,
-        password: MySQL.password,
-        database: MySQL.db,
-        port: MySQL.port,
-        entities: [
-            UserModel,
-            UserWeChatModel,
-            UserGithubModel,
-            UserAppleModel,
-            UserAgoraModel,
-            UserGoogleModel,
-            UserPhoneModel,
-            RoomModel,
-            RoomUserModel,
-            RoomPeriodicConfigModel,
-            RoomPeriodicModel,
-            RoomPeriodicUserModel,
-            RoomRecordModel,
-            CloudStorageConfigsModel,
-            CloudStorageFilesModel,
-            CloudStorageUserFilesModel,
-        ],
-        timezone: "Z",
-        logging: !isTest && isDev ? "all" : false,
-        maxQueryExecutionTime: !isTest && isDev ? 1 : 1000,
-        charset: "utf8mb4_unicode_ci",
-    }).catch(err => {
+export const dataSource = new DataSource({
+    type: "mysql",
+    host: MySQL.host,
+    username: MySQL.user,
+    password: MySQL.password,
+    database: MySQL.db,
+    port: MySQL.port,
+    entities: [
+        UserModel,
+        UserWeChatModel,
+        UserGithubModel,
+        UserAppleModel,
+        UserAgoraModel,
+        UserGoogleModel,
+        UserPhoneModel,
+        RoomModel,
+        RoomUserModel,
+        RoomPeriodicConfigModel,
+        RoomPeriodicModel,
+        RoomPeriodicUserModel,
+        RoomRecordModel,
+        CloudStorageConfigsModel,
+        CloudStorageFilesModel,
+        CloudStorageUserFilesModel,
+    ],
+    timezone: "Z",
+    logging: !isTest && isDev ? "all" : false,
+    maxQueryExecutionTime: !isTest && isDev ? 1 : 1000,
+    charset: "utf8mb4_unicode_ci",
+});
+
+export const orm = (): Promise<DataSource> => {
+    return dataSource.initialize().catch(err => {
         loggerServer.error("unable to connect to the database", parseError(err));
         process.exit(1);
     });

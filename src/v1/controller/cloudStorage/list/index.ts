@@ -1,4 +1,3 @@
-import { createQueryBuilder } from "typeorm";
 import { Region, Status } from "../../../../constants/Project";
 import { CloudStorageConfigsDAO } from "../../../../dao";
 import { CloudStorageFilesModel } from "../../../../model/cloudStorage/CloudStorageFiles";
@@ -8,6 +7,7 @@ import { FileConvertStep, FileResourceType } from "../../../../model/cloudStorag
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { FilePayload } from "../../../../model/cloudStorage/Types";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -48,7 +48,8 @@ export class CloudStorageList extends AbstractController<RequestType, ResponseTy
             user_uuid: userUUID,
         });
 
-        const files = await createQueryBuilder(CloudStorageUserFilesModel, "fc")
+        const files = await dataSource
+            .createQueryBuilder(CloudStorageUserFilesModel, "fc")
             .addSelect("f.file_uuid", "file_uuid")
             .addSelect("f.file_name", "file_name")
             .addSelect("f.file_size", "file_size")
