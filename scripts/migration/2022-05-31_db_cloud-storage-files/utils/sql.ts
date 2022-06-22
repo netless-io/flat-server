@@ -1,37 +1,35 @@
-import { Connection } from "mysql2/promise";
-import { ICount, IFindData, IFindDataPacket, ITransformData } from "../type";
+import { IFindData, IFindDataPacket, ITransformData } from "../type";
+import { dataSource } from "./mysql";
 
 // find count in cloud_storage_files
-export const SQLCount = async (connection: Connection) => {
-    const [rows] = await connection.query<[ICount]>(
-        `SELECT COUNT(1) as count FROM cloud_storage_files;`,
-    );
+export const SQLCount = async () => {
+    const [rows] = await dataSource.query(`SELECT COUNT(1) as count FROM cloud_storage_files;`);
     return rows[0].count;
 };
 
 // create payload field in cloud_storage_files
-export const SQLCreatePayloadField = async (connection: Connection) => {
-    await connection.query(
+export const SQLCreatePayloadField = async () => {
+    await dataSource.query(
         `ALTER TABLE cloud_storage_files ADD COLUMN payload json DEFAULT (_utf8mb4'{}') NOT NULL AFTER file_url;`,
     );
 };
 
 // create resource_type field in cloud_storage_files
-export const SQLCreateResourceTypeField = async (connection: Connection) => {
-    await connection.query(
+export const SQLCreateResourceTypeField = async () => {
+    await dataSource.query(
         `ALTER TABLE cloud_storage_files ADD COLUMN resource_type varchar(20) NOT NULL AFTER payload;`,
     );
-    await connection.query(
+    await dataSource.query(
         `CREATE INDEX cloud_storage_files_resource_type_index ON cloud_storage_files (resource_type);`,
     );
 };
 
 // find cloud_storage_files data by limit and offset
-export const SQLFindData = (connection: Connection) => {
+export const SQLFindData = () => {
     return async (limit: number, offset: number) => {
-        const [rows] = await connection.query<[IFindDataPacket]>(
+        const [rows] = (await dataSource.query(
             `SELECT * FROM cloud_storage_files LIMIT ${limit} OFFSET ${offset};`,
-        );
+        )) as [IFindDataPacket[]];
 
         return rows.map(item => {
             return {
@@ -60,7 +58,7 @@ export function* generatorFindData(
 }
 
 // update payload and resource_type in cloud_storage_files
-export const SQLUpdate = async (connection: Connection, items: ITransformData[]) => {
+export const SQLUpdate = async (items: ITransformData[]) => {
     const sqlList = items
         .map(item => {
             return `UPDATE cloud_storage_files SET payload='${JSON.stringify(
@@ -69,11 +67,11 @@ export const SQLUpdate = async (connection: Connection, items: ITransformData[])
         })
         .join("\n");
 
-    await connection.query<[IFindDataPacket]>(sqlList);
+    await dataSource.query(sqlList);
 };
 
-export const SQLDeleteUnlessColumns = async (connection: Connection) => {
-    await connection.query(
+export const SQLDeleteUnlessColumns = async () => {
+    await dataSource.query(
         "ALTER TABLE cloud_storage_files DROP COLUMN convert_step, DROP COLUMN task_uuid, DROP COLUMN task_token, DROP COLUMN region;",
     );
 };
