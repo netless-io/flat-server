@@ -1,6 +1,5 @@
-import { Connection } from "typeorm";
 import test from "ava";
-import { orm } from "../../../../thirdPartyService/TypeORMService";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 import { v4 } from "uuid";
 import { RoomUserDAO } from "../../../../dao";
 import cryptoRandomString from "crypto-random-string";
@@ -8,13 +7,12 @@ import { ServiceRoomUser } from "../RoomUser";
 
 const namespace = "[service][service-room][service-room-user]";
 
-let connection: Connection;
-test.before(`${namespace} - connection orm`, async () => {
-    connection = await orm();
+test.before(`${namespace} - initialize dataSource`, async () => {
+    await dataSource.initialize();
 });
 
-test.after(`${namespace} - close orm`, async () => {
-    await connection.close();
+test.after(`${namespace} - destroy dataSource`, async () => {
+    await dataSource.destroy();
 });
 
 test(`${namespace} - remove self`, async ava => {

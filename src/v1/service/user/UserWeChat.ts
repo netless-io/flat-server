@@ -28,7 +28,7 @@ export class ServiceUserWeChat {
     public async assertExist(): Promise<void> {
         const result = await this.exist();
 
-        if (result === undefined) {
+        if (!result) {
             throw new ControllerError(ErrorCode.UserNotFound);
         }
     }

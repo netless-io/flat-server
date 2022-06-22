@@ -1,5 +1,4 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { createQueryBuilder } from "typeorm";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomUserDAO } from "../../../../dao";
@@ -7,6 +6,7 @@ import { RoomUserModel } from "../../../../model/room/RoomUser";
 import { UserModel } from "../../../../model/user/User";
 import { Controller } from "../../../../decorator/Controller";
 import { AbstractController } from "../../../../abstract/controller";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -52,7 +52,8 @@ export class UserInfo extends AbstractController<RequestType, ResponseType> {
             };
         }
 
-        const roomUsersInfoBasic = createQueryBuilder(RoomUserModel, "ru")
+        const roomUsersInfoBasic = dataSource
+            .createQueryBuilder(RoomUserModel, "ru")
             .addSelect("ru.rtc_uid", "rtc_uid")
             .addSelect("ru.user_uuid", "user_uuid")
             .addSelect("u.user_name", "user_name")

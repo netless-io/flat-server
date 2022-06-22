@@ -1,13 +1,15 @@
-import { Connection, createConnection } from "mysql2/promise";
-import { Config } from "../type";
+import { DataSource } from "typeorm";
+import { getConfig } from "./getConfig";
+import path from "path";
 
-export const getConnection = async (config: Config): Promise<Connection> => {
-    return await createConnection({
-        host: config.MYSQL_HOST,
-        port: config.MYSQL_PORT,
-        user: config.MYSQL_USERNAME,
-        password: config.MYSQL_PASSWORD,
-        database: config.MYSQL_DATABASE,
-        multipleStatements: true,
-    });
-};
+const config = getConfig(path.join(__dirname, ".env.yaml"));
+
+export const dataSource = new DataSource({
+    type: "mysql",
+    host: config.MYSQL_HOST,
+    port: config.MYSQL_PORT,
+    username: config.MYSQL_USERNAME,
+    password: config.MYSQL_PASSWORD,
+    database: config.MYSQL_DATABASE,
+    multipleStatements: true,
+});

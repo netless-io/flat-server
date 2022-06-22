@@ -1,4 +1,3 @@
-import { getConnection } from "typeorm";
 import { AbstractController, ControllerClassParams } from "../../../../abstract/controller";
 import { Region, Status } from "../../../../constants/Project";
 import { Controller } from "../../../../decorator/Controller";
@@ -12,6 +11,7 @@ import { aliGreenVideo } from "../../../utils/AliGreen";
 import { getOSSDomain, getOSSFileURLPath } from "../../cloudStorage/alibabaCloud/upload/Utils";
 import { deleteObject, isExistObject } from "../../cloudStorage/alibabaCloud/Utils";
 import { getFilePath } from "./Utils";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -85,7 +85,7 @@ export class UploadAvatarFinish extends AbstractController<RequestType, Response
         }
 
         // Delete previous avatar and set new avatar.
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             await this.svc.user.updateAvatar(alibabaCloudFileURL, t);
 
             const avatarURL = (await this.svc.user.nameAndAvatar())?.avatarURL;

@@ -88,7 +88,7 @@
     "reflect-metadata": "^0.1.13",
     "retry-axios": "^2.4.0",
     "source-map-support": "^0.5.19",
-    "typeorm": "^0.2.29",
+    "typeorm": "^0.3.6",
     "uuid": "^8.3.1"
   }
 }

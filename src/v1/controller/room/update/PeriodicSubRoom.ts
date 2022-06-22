@@ -3,7 +3,7 @@ import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../../dao
 import { ErrorCode } from "../../../../ErrorCode";
 import { Status } from "../../../../constants/Project";
 import { RoomStatus } from "../../../../model/room/Constants";
-import { getConnection, LessThan, MoreThan } from "typeorm";
+import { LessThan, MoreThan } from "typeorm";
 import { compareDesc, toDate } from "date-fns/fp";
 import {
     beginTimeLessEndTime,
@@ -12,6 +12,7 @@ import {
 } from "../utils/CheckTime";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -157,7 +158,7 @@ export class UpdatePeriodicSubRoom extends AbstractController<RequestType, Respo
             }
         }
 
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
             const begin_time = toDate(beginTime);

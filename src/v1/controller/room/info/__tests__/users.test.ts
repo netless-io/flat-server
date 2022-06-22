@@ -1,19 +1,17 @@
-import { Connection } from "typeorm";
 import test from "ava";
-import { orm } from "../../../../../thirdPartyService/TypeORMService";
+import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 import { v4 } from "uuid";
 import { createRoom, createRoomUser, createUsersRequest } from "./helpers/createUsersRequest";
 import { Status } from "../../../../../constants/Project";
 
 const namespace = "[api][api-v1][api-v1-room][api-v1-room-info][api-v1-room-info-user]";
 
-let connection: Connection;
-test.before(`${namespace} - connection orm`, async () => {
-    connection = await orm();
+test.before(`${namespace} - initialize dataSource`, async () => {
+    await dataSource.initialize();
 });
 
-test.after(`${namespace} - close orm`, async () => {
-    await connection.close();
+test.after(`${namespace} - destroy dataSource`, async () => {
+    await dataSource.destroy();
 });
 
 test(`${namespace} - show specify user info`, async ava => {

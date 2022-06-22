@@ -4,7 +4,6 @@ import { Region, Status } from "../../../../constants/Project";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { v4 } from "uuid";
 import { differenceInCalendarDays, toDate } from "date-fns/fp";
-import { getConnection } from "typeorm";
 import cryptoRandomString from "crypto-random-string";
 import { whiteboardCreateRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { ErrorCode } from "../../../../ErrorCode";
@@ -23,6 +22,7 @@ import { generateRoomInviteCode } from "./Utils";
 import { rtcQueue } from "../../../queue";
 import { aliGreenText } from "../../../utils/AliGreen";
 import { ControllerError } from "../../../../error/ControllerError";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -144,7 +144,7 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
             };
         });
 
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
             commands.push(RoomPeriodicDAO(t).insert(roomData));

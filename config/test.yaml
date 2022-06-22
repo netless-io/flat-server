@@ -60,30 +60,30 @@ user:
 login:
   wechat:
     web:
-      enable: false
+      enable: true
       app_id:
       app_secret:
     mobile:
-      enable: false
+      enable: true
       app_id:
       app_secret:
   github:
-    enable: false
+    enable: true
     client_id:
     client_secret:
   google:
-    enable: false
+    enable: true
     client_id:
     client_secret:
     redirect_uri:
   apple:
-    enable: false
+    enable: true
   agora:
-    enable: false
+    enable: true
     client_id:
     client_secret:
   sms:
-    enable: false
+    enable: true
     force: false
     test_users:
       - phone:

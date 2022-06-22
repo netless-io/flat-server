@@ -4,11 +4,12 @@ import { Controller } from "../../../../../decorator/Controller";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../../dao";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
-import { createQueryBuilder, getConnection, In } from "typeorm";
+import { In } from "typeorm";
 import { ControllerError } from "../../../../../error/ControllerError";
 import { CloudStorageUserFilesModel } from "../../../../../model/cloudStorage/CloudStorageUserFiles";
 import { CloudStorageFilesModel } from "../../../../../model/cloudStorage/CloudStorageFiles";
 import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
+import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -39,7 +40,8 @@ export class URLCloudRemove extends AbstractController<RequestType, ResponseType
 
         await this.assertFilesOwnerIsCurrentUser();
 
-        const fileInfo: FileInfoType[] = await createQueryBuilder(CloudStorageUserFilesModel, "fc")
+        const fileInfo: FileInfoType[] = await dataSource
+            .createQueryBuilder(CloudStorageUserFilesModel, "fc")
             .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
             .where(
                 `f.file_uuid IN (:...fileUUIDs)
@@ -62,7 +64,7 @@ export class URLCloudRemove extends AbstractController<RequestType, ResponseType
             };
         }
 
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
             commands.push(

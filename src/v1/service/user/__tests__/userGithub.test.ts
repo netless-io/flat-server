@@ -1,6 +1,5 @@
 import test from "ava";
-import { orm } from "../../../../thirdPartyService/TypeORMService";
-import { Connection } from "typeorm";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 import { UserGithubDAO } from "../../../../dao";
 import { v4 } from "uuid";
 import { ControllerError } from "../../../../error/ControllerError";
@@ -9,13 +8,12 @@ import { ServiceUserGithub } from "../UserGithub";
 
 const namespace = "[service][service-user][service-user-github]";
 
-let connection: Connection;
-test.before(`${namespace} - connection orm`, async () => {
-    connection = await orm();
+test.before(`${namespace} - initialize dataSource`, async () => {
+    await dataSource.initialize();
 });
 
-test.after(`${namespace} - close orm`, async () => {
-    await connection.close();
+test.after(`${namespace} - destroy dataSource`, async () => {
+    await dataSource.destroy();
 });
 
 test(`${namespace} - create github user`, async ava => {

@@ -1,7 +1,6 @@
 import { AbstractController } from "../../../../../abstract/controller";
 import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
 import { Controller } from "../../../../../decorator/Controller";
-import { getConnection } from "typeorm";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../../dao";
 import { v4 } from "uuid";
 import { Status } from "../../../../../constants/Project";
@@ -9,6 +8,7 @@ import { aliGreenText } from "../../../../utils/AliGreen";
 import { ControllerError } from "../../../../../error/ControllerError";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
+import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -44,7 +44,7 @@ export class URLCloudAdd extends AbstractController<RequestType, ResponseType> {
 
         const fileUUID = v4();
 
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
             commands.push(

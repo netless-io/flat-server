@@ -1,10 +1,11 @@
-import { createQueryBuilder } from "typeorm";
 import { RoomUserModel } from "../../../../../model/room/RoomUser";
 import { RoomModel } from "../../../../../model/room/Room";
 import { RoomStatus } from "../../../../../model/room/Constants";
+import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 
 export const alreadyJoinedRoomCount = async (userUUID: string): Promise<number> => {
-    return await createQueryBuilder(RoomUserModel, "ru")
+    return await dataSource
+        .createQueryBuilder(RoomUserModel, "ru")
         .innerJoin(RoomModel, "r", "ru.room_uuid = r.room_uuid")
         .andWhere("ru.user_uuid = :userUUID", {
             userUUID: userUUID,

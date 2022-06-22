@@ -1,6 +1,5 @@
-import { Connection } from "typeorm";
 import test from "ava";
-import { orm } from "../../../../../thirdPartyService/TypeORMService";
+import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 import { v4 } from "uuid";
 import { ResponseType } from "../index";
 import { addDays, addHours, addMinutes, startOfDay, subMinutes } from "date-fns/fp";
@@ -19,13 +18,12 @@ import { generateInviteCode } from "../../utils/GenerateInviteCode";
 
 const namespace = "[api][api-v1][api-v1-room][api-v1-room-list]";
 
-let connection: Connection;
-test.before(`${namespace} - connection orm`, async () => {
-    connection = await orm();
+test.before(`${namespace} - initialize dataSource`, async () => {
+    await dataSource.initialize();
 });
 
-test.after(`${namespace} - close orm`, async () => {
-    await connection.close();
+test.after(`${namespace} - destroy dataSource`, async () => {
+    await dataSource.destroy();
 });
 
 test(`${namespace} - list history normal`, async ava => {
@@ -407,7 +405,7 @@ test.serial(`${namespace} - no room data`, async ava => {
 test.serial(`${namespace} - error handler`, async ava => {
     ava.plan(1);
 
-    await connection.close();
+    await dataSource.destroy();
 
     const periodicList = createList(ListType.Periodic, v4());
 
@@ -417,5 +415,5 @@ test.serial(`${namespace} - error handler`, async ava => {
         ava.is(periodicList.errorHandler(error).code, ErrorCode.CurrentProcessFailed);
     }
 
-    await connection.connect();
+    await dataSource.initialize();
 });

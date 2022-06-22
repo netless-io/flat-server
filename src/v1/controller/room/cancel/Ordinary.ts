@@ -10,7 +10,7 @@ import { ControllerError } from "../../../../error/ControllerError";
 import { RoomModel } from "../../../../model/room/Room";
 import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { parseError } from "../../../../logger";
-import { getConnection } from "typeorm";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -58,7 +58,7 @@ export class CancelOrdinary extends AbstractController<RequestType, ResponseType
 
         this.assertRoomValid(roomInfo);
 
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
             commands.push(this.svc.roomUser.removeSelf(t));

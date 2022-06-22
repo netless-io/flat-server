@@ -1,6 +1,4 @@
-import path from "path";
-import { getConfig } from "./utils/getConfig";
-import { getConnection } from "./utils/mysql";
+import { dataSource } from "./utils/mysql";
 import {
     generatorFindData,
     SQLCount,
@@ -13,32 +11,29 @@ import {
 import { transformData } from "./utils/transform";
 
 const main = async () => {
-    const config = getConfig(path.join(__dirname, ".env.yaml"));
-
-    const connection = await getConnection(config);
+    await dataSource.initialize();
 
     console.log(`create payload field`);
-    await SQLCreatePayloadField(connection);
+    await SQLCreatePayloadField();
 
     console.log(`create resource_type field`);
-    await SQLCreateResourceTypeField(connection);
+    await SQLCreateResourceTypeField();
 
-    const count = await SQLCount(connection);
+    const count = await SQLCount();
     console.log(`cloud_storage_files count is: ${count}`);
 
-    const it = await generatorFindData(SQLFindData(connection), count, 500);
+    const it = await generatorFindData(SQLFindData(), count, 500);
 
     for await (const items of it) {
         const newItems = items.map(transformData);
-        await SQLUpdate(connection, newItems);
+        await SQLUpdate(newItems);
         console.log(`${newItems.length} data have been successfully updated`);
     }
 
-    await SQLDeleteUnlessColumns(connection);
+    await SQLDeleteUnlessColumns();
     console.log("Done");
 
-    await connection.end();
-    connection.destroy();
+    await dataSource.destroy();
 };
 
 main().catch(console.error);

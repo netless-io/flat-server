@@ -1,4 +1,4 @@
-import { createQueryBuilder, getConnection, In } from "typeorm";
+import { In } from "typeorm";
 import { Region, Status } from "../../../../../constants/Project";
 import {
     CloudStorageConfigsDAO,
@@ -18,6 +18,7 @@ import { ossClient } from "../Utils";
 import OSS from "ali-oss";
 import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
 import { FilePayload } from "../../../../../model/cloudStorage/Types";
+import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -48,7 +49,8 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
 
         await this.assertFilesOwnerIsCurrentUser();
 
-        const fileInfo: FileInfoType[] = await createQueryBuilder(CloudStorageUserFilesModel, "fc")
+        const fileInfo: FileInfoType[] = await dataSource
+            .createQueryBuilder(CloudStorageUserFilesModel, "fc")
             .addSelect("f.file_size", "file_size")
             .addSelect("f.file_url", "file_url")
             .addSelect("f.payload", "payload")
@@ -115,7 +117,7 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
             };
         })();
 
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
             commands.push(

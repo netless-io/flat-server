@@ -1,4 +1,3 @@
-import { getConnection } from "typeorm";
 import {
     CloudStorageConfigsDAO,
     CloudStorageFilesDAO,
@@ -15,6 +14,7 @@ import { Controller } from "../../../../../decorator/Controller";
 import { AbstractController } from "../../../../../abstract/controller";
 import { isLocalCourseware, isWhiteboardCourseware } from "../../convert/Utils";
 import { FileConvertStep, FileResourceType } from "../../../../../model/cloudStorage/Constants";
+import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -79,7 +79,7 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
 
         const alibabaCloudFileURL = getOSSFileURLPath(fullPath, region);
 
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
             commands.push(

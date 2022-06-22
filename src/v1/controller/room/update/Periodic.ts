@@ -3,7 +3,7 @@ import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO, RoomUserDAO } from "..
 import { ErrorCode } from "../../../../ErrorCode";
 import { Status } from "../../../../constants/Project";
 import { RoomStatus, RoomType, Week } from "../../../../model/room/Constants";
-import { getConnection, In } from "typeorm";
+import { In } from "typeorm";
 import { Periodic } from "../Types";
 import { checkUpdateBeginAndEndTime } from "./Utils";
 import { compareDesc, differenceInCalendarDays, toDate } from "date-fns/fp";
@@ -18,6 +18,7 @@ import { Controller } from "../../../../decorator/Controller";
 import { parseError } from "../../../../logger";
 import { aliGreenText } from "../../../utils/AliGreen";
 import { ControllerError } from "../../../../error/ControllerError";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -197,7 +198,7 @@ export class UpdatePeriodic extends AbstractController<RequestType, ResponseType
             })
         ).map(room => room.id);
 
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
             commands.push(

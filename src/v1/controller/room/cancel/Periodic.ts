@@ -1,7 +1,7 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
-import { getConnection, In, Not } from "typeorm";
+import { In, Not } from "typeorm";
 import { RoomStatus } from "../../../../model/room/Constants";
 import {
     RoomDAO,
@@ -13,6 +13,7 @@ import {
 import { roomIsRunning } from "../utils/RoomStatus";
 import { Controller } from "../../../../decorator/Controller";
 import { AbstractController } from "../../../../abstract/controller";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -80,7 +81,7 @@ export class CancelPeriodic extends AbstractController<RequestType, ResponseType
             };
         }
 
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
             commands.push(

@@ -8,10 +8,6 @@ export interface Config {
     MYSQL_DATABASE: string;
 }
 
-export interface ICount extends RowDataPacket {
-    count: number;
-}
-
 export interface IFindData {
     id: number;
     file_name: string;

@@ -1,6 +1,6 @@
 import { orm } from "../src/thirdPartyService/TypeORMService";
 
-orm().then(async conn => {
-    await conn.synchronize(true);
-    await conn.close();
+orm().then(async datasource => {
+    await datasource.synchronize(true);
+    await datasource.destroy();
 });

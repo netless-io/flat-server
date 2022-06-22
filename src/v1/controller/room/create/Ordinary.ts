@@ -12,10 +12,10 @@ import { AbstractController, ControllerClassParams } from "../../../../abstract/
 import { Controller } from "../../../../decorator/Controller";
 import { ControllerError } from "../../../../error/ControllerError";
 import { ServiceRoom, ServiceRoomUser } from "../../../service";
-import { getConnection } from "typeorm";
 import { generateRoomInviteCode } from "./Utils";
 import { rtcQueue } from "../../../queue";
 import { aliGreenText } from "../../../utils/AliGreen";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -73,7 +73,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
     public async execute(): Promise<Response<ResponseType>> {
         await this.checkParams();
 
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             // prettier-ignore
             await Promise.all([
                 this.svc.room.create(this.body, t),

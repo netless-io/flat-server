@@ -1,6 +1,5 @@
 import test from "ava";
-import { orm } from "../../../../thirdPartyService/TypeORMService";
-import { Connection } from "typeorm";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 import { v4 } from "uuid";
 import { RoomDAO } from "../../../../dao";
 import { Region } from "../../../../constants/Project";
@@ -13,13 +12,12 @@ import { ax } from "../../../utils/Axios";
 
 const namespace = "[service][service-room]";
 
-let connection: Connection;
-test.before(`${namespace} - connection orm`, async () => {
-    connection = await orm();
+test.before(`${namespace} - initialize dataSource`, async () => {
+    await dataSource.initialize();
 });
 
-test.after(`${namespace} - close orm`, async () => {
-    await connection.close();
+test.after(`${namespace} - destroy dataSource`, async () => {
+    await dataSource.destroy();
 });
 
 test(`${namespace} - assert exist room`, async ava => {

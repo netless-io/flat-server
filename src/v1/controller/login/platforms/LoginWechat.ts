@@ -3,13 +3,13 @@ import { Login } from "../../../../decorator/Login";
 import { LoginClassParams } from "../../../../abstract/login/Type";
 import { ax } from "../../../utils/Axios";
 import { WeChat } from "../../../../constants/Config";
-import { getConnection } from "typeorm";
 import { AxiosResponse } from "axios";
 import { ServiceUser } from "../../../service/user/User";
 import { ServiceUserWeChat } from "../../../service/user/UserWeChat";
 import { ServiceCloudStorageFiles } from "../../../service/cloudStorage/CloudStorageFiles";
 import { ServiceCloudStorageConfigs } from "../../../service/cloudStorage/CloudStorageConfigs";
 import { ServiceCloudStorageUserFiles } from "../../../service/cloudStorage/CloudStorageUserFiles";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 @Login()
 export class LoginWechat extends AbstractLogin {
@@ -28,7 +28,7 @@ export class LoginWechat extends AbstractLogin {
     }
 
     public async register(info: RegisterInfo): Promise<void> {
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const createUser = this.svc.user.create(info, t);
 
             const createUserWeChat = this.svc.userWeChat.create(info, t);

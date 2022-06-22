@@ -10,10 +10,10 @@ import {
     AgoraCloudRecordStartedResponse as ResponseType,
 } from "../../../../utils/request/agora/Types";
 import { agoraCloudRecordStartedRequest } from "../../../../utils/request/agora/Agora";
-import { getConnection } from "typeorm";
 import { getCloudRecordData } from "../../utils/Agora";
 import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
+import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -73,7 +73,7 @@ export class RecordAgoraStarted extends AbstractController<RequestType, Response
         }
 
         let agoraResponse: ResponseType;
-        await getConnection().transaction(async t => {
+        await dataSource.transaction(async t => {
             const { uid, cname, token } = await getCloudRecordData(roomUUID, true);
 
             agoraResponse = await agoraCloudRecordStartedRequest(agoraParams, {

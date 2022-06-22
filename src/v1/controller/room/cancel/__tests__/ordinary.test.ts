@@ -1,6 +1,5 @@
 import test from "ava";
-import { Connection } from "typeorm";
-import { orm } from "../../../../../thirdPartyService/TypeORMService";
+import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 import { v4 } from "uuid";
 import { createCancelOrdinary } from "./helpers/createCancelOrdinary";
 import { ErrorCode } from "../../../../../ErrorCode";
@@ -16,13 +15,12 @@ import { ax } from "../../../../utils/Axios";
 
 const namespace = "[api][api-v1][api-room][api-room-cancel][api-room-cancel-ordinary]";
 
-let connection: Connection;
-test.before(`${namespace} - connection orm`, async () => {
-    connection = await orm();
+test.before(`${namespace} - initialize dataSource`, async () => {
+    await dataSource.initialize();
 });
 
-test.after(`${namespace} - close orm`, async () => {
-    await connection.close();
+test.after(`${namespace} - destroy dataSource`, async () => {
+    await dataSource.destroy();
 });
 
 test(`${namespace} - room not found`, async ava => {
