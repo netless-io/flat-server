@@ -1,6 +1,7 @@
-import { DAO, Model } from "./Type";
+import { DAO } from "./Type";
 import { noDelete } from "./Utils";
 import { dataSource } from "../thirdPartyService/TypeORMService";
+import { Model } from "../model";
 
 export const DAOImplement: DAO<Model> = model => {
     return transaction => {
