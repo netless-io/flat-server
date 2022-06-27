@@ -1,7 +1,7 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
-import jwt from "jsonwebtoken";
+import jwt from "fast-jwt";
 import { AppleJWTToken, LoginApple } from "../platforms/LoginApple";
 import { ServiceUserApple } from "../../../service/user/UserApple";
 import { v4 } from "uuid";
@@ -37,9 +37,9 @@ export class AppleJWT extends AbstractController<RequestType, ResponseType> {
 
         await LoginApple.assertJWTTokenCorrect(jwtToken);
 
-        const token = jwt.decode(jwtToken, {
+        const token = jwt.createDecoder({
             complete: true,
-        }) as AppleJWTToken;
+        })(jwtToken) as AppleJWTToken;
 
         const appleID = token.payload.sub;
 

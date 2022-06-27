@@ -31,11 +31,16 @@ export class RecordAgoraUpdateLayout extends AbstractController<RequestType, Res
                 agoraParams: {
                     type: "object",
                     required: ["resourceid", "mode"],
-                    resourceid: {
-                        type: "string",
-                    },
-                    mode: {
-                        type: "string",
+                    properties: {
+                        resourceid: {
+                            type: "string",
+                        },
+                        mode: {
+                            type: "string",
+                        },
+                        sid: {
+                            type: "string",
+                        },
                     },
                 },
                 agoraData: {

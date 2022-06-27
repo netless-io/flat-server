@@ -1,5 +1,5 @@
 import { FastifyRequest } from "fastify";
-import { JSONSchemaType } from "ajv/dist/types/json-schema";
+import { JSONSchemaType } from "ajv";
 import { LoginPlatform, Status } from "../constants/Project";
 import { ErrorCode } from "../ErrorCode";
 
