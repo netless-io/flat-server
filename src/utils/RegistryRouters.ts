@@ -89,6 +89,8 @@ const registerRouters = (version: `v${number}`) => (
                             durationMS: Date.now() - startTime,
                         });
                     }
+
+                    return reply;
                 },
             );
         });

@@ -1,11 +1,11 @@
 import fp from "fastify-plugin";
-import jwt from "fastify-jwt";
+import jwt from "@fastify/jwt";
 import { JWT, Server } from "../constants/Config";
 import { Status } from "../constants/Project";
-import { Algorithm } from "jsonwebtoken";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ErrorCode } from "../ErrorCode";
 import { loggerServer, parseError } from "../logger";
+import { Algorithm } from "fast-jwt";
 
 export default fp(
     async (fastify): Promise<void> => {
@@ -13,7 +13,7 @@ export default fp(
             secret: JWT.secret,
             sign: {
                 algorithm: JWT.algorithms as Algorithm,
-                issuer: Server.name,
+                iss: Server.name,
                 expiresIn: "29 days",
             },
         });

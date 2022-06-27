@@ -1,19 +1,18 @@
 import "source-map-support/register";
 import "reflect-metadata";
 import fastify from "fastify";
-import cors from "fastify-cors";
 import { MetricsConfig, Server } from "./constants/Config";
 import { Status } from "./constants/Project";
-import jwtVerify from "./plugins/JWT";
 import { ajvSelfPlugin } from "./plugins/Ajv";
 import { orm } from "./thirdPartyService/TypeORMService";
 import { ErrorCode } from "./ErrorCode";
 import { loggerServer, parseError } from "./logger";
 import { MetricsSever } from "./metrics";
+import jwtVerify from "./plugins/JWT";
+import cors from "@fastify/cors";
+import formBody from "@fastify/formbody";
 import { registerV1Routers } from "./utils/RegistryRouters";
 import { httpRouters } from "./v1/Routes";
-// @ts-ignore
-import formbody from "fastify-formbody";
 
 const app = fastify({
     caseSensitive: true,
@@ -43,41 +42,46 @@ app.setErrorHandler((err, _request, reply) => {
     });
 });
 
-void app.register(jwtVerify).then(() => {
-    registerV1Routers(app, httpRouters);
-
-    app.get("/apple-app-site-association", (_, replay) => {
-        void replay
-            .code(200)
-            .header("Content-Type", "application/json; charset=utf-8")
-            .send({
-                applinks: {
-                    apps: [],
-                    details: [{ appID: "48TB6ZZL5S.io.agora.flat", paths: ["*"] }],
-                },
-            });
-    });
+app.get("/apple-app-site-association", (_, replay) => {
+    return replay
+        .code(200)
+        .header("Content-Type", "application/json; charset=utf-8")
+        .send({
+            applinks: {
+                apps: [],
+                details: [{ appID: "48TB6ZZL5S.io.agora.flat", paths: ["*"] }],
+            },
+        });
 });
-
-void app.register(cors, {
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    maxAge: 100,
-});
-
-void app.register(formbody);
 
 app.get("/health-check", async (_req, reply) => {
-    await reply.code(200).send();
+    return reply.code(200).send();
 });
 
-void orm().then(() => {
-    app.listen(Server.port, "0.0.0.0", (err, address) => {
-        if (err) {
-            loggerServer.error("server launch failed", parseError(err));
-            process.exit(1);
-        }
+void orm().then(async () => {
+    await Promise.all([
+        app.register(jwtVerify),
+        app.register(cors, {
+            methods: ["GET", "POST", "OPTIONS"],
+            allowedHeaders: ["Content-Type", "Authorization"],
+            maxAge: 100,
+        }),
+        app.register(formBody),
+    ]);
 
-        loggerServer.info(`server launch success, ${address}`);
-    });
+    registerV1Routers(app, httpRouters);
+    app.listen(
+        {
+            port: Server.port,
+            host: "0.0.0.0",
+        },
+        (err, address) => {
+            if (err) {
+                loggerServer.error("server launch failed", parseError(err));
+                process.exit(1);
+            }
+
+            loggerServer.info(`server launch success, ${address}`);
+        },
+    );
 });

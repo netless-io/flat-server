@@ -41,7 +41,7 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
                 },
                 type: {
                     type: "string",
-                    eq: [RoomType.OneToOne, RoomType.SmallClass, RoomType.BigClass],
+                    enum: [RoomType.OneToOne, RoomType.SmallClass, RoomType.BigClass],
                 },
                 beginTime: {
                     type: "integer",

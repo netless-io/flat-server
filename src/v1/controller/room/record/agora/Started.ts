@@ -33,11 +33,13 @@ export class RecordAgoraStarted extends AbstractController<RequestType, Response
                 agoraParams: {
                     type: "object",
                     required: ["resourceid", "mode"],
-                    resourceid: {
-                        type: "string",
-                    },
-                    mode: {
-                        type: "string",
+                    properties: {
+                        resourceid: {
+                            type: "string",
+                        },
+                        mode: {
+                            type: "string",
+                        },
                     },
                 },
                 agoraData: {

@@ -14,8 +14,7 @@ import { LoginPlatform } from "../../../../../constants/Project";
 import { RouterMetadata } from "../../../../../decorator/Metadata";
 import { UpdateStatusStopped } from "../../../room/updateStatus/Stopped";
 import { ax } from "../../../../utils/Axios";
-import { createSigner } from "fast-jwt";
-import { Algorithm } from "jsonwebtoken";
+import { Algorithm, createSigner } from "fast-jwt";
 
 @Controller<RequestType, any>({
     method: "post",

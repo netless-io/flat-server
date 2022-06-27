@@ -29,14 +29,16 @@ export class RecordAgoraQuery extends AbstractController<RequestType, ResponseTy
                 agoraParams: {
                     type: "object",
                     required: ["resourceid", "mode", "sid"],
-                    resourceid: {
-                        type: "string",
-                    },
-                    mode: {
-                        type: "string",
-                    },
-                    sid: {
-                        type: "string",
+                    properties: {
+                        resourceid: {
+                            type: "string",
+                        },
+                        mode: {
+                            type: "string",
+                        },
+                        sid: {
+                            type: "string",
+                        },
                     },
                 },
             },

@@ -7,7 +7,7 @@ import { ServiceCloudStorageUserFiles } from "../../../service/cloudStorage/Clou
 import { ServiceCloudStorageConfigs } from "../../../service/cloudStorage/CloudStorageConfigs";
 import { ServiceUserApple } from "../../../service/user/UserApple";
 import NodeRSA from "node-rsa";
-import jwt, { Algorithm } from "jsonwebtoken";
+import jwt, { Algorithm } from "fast-jwt";
 import { ax } from "../../../utils/Axios";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
@@ -38,9 +38,9 @@ export class LoginApple extends AbstractLogin {
     }
 
     public static async assertJWTTokenCorrect(jwtToken: string): Promise<void> {
-        const token = jwt.decode(jwtToken, {
+        const token = jwt.createDecoder({
             complete: true,
-        }) as AppleJWTToken | null;
+        })(jwtToken) as AppleJWTToken | null;
         if (token === null) {
             throw new Error("jwt format parse failed");
         }
@@ -63,10 +63,11 @@ export class LoginApple extends AbstractLogin {
         );
         const key = rsa.exportKey("public");
 
-        jwt.verify(jwtToken, key, {
+        jwt.createVerifier({
+            key,
             algorithms: [token.header.alg],
-            audience: "io.agora.flat",
-        });
+            allowedAud: "io.agora.flat",
+        })(jwtToken);
     }
 
     public static getToken(): Promise<void> {
