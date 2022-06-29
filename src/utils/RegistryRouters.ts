@@ -1,6 +1,5 @@
-import { FastifyInstance } from "fastify";
 import { RouterMetadata } from "../decorator/Metadata";
-import { PatchRequest } from "../types/Server";
+import { FastifyInstance, PatchRequest } from "../types/Server";
 import { ControllerClass, ControllerStaticType } from "../abstract/controller";
 import { createLoggerAPI, Logger, LoggerAPI, parseError } from "../logger";
 

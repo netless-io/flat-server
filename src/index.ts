@@ -13,16 +13,18 @@ import cors from "@fastify/cors";
 import formBody from "@fastify/formbody";
 import { registerV1Routers } from "./utils/RegistryRouters";
 import { httpRouters } from "./v1/Routes";
+import { ajvTypeBoxPlugin, TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
+import { v2Routes } from "./v2/controllers/routes";
+import { registerV2Routers } from "./utils/registryRoutersV2";
 
 const app = fastify({
     caseSensitive: true,
     ajv: {
-        plugins: [ajvSelfPlugin],
+        plugins: [ajvTypeBoxPlugin, ajvSelfPlugin],
     },
-});
+}).withTypeProvider<TypeBoxTypeProvider>();
 
 if (MetricsConfig.enabled) {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     new MetricsSever(app).start();
 }
 
@@ -70,6 +72,7 @@ void orm().then(async () => {
     ]);
 
     registerV1Routers(app, httpRouters);
+    registerV2Routers(app, v2Routes);
     app.listen(
         {
             port: Server.port,
