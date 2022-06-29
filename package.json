@@ -76,6 +76,7 @@
     "date-fns": "^2.16.1",
     "fast-jwt": "^1.6.0",
     "fastify": "^4.1.0",
+    "fastify-reqid": "^1.0.1",
     "filenamify": "^4.3.0",
     "fs-extra": "^10.0.0",
     "ioredis": "^4.19.2",
