@@ -1,7 +1,17 @@
-import { FastifyRequest } from "fastify";
+import {
+    FastifyInstance as FI,
+    FastifyLoggerInstance,
+    FastifyRequest,
+    RawReplyDefaultExpression,
+    RawRequestDefaultExpression,
+    RawServerDefault,
+} from "fastify";
 import { JSONSchemaType } from "ajv";
 import { LoginPlatform, Status } from "../constants/Project";
 import { ErrorCode } from "../ErrorCode";
+import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
+import { RouteGenericInterface } from "fastify/types/route";
+import { EntityManager } from "typeorm";
 
 export interface PatchRequest<T = any> extends FastifyRequest<T> {
     user: {
@@ -46,3 +56,23 @@ export type Response<T = any> =
     | {
           status: Status.Process;
       };
+
+export type FastifyInstance<S extends RawServerDefault = RawServerDefault> = FI<
+    S,
+    RawRequestDefaultExpression<S>,
+    RawReplyDefaultExpression<S>,
+    FastifyLoggerInstance,
+    TypeBoxTypeProvider
+>;
+
+export type FastifyRequestTypebox<SCHEMA> = FastifyRequest<
+    RouteGenericInterface,
+    RawServerDefault,
+    RawRequestDefaultExpression<RawServerDefault>,
+    SCHEMA,
+    TypeBoxTypeProvider
+> & {
+    DBTransaction: EntityManager;
+    userUUID: string;
+    loginSource: LoginPlatform;
+};

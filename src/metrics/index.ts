@@ -1,7 +1,8 @@
 import { collectDefaultMetrics, Registry } from "prom-client";
-import fastify, { FastifyInstance } from "fastify";
+import fastify from "fastify";
 import { MetricsConfig } from "../constants/Config";
 import { loggerServer, parseError } from "../logger";
+import { FastifyInstance } from "../types/Server";
 
 type MetricsParams = {
     appServer: FastifyInstance;
@@ -23,7 +24,8 @@ export class MetricsSever {
     public start(): void {
         const client = new Registry();
         collectDefaultMetrics({ register: client });
-        let metricsServer = null;
+        let metricsServer: FastifyInstance;
+
         if (this.params.port) {
             metricsServer = fastify({
                 caseSensitive: true,
