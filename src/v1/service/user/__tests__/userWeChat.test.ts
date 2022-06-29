@@ -58,7 +58,7 @@ test(`${namespace} - assert exist failed`, async ava => {
 
     const rawError = await ava.throwsAsync<ControllerError>(serviceUserWeChat.assertExist());
 
-    ava.is(rawError.errorCode, ErrorCode.UserNotFound);
+    ava.is(rawError?.errorCode, ErrorCode.UserNotFound);
 });
 
 test(`${namespace} - get userUUID by unionUUID`, async ava => {
