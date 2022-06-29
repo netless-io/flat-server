@@ -14,7 +14,6 @@
   "devDependencies": {
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-angular": "^17.0.3",
-    "@netless/eslint-plugin": "^1.1.1",
     "@types/ali-oss": "^6.0.7",
     "@types/bull": "^3.15.8",
     "@types/dotenv-flow": "^3.1.1",
