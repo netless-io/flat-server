@@ -86,11 +86,11 @@ test(`${namespace} - has name and avatar`, async ava => {
     const result = await serviceUser.nameAndAvatar();
 
     if (result === null) {
-        return ava.fail("serviceUser.nameAndAvatar must has value");
+        ava.fail("serviceUser.nameAndAvatar must has value");
+    } else {
+        ava.is(result.userName, userName);
+        ava.is(result.avatarURL, avatarURL);
     }
-
-    ava.is(result.userName, userName);
-    ava.is(result.avatarURL, avatarURL);
 });
 
 test(`${namespace} - no found name and avatar`, async ava => {
@@ -127,7 +127,7 @@ test(`${namespace} - assert has name and avatar failed`, async ava => {
 
     const rawError = await ava.throwsAsync<ControllerError>(serviceUser.assertGetNameAndAvatar());
 
-    ava.is(rawError.errorCode, ErrorCode.UserNotFound);
+    ava.is(rawError?.errorCode, ErrorCode.UserNotFound);
 });
 
 test(`${namespace} - update user name`, async ava => {

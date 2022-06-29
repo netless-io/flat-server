@@ -7,7 +7,7 @@ const namespace = "[logger][logger-plugin][logger-plugin-terminal]";
 test(`${namespace} - test logger context and format`, ava => {
     const protoConsole = console.log;
 
-    let testLogOutput;
+    let testLogOutput: undefined | string;
     console.log = (log: string) => {
         testLogOutput = log;
     };

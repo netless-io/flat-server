@@ -7,6 +7,14 @@ import { UserModel } from "../../../model/user/User";
 
 const namespace = "dao.deleteHard";
 
+test.before(`${namespace} - initialize dataSource`, async () => {
+    await dataSource.initialize();
+});
+
+test.after(`${namespace} - destroy dataSource`, async () => {
+    await dataSource.destroy();
+});
+
 test(`${namespace} - delete (physical delete)`, async ava => {
     const { userUUID } = await CreateUser.quick();
 

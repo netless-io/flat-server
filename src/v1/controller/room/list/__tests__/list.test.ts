@@ -376,7 +376,7 @@ test(`${namespace} - has inviteCode`, async ava => {
         if (i % 3 !== 0) {
             ava.true(/\d{10}/.test(room.inviteCode), "invite code must is ten digits");
         } else {
-            ava.is(room.inviteCode, isEven ? room.roomUUID : room.periodicUUID);
+            ava.is(room.inviteCode, isEven ? room.roomUUID : room.periodicUUID!);
         }
     });
 });
