@@ -1,96 +1,98 @@
 import { FastifyInstance, FastifyRequestTypebox, Response } from "../types/Server";
 import { FastifyReply } from "fastify";
 import { Status } from "../constants/Project";
-import { ControllerError } from "../error/ControllerError";
+import { FError } from "../error/ControllerError";
 import { ErrorCode } from "../ErrorCode";
 import { dataSource } from "../thirdPartyService/TypeORMService";
 
-const registerRouters = (version: `v${number}`) => (
-    fastifyServer: FastifyInstance,
-    controllers: Array<(server: Server) => void>,
-) => {
-    const routerHandle = (method: "get" | "post"): Router => {
-        return <S>(
-            path: string,
-            handler: (rep: FastifyRequestTypebox<S>, reply: FastifyReply) => Promise<any>,
-            config: {
-                auth?: boolean;
-                schema: S;
-                autoHandle?: boolean;
-                enable?: boolean;
-            },
-        ) => {
-            const autoHandle = config.autoHandle === undefined || config.autoHandle;
-            const auth = config.auth === undefined || config.auth;
-            const enable = config.enable === undefined || config.enable;
-
-            if (!enable) {
-                return;
-            }
-
-            fastifyServer[method](
-                `/${version}/${path}`,
-                {
-                    preValidation: auth ? [(fastifyServer as any).authenticate] : undefined,
-                    schema: config.schema,
+const registerRouters =
+    (version: `v${number}`) =>
+    (fastifyServer: FastifyInstance, controllers: Array<(server: Server) => void>) => {
+        const routerHandle = (method: "get" | "post"): Router => {
+            return <S>(
+                path: string,
+                handler: (req: FastifyRequestTypebox<S>, reply: FastifyReply) => Promise<any>,
+                config: {
+                    auth?: boolean;
+                    schema: S;
+                    autoHandle?: boolean;
+                    enable?: boolean;
                 },
-                async (req, reply: FastifyReply) => {
-                    let resp: Response | null = null;
+            ) => {
+                const autoHandle = config.autoHandle === undefined || config.autoHandle;
+                const auth = config.auth === undefined || config.auth;
+                const enable = config.enable === undefined || config.enable;
 
-                    const queryRunner = dataSource.createQueryRunner();
+                if (!enable) {
+                    return;
+                }
 
-                    try {
-                        await queryRunner.startTransaction();
+                fastifyServer[method](
+                    `/${version}/${path}`,
+                    {
+                        preValidation: auth ? [(fastifyServer as any).authenticate] : undefined,
+                        schema: config.schema,
+                    },
+                    async (req, reply: FastifyReply) => {
+                        let resp: Response | null = null;
 
-                        const result = await handler(
-                            {
-                                ...req,
-                                // @ts-ignore
-                                userUUID: req?.user?.userUUID,
-                                // @ts-ignore
-                                loginSource: req?.user?.loginSource,
-                                DBTransaction: queryRunner.manager,
-                            },
-                            reply,
-                        );
+                        // TODO: Move to fastify middleware.
+                        //       Waiting remove v1
+                        //       @BlackHole1
+                        const queryRunner = dataSource.createQueryRunner();
 
-                        if (autoHandle) {
-                            resp = result as Response;
+                        try {
+                            await queryRunner.startTransaction();
+
+                            const result = await handler(
+                                {
+                                    ...req,
+                                    // @ts-ignore
+                                    userUUID: req?.user?.userUUID,
+                                    // @ts-ignore
+                                    loginSource: req?.user?.loginSource,
+                                    DBTransaction: queryRunner.manager,
+                                },
+                                reply,
+                            );
+
+                            if (autoHandle) {
+                                resp = result as Response;
+                            }
+
+                            await queryRunner.commitTransaction();
+                        } catch (error) {
+                            if (autoHandle) {
+                                resp = errorToResp(error as Error);
+                            }
+
+                            await queryRunner.rollbackTransaction();
+                        } finally {
+                            await queryRunner.release();
                         }
 
-                        await queryRunner.commitTransaction();
-                    } catch (error) {
-                        if (autoHandle) {
-                            resp = errorToResp(error);
+                        if (resp) {
+                            await reply.send(resp);
                         }
 
-                        await queryRunner.rollbackTransaction();
-                    } finally {
-                        await queryRunner.release();
-                    }
-
-                    if (resp) {
-                        await reply.send(resp);
-                    }
-
-                    return reply;
-                },
-            );
+                        return reply;
+                    },
+                );
+            };
         };
-    };
 
-    const server: Server = {
-        get: routerHandle("get"),
-        post: routerHandle("post"),
-    };
+        const server: Server = {
+            get: routerHandle("get"),
+            post: routerHandle("post"),
+        };
 
-    controllers.forEach(controller => {
-        controller(server);
-    });
-};
+        controllers.forEach(controller => {
+            controller(server);
+        });
+    };
 
 const errorToResp = (error: Error): Response => {
-    if (error instanceof ControllerError) {
+    if (error instanceof FError) {
         return {
             status: error.status,
             code: error.errorCode,
@@ -109,7 +111,7 @@ interface R<O> {
     <S>(
         path: string,
         handler: (
-            rep: FastifyRequestTypebox<S>,
+            req: FastifyRequestTypebox<S>,
             reply: FastifyReply,
         ) => Promise<O extends false ? void : Response>,
         config: {
