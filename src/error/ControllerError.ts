@@ -12,3 +12,12 @@ export class ControllerError extends FlatError {
         this.name = "ControllerError";
     }
 }
+
+export class FError extends FlatError {
+    constructor(
+        public errorCode: ErrorCode,
+        public status: ResponseError["status"] = Status.Failed,
+    ) {
+        super(`${status}: ${errorCode}`);
+    }
+}
