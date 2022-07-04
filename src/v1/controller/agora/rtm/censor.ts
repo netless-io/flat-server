@@ -28,7 +28,7 @@ export class RTMCensor extends AbstractController<RequestType, ResponseType> {
         return {
             status: Status.Success,
             data: {
-                result: await aliGreenText.textNonCompliant(this.body.text),
+                valid: !(await aliGreenText.textNonCompliant(this.body.text)),
             },
         };
     }
@@ -45,5 +45,5 @@ interface RequestType {
 }
 
 interface ResponseType {
-    result: boolean;
+    valid: boolean;
 }
