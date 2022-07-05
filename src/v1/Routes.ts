@@ -6,13 +6,12 @@ import { ControllerClass } from "../abstract/controller";
 import { userRouters } from "./controller/user/Router";
 import { aliCloudRouters } from "./controller/aliCloud/Router";
 
-export const httpRouters: Readonly<
-    Array<Readonly<Array<ControllerClass<any, any>>>>
-> = Object.freeze([
-    agoraRouters,
-    aliCloudRouters,
-    loginRouters,
-    roomRouters,
-    cloudStorageRouters,
-    userRouters,
-]);
+export const httpRouters: Readonly<Array<Readonly<Array<ControllerClass<any, any>>>>> =
+    Object.freeze([
+        agoraRouters,
+        aliCloudRouters,
+        loginRouters,
+        roomRouters,
+        cloudStorageRouters,
+        userRouters,
+    ]);

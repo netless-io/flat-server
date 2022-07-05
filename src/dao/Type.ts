@@ -49,11 +49,7 @@ type Count<M> = (where: Where<M>) => Promise<number>;
 
 type PhysicalDeletion<M> = (where: Where<M>) => Promise<DeleteResult>;
 
-export type DAO<T extends Model> = (
-    model: EntityTarget<T>,
-) => (
-    transaction?: EntityManager,
-) => {
+export type DAO<T extends Model> = (model: EntityTarget<T>) => (transaction?: EntityManager) => {
     find: Find<T>;
     findOne: FindOne<T>;
     remove: Remove<T>;

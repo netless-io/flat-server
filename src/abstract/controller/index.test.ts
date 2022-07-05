@@ -19,12 +19,12 @@ test(`${namespace} - abstract controller capture normal error`, ava => {
         }
     }
 
-    const testClass = new TestClass(({
+    const testClass = new TestClass({
         req: {},
         logger: {
             error: () => {},
         },
-    } as unknown) as ControllerClassParams);
+    } as unknown as ControllerClassParams);
 
     try {
         testClass.execute();

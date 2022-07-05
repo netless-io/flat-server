@@ -117,9 +117,10 @@ class DAO<M extends Model> {
     public async delete(t: EntityManager, where: FindOptionsWhere<M>): Promise<void> {
         await this.update(
             t,
+            // @ts-ignore
             {
                 is_delete: true,
-            } as any,
+            },
             where,
         );
     }

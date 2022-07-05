@@ -11,7 +11,7 @@ test(`${namespace} - default value`, ava => {
             return ["created_at", "updated_at"].includes(data.propertyName);
         })
         .map(({ options }) => {
-            return ((options.default as unknown) as () => string)();
+            return (options.default as unknown as () => string)();
         });
 
     ava.deepEqual(dateField, ["CURRENT_TIMESTAMP(3)", "CURRENT_TIMESTAMP(3)"]);

@@ -81,100 +81,95 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
         }
 
         let nextRoomUUID = null;
-        await dataSource.transaction(
-            async (t): Promise<void> => {
-                const commands: Promise<unknown>[] = [];
-                const roomDAO = RoomDAO(t);
+        await dataSource.transaction(async (t): Promise<void> => {
+            const commands: Promise<unknown>[] = [];
+            const roomDAO = RoomDAO(t);
 
-                const endTime = new Date();
+            const endTime = new Date();
+            commands.push(
+                roomDAO.update(
+                    {
+                        room_status: RoomStatus.Stopped,
+                        end_time: endTime,
+                    },
+                    {
+                        room_uuid: roomUUID,
+                    },
+                ),
+            );
+
+            if (periodic_uuid !== "") {
                 commands.push(
-                    roomDAO.update(
+                    RoomPeriodicDAO(t).update(
                         {
                             room_status: RoomStatus.Stopped,
                             end_time: endTime,
                         },
                         {
-                            room_uuid: roomUUID,
+                            fake_room_uuid: roomUUID,
                         },
                     ),
                 );
 
-                if (periodic_uuid !== "") {
+                const nextRoomPeriodicInfo = await getNextPeriodicRoomInfo(
+                    periodic_uuid,
+                    periodicRoomInfo.begin_time,
+                );
+
+                if (nextRoomPeriodicInfo) {
+                    nextRoomUUID = nextRoomPeriodicInfo.fake_room_uuid;
+                    const periodicRoomConfig = await RoomPeriodicConfigDAO().findOne(
+                        ["title", "room_type"],
+                        {
+                            periodic_uuid,
+                        },
+                    );
+
+                    // unless you encounter special boundary conditions, you will not get here
+                    if (periodicRoomConfig === undefined) {
+                        throw new Error("Enter a special boundary situation");
+                    }
+
+                    const { title, room_type } = periodicRoomConfig;
                     commands.push(
-                        RoomPeriodicDAO(t).update(
+                        ...(await updateNextPeriodicRoomInfo({
+                            transaction: t,
+                            periodic_uuid,
+                            user_uuid: userUUID,
+                            title,
+                            room_type,
+                            region: roomInfo.region,
+                            ...nextRoomPeriodicInfo,
+                        })),
+                    );
+                } else {
+                    this.readyRecycleInviteCode = true;
+                    commands.push(
+                        RoomPeriodicConfigDAO(t).update(
                             {
-                                room_status: RoomStatus.Stopped,
-                                end_time: endTime,
+                                periodic_status: PeriodicStatus.Stopped,
                             },
                             {
-                                fake_room_uuid: roomUUID,
+                                periodic_uuid,
                             },
                         ),
                     );
-
-                    const nextRoomPeriodicInfo = await getNextPeriodicRoomInfo(
-                        periodic_uuid,
-                        periodicRoomInfo.begin_time,
-                    );
-
-                    if (nextRoomPeriodicInfo) {
-                        nextRoomUUID = nextRoomPeriodicInfo.fake_room_uuid;
-                        const periodicRoomConfig = await RoomPeriodicConfigDAO().findOne(
-                            ["title", "room_type"],
-                            {
-                                periodic_uuid,
-                            },
-                        );
-
-                        // unless you encounter special boundary conditions, you will not get here
-                        if (periodicRoomConfig === undefined) {
-                            throw new Error("Enter a special boundary situation");
-                        }
-
-                        const { title, room_type } = periodicRoomConfig;
-                        commands.push(
-                            ...(await updateNextPeriodicRoomInfo({
-                                transaction: t,
-                                periodic_uuid,
-                                user_uuid: userUUID,
-                                title,
-                                room_type,
-                                region: roomInfo.region,
-                                ...nextRoomPeriodicInfo,
-                            })),
-                        );
-                    } else {
-                        this.readyRecycleInviteCode = true;
-                        commands.push(
-                            RoomPeriodicConfigDAO(t).update(
-                                {
-                                    periodic_status: PeriodicStatus.Stopped,
-                                },
-                                {
-                                    periodic_uuid,
-                                },
-                            ),
-                        );
-                    }
-                } else {
-                    this.readyRecycleInviteCode = true;
                 }
+            } else {
+                this.readyRecycleInviteCode = true;
+            }
 
-                await Promise.all(commands);
-                whiteboardBanRoom(roomInfo.region, roomInfo.whiteboard_room_uuid).catch(error => {
-                    this.logger.warn("ban room failed!", parseError(error));
+            await Promise.all(commands);
+            whiteboardBanRoom(roomInfo.region, roomInfo.whiteboard_room_uuid).catch(error => {
+                this.logger.warn("ban room failed!", parseError(error));
+            });
+
+            if (this.readyRecycleInviteCode) {
+                readyRecycleInviteCode(roomInfo.periodic_uuid || roomUUID).catch(error => {
+                    this.logger.warn("set room invite code expire time failed", parseError(error));
                 });
-
-                if (this.readyRecycleInviteCode) {
-                    readyRecycleInviteCode(roomInfo.periodic_uuid || roomUUID).catch(error => {
-                        this.logger.warn(
-                            "set room invite code expire time failed",
-                            parseError(error),
-                        );
-                    });
-                }
-            },
-        );
+            }
+        });
 
         if (nextRoomUUID) {
             rtcQueue(nextRoomUUID);

@@ -16,7 +16,8 @@ import { aliGreenVideo } from "../../../../utils/AliGreen";
 export class RecorderSnapshotFile {
     public static productId = 3;
     public static eventType = 45;
-    public static hitFlag = `${RecorderSnapshotFile.productId}:${RecorderSnapshotFile.eventType}` as const;
+    public static hitFlag =
+        `${RecorderSnapshotFile.productId}:${RecorderSnapshotFile.eventType}` as const;
     public static secret = (() => {
         for (const { secret, productID, eventType } of Agora.messageNotification.events) {
             if (

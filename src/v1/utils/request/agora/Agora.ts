@@ -19,10 +19,7 @@ const agoraCloudRecording = `https://api.agora.io/v1/apps/${Agora.appId}/cloud_r
 const authorization =
     "Basic" + Buffer.from(`${Agora.restfulId}:${Agora.restfulSecret}`).toString("base64");
 
-const agoraCloudRecordingRequest = async <REQ, RESP extends any>(
-    path: string,
-    data?: REQ,
-): Promise<RESP> => {
+const agoraCloudRecordingRequest = async <REQ, RESP>(path: string, data?: REQ): Promise<RESP> => {
     let response: AxiosResponse<RESP>;
     const headers = {
         Authorization: authorization,
