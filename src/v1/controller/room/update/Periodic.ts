@@ -121,13 +121,8 @@ export class UpdatePeriodic extends AbstractController<RequestType, ResponseType
             };
         }
 
-        const {
-            room_origin_begin_time,
-            room_origin_end_time,
-            end_time,
-            rate,
-            region,
-        } = periodicConfigInfo;
+        const { room_origin_begin_time, room_origin_end_time, end_time, rate, region } =
+            periodicConfigInfo;
 
         if (
             !checkUpdateBeginAndEndTime(beginTime, endTime, {

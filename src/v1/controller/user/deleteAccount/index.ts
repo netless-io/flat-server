@@ -15,6 +15,7 @@ import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import { alreadyJoinedRoomCount } from "./utils/AlreadyJoinedRoomCount";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
+import { parseError } from "../../../../logger";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -56,7 +57,7 @@ export class DeleteAccount extends AbstractController<RequestType, ResponseType>
         });
 
         await RedisService.set(RedisKey.userDelete(this.userUUID), "").catch(error => {
-            this.logger.warn(error);
+            this.logger.warn("set userDelete failed", parseError(error));
         });
 
         return {

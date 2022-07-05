@@ -68,16 +68,8 @@ export class PeriodicInfo extends AbstractController<RequestType, ResponseType> 
             };
         }
 
-        const {
-            title,
-            rate,
-            end_time,
-            owner_uuid,
-            room_type,
-            periodic_status,
-            weeks,
-            region,
-        } = periodicConfig;
+        const { title, rate, end_time, owner_uuid, room_type, periodic_status, weeks, region } =
+            periodicConfig;
 
         const userInfo = await UserDAO().findOne(["user_name"], {
             user_uuid: owner_uuid,

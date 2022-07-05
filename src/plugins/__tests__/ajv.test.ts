@@ -77,7 +77,7 @@ test(`${namespace} - unix-timestamp`, ava => {
             timestamp: 100000,
         };
 
-        validate(testTimestampValidFail);
+        void validate(testTimestampValidFail);
 
         ava.true(validate.errors !== null);
     }
@@ -87,7 +87,7 @@ test(`${namespace} - unix-timestamp`, ava => {
             timestamp: Date.now(),
         };
 
-        validate(testTimestampValidSuccess);
+        void validate(testTimestampValidSuccess);
 
         ava.is(validate.errors, null);
     }

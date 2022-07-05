@@ -69,7 +69,7 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
 
         const { file_url: resource, payload, resource_type } = fileInfo;
 
-        const { convertStep } = payload as any;
+        const { convertStep } = payload as { convertStep: FileConvertStep };
 
         if (isConvertDone(convertStep)) {
             return {

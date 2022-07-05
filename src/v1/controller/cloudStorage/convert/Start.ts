@@ -1,4 +1,4 @@
-import { Status } from "../../../../constants/Project";
+import { Region, Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { createWhiteboardTaskToken } from "../../../../utils/NetlessToken";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
@@ -70,7 +70,7 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
 
         const { file_url: resource, payload } = fileInfo;
 
-        const { convertStep, region } = payload as any;
+        const { convertStep, region } = payload as { convertStep: FileConvertStep; region: Region };
 
         if (isConverting(convertStep)) {
             return {

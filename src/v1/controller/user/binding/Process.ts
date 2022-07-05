@@ -60,4 +60,4 @@ interface RequestType {
     };
 }
 
-type ResponseType = {};
+interface ResponseType {}

@@ -15,7 +15,7 @@ export abstract class AbstractController<
         params?: any;
         querystring?: any;
     },
-    REQ extends any = void
+    REQ = void,
 > {
     protected readonly body: RES["body"];
     protected readonly params: RES["params"];

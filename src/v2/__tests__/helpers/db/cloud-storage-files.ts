@@ -5,7 +5,6 @@ import { FilePayload } from "../../../../model/cloudStorage/Types";
 import { FileConvertStep, FileResourceType } from "../../../../model/cloudStorage/Constants";
 import { Region } from "../../../../constants/Project";
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const infoByType = (resourceType: FileResourceType) => {
     let payload = {};
     switch (resourceType) {

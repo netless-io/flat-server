@@ -95,6 +95,7 @@ export class VoiceCallback extends AbstractController<RequestType> {
             content = JSON.parse(this.body.content);
             content = {
                 ...content,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 dataId: JSON.parse(content?.dataId),
             };
         } catch (error) {

@@ -153,4 +153,13 @@ module.exports = {
         "@typescript-eslint/no-explicit-any": ["off"],
         "@typescript-eslint/no-empty-interface": ["off"],
     },
+    overrides: [
+        {
+            files: ["**/__tests__/**/*.ts", "**/*.test.ts"],
+            rules: {
+                "@typescript-eslint/explicit-function-return-type": "off",
+                "@typescript-eslint/no-unsafe-argument": "off",
+            },
+        },
+    ],
 };
