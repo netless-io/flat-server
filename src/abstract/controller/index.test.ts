@@ -1,7 +1,7 @@
 import test from "ava";
 import { AbstractController, ControllerClassParams } from "./";
 import { ResponseError } from "../../types/Server";
-import { createLoggerAPI } from "../../logger";
+import { createLoggerAPIv1 } from "../../logger";
 import { ErrorCode } from "../../ErrorCode";
 import { ControllerError } from "../../error/ControllerError";
 
@@ -49,7 +49,7 @@ test(`${namespace} - abstract controller capture controller error`, ava => {
 
     const testClass = new TestClass({
         req: {},
-        logger: createLoggerAPI({}),
+        logger: createLoggerAPIv1({}),
     } as ControllerClassParams);
 
     try {
