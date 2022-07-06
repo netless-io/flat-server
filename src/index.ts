@@ -8,7 +8,7 @@ import { orm } from "./thirdPartyService/TypeORMService";
 import { ErrorCode } from "./ErrorCode";
 import { loggerServer, parseError } from "./logger";
 import { MetricsSever } from "./metrics";
-import jwtVerify from "./plugins/JWT";
+import jwtVerify from "./plugins/fastify/JWT";
 import cors from "@fastify/cors";
 import formBody from "@fastify/formbody";
 import { registerV1Routers } from "./utils/RegistryRouters";
@@ -17,6 +17,7 @@ import { ajvTypeBoxPlugin, TypeBoxTypeProvider } from "@fastify/type-provider-ty
 import { v2Routes } from "./v2/controllers/routes";
 import { registerV2Routers } from "./utils/registryRoutersV2";
 import reqID from "fastify-reqid";
+import { fastifyAPILogger } from "./plugins/fastify/api-logger";
 
 const app = fastify({
     caseSensitive: true,
@@ -72,6 +73,8 @@ void orm().then(async () => {
         app.register(formBody),
         app.register(reqID),
     ]);
+
+    await app.register(fastifyAPILogger);
 
     registerV1Routers(app, httpRouters);
     registerV2Routers(app, v2Routes);

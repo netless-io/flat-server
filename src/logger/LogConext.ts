@@ -33,6 +33,18 @@ export type LoggerAPI = LoggerBase & {
     durationMS: number;
 };
 
+export type LoggerAPIv2 = LoggerBase & {
+    requestPath: string;
+    requestID: string;
+    user: {
+        userUUID: string;
+        loginSource: string;
+        iat: number;
+        exp: number;
+    };
+    durationMS?: number;
+};
+
 export type LoggerSMS = LoggerBase & {
     sms: {
         phoneNumbers: string;

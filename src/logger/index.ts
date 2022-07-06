@@ -3,6 +3,7 @@ import os from "os";
 import { Logger, LoggerContext } from "./Logger";
 import {
     LoggerAPI,
+    LoggerAPIv2,
     LoggerBase,
     LoggerContentCensorship,
     LoggerError,
@@ -29,7 +30,7 @@ const loggerPlugins = [
     new LoggerPluginFile(LogConfig.pathname, LogConfig.filename),
 ];
 
-export const createLoggerAPI = <R extends LoggerContext>(
+export const createLoggerAPIv1 = <R extends LoggerContext>(
     context: Partial<LoggerAPI & R>,
 ): Logger<LoggerAPI & R> => {
     return new Logger<LoggerAPI & R>(
@@ -39,6 +40,19 @@ export const createLoggerAPI = <R extends LoggerContext>(
             ...baseContext,
         },
         loggerPlugins as LoggerAbstractPlugin<LoggerAPI & R>[],
+    );
+};
+
+export const createLoggerAPIv2 = <R extends LoggerContext>(
+    context: Partial<LoggerAPIv2 & R>,
+): Logger<LoggerAPIv2 & R> => {
+    return new Logger<LoggerAPIv2 & R>(
+        "api",
+        {
+            ...context,
+            ...baseContext,
+        },
+        loggerPlugins as LoggerAbstractPlugin<LoggerAPIv2 & R>[],
     );
 };
 

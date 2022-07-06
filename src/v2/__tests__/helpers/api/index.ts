@@ -3,7 +3,7 @@ import { ajvTypeBoxPlugin, TypeBoxTypeProvider } from "@fastify/type-provider-ty
 import { registerV2Routers, Server as FServer } from "../../../../utils/registryRoutersV2";
 import { InjectOptions, Response as LightMyRequestResponse } from "light-my-request";
 import { HelperJWT } from "../jwt/create-jwt";
-import jwtVerify from "../../../../plugins/JWT";
+import jwtVerify from "../../../../plugins/fastify/JWT";
 import cors from "@fastify/cors";
 import formBody from "@fastify/formbody";
 import reqID from "fastify-reqid";

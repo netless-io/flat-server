@@ -1,7 +1,7 @@
 import { RouterMetadata } from "../decorator/Metadata";
 import { FastifyInstance, PatchRequest } from "../types/Server";
 import { ControllerClass, ControllerStaticType } from "../abstract/controller";
-import { createLoggerAPI, Logger, LoggerAPI, parseError } from "../logger";
+import { createLoggerAPIv1, Logger, LoggerAPI, parseError } from "../logger";
 
 const registerRouters =
     (version: `v${number}`) =>
@@ -35,7 +35,9 @@ const registerRouters =
                     },
                     // @ts-ignore
                     async (req: PatchRequest, reply): Promise<void> => {
-                        const logger = createLoggerAPI<RecursionObject<string | number | boolean>>({
+                        const logger = createLoggerAPIv1<
+                            RecursionObject<string | number | boolean>
+                        >({
                             requestPath: path,
                             requestVersion: version,
                             [fullPath]: {
