@@ -6,7 +6,7 @@ import { HelperJWT } from "../jwt/create-jwt";
 import jwtVerify from "../../../../plugins/fastify/JWT";
 import cors from "@fastify/cors";
 import formBody from "@fastify/formbody";
-import reqID from "fastify-reqid";
+import reqID from "@fastify-userland/request-id";
 import { ajvSelfPlugin } from "../../../../plugins/Ajv";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";

@@ -16,7 +16,7 @@ import { httpRouters } from "./v1/Routes";
 import { ajvTypeBoxPlugin, TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { v2Routes } from "./v2/controllers/routes";
 import { registerV2Routers } from "./utils/registryRoutersV2";
-import reqID from "fastify-reqid";
+import fastifyRequestID from "@fastify-userland/request-id";
 import { fastifyAPILogger } from "./plugins/fastify/api-logger";
 
 const app = fastify({
@@ -71,7 +71,7 @@ void orm().then(async () => {
             maxAge: 100,
         }),
         app.register(formBody),
-        app.register(reqID),
+        app.register(fastifyRequestID),
     ]);
 
     await app.register(fastifyAPILogger);
