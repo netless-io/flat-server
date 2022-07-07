@@ -474,6 +474,14 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
+"@fastify-userland/request-id@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@fastify-userland/request-id/-/request-id-1.0.0.tgz#aa1fc8bdbbdc2f8c2dd30119370e4b4773dc6424"
+  integrity sha512-8jrOv6RrI9N9Weg85iI1S8UnoHZ3vWtL78VMEv3EtcxN/O6exqqti+SMhnvqVNvwzVN/15pNnjNOSA0tdC1ZUA==
+  dependencies:
+    fastify-plugin "^3.0.1"
+    nanoid "^3.0.0"
+
 "@fastify/ajv-compiler@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@fastify/ajv-compiler/-/ajv-compiler-3.1.0.tgz#7ccae63da5a115f583ae6cc68173dbc3c1f34405"
@@ -2848,14 +2856,6 @@ fastify-plugin@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/fastify-plugin/-/fastify-plugin-3.0.1.tgz#79e84c29f401020f38b524f59f2402103fd21ed2"
   integrity sha512-qKcDXmuZadJqdTm6vlCqioEbyewF60b/0LOFCcYN1B6BIZGlYJumWWOYs70SFYLDAH4YqdE1cxH/RKMG7rFxgA==
-
-fastify-reqid@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/fastify-reqid/-/fastify-reqid-1.0.1.tgz#173212dd471543cac83f3ebeb3b1c427c826329f"
-  integrity sha512-8ET1CJtjGJZHcV7zIgjpZVwzPrCWbdOb4zXYxrXt4i9rgR3C8oK5Q/9b5ovitP2PUDFDHCuWapcth2qNZA6TvA==
-  dependencies:
-    fastify-plugin "^3.0.1"
-    nanoid "^3.0.0"
 
 fastify@^4.1.0:
   version "4.1.0"
