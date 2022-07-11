@@ -10,6 +10,8 @@ import reqID from "@fastify-userland/request-id";
 import { ajvSelfPlugin } from "../../../../plugins/Ajv";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
+import fastifyTypeORMQueryRunner from "@fastify-userland/typeorm-query-runner";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 
 export class HelperAPI {
     public readonly app = fastify({
@@ -28,6 +30,17 @@ export class HelperAPI {
         }),
         this.app.register(formBody),
         this.app.register(reqID),
+        this.app.register(fastifyTypeORMQueryRunner, {
+            dataSource,
+            transaction: true,
+            match: request => request.routerPath.startsWith("/v2"),
+            respIsError: respStr =>
+                respStr ===
+                JSON.stringify({
+                    status: Status.Failed,
+                    code: ErrorCode.CurrentProcessFailed,
+                }),
+        }),
     ]);
 
     public constructor() {
@@ -37,12 +50,12 @@ export class HelperAPI {
                     status: Status.Failed,
                     code: ErrorCode.ParamsCheckFailed,
                 });
+            } else {
+                void reply.status(500).send({
+                    status: Status.Failed,
+                    code: ErrorCode.ServerFail,
+                });
             }
-
-            void reply.status(500).send({
-                status: Status.Failed,
-                code: ErrorCode.ServerFail,
-            });
         });
     }
 
