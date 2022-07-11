@@ -24,11 +24,13 @@ test(`${namespace} - test logger context and format`, ava => {
         },
     };
 
+    process.env.IS_TEST = "NO";
     loggerPluginTerminal.output(log);
 
     ava.is(testLogOutput, JSON.stringify(log, null, 2));
 
     console.log = protoConsole;
+    process.env.IS_TEST = "YES";
 
     type Context = {
         test: number;

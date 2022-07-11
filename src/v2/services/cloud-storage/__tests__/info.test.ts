@@ -22,14 +22,14 @@ test.after(`${namespace} - destroy dataSource`, async () => {
 test(`${namespace} - totalUsage`, async ava => {
     const { userUUID, totalUsage } = await CreateCloudStorageConfigs.quick();
 
-    const cloudStorageConfigsSVC = new CloudStorageInfoService(userUUID);
+    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), userUUID);
     const totalUsageBySVC = await cloudStorageConfigsSVC.totalUsage();
 
     ava.is(totalUsage, totalUsageBySVC);
 });
 
 test(`${namespace} - totalUsage - empty`, async ava => {
-    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4());
+    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), v4());
     const totalUsage = await cloudStorageConfigsSVC.totalUsage();
 
     ava.is(totalUsage, 0);
@@ -48,7 +48,7 @@ test(`${namespace} - list`, async ava => {
         f3.fileUUID,
     ]);
 
-    const cloudStorageConfigsSVC = new CloudStorageInfoService(userUUID);
+    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), userUUID);
     const result = await cloudStorageConfigsSVC.list({
         order: "DESC",
         page: 1,
@@ -63,7 +63,7 @@ test(`${namespace} - list`, async ava => {
 });
 
 test(`${namespace} - list - empty`, async ava => {
-    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4());
+    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), v4());
     const result = await cloudStorageConfigsSVC.list({
         order: "DESC",
         page: 1,
@@ -87,7 +87,7 @@ test(`${namespace} - listFilesAndTotalUsageByUserUUID`, async ava => {
         f3.fileUUID,
     ]);
 
-    const cloudStorageConfigsSVC = new CloudStorageInfoService(userUUID);
+    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), userUUID);
     const result = await cloudStorageConfigsSVC.listFilesAndTotalUsageByUserUUID({
         order: "ASC",
         page: 1,
@@ -104,7 +104,7 @@ test(`${namespace} - listFilesAndTotalUsageByUserUUID`, async ava => {
 });
 
 test(`${namespace} - listFilesAndTotalUsageByUserUUID - empty`, async ava => {
-    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4());
+    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), v4());
     const result = await cloudStorageConfigsSVC.listFilesAndTotalUsageByUserUUID({
         order: "ASC",
         page: 1,

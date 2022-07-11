@@ -33,7 +33,10 @@ export const cloudStorageListSchema = {
 export const cloudStorageList = async (
     req: FastifyRequestTypebox<typeof cloudStorageListSchema>,
 ): Promise<Response> => {
-    const data = await new CloudStorageInfoService(req.userUUID).listFilesAndTotalUsageByUserUUID({
+    const data = await new CloudStorageInfoService(
+        req.reqID,
+        req.userUUID,
+    ).listFilesAndTotalUsageByUserUUID({
         page: req.body.page,
         order: req.body.order as "ASC" | "DESC",
         size: req.body.size as number,
