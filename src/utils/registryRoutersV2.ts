@@ -3,7 +3,8 @@ import { FastifyReply } from "fastify";
 import { Status } from "../constants/Project";
 import { FError } from "../error/ControllerError";
 import { ErrorCode } from "../ErrorCode";
-import { dataSource } from "../thirdPartyService/TypeORMService";
+import { kAPILogger } from "../plugins/fastify/api-logger";
+import { parseError } from "../logger";
 
 const registerRouters =
     (version: `v${number}`) =>
@@ -36,14 +37,7 @@ const registerRouters =
                     async (req, reply: FastifyReply) => {
                         let resp: Response | null = null;
 
-                        // TODO: Move to fastify middleware.
-                        //       Waiting remove v1
-                        //       @BlackHole1
-                        const queryRunner = dataSource.createQueryRunner();
-
                         try {
-                            await queryRunner.startTransaction();
-
                             const result = await handler(
                                 {
                                     ...req,
@@ -51,7 +45,7 @@ const registerRouters =
                                     userUUID: req?.user?.userUUID,
                                     // @ts-ignore
                                     loginSource: req?.user?.loginSource,
-                                    DBTransaction: queryRunner.manager,
+                                    DBTransaction: req.queryRunner.manager,
                                 },
                                 reply,
                             );
@@ -59,16 +53,13 @@ const registerRouters =
                             if (autoHandle) {
                                 resp = result as Response;
                             }
-
-                            await queryRunner.commitTransaction();
                         } catch (error) {
                             if (autoHandle) {
+                                // @ts-ignore
+                                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                                req[kAPILogger].error("request interruption", parseError(error));
                                 resp = errorToResp(error as Error);
                             }
-
-                            await queryRunner.rollbackTransaction();
-                        } finally {
-                            await queryRunner.release();
                         }
 
                         if (resp) {

@@ -17,6 +17,7 @@ import { ajvTypeBoxPlugin, TypeBoxTypeProvider } from "@fastify/type-provider-ty
 import { v2Routes } from "./v2/controllers/routes";
 import { registerV2Routers } from "./utils/registryRoutersV2";
 import fastifyRequestID from "@fastify-userland/request-id";
+import fastifyTypeORMQueryRunner from "@fastify-userland/typeorm-query-runner";
 import { fastifyAPILogger } from "./plugins/fastify/api-logger";
 
 const app = fastify({
@@ -62,7 +63,7 @@ app.get("/health-check", async (_req, reply) => {
     return reply.code(200).send();
 });
 
-void orm().then(async () => {
+void orm().then(async dataSource => {
     await Promise.all([
         app.register(jwtVerify),
         app.register(cors, {
@@ -73,6 +74,19 @@ void orm().then(async () => {
         app.register(formBody),
         app.register(fastifyRequestID),
     ]);
+
+    {
+        const respErr = JSON.stringify({
+            status: Status.Failed,
+            code: ErrorCode.CurrentProcessFailed,
+        });
+        await app.register(fastifyTypeORMQueryRunner, {
+            dataSource,
+            transaction: true,
+            match: request => request.routerPath.startsWith("/v2"),
+            respIsError: respStr => respStr === respErr,
+        });
+    }
 
     await app.register(fastifyAPILogger);
 
