@@ -5,7 +5,7 @@ import { LoggerAPIv2 } from "../../logger/LogConext";
 import { FastifyInstance } from "fastify/types/instance";
 import { createDecoder } from "fast-jwt";
 
-const kAPILogger = Symbol("api-logger");
+export const kAPILogger = Symbol("api-logger");
 
 const jwtDecoder = createDecoder({
     complete: true,

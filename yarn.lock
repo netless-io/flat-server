@@ -482,6 +482,13 @@
     fastify-plugin "^3.0.1"
     nanoid "^3.0.0"
 
+"@fastify-userland/typeorm-query-runner@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@fastify-userland/typeorm-query-runner/-/typeorm-query-runner-1.0.0.tgz#b7188c4a133feedc9173e4895e56420c80d0930c"
+  integrity sha512-Z94ZI/T3FqfKOWkn2zRcc7mGOH5BfnnbN6HnKnrPLa0tiVKVOOAVqhc+XG37DKs9jZlL4YI3Xwso6B78dwFoVA==
+  dependencies:
+    fastify-plugin "^3.0.1"
+
 "@fastify/ajv-compiler@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@fastify/ajv-compiler/-/ajv-compiler-3.1.0.tgz#7ccae63da5a115f583ae6cc68173dbc3c1f34405"
