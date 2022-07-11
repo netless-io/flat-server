@@ -83,7 +83,7 @@ void orm().then(async dataSource => {
         await app.register(fastifyTypeORMQueryRunner, {
             dataSource,
             transaction: true,
-            match: request => request.routerPath.startsWith("/v2"),
+            match: request => request.routerPath?.startsWith("/v2") || false,
             respIsError: respStr => respStr === respErr,
         });
     }
