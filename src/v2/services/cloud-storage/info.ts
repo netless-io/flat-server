@@ -8,18 +8,28 @@ import {
     CloudStorageInfoListReturn,
     ListFilesAndTotalUsageByUserUUIDReturn,
 } from "./info.type";
+import { createLoggerService } from "../../../logger";
 
-class CloudStorageStaticInfo {
-    public static async totalUsage(userUUID: string): Promise<number> {
+export class CloudStorageInfoService {
+    private readonly logger = createLoggerService<"cloudStorageInfo">({
+        serviceName: "cloudStorageInfo",
+        requestID: this.reqID,
+    });
+
+    constructor(private reqID: string, private readonly userUUID: string) {}
+
+    public async totalUsage(): Promise<number> {
         const result = await cloudStorageConfigsDAO.findOne("total_usage", {
-            user_uuid: userUUID,
+            user_uuid: this.userUUID,
         });
+
+        const totalUsage = Number(result.total_usage) || 0;
+        this.logger.debug(`totalUsage is: ${totalUsage}`);
 
         return Number(result.total_usage) || 0;
     }
 
-    public static async list(
-        userUUID: string,
+    public async list(
         config: CloudStorageInfoListParamsConfig,
     ): Promise<CloudStorageInfoListReturn[]> {
         const result: CloudStorageInfoList[] = await dataSource
@@ -32,7 +42,7 @@ class CloudStorageStaticInfo {
             .addSelect("f.payload", "payload")
             .addSelect("f.resource_type", "resourceType")
             .innerJoin(CloudStorageUserFilesModel, "uf", "uf.file_uuid = f.file_uuid")
-            .where("uf.user_uuid = :userUUID", { userUUID })
+            .where("uf.user_uuid = :userUUID", { userUUID: this.userUUID })
             .andWhere("uf.is_delete = :isDelete", { isDelete: false })
             .andWhere("f.is_delete = :isDelete", { isDelete: false })
             .orderBy("f.created_at", config.order)
@@ -40,7 +50,7 @@ class CloudStorageStaticInfo {
             .limit(config.size)
             .getRawMany();
 
-        return result.map(
+        const r = result.map(
             ({ fileUUID, fileName, fileSize, fileURL, createAt, resourceType, payload }) => {
                 return {
                     fileUUID,
@@ -53,40 +63,20 @@ class CloudStorageStaticInfo {
                 };
             },
         );
-    }
 
-    public static async listFilesAndTotalUsageByUserUUID(
-        userUUID: string,
-        config: CloudStorageInfoListParamsConfig,
-    ): Promise<ListFilesAndTotalUsageByUserUUIDReturn> {
-        const totalUsage = await CloudStorageStaticInfo.totalUsage(userUUID);
-        const files = await CloudStorageStaticInfo.list(userUUID, config);
-
-        return {
-            totalUsage,
-            files,
-        };
-    }
-}
-
-export class CloudStorageInfoService extends CloudStorageStaticInfo {
-    constructor(private readonly userUUID: string) {
-        super();
-    }
-
-    public async totalUsage(): Promise<number> {
-        return await CloudStorageInfoService.totalUsage(this.userUUID);
-    }
-
-    public async list(
-        config: CloudStorageInfoListParamsConfig,
-    ): Promise<CloudStorageInfoListReturn[]> {
-        return await CloudStorageInfoService.list(this.userUUID, config);
+        this.logger.debug(`list result: ${JSON.stringify(r, null, 2)}`);
+        return r;
     }
 
     public async listFilesAndTotalUsageByUserUUID(
         config: CloudStorageInfoListParamsConfig,
     ): Promise<ListFilesAndTotalUsageByUserUUIDReturn> {
-        return CloudStorageInfoService.listFilesAndTotalUsageByUserUUID(this.userUUID, config);
+        const totalUsage = await this.totalUsage();
+        const files = await this.list(config);
+
+        return {
+            totalUsage,
+            files,
+        };
     }
 }

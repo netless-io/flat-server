@@ -3,7 +3,10 @@ import { ajvTypeBoxPlugin } from "@fastify/type-provider-typebox";
 
 export class Schema {
     public static check(schema: any, obj: any): ValidateFunction["errors"] {
-        const ajv = new Ajv();
+        const ajv = new Ajv({
+            strict: true,
+            strictTypes: false,
+        });
         ajvTypeBoxPlugin(ajv);
         const validate = ajv.compile(schema);
         validate(obj);

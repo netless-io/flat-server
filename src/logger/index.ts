@@ -10,6 +10,7 @@ import {
     LoggerRTCScreenshot,
     LoggerRTCVoice,
     LoggerServer,
+    LoggerService,
     LoggerSMS,
 } from "./LogConext";
 import { LoggerPluginFile } from "./plugins/LoggerPluginFile";
@@ -53,6 +54,19 @@ export const createLoggerAPIv2 = <R extends LoggerContext>(
             ...baseContext,
         },
         loggerPlugins as LoggerAbstractPlugin<LoggerAPIv2 & R>[],
+    );
+};
+
+export const createLoggerService = <T extends string>(
+    context: Partial<LoggerService<T>>,
+): Logger<LoggerService<T>> => {
+    return new Logger<LoggerService<T>>(
+        "service",
+        {
+            ...context,
+            ...baseContext,
+        },
+        loggerPlugins as LoggerAbstractPlugin<LoggerService<T>>[],
     );
 };
 

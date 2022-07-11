@@ -45,6 +45,13 @@ export type LoggerAPIv2 = LoggerBase & {
     durationMS?: number;
 };
 
+export type LoggerService<T extends string> = LoggerBase & {
+    serviceName: T;
+    requestID: string;
+} & {
+    [key in T]?: RecursionObject<string | number | boolean>;
+};
+
 export type LoggerSMS = LoggerBase & {
     sms: {
         phoneNumbers: string;
