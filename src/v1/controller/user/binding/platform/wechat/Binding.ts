@@ -64,7 +64,6 @@ export class BindingWeChatWeb extends AbstractController<RequestType, any> {
     method: "get",
     path: "user/binding/platform/wechat/mobile",
     auth: false,
-    skipAutoHandle: true,
     enable: WeChat.mobile.enable,
 })
 export class BindingWeChatMobile extends AbstractController<RequestType, any> {
