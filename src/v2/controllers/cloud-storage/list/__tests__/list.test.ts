@@ -3,26 +3,18 @@ import { cloudStorageList } from "../index";
 import { cloudStorageRouters } from "../../routes";
 import { HelperAPI } from "../../../../__tests__/helpers/api";
 import { v4 } from "uuid";
-import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 import { failJSON, successJSON } from "../../../internal/utils/response-json";
 import { ErrorCode } from "../../../../../ErrorCode";
+import { initializeDataSource } from "../../../../__tests__/helpers/db/test-hooks";
 
 const namespace = "v2.controllers.cloud-storage.list";
-
-test.before(`${namespace} - initialize dataSource`, async () => {
-    await dataSource.initialize();
-});
-
-test.after(`${namespace} - destroy dataSource`, async () => {
-    await dataSource.destroy();
-});
+initializeDataSource(test, namespace);
 
 test(`${namespace} - empty data`, async ava => {
     const helperAPI = new HelperAPI();
     const userUUID = v4();
 
     await helperAPI.import(cloudStorageRouters, cloudStorageList);
-
     const resp = await helperAPI.injectAuth(userUUID, {
         method: "POST",
         url: "/v2/cloud-storage/list",

@@ -1,24 +1,18 @@
 import test from "ava";
-import { dataSource } from "../../../thirdPartyService/TypeORMService";
 import { useTransaction } from "../../__tests__/helpers/db/query-runner";
 import { userDAO } from "../index";
 import { CreateUser } from "../../__tests__/helpers/db/user";
 import { v4 } from "uuid";
+import { initializeDataSource } from "../../__tests__/helpers/db/test-hooks";
 
 const namespace = "dao.update";
 
-test.before(`${namespace} - initialize dataSource`, async () => {
-    await dataSource.initialize();
-});
-
-test.after(`${namespace} - destroy dataSource`, async () => {
-    await dataSource.destroy();
-});
+initializeDataSource(test, namespace);
 
 test(`${namespace} - no config`, async ava => {
-    const { userUUID } = await CreateUser.quick();
+    const { t, commitTransaction } = await useTransaction();
 
-    const { t, commitTransaction, releaseRunner } = await useTransaction();
+    const { userUUID } = await CreateUser.quick();
 
     const newUserName = v4();
     await userDAO.update(
@@ -42,6 +36,8 @@ test(`${namespace} - no config`, async ava => {
 });
 
 test(`${namespace} - limit and order`, async ava => {
+    const { t, commitTransaction } = await useTransaction();
+
     const [userName, password] = [v4(), v4()];
     await Promise.all([
         CreateUser.fixedName(userName),
@@ -49,8 +45,6 @@ test(`${namespace} - limit and order`, async ava => {
         CreateUser.fixedName(userName),
         CreateUser.fixedName(userName),
     ]);
-
-    const { t, commitTransaction, releaseRunner } = await useTransaction();
 
     await userDAO.update(
         t,

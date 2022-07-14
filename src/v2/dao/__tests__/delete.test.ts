@@ -4,21 +4,16 @@ import { useTransaction } from "../../__tests__/helpers/db/query-runner";
 import { userDAO } from "../index";
 import { dataSource } from "../../../thirdPartyService/TypeORMService";
 import { UserModel } from "../../../model/user/User";
+import { initializeDataSource } from "../../__tests__/helpers/db/test-hooks";
 
 const namespace = "dao.delete";
 
-test.before(`${namespace} - initialize dataSource`, async () => {
-    await dataSource.initialize();
-});
-
-test.after(`${namespace} - destroy dataSource`, async () => {
-    await dataSource.destroy();
-});
+initializeDataSource(test, namespace);
 
 test(`${namespace} - delete (logical delete)`, async ava => {
-    const { userUUID } = await CreateUser.quick();
-
     const { t, commitTransaction, releaseRunner } = await useTransaction();
+
+    const { userUUID } = await CreateUser.quick();
 
     await userDAO.delete(t, {
         user_uuid: userUUID,

@@ -1,19 +1,13 @@
 import test from "ava";
-import { dataSource } from "../../../thirdPartyService/TypeORMService";
 import { userDAO } from "../index";
 import { CreateUser } from "../../__tests__/helpers/db/user";
 import { v4 } from "uuid";
 import { In } from "typeorm";
+import { initializeDataSource } from "../../__tests__/helpers/db/test-hooks";
 
 const namespace = "dao.find";
 
-test.before(`${namespace} - initialize dataSource`, async () => {
-    await dataSource.initialize();
-});
-
-test.after(`${namespace} - destroy dataSource`, async () => {
-    await dataSource.destroy();
-});
+initializeDataSource(test, namespace);
 
 test(`${namespace} - select is string`, async ava => {
     const userName = v4();
