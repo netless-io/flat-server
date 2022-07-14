@@ -1,18 +1,12 @@
 import test from "ava";
 import { CreateUser } from "../../__tests__/helpers/db/user";
 import { userDAO } from "../index";
-import { dataSource } from "../../../thirdPartyService/TypeORMService";
 import { v4 } from "uuid";
+import { initializeDataSource } from "../../__tests__/helpers/db/test-hooks";
 
 const namespace = "dao.count";
 
-test.before(`${namespace} - initialize dataSource`, async () => {
-    await dataSource.initialize();
-});
-
-test.after(`${namespace} - destroy dataSource`, async () => {
-    await dataSource.destroy();
-});
+initializeDataSource(test, namespace);
 
 test(`${namespace} - remove`, async ava => {
     const userName = v4();

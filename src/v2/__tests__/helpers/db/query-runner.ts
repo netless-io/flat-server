@@ -8,6 +8,9 @@ export const useTransaction = async () => {
     return {
         queryRunner,
         t: queryRunner.manager,
+        startTransaction: async () => {
+            await queryRunner.startTransaction();
+        },
         commitTransaction: async () => {
             await queryRunner.commitTransaction();
         },

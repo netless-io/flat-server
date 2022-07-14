@@ -1,18 +1,12 @@
 import test from "ava";
-import { dataSource } from "../../../thirdPartyService/TypeORMService";
 import { userDAO } from "../index";
 import { v4 } from "uuid";
 import { useTransaction } from "../../__tests__/helpers/db/query-runner";
+import { initializeDataSource } from "../../__tests__/helpers/db/test-hooks";
 
 const namespace = "dao.insert";
 
-test.before(`${namespace} - initialize dataSource`, async () => {
-    await dataSource.initialize();
-});
-
-test.after(`${namespace} - destroy dataSource`, async () => {
-    await dataSource.destroy();
-});
+initializeDataSource(test, namespace);
 
 test(`${namespace} - commit`, async ava => {
     const [userUUID, userName] = [v4(), v4()];

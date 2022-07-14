@@ -44,7 +44,7 @@ export const dataSource = new DataSource({
         CloudStorageUserFilesModel,
     ],
     extra: {
-        connectionLimit: 10,
+        connectionLimit: isTest ? 50 : 10,
     },
     timezone: "Z",
     logging: !isTest && isDev ? "all" : false,
