@@ -15,7 +15,7 @@ const plugin = (instance: FastifyInstance, _opts: any, done: () => void): void =
     instance.decorateRequest(kAPILogger, null);
 
     instance.addHook("onRequest", (request, _reply, done) => {
-        if (request.routerPath.startsWith("/v2")) {
+        if (request.routerPath?.startsWith("/v2")) {
             const log = logger(request);
 
             log.debug("receive request");
