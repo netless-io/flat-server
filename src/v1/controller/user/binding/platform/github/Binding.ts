@@ -25,6 +25,10 @@ export class BindingGithub extends AbstractController<RequestType, any> {
             type: "object",
             required: ["state"],
             properties: {
+                platform: {
+                    type: "string",
+                    nullable: true,
+                },
                 state: {
                     type: "string",
                     format: "uuid-v4",
@@ -72,7 +76,7 @@ export class BindingGithub extends AbstractController<RequestType, any> {
 
         await redisService.set(RedisKey.bindingAuthStatus(this.querystring.state), "true", 60 * 60);
 
-        return this.reply.send(successHTML(false, true));
+        return this.reply.send(successHTML(this.querystring.platform !== "web", true));
     }
 
     private static assertCallbackParamsNoError(querystring: RequestType["querystring"]): void {
@@ -98,5 +102,6 @@ interface RequestType {
         state: string;
         code: string;
         error?: string;
+        platform?: string;
     };
 }

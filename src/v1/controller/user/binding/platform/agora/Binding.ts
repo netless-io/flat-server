@@ -25,6 +25,10 @@ export class BindingAgora extends AbstractController<RequestType, any> {
             type: "object",
             required: ["state"],
             properties: {
+                platform: {
+                    type: "string",
+                    nullable: true,
+                },
                 state: {
                     type: "string",
                     format: "uuid-v4",
@@ -66,7 +70,7 @@ export class BindingAgora extends AbstractController<RequestType, any> {
 
         await redisService.set(RedisKey.bindingAuthStatus(this.querystring.state), "true", 60 * 60);
 
-        return this.reply.send(successHTML(false, true));
+        return this.reply.send(successHTML(this.querystring.platform !== "web", true));
     }
 
     public async errorHandler(error: Error): Promise<ResponseError> {
@@ -85,5 +89,6 @@ interface RequestType {
     querystring: {
         state: string;
         code: string;
+        platform?: string;
     };
 }
