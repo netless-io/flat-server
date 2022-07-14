@@ -26,9 +26,8 @@ test(`${namespace} - no config`, async ava => {
     );
 
     await commitTransaction();
-    await releaseRunner();
 
-    const result = await userDAO.findOne("user_name", {
+    const result = await userDAO.findOne(t, "user_name", {
         user_uuid: userUUID,
     });
 
@@ -71,9 +70,9 @@ test(`${namespace} - limit and order`, async ava => {
     );
 
     await commitTransaction();
-    await releaseRunner();
 
     const result = await userDAO.find(
+        t,
         ["user_uuid", "user_password"],
         {
             user_name: userName,

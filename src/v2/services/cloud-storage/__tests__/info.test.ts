@@ -1,41 +1,42 @@
 import test from "ava";
 import { CreateCloudStorageConfigs } from "../../../__tests__/helpers/db/cloud-storage-configs";
 import { CloudStorageInfoService } from "../info";
-import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 import { CreateCloudStorageFiles } from "../../../__tests__/helpers/db/cloud-storage-files";
 import { FileResourceType } from "../../../../model/cloudStorage/Constants";
 import { CreateCloudStorageUserFiles } from "../../../__tests__/helpers/db/cloud-storage-user-files";
 import { listFilesAndTotalUsageByUserUUIDSchema, listSchema } from "../info.schema";
 import { Schema } from "../../../__tests__/helpers/schema";
 import { v4 } from "uuid";
+import { initializeDataSource } from "../../../__tests__/helpers/db/test-hooks";
+import { useTransaction } from "../../../__tests__/helpers/db/query-runner";
 
 const namespace = "services.cloud-storage.info";
 
-test.before(`${namespace} - initialize dataSource`, async () => {
-    await dataSource.initialize();
-});
-
-test.after(`${namespace} - destroy dataSource`, async () => {
-    await dataSource.destroy();
-});
+initializeDataSource(test, namespace);
 
 test(`${namespace} - totalUsage`, async ava => {
+    const { t } = await useTransaction();
+
     const { userUUID, totalUsage } = await CreateCloudStorageConfigs.quick();
 
-    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), userUUID);
+    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), t, userUUID);
     const totalUsageBySVC = await cloudStorageConfigsSVC.totalUsage();
 
     ava.is(totalUsage, totalUsageBySVC);
 });
 
 test(`${namespace} - totalUsage - empty`, async ava => {
-    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), v4());
+    const { t } = await useTransaction();
+
+    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), t, v4());
     const totalUsage = await cloudStorageConfigsSVC.totalUsage();
 
     ava.is(totalUsage, 0);
 });
 
 test(`${namespace} - list`, async ava => {
+    const { t } = await useTransaction();
+
     const { userUUID } = await CreateCloudStorageConfigs.quick();
     const [f1, f2, f3] = [
         await CreateCloudStorageFiles.quick(FileResourceType.WhiteboardConvert),
@@ -48,7 +49,7 @@ test(`${namespace} - list`, async ava => {
         f3.fileUUID,
     ]);
 
-    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), userUUID);
+    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), t, userUUID);
     const result = await cloudStorageConfigsSVC.list({
         order: "DESC",
         page: 1,
@@ -63,7 +64,9 @@ test(`${namespace} - list`, async ava => {
 });
 
 test(`${namespace} - list - empty`, async ava => {
-    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), v4());
+    const { t } = await useTransaction();
+
+    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), t, v4());
     const result = await cloudStorageConfigsSVC.list({
         order: "DESC",
         page: 1,
@@ -75,6 +78,8 @@ test(`${namespace} - list - empty`, async ava => {
 });
 
 test(`${namespace} - listFilesAndTotalUsageByUserUUID`, async ava => {
+    const { t } = await useTransaction();
+
     const { userUUID, totalUsage } = await CreateCloudStorageConfigs.quick();
     const [f1, f2, f3] = [
         await CreateCloudStorageFiles.quick(FileResourceType.WhiteboardConvert),
@@ -87,7 +92,7 @@ test(`${namespace} - listFilesAndTotalUsageByUserUUID`, async ava => {
         f3.fileUUID,
     ]);
 
-    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), userUUID);
+    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), t, userUUID);
     const result = await cloudStorageConfigsSVC.listFilesAndTotalUsageByUserUUID({
         order: "ASC",
         page: 1,
@@ -104,7 +109,9 @@ test(`${namespace} - listFilesAndTotalUsageByUserUUID`, async ava => {
 });
 
 test(`${namespace} - listFilesAndTotalUsageByUserUUID - empty`, async ava => {
-    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), v4());
+    const { t } = await useTransaction();
+
+    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), t, v4());
     const result = await cloudStorageConfigsSVC.listFilesAndTotalUsageByUserUUID({
         order: "ASC",
         page: 1,
