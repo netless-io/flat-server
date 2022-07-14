@@ -35,6 +35,13 @@ export class CloudStorageFilesModel extends Content {
     file_url: string;
 
     @Column({
+        length: 300,
+        comment: "directory name",
+        default: "/",
+    })
+    directory_name: string;
+
+    @Column({
         type: "json",
         default: () => "('{}')",
     })

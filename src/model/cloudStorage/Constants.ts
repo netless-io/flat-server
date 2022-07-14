@@ -21,4 +21,5 @@ export enum FileResourceType {
     OnlineCourseware = "OnlineCourseware",
     NormalResources = "NormalResources",
     WhiteboardProjector = "WhiteboardProjector",
+    Directory = "Directory",
 }

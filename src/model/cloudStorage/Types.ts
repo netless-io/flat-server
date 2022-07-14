@@ -39,6 +39,9 @@ export const ResourcesPayloadSchema = Type.Object({
 // e.g: mp4 / mp3 / png
 export interface ResourcesPayload extends CloudStorageBasicPayload {}
 
+export const DirectoryPayloadSchema = Type.Object({});
+export interface DirectoryPayload {}
+
 export const WhiteboardProjectorPayloadSchema = Type.Object({
     region: RegionSchema,
     convertStep: FileConvertStepSchema,
@@ -56,10 +59,12 @@ export const FilePayloadSchema = Type.Union([
     OnlineCoursewarePayloadSchema,
     ResourcesPayloadSchema,
     WhiteboardProjectorPayloadSchema,
+    DirectoryPayloadSchema,
 ]);
 export type FilePayload =
     | WhiteboardConvertPayload
     | LocalCoursewarePayload
     | OnlineCoursewarePayload
     | ResourcesPayload
-    | WhiteboardProjectorPayload;
+    | WhiteboardProjectorPayload
+    | DirectoryPayload;
