@@ -18,6 +18,8 @@ test(`${namespace} - inject self plugin`, ava => {
         "url-file-suffix",
         "url",
         "phone",
+        "directory-name",
+        "directory-path",
     ]);
 });
 
@@ -300,5 +302,97 @@ test(`${namespace} - phone`, ava => {
         validate(testPhoneValidSuccess);
 
         ava.is(validate.errors, null);
+    }
+});
+
+test(`${namespace} - directory-name`, ava => {
+    const ajv = new Ajv();
+    ajvSelfPlugin(ajv);
+
+    const validate = ajv.compile({
+        type: "object",
+        required: ["directory"],
+        properties: {
+            directory: {
+                type: "string",
+                format: "directory-name",
+            },
+        },
+    });
+
+    {
+        const testDirectoryNameValidFail = {
+            directory: "sdf/a",
+        };
+
+        validate(testDirectoryNameValidFail);
+
+        ava.true(validate.errors !== null);
+    }
+
+    {
+        const testDirectoryNameValidSuccess = {
+            directory: "你好 こんにちは Enchanté Hi ",
+        };
+
+        validate(testDirectoryNameValidSuccess);
+
+        ava.true(validate.errors === null);
+    }
+});
+
+test(`${namespace} - directory-path`, ava => {
+    const ajv = new Ajv();
+    ajvSelfPlugin(ajv);
+
+    const validate = ajv.compile({
+        type: "object",
+        required: ["directoryPath"],
+        properties: {
+            directoryPath: {
+                type: "string",
+                format: "directory-path",
+            },
+        },
+    });
+
+    {
+        const testDirectoryPathValidFail = {
+            directoryPath: "a/b/",
+        };
+
+        validate(testDirectoryPathValidFail);
+
+        ava.true(validate.errors !== null);
+    }
+
+    {
+        const testDirectoryPathValidFail = {
+            directoryPath: "/a/b",
+        };
+
+        validate(testDirectoryPathValidFail);
+
+        ava.true(validate.errors !== null);
+    }
+
+    {
+        const testDirectoryPathValidFail = {
+            directoryPath: "/a//b/",
+        };
+
+        validate(testDirectoryPathValidFail);
+
+        ava.true(validate.errors !== null);
+    }
+
+    {
+        const testDirectoryPathValidSuccess = {
+            directoryPath: "/a/b/c/",
+        };
+
+        validate(testDirectoryPathValidSuccess);
+
+        ava.true(validate.errors === null);
     }
 });

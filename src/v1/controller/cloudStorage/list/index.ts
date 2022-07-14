@@ -60,10 +60,13 @@ export class CloudStorageList extends AbstractController<RequestType, ResponseTy
             .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
             .where(
                 `fc.user_uuid = :userUUID
+                AND f.resource_type <> :exResourceType
                 AND fc.is_delete = :isDelete
                 AND f.is_delete = :isDelete`,
                 {
                     userUUID,
+                    // exclude directory resource type
+                    exResourceType: FileResourceType.Directory,
                     isDelete: false,
                 },
             )

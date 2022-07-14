@@ -71,6 +71,22 @@ const phone: FormatDefinition<string> = {
     },
 };
 
+const directoryName: FormatDefinition<string> = {
+    validate: str => {
+        return !/[/\\]/.test(str);
+    },
+};
+
+const directoryPath: FormatDefinition<string> = {
+    validate: str => {
+        if (str.startsWith("/") && str.endsWith("/")) {
+            return path.normalize(str) === str;
+        }
+
+        return false;
+    },
+};
+
 export const ajvSelfPlugin = (ajv: Ajv): void => {
     ajv.addFormat("unix-timestamp", unixTimestamp);
     ajv.addFormat("uuid-v4", uuidV4);
@@ -79,4 +95,6 @@ export const ajvSelfPlugin = (ajv: Ajv): void => {
     ajv.addFormat("url-file-suffix", urlFileSuffix);
     ajv.addFormat("url", url);
     ajv.addFormat("phone", phone);
+    ajv.addFormat("directory-name", directoryName);
+    ajv.addFormat("directory-path", directoryPath);
 };
