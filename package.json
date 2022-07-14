@@ -8,7 +8,7 @@
     "build": "cross-env NODE_ENV=production webpack --progress --config webpack/webpack.prod.js",
     "test:sycn:orm": "ts-node -r dotenv-flow/config scripts/sync-orm.ts -- --default-node-env=test --dotenv-flow-path=config",
     "test:local": "./scripts/prepare-test-env.sh && yarn run test:sycn:orm && yarn run test",
-    "test": "nyc --reporter=html ava",
+    "test": "c8 --reporter=html ava",
     "lint": "lint-staged"
   },
   "devDependencies": {
@@ -32,7 +32,8 @@
     "@types/webpack-env": "^1.16.0",
     "@typescript-eslint/eslint-plugin": "^5.30.0",
     "@typescript-eslint/parser": "^5.30.0",
-    "ava": "^4.3.0",
+    "ava": "^4.3.1",
+    "c8": "^7.11.3",
     "clean-webpack-plugin": "^4.0.0",
     "cross-env": "^7.0.3",
     "dotenv-flow": "^3.2.0",
@@ -44,7 +45,6 @@
     "fork-ts-checker-webpack-plugin": "^7.2.11",
     "husky": ">=4",
     "lint-staged": ">=10",
-    "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "query-string": "^7.1.1",
     "sinon": "^14.0.0",
