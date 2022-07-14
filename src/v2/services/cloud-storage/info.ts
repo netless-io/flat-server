@@ -1,5 +1,4 @@
 import { cloudStorageConfigsDAO } from "../../dao";
-import { dataSource } from "../../../thirdPartyService/TypeORMService";
 import { CloudStorageFilesModel } from "../../../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../../../model/cloudStorage/CloudStorageUserFiles";
 import {
@@ -9,6 +8,7 @@ import {
     ListFilesAndTotalUsageByUserUUIDReturn,
 } from "./info.type";
 import { createLoggerService } from "../../../logger";
+import { EntityManager } from "typeorm";
 
 export class CloudStorageInfoService {
     private readonly logger = createLoggerService<"cloudStorageInfo">({
@@ -16,10 +16,14 @@ export class CloudStorageInfoService {
         requestID: this.reqID,
     });
 
-    constructor(private reqID: string, private readonly userUUID: string) {}
+    constructor(
+        private readonly reqID: string,
+        private readonly DBTransaction: EntityManager,
+        private readonly userUUID: string,
+    ) {}
 
     public async totalUsage(): Promise<number> {
-        const result = await cloudStorageConfigsDAO.findOne("total_usage", {
+        const result = await cloudStorageConfigsDAO.findOne(this.DBTransaction, "total_usage", {
             user_uuid: this.userUUID,
         });
 
@@ -32,8 +36,10 @@ export class CloudStorageInfoService {
     public async list(
         config: CloudStorageInfoListParamsConfig,
     ): Promise<CloudStorageInfoListReturn[]> {
-        const result: CloudStorageInfoList[] = await dataSource
-            .createQueryBuilder(CloudStorageFilesModel, "f")
+        const result: CloudStorageInfoList[] = await this.DBTransaction.createQueryBuilder(
+            CloudStorageFilesModel,
+            "f",
+        )
             .addSelect("f.file_uuid", "fileUUID")
             .addSelect("f.file_name", "fileName")
             .addSelect("f.file_size", "fileSize")

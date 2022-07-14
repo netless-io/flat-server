@@ -9,9 +9,9 @@ const namespace = "dao.insert";
 initializeDataSource(test, namespace);
 
 test(`${namespace} - commit`, async ava => {
-    const [userUUID, userName] = [v4(), v4()];
+    const { t, commitTransaction } = await useTransaction();
 
-    const { t, commitTransaction, releaseRunner } = await useTransaction();
+    const [userUUID, userName] = [v4(), v4()];
 
     await userDAO.insert(t, {
         user_uuid: userUUID,
@@ -21,9 +21,8 @@ test(`${namespace} - commit`, async ava => {
     });
 
     await commitTransaction();
-    await releaseRunner();
 
-    const { user_name } = await userDAO.findOne("user_name", {
+    const { user_name } = await userDAO.findOne(t, "user_name", {
         user_uuid: userUUID,
     });
 
@@ -31,9 +30,9 @@ test(`${namespace} - commit`, async ava => {
 });
 
 test(`${namespace} - rollback`, async ava => {
-    const [userUUID, userName] = [v4(), v4()];
+    const { t, rollbackTransaction } = await useTransaction();
 
-    const { t, rollbackTransaction, releaseRunner } = await useTransaction();
+    const [userUUID, userName] = [v4(), v4()];
 
     await userDAO.insert(t, {
         user_uuid: userUUID,
@@ -43,9 +42,8 @@ test(`${namespace} - rollback`, async ava => {
     });
 
     await rollbackTransaction();
-    await releaseRunner();
 
-    const { user_name } = await userDAO.findOne("user_name", {
+    const { user_name } = await userDAO.findOne(t, "user_name", {
         user_uuid: userUUID,
     });
 
@@ -53,9 +51,9 @@ test(`${namespace} - rollback`, async ava => {
 });
 
 test(`${namespace} - orIgnore`, async ava => {
-    const [userUUID, userName] = [v4(), v4()];
+    const { t, commitTransaction } = await useTransaction();
 
-    const { t, commitTransaction, releaseRunner } = await useTransaction();
+    const [userUUID, userName] = [v4(), v4()];
 
     await userDAO.insert(t, {
         user_uuid: userUUID,
@@ -78,9 +76,8 @@ test(`${namespace} - orIgnore`, async ava => {
     );
 
     await commitTransaction();
-    await releaseRunner();
 
-    const { user_name } = await userDAO.findOne("user_name", {
+    const { user_name } = await userDAO.findOne(t, "user_name", {
         user_uuid: userUUID,
     });
 
@@ -88,9 +85,9 @@ test(`${namespace} - orIgnore`, async ava => {
 });
 
 test(`${namespace} - orUpdate`, async ava => {
-    const [userUUID, userName, newUserName] = [v4(), v4(), v4()];
+    const { t, commitTransaction } = await useTransaction();
 
-    const { t, commitTransaction, releaseRunner } = await useTransaction();
+    const [userUUID, userName, newUserName] = [v4(), v4(), v4()];
 
     await userDAO.insert(t, {
         user_uuid: userUUID,
@@ -113,9 +110,8 @@ test(`${namespace} - orUpdate`, async ava => {
     );
 
     await commitTransaction();
-    await releaseRunner();
 
-    const { user_name } = await userDAO.findOne("user_name", {
+    const { user_name } = await userDAO.findOne(t, "user_name", {
         user_uuid: userUUID,
     });
 

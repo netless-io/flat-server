@@ -1,6 +1,5 @@
 import { Model } from "../../model";
-import { dataSource } from "../../thirdPartyService/TypeORMService";
-import { EntityTarget } from "typeorm/common/EntityTarget";
+import { EntityTarget } from "typeorm";
 import { UserModel } from "../../model/user/User";
 import { FindOptionsWhere } from "typeorm/find-options/FindOptionsWhere";
 import { InsertQueryBuilder } from "typeorm/query-builder/InsertQueryBuilder";
@@ -26,11 +25,12 @@ class DAO<M extends Model> {
     public constructor(private readonly model: EntityTarget<M>) {}
 
     public async findOne<T extends keyof M>(
+        t: EntityManager,
         select: T | T[],
         where: FindOptionsWhere<M>,
         order?: [keyof M & string, "ASC" | "DESC"],
     ): Promise<Partial<Pick<M, T>>> {
-        let sql = dataSource
+        let sql = t
             .getRepository(this.model)
             .createQueryBuilder()
             .select(DAOUtils.select(select))
@@ -43,6 +43,7 @@ class DAO<M extends Model> {
     }
 
     public async find<T extends keyof M>(
+        t: EntityManager,
         select: T | T[],
         where: FindOptionsWhere<M>,
         config?: {
@@ -51,7 +52,7 @@ class DAO<M extends Model> {
             limit?: number;
         },
     ): Promise<Pick<M, T>[]> {
-        let sql = dataSource
+        let sql = t
             .getRepository(this.model)
             .createQueryBuilder()
             .select(DAOUtils.select(select))
@@ -125,8 +126,8 @@ class DAO<M extends Model> {
         );
     }
 
-    public async count(where: FindOptionsWhere<M>): Promise<number> {
-        return await dataSource.getRepository(this.model).count({
+    public async count(t: EntityManager, where: FindOptionsWhere<M>): Promise<number> {
+        return await t.getRepository(this.model).count({
             where: DAOUtils.softDelete(where),
         });
     }

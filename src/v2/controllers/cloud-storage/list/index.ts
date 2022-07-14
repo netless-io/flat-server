@@ -35,6 +35,7 @@ export const cloudStorageList = async (
 ): Promise<Response> => {
     const data = await new CloudStorageInfoService(
         req.reqID,
+        req.DBTransaction,
         req.userUUID,
     ).listFilesAndTotalUsageByUserUUID({
         page: req.body.page,
