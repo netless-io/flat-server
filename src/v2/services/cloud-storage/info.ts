@@ -53,9 +53,12 @@ export class CloudStorageInfoService {
             .addSelect("f.resource_type", "resourceType")
             .innerJoin(CloudStorageUserFilesModel, "uf", "uf.file_uuid = f.file_uuid")
             .where("uf.user_uuid = :userUUID", { userUUID: this.userUUID })
+            .andWhere("f.directory_path = :directoryPath", { directoryPath: config.directoryPath })
             .andWhere("uf.is_delete = :isDelete", { isDelete: false })
             .andWhere("f.is_delete = :isDelete", { isDelete: false })
-            .orderBy("f.created_at", config.order)
+            // Directory always at the top
+            .orderBy(`IF(f.resource_type = '${FileResourceType.Directory}', 0, 1)`)
+            .addOrderBy("f.created_at", config.order)
             .offset((config.page - 1) * config.size)
             .limit(config.size)
             .getRawMany();
@@ -81,12 +84,11 @@ export class CloudStorageInfoService {
     public async listFilesAndTotalUsageByUserUUID(
         config: CloudStorageInfoListParamsConfig,
     ): Promise<ListFilesAndTotalUsageByUserUUIDReturn> {
-        const totalUsage = await this.totalUsage();
-        const files = await this.list(config);
-
         return {
-            totalUsage,
-            files,
+            totalUsage: await this.totalUsage(),
+            items: await this.list(config),
+            // directory path max length is 300
+            canCreateDirectory: config.directoryPath.length < 299,
         };
     }
 
@@ -99,8 +101,7 @@ export class CloudStorageInfoService {
             .addSelect("f.directory_path", "directoryPath")
             .innerJoin(CloudStorageUserFilesModel, "uf", "uf.file_uuid = f.file_uuid")
             .where("uf.user_uuid = :userUUID", { userUUID: this.userUUID })
-            .andWhere("f.file_name = :fileName", { fileName: ".keep" })
-            .andWhere("f.directory_path = :directoryPath", { directoryPath })
+            .andWhere("f.file_name = :fileName", { fileName: `${directoryPath}.keep` })
             .andWhere("f.is_delete = :isDelete", { isDelete: false })
             .andWhere("uf.is_delete = :isDelete", { isDelete: false })
             .getRawOne();
@@ -146,11 +147,11 @@ export class CloudStorageInfoService {
 
         await Promise.all([
             cloudStorageFilesDAO.insert(this.DBTransaction, {
-                file_name: ".keep",
+                file_name: `${fullDirectoryPath}.keep`,
                 file_uuid: fileUUID,
-                directory_path: fullDirectoryPath,
+                directory_path: parentDirectory,
                 file_size: 0,
-                file_url: `file://${fullDirectoryPath}`,
+                file_url: `file://${fullDirectoryPath}.keep`,
                 resource_type: FileResourceType.Directory,
                 payload: {},
             }),

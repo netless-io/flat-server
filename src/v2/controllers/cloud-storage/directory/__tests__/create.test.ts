@@ -7,6 +7,7 @@ import { cloudStorageDirectoryCreate } from "../create";
 import { successJSON } from "../../../internal/utils/response-json";
 import { cloudStorageFilesDAO, cloudStorageUserFilesDAO } from "../../../../dao";
 import { useTransaction } from "../../../../__tests__/helpers/db/query-runner";
+import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
 
 const namespace = "v2.controllers.cloud-storage.directory.create";
 
@@ -34,9 +35,15 @@ test(`${namespace} - create success`, async ava => {
         user_uuid: userUUID,
     });
 
-    const result = await cloudStorageFilesDAO.findOne(t, "directory_path", {
-        file_uuid,
-    });
+    const result = await cloudStorageFilesDAO.findOne(
+        t,
+        ["directory_path", "file_name", "resource_type"],
+        {
+            file_uuid,
+        },
+    );
 
-    ava.is(result.directory_path, `/${directoryName}/`);
+    ava.is(result.directory_path, "/");
+    ava.is(result.file_name, `/${directoryName}/.keep`);
+    ava.is(result.resource_type, FileResourceType.Directory);
 });

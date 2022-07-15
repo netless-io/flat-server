@@ -20,6 +20,7 @@ test(`${namespace} - empty data`, async ava => {
         url: "/v2/cloud-storage/list",
         payload: {
             page: 1,
+            directoryPath: "/",
         },
     });
 
@@ -28,7 +29,8 @@ test(`${namespace} - empty data`, async ava => {
         resp.json(),
         successJSON({
             totalUsage: 0,
-            files: [],
+            items: [],
+            canCreateDirectory: true,
         }),
     );
 });
@@ -68,6 +70,7 @@ test(`${namespace} - default params`, async ava => {
         url: "/v2/cloud-storage/list",
         payload: {
             page: 1,
+            directoryPath: "/",
         },
     });
 

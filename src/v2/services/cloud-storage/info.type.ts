@@ -5,6 +5,7 @@ export type CloudStorageInfoListParamsConfig = {
     order: "ASC" | "DESC";
     page: number;
     size: number;
+    directoryPath: string;
 };
 
 export type CloudStorageInfoList = {
@@ -29,5 +30,6 @@ export type CloudStorageInfoListReturn = {
 
 export type ListFilesAndTotalUsageByUserUUIDReturn = {
     totalUsage: number;
-    files: CloudStorageInfoListReturn[];
+    items: CloudStorageInfoListReturn[];
+    canCreateDirectory: boolean;
 };
