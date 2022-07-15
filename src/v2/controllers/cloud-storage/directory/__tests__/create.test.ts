@@ -34,9 +34,9 @@ test(`${namespace} - create success`, async ava => {
         user_uuid: userUUID,
     });
 
-    const result = await cloudStorageFilesDAO.findOne(t, "directory_name", {
+    const result = await cloudStorageFilesDAO.findOne(t, "directory_path", {
         file_uuid,
     });
 
-    ava.is(result.directory_name, `/${directoryName}/`);
+    ava.is(result.directory_path, `/${directoryName}/`);
 });
