@@ -72,5 +72,5 @@ test(`${namespace} - default params`, async ava => {
     });
 
     ava.is(resp.statusCode, 200);
-    ava.deepEqual(resp.payload, "{}");
+    ava.is(resp.payload, "{}");
 });

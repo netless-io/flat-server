@@ -47,7 +47,7 @@ const infoByType = (resourceType: FileResourceType) => {
         fileSize: Math.ceil(Math.random() * 1000),
         fileURL: `https://${v4()}.com`,
         payload,
-        directoryName: v4(),
+        directoryPath: "/",
         resourceType,
     };
 };
@@ -58,7 +58,7 @@ export class CreateCloudStorageFiles {
         fileName: string;
         fileSize: number;
         fileURL: string;
-        directoryName: string;
+        directoryPath: string;
         payload: FilePayload;
         resourceType: FileResourceType;
     }) {
@@ -67,7 +67,7 @@ export class CreateCloudStorageFiles {
             file_name: info.fileName,
             file_size: info.fileSize,
             file_url: info.fileURL,
-            directory_name: info.directoryName,
+            directory_path: info.directoryPath,
             payload: info.payload,
             resource_type: info.resourceType,
         });
@@ -80,10 +80,10 @@ export class CreateCloudStorageFiles {
         return info;
     }
 
-    public static async fixedDirectoryName(directoryName: string) {
+    public static async fixedDirectoryPath(directoryPath: string) {
         const info = {
             ...infoByType(FileResourceType.Directory),
-            directoryName,
+            directoryPath,
             fileName: ".keep",
         };
         await CreateCloudStorageFiles.full(info);

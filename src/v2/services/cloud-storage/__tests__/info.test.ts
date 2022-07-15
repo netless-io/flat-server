@@ -136,13 +136,13 @@ test(`${namespace} - existsDirectory - should return true`, async ava => {
     const { t } = await useTransaction();
 
     const userUUID = v4();
-    const directoryName = `/${v4()}/`;
-    const { fileUUID } = await CreateCloudStorageFiles.fixedDirectoryName(directoryName);
+    const directoryPath = `/${v4()}/`;
+    const { fileUUID } = await CreateCloudStorageFiles.fixedDirectoryPath(directoryPath);
     await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, fileUUID);
 
     const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), t, userUUID);
 
-    const result = await cloudStorageConfigsSVC.existsDirectory(directoryName);
+    const result = await cloudStorageConfigsSVC.existsDirectory(directoryPath);
     ava.is(result, true);
     ava.is(Schema.check(existsDirectorySchema, result), null);
 });
@@ -160,25 +160,25 @@ test(`${namespace} - existsDirectory - should return false`, async ava => {
     const { t } = await useTransaction();
 
     const userUUID = v4();
-    const { fileUUID } = await CreateCloudStorageFiles.fixedDirectoryName(v4());
+    const { fileUUID } = await CreateCloudStorageFiles.fixedDirectoryPath(`/${v4()}/`);
     await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, fileUUID);
 
     const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), t, userUUID);
 
-    ava.is(await cloudStorageConfigsSVC.existsDirectory(v4()), false);
+    ava.is(await cloudStorageConfigsSVC.existsDirectory(`/${v4()}/`), false);
 });
 
 test(`${namespace} - createDirectory - create success`, async ava => {
     const { t } = await useTransaction();
 
     const userUUID = v4();
-    const parentDirectory = `/${v4()}/`;
-    const { fileUUID } = await CreateCloudStorageFiles.fixedDirectoryName(parentDirectory);
+    const parentDirectoryPath = `/${v4()}/`;
+    const { fileUUID } = await CreateCloudStorageFiles.fixedDirectoryPath(parentDirectoryPath);
     await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, fileUUID);
 
     const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), t, userUUID);
     const directoryName = v4();
-    await cloudStorageConfigsSVC.createDirectory(parentDirectory, directoryName);
+    await cloudStorageConfigsSVC.createDirectory(parentDirectoryPath, directoryName);
 
     {
         const result = await cloudStorageUserFilesDAO.findOne(t, "id", {
@@ -189,13 +189,13 @@ test(`${namespace} - createDirectory - create success`, async ava => {
     }
 
     {
-        const fullDirectory = `${parentDirectory}${directoryName}/`;
+        const fullDirectoryPath = `${parentDirectoryPath}${directoryName}/`;
         const result = await cloudStorageFilesDAO.findOne(t, "id", {
             file_uuid: fileUUID,
             file_name: ".keep",
-            directory_name: fullDirectory,
+            directory_path: fullDirectoryPath,
             resource_type: FileResourceType.Directory,
-            file_url: `file://${fullDirectory}`,
+            file_url: `file://${fullDirectoryPath}`,
             file_size: 0,
         });
         ava.is(!!result, true);
@@ -206,11 +206,11 @@ test(`${namespace} - createDirectory - directory is tool long`, async ava => {
     const { t } = await useTransaction();
 
     const userUUID = v4();
-    const parentDirectoryName = new Array(300).fill("a").join("");
+    const directoryName = new Array(300).fill("a").join("");
 
     const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), t, userUUID);
 
-    await ava.throwsAsync(cloudStorageConfigsSVC.createDirectory("/", parentDirectoryName), {
+    await ava.throwsAsync(cloudStorageConfigsSVC.createDirectory("/", directoryName), {
         instanceOf: FError,
         message: `${Status.Failed}: ${ErrorCode.ParamsCheckFailed}`,
     });
@@ -234,12 +234,12 @@ test(`${namespace} - createDirectory - directory already exist`, async ava => {
     const { t } = await useTransaction();
 
     const userUUID = v4();
-    const parentDirectoryName = v4();
+    const directoryName = v4();
 
     const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), t, userUUID);
-    await cloudStorageConfigsSVC.createDirectory("/", parentDirectoryName);
+    await cloudStorageConfigsSVC.createDirectory("/", directoryName);
 
-    await ava.throwsAsync(cloudStorageConfigsSVC.createDirectory("/", parentDirectoryName), {
+    await ava.throwsAsync(cloudStorageConfigsSVC.createDirectory("/", directoryName), {
         instanceOf: FError,
         message: `${Status.Failed}: ${ErrorCode.DirectoryAlreadyExists}`,
     });

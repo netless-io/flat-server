@@ -90,17 +90,17 @@ export class CloudStorageInfoService {
         };
     }
 
-    public async existsDirectory(directoryName: string): Promise<boolean> {
-        if (directoryName === "/") {
+    public async existsDirectory(directoryPath: string): Promise<boolean> {
+        if (directoryPath === "/") {
             return true;
         }
 
         const result = await this.DBTransaction.createQueryBuilder(CloudStorageFilesModel, "f")
-            .addSelect("f.directory_name", "directoryName")
+            .addSelect("f.directory_path", "directoryPath")
             .innerJoin(CloudStorageUserFilesModel, "uf", "uf.file_uuid = f.file_uuid")
             .where("uf.user_uuid = :userUUID", { userUUID: this.userUUID })
             .andWhere("f.file_name = :fileName", { fileName: ".keep" })
-            .andWhere("f.directory_name = :directoryName", { directoryName })
+            .andWhere("f.directory_path = :directoryPath", { directoryPath })
             .andWhere("f.is_delete = :isDelete", { isDelete: false })
             .andWhere("uf.is_delete = :isDelete", { isDelete: false })
             .getRawOne();
@@ -109,7 +109,7 @@ export class CloudStorageInfoService {
 
         this.logger.debug("directory exists result", {
             cloudStorageInfo: {
-                directoryName: directoryName,
+                directoryPath: directoryPath,
                 directoryExists: exists,
             },
         });
@@ -123,9 +123,9 @@ export class CloudStorageInfoService {
      * @param {string} directoryName - will create directory name (e.g. new_dir)
      */
     public async createDirectory(parentDirectory: string, directoryName: string): Promise<void> {
-        const fullDirectory = `${parentDirectory}${directoryName}/`;
+        const fullDirectoryPath = `${parentDirectory}${directoryName}/`;
 
-        if (fullDirectory.length > 300) {
+        if (fullDirectoryPath.length > 300) {
             this.logger.debug("directory is too long");
             throw new FError(ErrorCode.ParamsCheckFailed);
         }
@@ -136,7 +136,7 @@ export class CloudStorageInfoService {
             throw new FError(ErrorCode.ParentDirectoryNotExists);
         }
 
-        const hasDirectory = await this.existsDirectory(fullDirectory);
+        const hasDirectory = await this.existsDirectory(fullDirectoryPath);
         if (hasDirectory) {
             this.logger.debug("directory already exists");
             throw new FError(ErrorCode.DirectoryAlreadyExists);
@@ -148,9 +148,9 @@ export class CloudStorageInfoService {
             cloudStorageFilesDAO.insert(this.DBTransaction, {
                 file_name: ".keep",
                 file_uuid: fileUUID,
-                directory_name: fullDirectory,
+                directory_path: fullDirectoryPath,
                 file_size: 0,
-                file_url: `file://${fullDirectory}`,
+                file_url: `file://${fullDirectoryPath}`,
                 resource_type: FileResourceType.Directory,
                 payload: {},
             }),
