@@ -7,6 +7,7 @@ import { ErrorCode } from "../../../ErrorCode";
 import { v4 } from "uuid";
 import { cloudStorageFilesDAO, cloudStorageUserFilesDAO } from "../../dao";
 import { FileResourceType } from "../../../model/cloudStorage/Constants";
+import { splitPath } from "./internal/utils/directory";
 
 export class CloudStorageDirectoryService {
     private readonly logger = createLoggerService<"cloudStorageDirectory">({
@@ -25,11 +26,14 @@ export class CloudStorageDirectoryService {
             return true;
         }
 
+        const { parentDirectoryPath, directoryName } = splitPath(directoryPath);
+
         const result = await this.DBTransaction.createQueryBuilder(CloudStorageFilesModel, "f")
             .addSelect("f.directory_path", "directoryPath")
             .innerJoin(CloudStorageUserFilesModel, "uf", "uf.file_uuid = f.file_uuid")
             .where("uf.user_uuid = :userUUID", { userUUID: this.userUUID })
-            .andWhere("f.file_name = :fileName", { fileName: `${directoryPath}.keep` })
+            .andWhere("f.file_name = :fileName", { fileName: `${directoryName}.keep` })
+            .andWhere("f.directory_path = :directoryPath", { directoryPath: parentDirectoryPath })
             .andWhere("f.is_delete = :isDelete", { isDelete: false })
             .andWhere("uf.is_delete = :isDelete", { isDelete: false })
             .getRawOne();
@@ -75,11 +79,11 @@ export class CloudStorageDirectoryService {
 
         await Promise.all([
             cloudStorageFilesDAO.insert(this.DBTransaction, {
-                file_name: `${fullDirectoryPath}.keep`,
+                file_name: `${directoryName}.keep`,
                 file_uuid: fileUUID,
                 directory_path: parentDirectory,
                 file_size: 0,
-                file_url: `file://${fullDirectoryPath}.keep`,
+                file_url: `file://${directoryName}.keep`,
                 resource_type: FileResourceType.Directory,
                 payload: {},
             }),
