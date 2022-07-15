@@ -36,5 +36,3 @@ export const listFilesAndTotalUsageByUserUUIDSchema = Type.Object(
         additionalProperties: false,
     },
 );
-
-export const existsDirectorySchema = Type.Boolean();
