@@ -26,11 +26,10 @@ export const cloudStorageDirectoryCreateSchema = {
 export const cloudStorageDirectoryCreate = async (
     req: FastifyRequestTypebox<typeof cloudStorageDirectoryCreateSchema>,
 ): Promise<Response> => {
-    await new CloudStorageDirectoryService(
-        req.reqID,
-        req.DBTransaction,
-        req.userUUID,
-    ).createDirectory(req.body.parentDirectoryPath, req.body.directoryName);
+    await new CloudStorageDirectoryService(req.reqID, req.DBTransaction, req.userUUID).create(
+        req.body.parentDirectoryPath,
+        req.body.directoryName,
+    );
 
     return successJSON({});
 };

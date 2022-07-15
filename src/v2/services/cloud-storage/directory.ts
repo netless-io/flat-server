@@ -20,7 +20,7 @@ export class CloudStorageDirectoryService {
         private readonly userUUID: string,
     ) {}
 
-    public async existsDirectory(directoryPath: string): Promise<boolean> {
+    public async exists(directoryPath: string): Promise<boolean> {
         if (directoryPath === "/") {
             return true;
         }
@@ -51,7 +51,7 @@ export class CloudStorageDirectoryService {
      * @param {string} parentDirectory - parent directory (e.g. /a/b/c/)
      * @param {string} directoryName - will create directory name (e.g. new_dir)
      */
-    public async createDirectory(parentDirectory: string, directoryName: string): Promise<void> {
+    public async create(parentDirectory: string, directoryName: string): Promise<void> {
         const fullDirectoryPath = `${parentDirectory}${directoryName}/`;
 
         if (fullDirectoryPath.length > 300) {
@@ -59,13 +59,13 @@ export class CloudStorageDirectoryService {
             throw new FError(ErrorCode.ParamsCheckFailed);
         }
 
-        const hasParentDirectory = await this.existsDirectory(parentDirectory);
+        const hasParentDirectory = await this.exists(parentDirectory);
         if (!hasParentDirectory) {
             this.logger.debug("parent directory does not exist");
             throw new FError(ErrorCode.ParentDirectoryNotExists);
         }
 
-        const hasDirectory = await this.existsDirectory(fullDirectoryPath);
+        const hasDirectory = await this.exists(fullDirectoryPath);
         if (hasDirectory) {
             this.logger.debug("directory already exists");
             throw new FError(ErrorCode.DirectoryAlreadyExists);

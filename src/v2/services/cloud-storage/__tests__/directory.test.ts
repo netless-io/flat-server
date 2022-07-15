@@ -30,7 +30,7 @@ test(`${namespace} - existsDirectory - should return true`, async ava => {
 
     const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, userUUID);
 
-    const result = await cloudStorageDirectorySVC.existsDirectory(fullDirectoryPath);
+    const result = await cloudStorageDirectorySVC.exists(fullDirectoryPath);
     ava.is(result, true);
     ava.is(Schema.check(existsDirectorySchema, result), null);
 });
@@ -41,7 +41,7 @@ test(`${namespace} - existsDirectory - should return true when directory is /`, 
     const userUUID = v4();
     const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, userUUID);
 
-    ava.is(await cloudStorageDirectorySVC.existsDirectory("/"), true);
+    ava.is(await cloudStorageDirectorySVC.exists("/"), true);
 });
 
 test(`${namespace} - existsDirectory - should return false`, async ava => {
@@ -56,7 +56,7 @@ test(`${namespace} - existsDirectory - should return false`, async ava => {
 
     const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, userUUID);
 
-    ava.is(await cloudStorageDirectorySVC.existsDirectory(`/${v4()}/`), false);
+    ava.is(await cloudStorageDirectorySVC.exists(`/${v4()}/`), false);
 });
 
 test(`${namespace} - createDirectory - create nested success`, async ava => {
@@ -70,7 +70,7 @@ test(`${namespace} - createDirectory - create nested success`, async ava => {
 
     const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, userUUID);
     const directoryName = v4();
-    await cloudStorageDirectorySVC.createDirectory(parentDirectoryPath, directoryName);
+    await cloudStorageDirectorySVC.create(parentDirectoryPath, directoryName);
 
     {
         const result = await cloudStorageUserFilesDAO.findOne(t, "id", {
@@ -102,7 +102,7 @@ test(`${namespace} - createDirectory - directory is tool long`, async ava => {
 
     const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, userUUID);
 
-    await ava.throwsAsync(cloudStorageDirectorySVC.createDirectory("/", directoryName), {
+    await ava.throwsAsync(cloudStorageDirectorySVC.create("/", directoryName), {
         instanceOf: FError,
         message: `${Status.Failed}: ${ErrorCode.ParamsCheckFailed}`,
     });
@@ -116,13 +116,10 @@ test(`${namespace} - createDirectory - parent directory does not exist`, async a
 
     const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, userUUID);
     const directoryName = v4();
-    await ava.throwsAsync(
-        cloudStorageDirectorySVC.createDirectory(parentDirectory, directoryName),
-        {
-            instanceOf: FError,
-            message: `${Status.Failed}: ${ErrorCode.ParentDirectoryNotExists}`,
-        },
-    );
+    await ava.throwsAsync(cloudStorageDirectorySVC.create(parentDirectory, directoryName), {
+        instanceOf: FError,
+        message: `${Status.Failed}: ${ErrorCode.ParentDirectoryNotExists}`,
+    });
 });
 
 test(`${namespace} - createDirectory - directory already exist`, async ava => {
@@ -132,9 +129,9 @@ test(`${namespace} - createDirectory - directory already exist`, async ava => {
     const directoryName = v4();
 
     const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, userUUID);
-    await cloudStorageDirectorySVC.createDirectory("/", directoryName);
+    await cloudStorageDirectorySVC.create("/", directoryName);
 
-    await ava.throwsAsync(cloudStorageDirectorySVC.createDirectory("/", directoryName), {
+    await ava.throwsAsync(cloudStorageDirectorySVC.create("/", directoryName), {
         instanceOf: FError,
         message: `${Status.Failed}: ${ErrorCode.DirectoryAlreadyExists}`,
     });
