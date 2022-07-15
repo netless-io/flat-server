@@ -17,6 +17,7 @@ export const listSchema = Type.Array(
                 FileResourceType.NormalResources,
                 FileResourceType.WhiteboardConvert,
                 FileResourceType.WhiteboardProjector,
+                FileResourceType.Directory,
             ],
         }),
     }),
@@ -28,7 +29,8 @@ export const listSchema = Type.Array(
 export const listFilesAndTotalUsageByUserUUIDSchema = Type.Object(
     {
         totalUsage: Type.Integer(),
-        files: listSchema,
+        items: listSchema,
+        canCreateDirectory: Type.Boolean(),
     },
     {
         additionalProperties: false,

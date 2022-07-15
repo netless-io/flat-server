@@ -80,11 +80,23 @@ export class CreateCloudStorageFiles {
         return info;
     }
 
-    public static async fixedDirectoryPath(directoryPath: string) {
+    public static async createDirectory(parentDirectory: string, directoryName: string) {
+        const fullDirectoryPath = `${parentDirectory}${directoryName}/`;
         const info = {
             ...infoByType(FileResourceType.Directory),
+            directoryPath: parentDirectory,
+            fileName: `${fullDirectoryPath}.keep`,
+        };
+        await CreateCloudStorageFiles.full(info);
+
+        return info;
+    }
+
+    public static async fixedDirectoryPath(directoryPath: string, fileName: string) {
+        const info = {
+            ...infoByType(FileResourceType.OnlineCourseware),
             directoryPath,
-            fileName: ".keep",
+            fileName,
         };
         await CreateCloudStorageFiles.full(info);
 

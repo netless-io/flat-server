@@ -62,6 +62,7 @@ test(`${namespace} - list`, async ava => {
         order: "DESC",
         page: 1,
         size: 2,
+        directoryPath: "/",
     });
 
     ava.is(result.length, 2);
@@ -69,6 +70,62 @@ test(`${namespace} - list`, async ava => {
     ava.is(result[1].fileUUID, f2.fileUUID);
 
     ava.is(Schema.check(listSchema, result), null);
+});
+
+test(`${namespace} - list - dir`, async ava => {
+    const { t } = await useTransaction();
+
+    const [directoryPath, directoryName, jpgFileName, mp4FileName] = [
+        "/",
+        v4(),
+        `${v4()}.jpg`,
+        `${v4()}.mp4`,
+    ];
+    const subDirectoryPath = `${directoryPath}${directoryName}/`;
+
+    const { userUUID } = await CreateCloudStorageConfigs.quick();
+    const [f1, d1, f2, f3] = [
+        await CreateCloudStorageFiles.quick(FileResourceType.WhiteboardConvert),
+        await CreateCloudStorageFiles.createDirectory(directoryPath, directoryName),
+        await CreateCloudStorageFiles.fixedDirectoryPath(subDirectoryPath, jpgFileName),
+        await CreateCloudStorageFiles.fixedDirectoryPath(subDirectoryPath, mp4FileName),
+    ];
+
+    await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, [
+        f1.fileUUID,
+        d1.fileUUID,
+        f2.fileUUID,
+        f3.fileUUID,
+    ]);
+
+    const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), t, userUUID);
+
+    {
+        const result = await cloudStorageConfigsSVC.list({
+            directoryPath: subDirectoryPath,
+            size: 3,
+            page: 1,
+            order: "DESC",
+        });
+        ava.is(result.length, 2);
+        ava.is(result[0].fileUUID, f3.fileUUID);
+        ava.is(result[1].fileUUID, f2.fileUUID);
+        ava.is(Schema.check(listSchema, result), null);
+    }
+
+    {
+        const result = await cloudStorageConfigsSVC.list({
+            directoryPath,
+            size: 3,
+            page: 1,
+            order: "DESC",
+        });
+
+        ava.is(result.length, 2);
+        ava.is(result[0].fileUUID, d1.fileUUID);
+        ava.is(result[1].fileUUID, f1.fileUUID);
+        ava.is(Schema.check(listSchema, result), null);
+    }
 });
 
 test(`${namespace} - list - empty`, async ava => {
@@ -79,6 +136,7 @@ test(`${namespace} - list - empty`, async ava => {
         order: "DESC",
         page: 1,
         size: 2,
+        directoryPath: "/",
     });
 
     ava.is(result.length, 0);
@@ -105,13 +163,14 @@ test(`${namespace} - listFilesAndTotalUsageByUserUUID`, async ava => {
         order: "ASC",
         page: 1,
         size: 5,
+        directoryPath: "/",
     });
 
     ava.is(result.totalUsage, totalUsage);
-    ava.is(result.files.length, 3);
-    ava.is(result.files[0].fileUUID, f1.fileUUID);
-    ava.is(result.files[1].fileUUID, f2.fileUUID);
-    ava.is(result.files[2].fileUUID, f3.fileUUID);
+    ava.is(result.items.length, 3);
+    ava.is(result.items[0].fileUUID, f1.fileUUID);
+    ava.is(result.items[1].fileUUID, f2.fileUUID);
+    ava.is(result.items[2].fileUUID, f3.fileUUID);
 
     ava.is(Schema.check(listFilesAndTotalUsageByUserUUIDSchema, result), null);
 });
@@ -124,10 +183,11 @@ test(`${namespace} - listFilesAndTotalUsageByUserUUID - empty`, async ava => {
         order: "ASC",
         page: 1,
         size: 3,
+        directoryPath: "/",
     });
 
     ava.is(result.totalUsage, 0);
-    ava.is(result.files.length, 0);
+    ava.is(result.items.length, 0);
 
     ava.is(Schema.check(listFilesAndTotalUsageByUserUUIDSchema, result), null);
 });
@@ -135,14 +195,17 @@ test(`${namespace} - listFilesAndTotalUsageByUserUUID - empty`, async ava => {
 test(`${namespace} - existsDirectory - should return true`, async ava => {
     const { t } = await useTransaction();
 
-    const userUUID = v4();
-    const directoryPath = `/${v4()}/`;
-    const { fileUUID } = await CreateCloudStorageFiles.fixedDirectoryPath(directoryPath);
+    const [userUUID, directoryPath, directoryName] = [v4(), `/${v4()}/`, v4()];
+    const fullDirectoryPath = `${directoryPath}${directoryName}/`;
+    const { fileUUID } = await CreateCloudStorageFiles.createDirectory(
+        directoryPath,
+        directoryName,
+    );
     await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, fileUUID);
 
     const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), t, userUUID);
 
-    const result = await cloudStorageConfigsSVC.existsDirectory(directoryPath);
+    const result = await cloudStorageConfigsSVC.existsDirectory(fullDirectoryPath);
     ava.is(result, true);
     ava.is(Schema.check(existsDirectorySchema, result), null);
 });
@@ -159,8 +222,11 @@ test(`${namespace} - existsDirectory - should return true when directory is /`, 
 test(`${namespace} - existsDirectory - should return false`, async ava => {
     const { t } = await useTransaction();
 
-    const userUUID = v4();
-    const { fileUUID } = await CreateCloudStorageFiles.fixedDirectoryPath(`/${v4()}/`);
+    const [userUUID, directoryPath, directoryName] = [v4(), `/${v4()}/`, v4()];
+    const { fileUUID } = await CreateCloudStorageFiles.createDirectory(
+        directoryPath,
+        directoryName,
+    );
     await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, fileUUID);
 
     const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), t, userUUID);
@@ -168,12 +234,13 @@ test(`${namespace} - existsDirectory - should return false`, async ava => {
     ava.is(await cloudStorageConfigsSVC.existsDirectory(`/${v4()}/`), false);
 });
 
-test(`${namespace} - createDirectory - create success`, async ava => {
+test(`${namespace} - createDirectory - create nested success`, async ava => {
     const { t } = await useTransaction();
 
     const userUUID = v4();
-    const parentDirectoryPath = `/${v4()}/`;
-    const { fileUUID } = await CreateCloudStorageFiles.fixedDirectoryPath(parentDirectoryPath);
+    const parentDirectoryName = v4();
+    const parentDirectoryPath = `/${parentDirectoryName}/`;
+    const { fileUUID } = await CreateCloudStorageFiles.createDirectory("/", parentDirectoryName);
     await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, fileUUID);
 
     const cloudStorageConfigsSVC = new CloudStorageInfoService(v4(), t, userUUID);
@@ -192,10 +259,10 @@ test(`${namespace} - createDirectory - create success`, async ava => {
         const fullDirectoryPath = `${parentDirectoryPath}${directoryName}/`;
         const result = await cloudStorageFilesDAO.findOne(t, "id", {
             file_uuid: fileUUID,
-            file_name: ".keep",
-            directory_path: fullDirectoryPath,
+            file_name: `${fullDirectoryPath}.keep`,
+            directory_path: parentDirectoryPath,
             resource_type: FileResourceType.Directory,
-            file_url: `file://${fullDirectoryPath}`,
+            file_url: `file://${fullDirectoryPath}.keep`,
             file_size: 0,
         });
         ava.is(!!result, true);

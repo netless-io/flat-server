@@ -23,6 +23,11 @@ export const cloudStorageListSchema = {
                     default: "ASC",
                 }),
             ),
+            directoryPath: Type.String({
+                maxLength: 300,
+                minLength: 1,
+                format: "directory-path",
+            }),
         },
         {
             additionalProperties: false,
@@ -41,6 +46,7 @@ export const cloudStorageList = async (
         page: req.body.page,
         order: req.body.order as "ASC" | "DESC",
         size: req.body.size as number,
+        directoryPath: req.body.directoryPath,
     });
 
     return successJSON(data);
