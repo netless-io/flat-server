@@ -81,13 +81,12 @@ test(`${namespace} - createDirectory - create nested success`, async ava => {
     }
 
     {
-        const fullDirectoryPath = `${parentDirectoryPath}${directoryName}/`;
         const result = await cloudStorageFilesDAO.findOne(t, "id", {
             file_uuid: fileUUID,
-            file_name: `${fullDirectoryPath}.keep`,
+            file_name: `${directoryName}.keep`,
             directory_path: parentDirectoryPath,
             resource_type: FileResourceType.Directory,
-            file_url: `file://${fullDirectoryPath}.keep`,
+            file_url: `file://${directoryName}.keep`,
             file_size: 0,
         });
         ava.is(!!result, true);
