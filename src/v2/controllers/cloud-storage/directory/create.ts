@@ -14,6 +14,7 @@ export const cloudStorageDirectoryCreateSchema = {
             directoryName: Type.String({
                 maxLength: 50,
                 minLength: 1,
+                format: "directory-name",
             }),
         },
         {
