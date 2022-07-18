@@ -2,6 +2,7 @@ import { cloudStorageConfigsDAO } from "../../dao";
 import { CloudStorageFilesModel } from "../../../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../../../model/cloudStorage/CloudStorageUserFiles";
 import {
+    CloudStorageInfoFindFileUUIDsReturn,
     CloudStorageInfoList,
     CloudStorageInfoListParamsConfig,
     CloudStorageInfoListReturn,
@@ -87,5 +88,26 @@ export class CloudStorageInfoService {
             // directory path max length is 300
             canCreateDirectory: config.directoryPath.length < 299,
         };
+    }
+
+    public async findFileUUIDs(): Promise<CloudStorageInfoFindFileUUIDsReturn> {
+        const result: CloudStorageInfoFindFileUUIDsReturn =
+            await this.DBTransaction.createQueryBuilder(CloudStorageFilesModel, "f")
+                .select("f.file_uuid", "fileUUID")
+                .addSelect("f.directory_path", "directoryPath")
+                .innerJoin(CloudStorageUserFilesModel, "uf", "uf.file_uuid = f.file_uuid")
+                .where("uf.user_uuid = :userUUID", { userUUID: this.userUUID })
+                .andWhere("f.is_delete = :isDelete", { isDelete: false })
+                .andWhere("uf.is_delete = :isDelete", { isDelete: false })
+                .getRawMany();
+
+        const r = result.map(({ fileUUID, directoryPath }) => {
+            return {
+                fileUUID,
+                directoryPath,
+            };
+        });
+
+        return r;
     }
 }

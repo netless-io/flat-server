@@ -1,5 +1,5 @@
 import { createLoggerService } from "../../../logger";
-import { EntityManager } from "typeorm";
+import { EntityManager, In } from "typeorm";
 import { CloudStorageFilesModel } from "../../../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../../../model/cloudStorage/CloudStorageUserFiles";
 import { FError } from "../../../error/ControllerError";
@@ -8,6 +8,7 @@ import { v4 } from "uuid";
 import { cloudStorageFilesDAO, cloudStorageUserFilesDAO } from "../../dao";
 import { FileResourceType } from "../../../model/cloudStorage/Constants";
 import { splitPath } from "./internal/utils/directory";
+import { CloudStorageInfoService } from "./info";
 
 export class CloudStorageDirectoryService {
     private readonly logger = createLoggerService<"cloudStorageDirectory">({
@@ -91,6 +92,85 @@ export class CloudStorageDirectoryService {
                 user_uuid: this.userUUID,
                 file_uuid: fileUUID,
             }),
+        ]);
+    }
+
+    /**
+     * rename directory
+     * /a/b/c/old_dir -> /a/b/c/new_dir
+     * @param {string} parentDirectory - parent directory (e.g. /a/b/c/)
+     * @param {string} oldDirectoryName - will rename directory name (e.g. old_dir)
+     * @param {string} newDirectoryName - new directory name (e.g. new_dir)
+     */
+    public async rename(
+        parentDirectory: string,
+        oldDirectoryName: string,
+        newDirectoryName: string,
+    ): Promise<void> {
+        if (oldDirectoryName === newDirectoryName) {
+            this.logger.debug("directory name is same");
+            return;
+        }
+
+        const fullNewDirectoryPath = `${parentDirectory}${newDirectoryName}/`;
+        if (fullNewDirectoryPath.length > 300) {
+            this.logger.debug("directory is too long");
+            throw new FError(ErrorCode.ParamsCheckFailed);
+        }
+
+        const fullOldDirectoryPath = `${parentDirectory}${oldDirectoryName}/`;
+
+        const hasOldDirectory = await this.exists(fullOldDirectoryPath);
+        if (!hasOldDirectory) {
+            this.logger.debug("directory does not exist");
+            throw new FError(ErrorCode.ParentDirectoryNotExists);
+        }
+
+        const hasNewDirectory = await this.exists(fullNewDirectoryPath);
+        if (hasNewDirectory) {
+            this.logger.debug("directory already exists");
+            throw new FError(ErrorCode.DirectoryAlreadyExists);
+        }
+
+        const cloudStorageInfoSvc = new CloudStorageInfoService(
+            this.reqID,
+            this.DBTransaction,
+            this.userUUID,
+        );
+
+        const fileUUIDsByUser = await cloudStorageInfoSvc.findFileUUIDs();
+
+        const fileUUIDsByNotParentDirectory: string[] = [];
+        let fileUUIDByParentDirectory = "";
+
+        fileUUIDsByUser.forEach(item => {
+            if (item.directoryPath !== parentDirectory) {
+                fileUUIDsByNotParentDirectory.push(item.fileUUID);
+            } else {
+                fileUUIDByParentDirectory = item.fileUUID;
+            }
+        });
+
+        await Promise.all([
+            cloudStorageFilesDAO.update(
+                this.DBTransaction,
+                {
+                    directory_path: () =>
+                        `REGEXP_REPLACE(directory_path, '^${fullOldDirectoryPath}', '${fullNewDirectoryPath}')`,
+                },
+                {
+                    file_uuid: In(fileUUIDsByNotParentDirectory),
+                },
+            ),
+            cloudStorageFilesDAO.update(
+                this.DBTransaction,
+                {
+                    file_name: `${newDirectoryName}.keep`,
+                },
+                {
+                    file_uuid: fileUUIDByParentDirectory,
+                },
+            ),
         ]);
     }
 }
