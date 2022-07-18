@@ -12,6 +12,7 @@ import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import fastifyTypeORMQueryRunner from "@fastify-userland/typeorm-query-runner";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
+import { fastifyAPILogger } from "../../../../plugins/fastify/api-logger";
 
 export class HelperAPI {
     public readonly app = fastify({
@@ -21,27 +22,30 @@ export class HelperAPI {
         },
     }).withTypeProvider<TypeBoxTypeProvider>();
 
-    private readonly registerPlugin = Promise.all([
-        this.app.register(jwtVerify),
-        this.app.register(cors, {
-            methods: ["GET", "POST", "OPTIONS"],
-            allowedHeaders: ["Content-Type", "Authorization"],
-            maxAge: 100,
-        }),
-        this.app.register(formBody),
-        this.app.register(reqID),
-        this.app.register(fastifyTypeORMQueryRunner, {
-            dataSource,
-            transaction: true,
-            match: request => request.routerPath?.startsWith("/v2") || false,
-            respIsError: respStr =>
-                respStr ===
-                JSON.stringify({
-                    status: Status.Failed,
-                    code: ErrorCode.CurrentProcessFailed,
-                }),
-        }),
-    ]);
+    private readonly registerPlugin = (async () => {
+        await Promise.all([
+            this.app.register(jwtVerify),
+            this.app.register(cors, {
+                methods: ["GET", "POST", "OPTIONS"],
+                allowedHeaders: ["Content-Type", "Authorization"],
+                maxAge: 100,
+            }),
+            this.app.register(formBody),
+            this.app.register(reqID),
+            this.app.register(fastifyTypeORMQueryRunner, {
+                dataSource,
+                transaction: true,
+                match: request => request.routerPath?.startsWith("/v2") || false,
+                respIsError: respStr =>
+                    respStr ===
+                    JSON.stringify({
+                        status: Status.Failed,
+                        code: ErrorCode.CurrentProcessFailed,
+                    }),
+            }),
+        ]);
+        await this.app.register(fastifyAPILogger);
+    })();
 
     public constructor() {
         this.app.setErrorHandler((err, _request, reply) => {

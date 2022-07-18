@@ -4,12 +4,10 @@ import { useTransaction } from "../../../../__tests__/helpers/db/query-runner";
 import { HelperAPI } from "../../../../__tests__/helpers/api";
 import { cloudStorageRouters } from "../../routes";
 import { cloudStorageRename } from "../";
-import { CreateCloudStorageUserFiles } from "../../../../__tests__/helpers/db/cloud-storage-user-files";
-import { CreateCloudStorageConfigs } from "../../../../__tests__/helpers/db/cloud-storage-configs";
-import { CreateCloudStorageFiles } from "../../../../__tests__/helpers/db/cloud-storage-files";
 import { v4 } from "uuid";
 import { successJSON } from "../../../internal/utils/response-json";
 import { CloudStorageInfoService } from "../../../../services/cloud-storage/info";
+import { CreateCS } from "../../../../__tests__/helpers/db/create-cs-files";
 
 const namespace = "v2.controllers.cloud-storage.rename";
 
@@ -18,22 +16,10 @@ initializeDataSource(test, namespace);
 test(`${namespace} - rename dir success`, async ava => {
     const { t } = await useTransaction();
 
-    const [oldDirectoryName, newDirectoryName] = [v4(), v4()];
-    const directoryPath = `/${v4()}/`;
-    const { userUUID } = await CreateCloudStorageConfigs.quick();
-    const { fileUUID: dirUUID } = await CreateCloudStorageFiles.createDirectory(
-        "/",
-        oldDirectoryName,
-    );
-    const [f1, f2] = [
-        await CreateCloudStorageFiles.fixedDirectoryPath(directoryPath, "test.txt"),
-        await CreateCloudStorageFiles.fixedDirectoryPath(directoryPath, "test.png"),
-    ];
-    await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, [
-        dirUUID,
-        f1.fileUUID,
-        f2.fileUUID,
-    ]);
+    const [userUUID, newDirectoryName] = [v4(), v4()];
+
+    const [dir] = await CreateCS.createDirectory(userUUID);
+    const [f1, f2] = await CreateCS.createFiles(userUUID, dir.directoryPath, 2);
 
     const helperAPI = new HelperAPI();
     await helperAPI.import(cloudStorageRouters, cloudStorageRename);
@@ -41,7 +27,7 @@ test(`${namespace} - rename dir success`, async ava => {
         method: "POST",
         url: "/v2/cloud-storage/rename",
         payload: {
-            fileUUID: dirUUID,
+            fileUUID: dir.fileUUID,
             newName: newDirectoryName,
         },
     });
@@ -63,14 +49,14 @@ test(`${namespace} - rename dir success`, async ava => {
 
     {
         const result = await new CloudStorageInfoService(v4(), t, userUUID).list({
-            directoryPath: directoryPath,
+            directoryPath: `/${newDirectoryName}/`,
             size: 10,
             page: 1,
             order: "DESC",
         });
 
         ava.is(result.length, 2);
-        ava.is(result[0].fileName, "test.png");
-        ava.is(result[1].fileName, "test.txt");
+        ava.is(result[0].fileName, f2.fileName);
+        ava.is(result[1].fileName, f1.fileName);
     }
 });

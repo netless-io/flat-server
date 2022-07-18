@@ -1,9 +1,6 @@
 import test from "ava";
 import { CreateCloudStorageConfigs } from "../../../__tests__/helpers/db/cloud-storage-configs";
 import { CloudStorageInfoService } from "../info";
-import { CreateCloudStorageFiles } from "../../../__tests__/helpers/db/cloud-storage-files";
-import { FileResourceType } from "../../../../model/cloudStorage/Constants";
-import { CreateCloudStorageUserFiles } from "../../../__tests__/helpers/db/cloud-storage-user-files";
 import {
     findFilesInfoSchema,
     listFilesAndTotalUsageByUserUUIDSchema,
@@ -13,6 +10,7 @@ import { Schema } from "../../../__tests__/helpers/schema";
 import { v4 } from "uuid";
 import { initializeDataSource } from "../../../__tests__/helpers/db/test-hooks";
 import { useTransaction } from "../../../__tests__/helpers/db/query-runner";
+import { CreateCS } from "../../../__tests__/helpers/db/create-cs-files";
 
 const namespace = "services.cloud-storage.info";
 
@@ -41,17 +39,10 @@ test(`${namespace} - totalUsage - empty`, async ava => {
 test(`${namespace} - list`, async ava => {
     const { t } = await useTransaction();
 
-    const { userUUID } = await CreateCloudStorageConfigs.quick();
-    const [f1, f2, f3] = [
-        await CreateCloudStorageFiles.quick(FileResourceType.WhiteboardConvert),
-        await CreateCloudStorageFiles.quick(FileResourceType.NormalResources),
-        await CreateCloudStorageFiles.quick(FileResourceType.OnlineCourseware),
-    ];
-    await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, [
-        f1.fileUUID,
-        f2.fileUUID,
-        f3.fileUUID,
-    ]);
+    const userUUID = v4();
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_f1, f2, f3] = await CreateCS.createFiles(userUUID, "/", 3);
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
     const result = await cloudStorageInfoSVC.list({
@@ -71,38 +62,21 @@ test(`${namespace} - list`, async ava => {
 test(`${namespace} - list - dir`, async ava => {
     const { t } = await useTransaction();
 
-    const [directoryPath, directoryName, jpgFileName, mp4FileName] = [
-        "/",
-        v4(),
-        `${v4()}.jpg`,
-        `${v4()}.mp4`,
-    ];
-    const subDirectoryPath = `${directoryPath}${directoryName}/`;
-
-    const { userUUID } = await CreateCloudStorageConfigs.quick();
-    const [f1, d1, f2, f3] = [
-        await CreateCloudStorageFiles.quick(FileResourceType.WhiteboardConvert),
-        await CreateCloudStorageFiles.createDirectory(directoryPath, directoryName),
-        await CreateCloudStorageFiles.fixedDirectoryPath(subDirectoryPath, jpgFileName),
-        await CreateCloudStorageFiles.fixedDirectoryPath(subDirectoryPath, mp4FileName),
-    ];
-
-    await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, [
-        f1.fileUUID,
-        d1.fileUUID,
-        f2.fileUUID,
-        f3.fileUUID,
-    ]);
+    const userUUID = v4();
+    const [d1] = await CreateCS.createDirectory(userUUID);
+    const [f1] = await CreateCS.createFiles(userUUID);
+    const [f2, f3] = await CreateCS.createFiles(userUUID, d1.directoryPath, 2);
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
 
     {
         const result = await cloudStorageInfoSVC.list({
-            directoryPath: subDirectoryPath,
+            directoryPath: d1.directoryPath,
             size: 3,
             page: 1,
             order: "DESC",
         });
+
         ava.is(result.length, 2);
         ava.is(result[0].fileUUID, f3.fileUUID);
         ava.is(result[1].fileUUID, f2.fileUUID);
@@ -111,7 +85,7 @@ test(`${namespace} - list - dir`, async ava => {
 
     {
         const result = await cloudStorageInfoSVC.list({
-            directoryPath,
+            directoryPath: "/",
             size: 3,
             page: 1,
             order: "DESC",
@@ -142,17 +116,9 @@ test(`${namespace} - list - empty`, async ava => {
 test(`${namespace} - listFilesAndTotalUsageByUserUUID`, async ava => {
     const { t } = await useTransaction();
 
-    const { userUUID, totalUsage } = await CreateCloudStorageConfigs.quick();
-    const [f1, f2, f3] = [
-        await CreateCloudStorageFiles.quick(FileResourceType.WhiteboardConvert),
-        await CreateCloudStorageFiles.quick(FileResourceType.NormalResources),
-        await CreateCloudStorageFiles.quick(FileResourceType.OnlineCourseware),
-    ];
-    await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, [
-        f1.fileUUID,
-        f2.fileUUID,
-        f3.fileUUID,
-    ]);
+    const userUUID = v4();
+    const { totalUsage } = await CreateCloudStorageConfigs.fixedUserUUID(userUUID);
+    const [f1, f2, f3] = await CreateCS.createFiles(userUUID, "/", 3);
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
     const result = await cloudStorageInfoSVC.listFilesAndTotalUsageByUserUUID({
@@ -200,15 +166,8 @@ test(`${namespace} - findFilesInfo - empty data`, async ava => {
 test(`${namespace} - findFilesInfo - success`, async ava => {
     const { t } = await useTransaction();
 
-    const { userUUID } = await CreateCloudStorageConfigs.quick();
-    const [f1, f2] = [
-        await CreateCloudStorageFiles.quick(FileResourceType.WhiteboardConvert),
-        await CreateCloudStorageFiles.quick(FileResourceType.WhiteboardProjector),
-    ];
-    await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, [
-        f1.fileUUID,
-        f2.fileUUID,
-    ]);
+    const userUUID = v4();
+    const [f1, f2] = await CreateCS.createFiles(userUUID, "/", 2);
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
     const result = await cloudStorageInfoSVC.findFilesInfo();
@@ -231,13 +190,12 @@ test(`${namespace} - findFileInfo - not found`, async ava => {
 test(`${namespace} - findFileInfo - found file`, async ava => {
     const { t } = await useTransaction();
 
-    const { userUUID } = await CreateCloudStorageConfigs.quick();
-    const fileInfo = await CreateCloudStorageFiles.quick(FileResourceType.WhiteboardProjector);
-    await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, fileInfo.fileUUID);
+    const userUUID = v4();
+    const [f1] = await CreateCS.createFiles(userUUID);
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
-    const result = await cloudStorageInfoSVC.findFileInfo(fileInfo.fileUUID);
+    const result = await cloudStorageInfoSVC.findFileInfo(f1.fileUUID);
 
-    ava.is(result!.fileName, fileInfo.fileName);
-    ava.is(result!.fileUUID, fileInfo.fileUUID);
+    ava.is(result!.fileName, f1.fileName);
+    ava.is(result!.fileUUID, f1.fileUUID);
 });

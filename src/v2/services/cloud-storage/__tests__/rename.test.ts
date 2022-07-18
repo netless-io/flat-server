@@ -1,15 +1,13 @@
 import { initializeDataSource } from "../../../__tests__/helpers/db/test-hooks";
 import test from "ava";
 import { useTransaction } from "../../../__tests__/helpers/db/query-runner";
-import { CreateCloudStorageFiles } from "../../../__tests__/helpers/db/cloud-storage-files";
-import { CreateCloudStorageUserFiles } from "../../../__tests__/helpers/db/cloud-storage-user-files";
-import { CreateCloudStorageConfigs } from "../../../__tests__/helpers/db/cloud-storage-configs";
 import { CloudStorageRenameService } from "../rename";
 import { v4 } from "uuid";
 import { cloudStorageFilesDAO } from "../../../dao";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { FError } from "../../../../error/ControllerError";
+import { CreateCS } from "../../../__tests__/helpers/db/create-cs-files";
 
 const namespace = "service.cloud-storage.rename";
 
@@ -29,19 +27,18 @@ test(`${namespace} - rename - not found`, async ava => {
 test(`${namespace} - rename - directory`, async ava => {
     const { t } = await useTransaction();
 
-    const { userUUID } = await CreateCloudStorageConfigs.quick();
-    const { fileUUID } = await CreateCloudStorageFiles.createDirectory("/", "test");
-    await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, fileUUID);
+    const [userUUID, newName] = [v4(), v4()];
+    const [dir] = await CreateCS.createDirectory(userUUID);
 
     const cloudStorageRenameSVC = new CloudStorageRenameService(v4(), t, userUUID);
 
-    await cloudStorageRenameSVC.rename(fileUUID, "test2");
+    await cloudStorageRenameSVC.rename(dir.fileUUID, newName);
 
     {
         const result = await cloudStorageFilesDAO.findOne(t, "file_name", {
-            file_uuid: fileUUID,
+            file_uuid: dir.fileUUID,
         });
 
-        ava.is(result.file_name, "test2");
+        ava.is(result.file_name, newName);
     }
 });

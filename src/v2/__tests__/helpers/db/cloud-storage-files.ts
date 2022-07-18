@@ -92,8 +92,17 @@ export class CreateCloudStorageFiles {
     }
 
     public static async fixedDirectoryPath(directoryPath: string, fileName: string) {
+        const arr = [
+            FileResourceType.WhiteboardProjector,
+            FileResourceType.WhiteboardConvert,
+            FileResourceType.OnlineCourseware,
+            FileResourceType.NormalResources,
+            FileResourceType.LocalCourseware,
+        ];
+        const rand = Math.floor(Math.random() * arr.length);
+
         const info = {
-            ...infoByType(FileResourceType.OnlineCourseware),
+            ...infoByType(arr[rand]),
             directoryPath,
             fileName,
         };
