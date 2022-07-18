@@ -1,7 +1,7 @@
 import { Server } from "../../../utils/registryRoutersV2";
 import { cloudStorageList, cloudStorageListSchema } from "./list";
 import { cloudStorageDirectoryCreate, cloudStorageDirectoryCreateSchema } from "./create-directory";
-import { cloudStorageDirectoryRename, cloudStorageDirectoryRenameSchema } from "./rename";
+import { cloudStorageRename, cloudStorageRenameSchema } from "./rename";
 
 export const cloudStorageRouters = (server: Server): void => {
     server.post("cloud-storage/list", cloudStorageList, {
@@ -12,7 +12,7 @@ export const cloudStorageRouters = (server: Server): void => {
         schema: cloudStorageDirectoryCreateSchema,
     });
 
-    server.post("cloud-storage/rename", cloudStorageDirectoryRename, {
-        schema: cloudStorageDirectoryRenameSchema,
+    server.post("cloud-storage/rename", cloudStorageRename, {
+        schema: cloudStorageRenameSchema,
     });
 };

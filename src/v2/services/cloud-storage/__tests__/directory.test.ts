@@ -113,11 +113,11 @@ test(`${namespace} - createDirectory - parent directory does not exist`, async a
     const { t } = await useTransaction();
 
     const userUUID = v4();
-    const parentDirectory = `/${v4()}/`;
+    const parentDirectoryPath = `/${v4()}/`;
 
     const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, userUUID);
     const directoryName = v4();
-    await ava.throwsAsync(cloudStorageDirectorySVC.create(parentDirectory, directoryName), {
+    await ava.throwsAsync(cloudStorageDirectorySVC.create(parentDirectoryPath, directoryName), {
         instanceOf: FError,
         message: `${Status.Failed}: ${ErrorCode.ParentDirectoryNotExists}`,
     });
@@ -150,9 +150,9 @@ test(`${namespace} - rename - directory is too long`, async ava => {
     const { t } = await useTransaction();
     const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, v4());
 
-    const parentDirectory = new Array(295).fill("a").join("");
+    const parentDirectoryPath = `/${new Array(295).fill("a").join("")}/`;
 
-    await ava.throwsAsync(cloudStorageDirectorySVC.rename(parentDirectory, "a", v4()), {
+    await ava.throwsAsync(cloudStorageDirectorySVC.rename(parentDirectoryPath, "a", v4()), {
         instanceOf: FError,
         message: `${Status.Failed}: ${ErrorCode.ParamsCheckFailed}`,
     });

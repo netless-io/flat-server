@@ -53,19 +53,19 @@ export class CloudStorageDirectoryService {
 
     /**
      * create directory
-     * @param {string} parentDirectory - parent directory (e.g. /a/b/c/)
+     * @param {string} parentDirectoryPath - parent directory (e.g. /a/b/c/)
      * @param {string} directoryName - will create directory name (e.g. new_dir)
      */
-    public async create(parentDirectory: string, directoryName: string): Promise<void> {
-        const fullDirectoryPath = `${parentDirectory}${directoryName}/`;
+    public async create(parentDirectoryPath: string, directoryName: string): Promise<void> {
+        const fullDirectoryPath = `${parentDirectoryPath}${directoryName}/`;
 
         if (fullDirectoryPath.length > 300) {
             this.logger.debug("directory is too long");
             throw new FError(ErrorCode.ParamsCheckFailed);
         }
 
-        const hasParentDirectory = await this.exists(parentDirectory);
-        if (!hasParentDirectory) {
+        const hasParentDirectoryPath = await this.exists(parentDirectoryPath);
+        if (!hasParentDirectoryPath) {
             this.logger.debug("parent directory does not exist");
             throw new FError(ErrorCode.ParentDirectoryNotExists);
         }
@@ -82,7 +82,7 @@ export class CloudStorageDirectoryService {
             cloudStorageFilesDAO.insert(this.DBTransaction, {
                 file_name: directoryName,
                 file_uuid: fileUUID,
-                directory_path: parentDirectory,
+                directory_path: parentDirectoryPath,
                 file_size: 0,
                 file_url: `file://${directoryName}`,
                 resource_type: FileResourceType.Directory,
@@ -132,18 +132,17 @@ export class CloudStorageDirectoryService {
             throw new FError(ErrorCode.DirectoryAlreadyExists);
         }
 
-        const cloudStorageInfoSvc = new CloudStorageInfoService(
+        const cloudStorageInfoSVC = new CloudStorageInfoService(
             this.reqID,
             this.DBTransaction,
             this.userUUID,
         );
-
-        const fileUUIDsByUser = await cloudStorageInfoSvc.findFileUUIDs();
+        const filesInfo = await cloudStorageInfoSVC.findFilesInfo();
 
         const fileUUIDsByNotParentDirectory: string[] = [];
         let fileUUIDByParentDirectory = "";
 
-        fileUUIDsByUser.forEach(item => {
+        filesInfo.forEach(item => {
             if (item.directoryPath !== parentDirectoryPath) {
                 fileUUIDsByNotParentDirectory.push(item.fileUUID);
             } else {

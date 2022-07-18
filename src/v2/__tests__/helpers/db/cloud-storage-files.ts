@@ -80,10 +80,10 @@ export class CreateCloudStorageFiles {
         return info;
     }
 
-    public static async createDirectory(parentDirectory: string, directoryName: string) {
+    public static async createDirectory(parentDirectoryPath: string, directoryName: string) {
         const info = {
             ...infoByType(FileResourceType.Directory),
-            directoryPath: parentDirectory,
+            directoryPath: parentDirectoryPath,
             fileName: directoryName,
         };
         await CreateCloudStorageFiles.full(info);

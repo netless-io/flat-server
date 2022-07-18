@@ -21,7 +21,7 @@ test(`${namespace} - create success`, async ava => {
     await helperAPI.import(cloudStorageRouters, cloudStorageDirectoryCreate);
     const resp = await helperAPI.injectAuth(userUUID, {
         method: "POST",
-        url: "/v2/cloud-storage/directory/create",
+        url: "/v2/cloud-storage/create-directory",
         payload: {
             parentDirectoryPath: "/",
             directoryName,
