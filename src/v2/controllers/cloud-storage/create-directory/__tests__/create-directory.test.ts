@@ -3,7 +3,7 @@ import test from "ava";
 import { HelperAPI } from "../../../../__tests__/helpers/api";
 import { v4 } from "uuid";
 import { cloudStorageRouters } from "../../routes";
-import { cloudStorageDirectoryCreate } from "../create";
+import { cloudStorageDirectoryCreate } from "../";
 import { successJSON } from "../../../internal/utils/response-json";
 import { cloudStorageFilesDAO, cloudStorageUserFilesDAO } from "../../../../dao";
 import { useTransaction } from "../../../../__tests__/helpers/db/query-runner";

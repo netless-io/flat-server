@@ -3,7 +3,7 @@ import test from "ava";
 import { useTransaction } from "../../../../__tests__/helpers/db/query-runner";
 import { HelperAPI } from "../../../../__tests__/helpers/api";
 import { cloudStorageRouters } from "../../routes";
-import { cloudStorageDirectoryRename } from "../rename";
+import { cloudStorageDirectoryRename } from "../";
 import { CreateCloudStorageUserFiles } from "../../../../__tests__/helpers/db/cloud-storage-user-files";
 import { CreateCloudStorageConfigs } from "../../../../__tests__/helpers/db/cloud-storage-configs";
 import { CreateCloudStorageFiles } from "../../../../__tests__/helpers/db/cloud-storage-files";

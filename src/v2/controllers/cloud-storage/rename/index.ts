@@ -3,7 +3,7 @@ import { FastifyRequestTypebox, Response } from "../../../../types/Server";
 import { CloudStorageDirectoryService } from "../../../services/cloud-storage/directory";
 import { successJSON } from "../../internal/utils/response-json";
 
-export const cloudStorageDirectoryRenameSchema = {
+export const cloudStorageRenameSchema = {
     body: Type.Object(
         {
             parentDirectoryPath: Type.String({
@@ -11,12 +11,12 @@ export const cloudStorageDirectoryRenameSchema = {
                 minLength: 1,
                 format: "directory-path",
             }),
-            oldDirectoryName: Type.String({
+            oldName: Type.String({
                 maxLength: 50,
                 minLength: 1,
                 format: "directory-name",
             }),
-            newDirectoryName: Type.String({
+            newName: Type.String({
                 maxLength: 50,
                 minLength: 1,
                 format: "directory-name",
@@ -28,13 +28,13 @@ export const cloudStorageDirectoryRenameSchema = {
     ),
 };
 
-export const cloudStorageDirectoryRename = async (
-    req: FastifyRequestTypebox<typeof cloudStorageDirectoryRenameSchema>,
+export const cloudStorageRename = async (
+    req: FastifyRequestTypebox<typeof cloudStorageRenameSchema>,
 ): Promise<Response> => {
     await new CloudStorageDirectoryService(req.reqID, req.DBTransaction, req.userUUID).rename(
         req.body.parentDirectoryPath,
-        req.body.oldDirectoryName,
-        req.body.newDirectoryName,
+        req.body.oldName,
+        req.body.newName,
     );
 
     return successJSON({});
