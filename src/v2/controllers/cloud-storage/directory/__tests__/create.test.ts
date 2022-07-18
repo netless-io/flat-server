@@ -44,6 +44,6 @@ test(`${namespace} - create success`, async ava => {
     );
 
     ava.is(result.directory_path, "/");
-    ava.is(result.file_name, `${directoryName}.keep`);
+    ava.is(result.file_name, directoryName);
     ava.is(result.resource_type, FileResourceType.Directory);
 });
