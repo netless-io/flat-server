@@ -67,7 +67,7 @@ export class CloudStorageDirectoryService {
         const hasParentDirectoryPath = await this.exists(parentDirectoryPath);
         if (!hasParentDirectoryPath) {
             this.logger.debug("parent directory does not exist");
-            throw new FError(ErrorCode.ParentDirectoryNotExists);
+            throw new FError(ErrorCode.DirectoryNotExists);
         }
 
         const hasDirectory = await this.exists(fullDirectoryPath);
@@ -123,7 +123,7 @@ export class CloudStorageDirectoryService {
         const hasOldDirectory = await this.exists(fullOldDirectoryPath);
         if (!hasOldDirectory) {
             this.logger.debug("directory does not exist");
-            throw new FError(ErrorCode.ParentDirectoryNotExists);
+            throw new FError(ErrorCode.DirectoryNotExists);
         }
 
         const hasNewDirectory = await this.exists(fullNewDirectoryPath);
