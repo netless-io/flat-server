@@ -98,12 +98,12 @@ export class CloudStorageDirectoryService {
     /**
      * rename directory
      * /a/b/c/old_dir -> /a/b/c/new_dir
-     * @param {string} parentDirectory - parent directory (e.g. /a/b/c/)
+     * @param {string} parentDirectoryPath - parent directory (e.g. /a/b/c/)
      * @param {string} oldDirectoryName - will rename directory name (e.g. old_dir)
      * @param {string} newDirectoryName - new directory name (e.g. new_dir)
      */
     public async rename(
-        parentDirectory: string,
+        parentDirectoryPath: string,
         oldDirectoryName: string,
         newDirectoryName: string,
     ): Promise<void> {
@@ -112,13 +112,13 @@ export class CloudStorageDirectoryService {
             return;
         }
 
-        const fullNewDirectoryPath = `${parentDirectory}${newDirectoryName}/`;
+        const fullNewDirectoryPath = `${parentDirectoryPath}${newDirectoryName}/`;
         if (fullNewDirectoryPath.length > 300) {
             this.logger.debug("directory is too long");
             throw new FError(ErrorCode.ParamsCheckFailed);
         }
 
-        const fullOldDirectoryPath = `${parentDirectory}${oldDirectoryName}/`;
+        const fullOldDirectoryPath = `${parentDirectoryPath}${oldDirectoryName}/`;
 
         const hasOldDirectory = await this.exists(fullOldDirectoryPath);
         if (!hasOldDirectory) {
@@ -144,7 +144,7 @@ export class CloudStorageDirectoryService {
         let fileUUIDByParentDirectory = "";
 
         fileUUIDsByUser.forEach(item => {
-            if (item.directoryPath !== parentDirectory) {
+            if (item.directoryPath !== parentDirectoryPath) {
                 fileUUIDsByNotParentDirectory.push(item.fileUUID);
             } else {
                 fileUUIDByParentDirectory = item.fileUUID;
