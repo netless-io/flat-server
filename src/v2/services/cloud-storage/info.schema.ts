@@ -36,3 +36,15 @@ export const listFilesAndTotalUsageByUserUUIDSchema = Type.Object(
         additionalProperties: false,
     },
 );
+
+export const findFileUUIDsSchema = Type.Array(
+    Type.Object({
+        fileUUID: Type.String({
+            format: "uuid-v4",
+        }),
+        directoryPath: Type.String(),
+    }),
+    {
+        minItems: 0,
+    },
+);

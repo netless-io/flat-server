@@ -4,7 +4,11 @@ import { CloudStorageInfoService } from "../info";
 import { CreateCloudStorageFiles } from "../../../__tests__/helpers/db/cloud-storage-files";
 import { FileResourceType } from "../../../../model/cloudStorage/Constants";
 import { CreateCloudStorageUserFiles } from "../../../__tests__/helpers/db/cloud-storage-user-files";
-import { listFilesAndTotalUsageByUserUUIDSchema, listSchema } from "../info.schema";
+import {
+    findFileUUIDsSchema,
+    listFilesAndTotalUsageByUserUUIDSchema,
+    listSchema,
+} from "../info.schema";
 import { Schema } from "../../../__tests__/helpers/schema";
 import { v4 } from "uuid";
 import { initializeDataSource } from "../../../__tests__/helpers/db/test-hooks";
@@ -182,4 +186,35 @@ test(`${namespace} - listFilesAndTotalUsageByUserUUID - empty`, async ava => {
     ava.is(result.items.length, 0);
 
     ava.is(Schema.check(listFilesAndTotalUsageByUserUUIDSchema, result), null);
+});
+
+test(`${namespace} - findFileUUIDs - empty data`, async ava => {
+    const { t } = await useTransaction();
+    const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, v4());
+    const result = await cloudStorageInfoSVC.findFileUUIDs();
+
+    ava.is(Schema.check(findFileUUIDsSchema, result), null);
+    ava.is(result.length, 0);
+});
+
+test(`${namespace} - findFileUUIDs - success`, async ava => {
+    const { t } = await useTransaction();
+
+    const { userUUID } = await CreateCloudStorageConfigs.quick();
+    const [f1, f2] = [
+        await CreateCloudStorageFiles.quick(FileResourceType.WhiteboardConvert),
+        await CreateCloudStorageFiles.quick(FileResourceType.WhiteboardProjector),
+    ];
+    await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, [
+        f1.fileUUID,
+        f2.fileUUID,
+    ]);
+
+    const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
+    const result = await cloudStorageInfoSVC.findFileUUIDs();
+
+    ava.is(Schema.check(findFileUUIDsSchema, result), null);
+    ava.is(result.length, 2);
+    ava.deepEqual(result[0].fileUUID, f1.fileUUID);
+    ava.deepEqual(result[1].fileUUID, f2.fileUUID);
 });
