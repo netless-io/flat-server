@@ -34,7 +34,13 @@ export type ListFilesAndTotalUsageByUserUUIDReturn = {
     canCreateDirectory: boolean;
 };
 
-export type CloudStorageInfoFindFileUUIDsReturn = Array<{
+export type CloudStorageInfoFindFilesInfoReturn = Array<CloudStorageInfoFindFileInfoReturn>;
+
+export type CloudStorageInfoFindFileInfoReturn = {
     fileUUID: string;
     directoryPath: string;
-}>;
+    fileName: string;
+    fileSize: number;
+    fileURL: string;
+    resourceType: FileResourceType;
+};

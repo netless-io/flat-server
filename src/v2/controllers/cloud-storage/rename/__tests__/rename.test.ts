@@ -3,7 +3,7 @@ import test from "ava";
 import { useTransaction } from "../../../../__tests__/helpers/db/query-runner";
 import { HelperAPI } from "../../../../__tests__/helpers/api";
 import { cloudStorageRouters } from "../../routes";
-import { cloudStorageDirectoryRename } from "../";
+import { cloudStorageRename } from "../";
 import { CreateCloudStorageUserFiles } from "../../../../__tests__/helpers/db/cloud-storage-user-files";
 import { CreateCloudStorageConfigs } from "../../../../__tests__/helpers/db/cloud-storage-configs";
 import { CreateCloudStorageFiles } from "../../../../__tests__/helpers/db/cloud-storage-files";
@@ -11,11 +11,11 @@ import { v4 } from "uuid";
 import { successJSON } from "../../../internal/utils/response-json";
 import { CloudStorageInfoService } from "../../../../services/cloud-storage/info";
 
-const namespace = "v2.controllers.cloud-storage.directory.rename";
+const namespace = "v2.controllers.cloud-storage.rename";
 
 initializeDataSource(test, namespace);
 
-test(`${namespace} - rename success`, async ava => {
+test(`${namespace} - rename dir success`, async ava => {
     const { t } = await useTransaction();
 
     const [oldDirectoryName, newDirectoryName] = [v4(), v4()];
@@ -36,14 +36,13 @@ test(`${namespace} - rename success`, async ava => {
     ]);
 
     const helperAPI = new HelperAPI();
-    await helperAPI.import(cloudStorageRouters, cloudStorageDirectoryRename);
+    await helperAPI.import(cloudStorageRouters, cloudStorageRename);
     const resp = await helperAPI.injectAuth(userUUID, {
         method: "POST",
-        url: "/v2/cloud-storage/directory/rename",
+        url: "/v2/cloud-storage/rename",
         payload: {
-            parentDirectoryPath: "/",
-            oldDirectoryName,
-            newDirectoryName,
+            fileUUID: dirUUID,
+            newName: newDirectoryName,
         },
     });
 

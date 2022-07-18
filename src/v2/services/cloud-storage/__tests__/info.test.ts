@@ -5,7 +5,7 @@ import { CreateCloudStorageFiles } from "../../../__tests__/helpers/db/cloud-sto
 import { FileResourceType } from "../../../../model/cloudStorage/Constants";
 import { CreateCloudStorageUserFiles } from "../../../__tests__/helpers/db/cloud-storage-user-files";
 import {
-    findFileUUIDsSchema,
+    findFilesInfoSchema,
     listFilesAndTotalUsageByUserUUIDSchema,
     listSchema,
 } from "../info.schema";
@@ -188,16 +188,16 @@ test(`${namespace} - listFilesAndTotalUsageByUserUUID - empty`, async ava => {
     ava.is(Schema.check(listFilesAndTotalUsageByUserUUIDSchema, result), null);
 });
 
-test(`${namespace} - findFileUUIDs - empty data`, async ava => {
+test(`${namespace} - findFilesInfo - empty data`, async ava => {
     const { t } = await useTransaction();
     const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, v4());
-    const result = await cloudStorageInfoSVC.findFileUUIDs();
+    const result = await cloudStorageInfoSVC.findFilesInfo();
 
-    ava.is(Schema.check(findFileUUIDsSchema, result), null);
+    ava.is(Schema.check(findFilesInfoSchema, result), null);
     ava.is(result.length, 0);
 });
 
-test(`${namespace} - findFileUUIDs - success`, async ava => {
+test(`${namespace} - findFilesInfo - success`, async ava => {
     const { t } = await useTransaction();
 
     const { userUUID } = await CreateCloudStorageConfigs.quick();
@@ -211,10 +211,33 @@ test(`${namespace} - findFileUUIDs - success`, async ava => {
     ]);
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
-    const result = await cloudStorageInfoSVC.findFileUUIDs();
+    const result = await cloudStorageInfoSVC.findFilesInfo();
 
-    ava.is(Schema.check(findFileUUIDsSchema, result), null);
+    ava.is(Schema.check(findFilesInfoSchema, result), null);
     ava.is(result.length, 2);
     ava.deepEqual(result[0].fileUUID, f1.fileUUID);
     ava.deepEqual(result[1].fileUUID, f2.fileUUID);
+});
+
+test(`${namespace} - findFileInfo - not found`, async ava => {
+    const { t } = await useTransaction();
+
+    const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, v4());
+    const result = await cloudStorageInfoSVC.findFileInfo(v4());
+
+    ava.is(result, null);
+});
+
+test(`${namespace} - findFileInfo - found file`, async ava => {
+    const { t } = await useTransaction();
+
+    const { userUUID } = await CreateCloudStorageConfigs.quick();
+    const fileInfo = await CreateCloudStorageFiles.quick(FileResourceType.WhiteboardProjector);
+    await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, fileInfo.fileUUID);
+
+    const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
+    const result = await cloudStorageInfoSVC.findFileInfo(fileInfo.fileUUID);
+
+    ava.is(result!.fileName, fileInfo.fileName);
+    ava.is(result!.fileUUID, fileInfo.fileUUID);
 });
