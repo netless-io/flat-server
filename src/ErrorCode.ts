@@ -33,7 +33,7 @@ export enum ErrorCode {
     FileSizeTooBig, // single file size too big
     FileNotFound, // file info not found
     FileExists, // file already exists
-    ParentDirectoryNotExists, // parent directory not exists
+    DirectoryNotExists, // parent directory not exists
     DirectoryAlreadyExists, // directory already exists
 
     FileIsConverted = 800000,

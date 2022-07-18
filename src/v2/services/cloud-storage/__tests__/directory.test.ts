@@ -109,7 +109,7 @@ test(`${namespace} - createDirectory - parent directory does not exist`, async a
     const directoryName = v4();
     await ava.throwsAsync(cloudStorageDirectorySVC.create(parentDirectoryPath, directoryName), {
         instanceOf: FError,
-        message: `${Status.Failed}: ${ErrorCode.ParentDirectoryNotExists}`,
+        message: `${Status.Failed}: ${ErrorCode.DirectoryNotExists}`,
     });
 });
 
@@ -154,7 +154,7 @@ test(`${namespace} - rename - directory does not exist`, async ava => {
 
     await ava.throwsAsync(cloudStorageDirectorySVC.rename("/", "a", v4()), {
         instanceOf: FError,
-        message: `${Status.Failed}: ${ErrorCode.ParentDirectoryNotExists}`,
+        message: `${Status.Failed}: ${ErrorCode.DirectoryNotExists}`,
     });
 });
 
