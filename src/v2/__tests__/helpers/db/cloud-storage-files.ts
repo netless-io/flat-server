@@ -84,7 +84,7 @@ export class CreateCloudStorageFiles {
         const info = {
             ...infoByType(FileResourceType.Directory),
             directoryPath: parentDirectory,
-            fileName: `${directoryName}.keep`,
+            fileName: directoryName,
         };
         await CreateCloudStorageFiles.full(info);
 

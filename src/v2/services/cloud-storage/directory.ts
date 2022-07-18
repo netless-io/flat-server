@@ -33,7 +33,7 @@ export class CloudStorageDirectoryService {
             .addSelect("f.directory_path", "directoryPath")
             .innerJoin(CloudStorageUserFilesModel, "uf", "uf.file_uuid = f.file_uuid")
             .where("uf.user_uuid = :userUUID", { userUUID: this.userUUID })
-            .andWhere("f.file_name = :fileName", { fileName: `${directoryName}.keep` })
+            .andWhere("f.file_name = :fileName", { fileName: directoryName })
             .andWhere("f.directory_path = :directoryPath", { directoryPath: parentDirectoryPath })
             .andWhere("f.is_delete = :isDelete", { isDelete: false })
             .andWhere("uf.is_delete = :isDelete", { isDelete: false })
@@ -80,11 +80,11 @@ export class CloudStorageDirectoryService {
 
         await Promise.all([
             cloudStorageFilesDAO.insert(this.DBTransaction, {
-                file_name: `${directoryName}.keep`,
+                file_name: directoryName,
                 file_uuid: fileUUID,
                 directory_path: parentDirectory,
                 file_size: 0,
-                file_url: `file://${directoryName}.keep`,
+                file_url: `file://${directoryName}`,
                 resource_type: FileResourceType.Directory,
                 payload: {},
             }),
@@ -165,7 +165,7 @@ export class CloudStorageDirectoryService {
             cloudStorageFilesDAO.update(
                 this.DBTransaction,
                 {
-                    file_name: `${newDirectoryName}.keep`,
+                    file_name: newDirectoryName,
                 },
                 {
                     file_uuid: fileUUIDByParentDirectory,

@@ -85,10 +85,10 @@ test(`${namespace} - createDirectory - create nested success`, async ava => {
     {
         const result = await cloudStorageFilesDAO.findOne(t, "id", {
             file_uuid: fileUUID,
-            file_name: `${directoryName}.keep`,
+            file_name: directoryName,
             directory_path: parentDirectoryPath,
             resource_type: FileResourceType.Directory,
-            file_url: `file://${directoryName}.keep`,
+            file_url: `file://${directoryName}`,
             file_size: 0,
         });
         ava.is(!!result, true);
@@ -231,7 +231,7 @@ test(`${namespace} - rename - success`, async ava => {
         });
 
         ava.is(result.length, 1);
-        ava.is(result[0].fileName, `${parentDirectoryName}.keep`);
+        ava.is(result[0].fileName, parentDirectoryName);
         ava.is(result[0].resourceType, FileResourceType.Directory);
     }
 
@@ -244,7 +244,7 @@ test(`${namespace} - rename - success`, async ava => {
         });
 
         ava.is(result.length, 1);
-        ava.is(result[0].fileName, `${subNewDirectoryName}.keep`);
+        ava.is(result[0].fileName, subNewDirectoryName);
         ava.is(result[0].resourceType, FileResourceType.Directory);
     }
     {
