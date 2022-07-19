@@ -28,7 +28,7 @@ test(`${namespace} - rename - directory`, async ava => {
     const { t } = await useTransaction();
 
     const [userUUID, newName] = [v4(), v4()];
-    const [dir] = await CreateCS.createDirectory(userUUID);
+    const dir = await CreateCS.createDirectory(userUUID);
 
     const cloudStorageRenameSVC = new CloudStorageRenameService(v4(), t, userUUID);
 

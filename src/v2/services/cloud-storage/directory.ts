@@ -7,8 +7,14 @@ import { ErrorCode } from "../../../ErrorCode";
 import { v4 } from "uuid";
 import { cloudStorageFilesDAO, cloudStorageUserFilesDAO } from "../../dao";
 import { FileResourceType } from "../../../model/cloudStorage/Constants";
-import { splitPath } from "./internal/utils/directory";
+import {
+    calculateDirectoryMaxDeep,
+    filesSeparator,
+    pathPrefixMatch,
+    splitPath,
+} from "./internal/utils/directory";
 import { CloudStorageInfoService } from "./info";
+import { FilesInfoBasic } from "./directory.type";
 
 export class CloudStorageDirectoryService {
     private readonly logger = createLoggerService<"cloudStorageDirectory">({
@@ -35,6 +41,9 @@ export class CloudStorageDirectoryService {
             .where("uf.user_uuid = :userUUID", { userUUID: this.userUUID })
             .andWhere("f.file_name = :fileName", { fileName: directoryName })
             .andWhere("f.directory_path = :directoryPath", { directoryPath: parentDirectoryPath })
+            .andWhere("f.resource_type = :resourceType", {
+                resourceType: FileResourceType.Directory,
+            })
             .andWhere("f.is_delete = :isDelete", { isDelete: false })
             .andWhere("uf.is_delete = :isDelete", { isDelete: false })
             .getRawOne();
@@ -139,16 +148,11 @@ export class CloudStorageDirectoryService {
         );
         const filesInfo = await cloudStorageInfoSVC.findFilesInfo();
 
-        const fileUUIDsByNotParentDirectory: string[] = [];
-        let fileUUIDByParentDirectory = "";
-
-        filesInfo.forEach(item => {
-            if (item.directoryPath !== parentDirectoryPath) {
-                fileUUIDsByNotParentDirectory.push(item.fileUUID);
-            } else {
-                fileUUIDByParentDirectory = item.fileUUID;
-            }
-        });
+        const { currentDirectoryUUID, subFilesAndDirUUID } = filesSeparator(
+            filesInfo,
+            parentDirectoryPath,
+            oldDirectoryName,
+        );
 
         await Promise.all([
             cloudStorageFilesDAO.update(
@@ -158,7 +162,7 @@ export class CloudStorageDirectoryService {
                         `REGEXP_REPLACE(directory_path, '^${fullOldDirectoryPath}', '${fullNewDirectoryPath}')`,
                 },
                 {
-                    file_uuid: In(fileUUIDsByNotParentDirectory),
+                    file_uuid: In(subFilesAndDirUUID),
                 },
             ),
             cloudStorageFilesDAO.update(
@@ -167,7 +171,81 @@ export class CloudStorageDirectoryService {
                     file_name: newDirectoryName,
                 },
                 {
-                    file_uuid: fileUUIDByParentDirectory,
+                    file_uuid: currentDirectoryUUID,
+                },
+            ),
+        ]);
+    }
+
+    /**
+     * move directory
+     * /a/b/c/dir => /a/x/dir
+     * @param {FilesInfoBasic} filesInfo - files info
+     * @param {string} originDirectoryPath - origin directory path (e.g. /a/b/c/)
+     * @param {string} targetDirectoryPath - target directory (e.g. /a/x/)
+     * @param {string} directoryName - directory name (e.g. dir)
+     */
+    public async move(
+        filesInfo: FilesInfoBasic[],
+        originDirectoryPath: string,
+        targetDirectoryPath: string,
+        directoryName: string,
+    ): Promise<void> {
+        if (originDirectoryPath === targetDirectoryPath) {
+            return;
+        }
+        const fullOriginDirectoryPath = `${originDirectoryPath}${directoryName}/`;
+        const fullTargetDirectoryPath = `${targetDirectoryPath}${directoryName}/`;
+
+        const [e1, e2] = await Promise.all([
+            this.exists(fullOriginDirectoryPath),
+            this.exists(fullTargetDirectoryPath),
+        ]);
+
+        if (!e1) {
+            this.logger.debug("origin directory does not exist");
+            throw new FError(ErrorCode.DirectoryNotExists);
+        }
+        if (e2) {
+            this.logger.debug("target file already exists");
+            throw new FError(ErrorCode.DirectoryAlreadyExists);
+        }
+
+        const originDirectoryDeep = calculateDirectoryMaxDeep(
+            pathPrefixMatch(filesInfo, fullOriginDirectoryPath),
+            originDirectoryPath,
+            directoryName,
+        );
+
+        if (originDirectoryDeep + targetDirectoryPath.length >= 300) {
+            this.logger.debug("directory is too long");
+            throw new FError(ErrorCode.ParamsCheckFailed);
+        }
+
+        const { currentDirectoryUUID, subFilesAndDirUUID } = filesSeparator(
+            filesInfo,
+            originDirectoryPath,
+            directoryName,
+        );
+
+        await Promise.all([
+            cloudStorageFilesDAO.update(
+                this.DBTransaction,
+                {
+                    directory_path: () =>
+                        `REGEXP_REPLACE(directory_path, '^${fullOriginDirectoryPath}', '${fullTargetDirectoryPath}')`,
+                },
+                {
+                    file_uuid: In(subFilesAndDirUUID),
+                },
+            ),
+            cloudStorageFilesDAO.update(
+                this.DBTransaction,
+                {
+                    directory_path: targetDirectoryPath,
+                },
+                {
+                    file_uuid: currentDirectoryUUID,
                 },
             ),
         ]);

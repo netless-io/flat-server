@@ -18,7 +18,7 @@ test(`${namespace} - rename dir success`, async ava => {
 
     const [userUUID, newDirectoryName] = [v4(), v4()];
 
-    const [dir] = await CreateCS.createDirectory(userUUID);
+    const dir = await CreateCS.createDirectory(userUUID);
     const [f1, f2] = await CreateCS.createFiles(userUUID, dir.directoryPath, 2);
 
     const helperAPI = new HelperAPI();
