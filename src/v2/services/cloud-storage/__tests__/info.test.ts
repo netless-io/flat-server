@@ -63,8 +63,8 @@ test(`${namespace} - list - dir`, async ava => {
     const { t } = await useTransaction();
 
     const userUUID = v4();
-    const [d1] = await CreateCS.createDirectory(userUUID);
-    const [f1] = await CreateCS.createFiles(userUUID);
+    const d1 = await CreateCS.createDirectory(userUUID);
+    const f1 = await CreateCS.createFile(userUUID);
     const [f2, f3] = await CreateCS.createFiles(userUUID, d1.directoryPath, 2);
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
@@ -191,7 +191,7 @@ test(`${namespace} - findFileInfo - found file`, async ava => {
     const { t } = await useTransaction();
 
     const userUUID = v4();
-    const [f1] = await CreateCS.createFiles(userUUID);
+    const f1 = await CreateCS.createFile(userUUID);
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
     const result = await cloudStorageInfoSVC.findFileInfo(f1.fileUUID);

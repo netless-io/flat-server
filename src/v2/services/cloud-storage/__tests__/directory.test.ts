@@ -22,7 +22,7 @@ test(`${namespace} - existsDirectory - should return true`, async ava => {
 
     const userUUID = v4();
 
-    const [dir] = await CreateCS.createDirectory(userUUID);
+    const dir = await CreateCS.createDirectory(userUUID);
 
     const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, userUUID);
 
@@ -57,8 +57,8 @@ test(`${namespace} - createDirectory - create nested success`, async ava => {
 
     const userUUID = v4();
 
-    const [d1] = await CreateCS.createDirectory(userUUID);
-    const [d2] = await CreateCS.createDirectory(userUUID, d1.directoryPath);
+    const d1 = await CreateCS.createDirectory(userUUID);
+    const d2 = await CreateCS.createDirectory(userUUID, d1.directoryPath);
 
     const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, userUUID);
     const directoryName = v4();
@@ -163,7 +163,7 @@ test(`${namespace} - rename - directory already exists`, async ava => {
 
     const userUUID = v4();
 
-    const [d1, d2] = await CreateCS.createDirectory(userUUID, "/", 2);
+    const [d1, d2] = await CreateCS.createDirectories(userUUID, "/", 2);
 
     const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, userUUID);
 
@@ -180,13 +180,13 @@ test(`${namespace} - rename - success`, async ava => {
     const { t } = await useTransaction();
 
     const [userUUID, newDirectoryName] = [v4(), v4()];
-    const [d1] = await CreateCS.createDirectory(userUUID);
-    const [d2] = await CreateCS.createDirectory(userUUID, d1.directoryPath);
-    const [f1, f2, f3] = await CreateCS.createFiles(userUUID, d2.directoryPath, 3);
+    const [d1, d2] = await CreateCS.createDirectories(userUUID, "/", 2);
+    const d3 = await CreateCS.createDirectory(userUUID, d1.directoryPath);
+    const [f1, f2, f3] = await CreateCS.createFiles(userUUID, d3.directoryPath, 3);
 
     const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, userUUID);
 
-    await cloudStorageDirectorySVC.rename(d1.directoryPath, d2.directoryName, newDirectoryName);
+    await cloudStorageDirectorySVC.rename(d1.directoryPath, d3.directoryName, newDirectoryName);
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
     {
@@ -197,9 +197,9 @@ test(`${namespace} - rename - success`, async ava => {
             directoryPath: "/",
         });
 
-        ava.is(result.length, 1);
-        ava.is(result[0].fileName, d1.directoryName);
-        ava.is(result[0].resourceType, FileResourceType.Directory);
+        ava.is(result.length, 2);
+        ava.is(result[0].fileUUID, d2.fileUUID);
+        ava.is(result[1].fileUUID, d1.fileUUID);
     }
 
     {
@@ -226,5 +226,124 @@ test(`${namespace} - rename - success`, async ava => {
         ava.is(result[0].fileName, f3.fileName);
         ava.is(result[1].fileName, f2.fileName);
         ava.is(result[2].fileName, f1.fileName);
+    }
+});
+
+test(`${namespace} - move - origin and target directory name is same`, async ava => {
+    const { t } = await useTransaction();
+    const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, v4());
+
+    const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, v4());
+    const filesInfo = await cloudStorageInfoSVC.findFilesInfo();
+    await cloudStorageDirectorySVC.move(filesInfo, "/", "/", "a");
+    ava.pass();
+});
+
+test(`${namespace} - move - origin directory does not exist`, async ava => {
+    const { t } = await useTransaction();
+    const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, v4());
+
+    const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, v4());
+    const filesInfo = await cloudStorageInfoSVC.findFilesInfo();
+    await ava.throwsAsync(cloudStorageDirectorySVC.move(filesInfo, "/aa", "/", "a"), {
+        instanceOf: FError,
+        message: `${Status.Failed}: ${ErrorCode.DirectoryNotExists}`,
+    });
+});
+
+test(`${namespace} - move - target file already exists`, async ava => {
+    const { t } = await useTransaction();
+
+    const userUUID = v4();
+    const d1 = await CreateCS.createDirectory(userUUID, "/", "a");
+    const d2 = await CreateCS.createDirectory(userUUID, "/", "b");
+    await CreateCS.createDirectory(userUUID, d1.directoryPath, "b");
+
+    const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, userUUID);
+
+    const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
+    const filesInfo = await cloudStorageInfoSVC.findFilesInfo();
+    await ava.throwsAsync(
+        cloudStorageDirectorySVC.move(filesInfo, "/", d1.directoryPath, d2.directoryName),
+        {
+            instanceOf: FError,
+            message: `${Status.Failed}: ${ErrorCode.DirectoryAlreadyExists}`,
+        },
+    );
+});
+
+test(`${namespace} - move - directory is too long`, async ava => {
+    const { t } = await useTransaction();
+
+    const userUUID = v4();
+    const directoryName = new Array(100).fill("a").join("");
+    const directoryName2 = new Array(90).fill("a").join("");
+    const d1 = await CreateCS.createDirectory(userUUID, "/", directoryName);
+    const d2 = await CreateCS.createDirectory(userUUID, d1.directoryPath, directoryName);
+    const d3 = await CreateCS.createDirectory(userUUID, d2.directoryPath, directoryName2);
+    const d4 = await CreateCS.createDirectory(userUUID, "/", "1");
+    await CreateCS.createDirectory(userUUID, d4.directoryPath, v4());
+
+    const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, userUUID);
+
+    const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
+    const filesInfo = await cloudStorageInfoSVC.findFilesInfo();
+    await ava.throwsAsync(
+        cloudStorageDirectorySVC.move(filesInfo, "/", d3.directoryPath, d4.directoryName),
+        {
+            instanceOf: FError,
+            message: `${Status.Failed}: ${ErrorCode.ParamsCheckFailed}`,
+        },
+    );
+});
+
+test(`${namespace} - move - success execute`, async ava => {
+    const { t } = await useTransaction();
+
+    const userUUID = v4();
+    const [d1, d2] = await CreateCS.createDirectories(userUUID, "/", 2);
+    const d3 = await CreateCS.createDirectory(userUUID, d1.directoryPath, v4());
+    const [f1, f2, f3] = await CreateCS.createFiles(userUUID, d3.directoryPath, 3);
+
+    const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
+    const filesInfo = await cloudStorageInfoSVC.findFilesInfo();
+
+    const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, userUUID);
+    await cloudStorageDirectorySVC.move(filesInfo, "/", d2.directoryPath, d1.directoryName);
+
+    const [l1, l2, l3] = await Promise.all([
+        cloudStorageInfoSVC.list({
+            order: "DESC",
+            page: 1,
+            size: 10,
+            directoryPath: "/",
+        }),
+        cloudStorageInfoSVC.list({
+            order: "DESC",
+            page: 1,
+            size: 10,
+            directoryPath: d2.directoryPath,
+        }),
+        cloudStorageInfoSVC.list({
+            order: "DESC",
+            page: 1,
+            size: 10,
+            directoryPath: `${d2.directoryPath}${d1.directoryName}/${d3.directoryName}/`,
+        }),
+    ]);
+
+    {
+        ava.is(l1.length, 1);
+        ava.is(l1[0].fileUUID, d2.fileUUID);
+    }
+    {
+        ava.is(l2.length, 1);
+        ava.is(l2[0].fileUUID, d1.fileUUID);
+    }
+    {
+        ava.is(l3.length, 3);
+        ava.is(l3[0].fileUUID, f3.fileUUID);
+        ava.is(l3[1].fileUUID, f2.fileUUID);
+        ava.is(l3[2].fileUUID, f1.fileUUID);
     }
 });
