@@ -92,7 +92,7 @@ export class CloudStorageInfoService {
     }
 
     public async findFilesInfo(): Promise<CloudStorageInfoFindFilesInfoReturn> {
-        const result: CloudStorageInfoFindFilesInfoReturn =
+        const result: Array<CloudStorageInfoFindFileInfoReturn> =
             await this.DBTransaction.createQueryBuilder(CloudStorageFilesModel, "f")
                 .select("f.file_uuid", "fileUUID")
                 .addSelect("f.directory_path", "directoryPath")
@@ -106,18 +106,17 @@ export class CloudStorageInfoService {
                 .andWhere("uf.is_delete = :isDelete", { isDelete: false })
                 .getRawMany();
 
-        const r = result.map(
-            ({ fileUUID, directoryPath, fileName, fileSize, fileURL, resourceType }) => {
-                return {
-                    fileUUID,
-                    directoryPath,
-                    fileName,
-                    fileSize,
-                    fileURL,
-                    resourceType,
-                };
-            },
-        );
+        const r: CloudStorageInfoFindFilesInfoReturn = new Map();
+
+        result.forEach(({ fileUUID, directoryPath, fileName, fileSize, fileURL, resourceType }) => {
+            r.set(fileUUID, {
+                directoryPath,
+                fileName,
+                fileSize,
+                fileURL,
+                resourceType,
+            });
+        });
 
         return r;
     }

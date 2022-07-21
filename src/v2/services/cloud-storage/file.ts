@@ -1,9 +1,9 @@
 import { createLoggerService } from "../../../logger";
 import { EntityManager, In } from "typeorm";
 import { cloudStorageFilesDAO } from "../../dao";
-import { FilesInfoBasic } from "./directory.type";
 import { FError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
+import { FilesInfo } from "./info.type";
 
 export class CloudStorageFileService {
     private readonly logger = createLoggerService<"cloudStorageFile">({
@@ -19,36 +19,36 @@ export class CloudStorageFileService {
     ) {}
 
     public async move(
-        filesInfo: FilesInfoBasic[],
+        files: FilesInfo,
         originDirectoryPath: string,
         targetDirectoryPath: string,
-        filesUUID: string[],
     ): Promise<void> {
         if (originDirectoryPath === targetDirectoryPath) {
             return;
         }
 
-        for (const item of filesInfo) {
-            if (`${targetDirectoryPath}${item.fileName}`.length > 300) {
+        files.forEach(({ fileName }, fileUUID) => {
+            if (`${targetDirectoryPath}${fileName}`.length > 300) {
                 this.logger.info("file path too long", {
                     cloudStorageFile: {
-                        fileUUID: item.fileUUID,
-                        fileName: item.fileName,
+                        fileUUID,
+                        fileName,
                         originDirectoryPath,
                         targetDirectoryPath,
                     },
                 });
                 throw new FError(ErrorCode.ParamsCheckFailed);
             }
-        }
+        });
 
+        const uuids = Array.from(files.keys());
         await cloudStorageFilesDAO.update(
             this.DBTransaction,
             {
                 directory_path: targetDirectoryPath,
             },
             {
-                file_uuid: In(filesUUID),
+                file_uuid: In(uuids),
                 directory_path: originDirectoryPath,
             },
         );
@@ -57,7 +57,7 @@ export class CloudStorageFileService {
             cloudStorageFile: {
                 originDirectoryPath,
                 targetDirectoryPath,
-                filesUUID: filesUUID.join(", "),
+                filesUUID: uuids.join(", "),
             },
         });
     }

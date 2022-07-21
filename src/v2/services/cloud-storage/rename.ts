@@ -2,9 +2,9 @@ import { createLoggerService } from "../../../logger";
 import { EntityManager } from "typeorm";
 import { CloudStorageInfoService } from "./info";
 import { FileResourceType } from "../../../model/cloudStorage/Constants";
-import { CloudStorageDirectoryService } from "./directory";
 import { ErrorCode } from "../../../ErrorCode";
 import { FError } from "../../../error/ControllerError";
+import { CloudStorageDirectoryService } from "./directory";
 
 export class CloudStorageRenameService {
     private readonly logger = createLoggerService<"cloudStorageRename">({
@@ -25,21 +25,28 @@ export class CloudStorageRenameService {
             this.userUUID,
         );
 
-        const fileInfo = await cloudStorageInfoSvc.findFileInfo(fileUUID);
+        const filesInfo = await cloudStorageInfoSvc.findFilesInfo();
 
-        if (!fileInfo) {
+        if (filesInfo.size === 0) {
+            this.logger.info("cloud storage is empty");
+            throw new FError(ErrorCode.FileNotFound);
+        }
+
+        const fileInfo = filesInfo.get(fileUUID);
+
+        if (fileInfo === undefined) {
             this.logger.info("file not found");
             throw new FError(ErrorCode.FileNotFound);
         }
 
         if (fileInfo.resourceType === FileResourceType.Directory) {
-            this.logger.debug("fileUUID is directory");
             await new CloudStorageDirectoryService(
                 this.reqID,
                 this.DBTransaction,
                 this.userUUID,
-            ).rename(fileInfo.directoryPath, fileInfo.fileName, newName);
+            ).rename(filesInfo, fileUUID, newName);
         }
+
         // TODO: implement rename for file
     }
 }

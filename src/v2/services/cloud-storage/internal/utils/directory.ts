@@ -1,8 +1,8 @@
 import path from "path";
 import { FError } from "../../../../../error/ControllerError";
 import { ErrorCode } from "../../../../../ErrorCode";
-import { FilesInfoBasic } from "../../directory.type";
 import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
+import { FilesInfo } from "../../info.type";
 
 export const splitPath = (p: string): SplitPath => {
     if (!p.startsWith("/")) {
@@ -26,110 +26,64 @@ export const splitPath = (p: string): SplitPath => {
     };
 };
 
-export const pathPrefixMatch = (
-    filesInfo: FilesInfoBasic[],
-    directoryPath: string,
-): FilesInfoBasic[] => {
-    return filesInfo.filter(fileInfo => {
-        return fileInfo.directoryPath.startsWith(directoryPath);
+export const pathPrefixMatch = (filesInfo: FilesInfo, directoryPath: string): FilesInfo => {
+    const result: FilesInfo = new Map();
+    filesInfo.forEach((fileInfo, fileUUID) => {
+        if (fileInfo.directoryPath.startsWith(directoryPath)) {
+            result.set(fileUUID, fileInfo);
+        }
     });
+
+    return result;
 };
 
 export const calculateDirectoryMaxDeep = (
-    filesInfo: FilesInfoBasic[],
-    directoryPath: string,
-    directoryName: string,
+    filesInfo: FilesInfo,
+    fullDirectoryPath: string,
 ): number => {
-    // not subDirectory
-    if (filesInfo.length === 0) {
-        // aaa => aaa/
-        return directoryName.length + 1;
+    if (filesInfo.size === 0) {
+        return 0;
     }
 
-    /**
-     * directoryPath: /a/
-     * directoryName: b
-     * fullDirectoryPath: /a/b/c/d/e/
-     * directory_path: /a/b/c/d/
-     * file_name: e
-     * maxLength: (directory_path + file_name) = /a/b/c/d/e
-     * maxLength.length - directoryPath.length = /a/b/c/d/e - /a/ = b/c/d/e
-     */
-    return (
-        filesInfo.reduce((acc, item) => {
-            let deep = (item.directoryPath + item.fileName).length;
-            // if is directory, suffix is /. So we need to add 1: ('b/c/d/e' + '/').length
-            if (item.resourceType === FileResourceType.Directory) {
-                deep += 1;
-            }
+    let maxLength = 0;
+    filesInfo.forEach(fileInfo => {
+        maxLength = Math.max(maxLength, fileInfo.directoryPath.length);
+    });
 
-            return Math.max(acc, deep);
-        }, 0) - directoryPath.length
-    );
+    return maxLength - fullDirectoryPath.length;
 };
 
-export const filesSeparator = (
-    filesInfo: FilesInfoBasic[],
-    directoryPath: string,
-    directoryName: string,
-): FilesSeparatorReturn => {
-    let currentDirectoryUUID = "";
-    const subFilesAndDirUUID: string[] = [];
+export const clearUUIDs = (filesInfo: FilesInfo, uuids: string[]): ClearUUIDs => {
+    let originDirectoryPath = "";
+    const files: FilesInfo = new Map();
+    const dirs: FilesInfo = new Map();
 
-    for (const item of filesInfo) {
-        if (
-            item.directoryPath === directoryPath &&
-            item.fileName === directoryName &&
-            item.resourceType === FileResourceType.Directory
-        ) {
-            currentDirectoryUUID = item.fileUUID;
-        } else if (item.directoryPath.startsWith(`${directoryPath}${directoryName}/`)) {
-            subFilesAndDirUUID.push(item.fileUUID);
+    for (const uuid of uuids) {
+        const fileInfo = filesInfo.get(uuid);
+        if (fileInfo === undefined) {
+            throw new FError(ErrorCode.ParamsCheckFailed);
+        }
+
+        if (originDirectoryPath === "") {
+            originDirectoryPath = fileInfo.directoryPath;
+        }
+
+        if (originDirectoryPath !== fileInfo.directoryPath) {
+            throw new FError(ErrorCode.ParamsCheckFailed);
+        }
+
+        if (fileInfo.resourceType === FileResourceType.Directory) {
+            dirs.set(uuid, fileInfo);
+        } else {
+            files.set(uuid, fileInfo);
         }
     }
 
     return {
-        currentDirectoryUUID,
-        subFilesAndDirUUID,
+        dirs,
+        files,
+        originDirectoryPath,
     };
-};
-
-export const aggregationsFilesInfo = (
-    filesInfo: FilesInfoBasic[],
-    uuids: string[],
-): AggregationsFilesInfo => {
-    const data: AggregationsFilesInfo = {};
-
-    const filesInfoUUID = new Set(filesInfo.map(item => item.fileUUID));
-
-    for (const uuid of uuids) {
-        if (!filesInfoUUID.has(uuid)) {
-            throw new FError(ErrorCode.ParamsCheckFailed);
-        }
-
-        for (const fileInfo of filesInfo) {
-            if (fileInfo.fileUUID === uuid) {
-                if (data[fileInfo.directoryPath] === undefined) {
-                    data[fileInfo.directoryPath] = {
-                        dir: [],
-                        files: [],
-                    };
-                }
-
-                if (fileInfo.resourceType === FileResourceType.Directory) {
-                    if (!data[fileInfo.directoryPath].dir.includes(fileInfo.fileName)) {
-                        data[fileInfo.directoryPath].dir.push(fileInfo.fileName);
-                    }
-                } else {
-                    if (!data[fileInfo.directoryPath].files.includes(fileInfo.fileUUID)) {
-                        data[fileInfo.directoryPath].files.push(fileInfo.fileUUID);
-                    }
-                }
-            }
-        }
-    }
-
-    return data;
 };
 
 interface SplitPath {
@@ -137,15 +91,8 @@ interface SplitPath {
     directoryName: string;
 }
 
-interface FilesSeparatorReturn {
-    currentDirectoryUUID: string;
-    subFilesAndDirUUID: string[];
-}
-
-type AggregationsFilesInfo = Record<
-    string,
-    {
-        dir: string[];
-        files: string[];
-    }
->;
+type ClearUUIDs = {
+    dirs: FilesInfo;
+    files: FilesInfo;
+    originDirectoryPath: string;
+};

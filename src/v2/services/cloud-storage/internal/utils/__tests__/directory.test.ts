@@ -1,17 +1,11 @@
 import test from "ava";
-import {
-    aggregationsFilesInfo,
-    calculateDirectoryMaxDeep,
-    filesSeparator,
-    pathPrefixMatch,
-    splitPath,
-} from "../directory";
+import { calculateDirectoryMaxDeep, clearUUIDs, pathPrefixMatch, splitPath } from "../directory";
 import { FError } from "../../../../../../error/ControllerError";
 import { Status } from "../../../../../../constants/Project";
 import { ErrorCode } from "../../../../../../ErrorCode";
 import { FileResourceType } from "../../../../../../model/cloudStorage/Constants";
-import { FilesInfoBasic } from "../../../directory.type";
 import { v4 } from "uuid";
+import { FilesInfo } from "../../../info.type";
 
 const namespace = "services.cloud-storage.utils.directory";
 
@@ -44,175 +38,123 @@ test(`${namespace} - splitPath`, ava => {
 });
 
 test(`${namespace} - pathPrefixMatch`, ava => {
-    const filesInfo: FilesInfoBasic[] = [
-        {
-            directoryPath: "/a/b/c/",
-            fileName: "d",
-            resourceType: FileResourceType.Directory,
-            fileUUID: v4(),
-        },
-        {
-            directoryPath: "/a/b/c/",
-            fileName: "e",
-            resourceType: FileResourceType.WhiteboardProjector,
-            fileUUID: v4(),
-        },
-        {
-            directoryPath: "/x/b/c/",
-            fileName: "f",
-            resourceType: FileResourceType.LocalCourseware,
-            fileUUID: v4(),
-        },
-    ];
+    const [u1, u2, u3] = [v4(), v4(), v4()];
+    const filesInfo: FilesInfo = new Map();
+    filesInfo.set(u1, {
+        directoryPath: "/a/b/c/",
+        fileName: "d",
+        resourceType: FileResourceType.Directory,
+        fileURL: v4(),
+        fileSize: 0,
+    });
+    filesInfo.set(u2, {
+        directoryPath: "/a/b/c/",
+        fileName: "e",
+        resourceType: FileResourceType.WhiteboardProjector,
+        fileURL: v4(),
+        fileSize: 0,
+    });
+    filesInfo.set(u3, {
+        directoryPath: "/x/b/c/",
+        fileName: "f",
+        resourceType: FileResourceType.LocalCourseware,
+        fileURL: v4(),
+        fileSize: 0,
+    });
     const result = pathPrefixMatch(filesInfo, "/a/");
 
-    ava.deepEqual(result, result.slice(0, 2));
+    ava.is(result.size, 2);
+
+    ava.is(result.get(u1)!.fileName, "d");
+    ava.is(result.get(u2)!.fileName, "e");
 });
 
 test(`${namespace} - calculateDirectoryMaxDeep`, ava => {
-    const result = calculateDirectoryMaxDeep(
-        [
-            {
-                directoryPath: "/a/b/c/",
-                fileName: "a",
-                resourceType: FileResourceType.Directory,
-                fileUUID: v4(),
-            },
-            {
-                directoryPath: "/a/b/c/",
-                fileName: "xx",
-                resourceType: FileResourceType.Directory,
-                fileUUID: v4(),
-            },
-            {
-                directoryPath: "/a/b/c/",
-                fileName: "yy",
-                resourceType: FileResourceType.WhiteboardConvert,
-                fileUUID: v4(),
-            },
-        ],
-        "/",
-        "a",
-    );
+    const filesInfo: FilesInfo = new Map();
+    filesInfo.set(v4(), {
+        directoryPath: "/a/b/c/d",
+        fileName: "a",
+        resourceType: FileResourceType.Directory,
+        fileSize: 0,
+        fileURL: v4(),
+    });
+    filesInfo.set(v4(), {
+        directoryPath: "/a/b/c/d/e",
+        fileName: "xx",
+        resourceType: FileResourceType.Directory,
+        fileSize: 0,
+        fileURL: v4(),
+    });
+    filesInfo.set(v4(), {
+        directoryPath: "/a/b/c/d/e/f/",
+        fileName: "yy",
+        resourceType: FileResourceType.WhiteboardConvert,
+        fileSize: 0,
+        fileURL: v4(),
+    });
+    const result = calculateDirectoryMaxDeep(filesInfo, "/a/");
 
-    ava.is(result, "a/b/c/xx/".length);
+    ava.is(result, "b/c/d/e/f/".length);
 });
 
 test(`${namespace} - calculateDirectoryMaxDeep - filesInfo is empty array`, ava => {
-    const result = calculateDirectoryMaxDeep([], "/", "a");
+    const result = calculateDirectoryMaxDeep(new Map(), "/a/");
 
-    ava.is(result, "a/".length);
+    ava.is(result, 0);
 });
 
-test(`${namespace} - filesSeparator`, ava => {
-    const filesInfo: FilesInfoBasic[] = [
-        {
-            directoryPath: "/",
-            resourceType: FileResourceType.Directory,
-            fileName: "a",
-            fileUUID: v4(),
-        },
-        {
-            directoryPath: "/a/",
-            resourceType: FileResourceType.OnlineCourseware,
-            fileName: "b",
-            fileUUID: v4(),
-        },
-    ];
-    const result = filesSeparator(filesInfo, "/", "a");
-
-    ava.is(result.currentDirectoryUUID, filesInfo[0].fileUUID);
-    ava.deepEqual(result.subFilesAndDirUUID, [filesInfo[1].fileUUID]);
-});
-
-test(`${namespace} - aggregationsFilesInfo`, ava => {
-    const filesInfo: FilesInfoBasic[] = [
-        {
-            directoryPath: "/",
-            resourceType: FileResourceType.WhiteboardProjector,
-            fileUUID: v4(),
-            fileName: v4(),
-        },
-        {
-            directoryPath: "/",
-            resourceType: FileResourceType.WhiteboardProjector,
-            fileUUID: v4(),
-            fileName: v4(),
-        },
-        {
-            directoryPath: "/",
-            resourceType: FileResourceType.Directory,
-            fileUUID: v4(),
-            fileName: v4(),
-        },
-        {
-            directoryPath: "/a/",
-            resourceType: FileResourceType.Directory,
-            fileUUID: v4(),
-            fileName: v4(),
-        },
-    ];
-
-    const result = aggregationsFilesInfo(
-        filesInfo,
-        filesInfo.map(item => item.fileUUID),
-    );
-    ava.deepEqual(result, {
-        "/": {
-            files: [filesInfo[0].fileUUID, filesInfo[1].fileUUID],
-            dir: [filesInfo[2].fileName],
-        },
-        "/a/": {
-            files: [],
-            dir: [filesInfo[3].fileName],
-        },
-    });
-});
-
-test(`${namespace} - aggregationsFilesInfo - has same fileUUID`, ava => {
-    const filesInfo: FilesInfoBasic[] = [
-        {
-            directoryPath: "/",
-            resourceType: FileResourceType.WhiteboardProjector,
-            fileUUID: v4(),
-            fileName: v4(),
-        },
-        {
-            directoryPath: "/",
-            resourceType: FileResourceType.NormalResources,
-            fileUUID: v4(),
-            fileName: v4(),
-        },
-    ];
-
-    const result = aggregationsFilesInfo(filesInfo, [filesInfo[0].fileUUID, filesInfo[0].fileUUID]);
-
-    ava.deepEqual(result, {
-        "/": {
-            dir: [],
-            files: [filesInfo[0].fileUUID],
-        },
-    });
-});
-
-test(`${namespace} - aggregationsFilesInfo - fileUUID not found`, ava => {
-    const filesInfo: FilesInfoBasic[] = [
-        {
-            directoryPath: "/",
-            resourceType: FileResourceType.WhiteboardProjector,
-            fileUUID: v4(),
-            fileName: v4(),
-        },
-        {
-            directoryPath: "/",
-            resourceType: FileResourceType.NormalResources,
-            fileUUID: v4(),
-            fileName: v4(),
-        },
-    ];
-
-    ava.throws(() => aggregationsFilesInfo(filesInfo, [filesInfo[0].fileUUID, v4()]), {
+test(`${namespace} - clearUUIDs - not found info in filesInfo`, ava => {
+    ava.throws(() => clearUUIDs(new Map(), [v4()]), {
         instanceOf: FError,
         message: `${Status.Failed}: ${ErrorCode.ParamsCheckFailed}`,
     });
+});
+
+test(`${namespace} - clearUUIDs - directoryPath not same`, ava => {
+    const [u1, u2] = [v4(), v4()];
+    const filesInfo: FilesInfo = new Map();
+    filesInfo.set(u1, {
+        directoryPath: "/",
+        resourceType: FileResourceType.Directory,
+        fileURL: v4(),
+        fileSize: 0,
+        fileName: v4(),
+    });
+    filesInfo.set(u2, {
+        directoryPath: "/a/",
+        resourceType: FileResourceType.Directory,
+        fileURL: v4(),
+        fileSize: 0,
+        fileName: v4(),
+    });
+
+    ava.throws(() => clearUUIDs(filesInfo, [u1, u2]), {
+        instanceOf: FError,
+        message: `${Status.Failed}: ${ErrorCode.ParamsCheckFailed}`,
+    });
+});
+
+test(`${namespace} - clearUUIDs`, ava => {
+    const [u1, u2] = [v4(), v4()];
+    const filesInfo: FilesInfo = new Map();
+    filesInfo.set(u1, {
+        directoryPath: "/",
+        resourceType: FileResourceType.Directory,
+        fileURL: v4(),
+        fileSize: 0,
+        fileName: v4(),
+    });
+    filesInfo.set(u2, {
+        directoryPath: "/",
+        resourceType: FileResourceType.NormalResources,
+        fileURL: v4(),
+        fileSize: 0,
+        fileName: v4(),
+    });
+
+    const { dirs, files, originDirectoryPath } = clearUUIDs(filesInfo, [u1, u2]);
+
+    ava.is(dirs.size, 1);
+    ava.is(files.size, 1);
+    ava.is(originDirectoryPath, "/");
 });
