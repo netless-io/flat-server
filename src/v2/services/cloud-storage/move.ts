@@ -6,7 +6,7 @@ import { ErrorCode } from "../../../ErrorCode";
 import { FError } from "../../../error/ControllerError";
 import { CloudStorageMoveConfig } from "./move.type";
 import { CloudStorageFileService } from "./file";
-import { aggregationsFilesInfo } from "./internal/utils/directory";
+import { clearUUIDs } from "./internal/utils/directory";
 
 export class CloudStorageMoveService {
     private readonly logger = createLoggerService<"cloudStorageMove">({
@@ -29,8 +29,6 @@ export class CloudStorageMoveService {
 
         const filesInfo = await cloudStorageInfoSVC.findFilesInfo();
 
-        const data = aggregationsFilesInfo(filesInfo, config.uuids);
-
         const cloudStorageDirectorySVC = new CloudStorageDirectoryService(
             this.reqID,
             this.DBTransaction,
@@ -45,6 +43,12 @@ export class CloudStorageMoveService {
             throw new FError(ErrorCode.DirectoryNotExists);
         }
 
+        const { files, dirs, originDirectoryPath } = clearUUIDs(filesInfo, config.uuids);
+
+        if (originDirectoryPath === config.targetDirectoryPath) {
+            return;
+        }
+
         const cloudStorageFileSVC = new CloudStorageFileService(
             this.reqID,
             this.DBTransaction,
@@ -52,21 +56,16 @@ export class CloudStorageMoveService {
         );
 
         const command: Array<Promise<any>> = [];
-        for (const item in data) {
-            const { dir, files } = data[item];
 
-            if (files.length > 0) {
-                command.push(
-                    cloudStorageFileSVC.move(filesInfo, item, config.targetDirectoryPath, files),
-                );
-            }
+        command.push(
+            cloudStorageFileSVC.move(files, originDirectoryPath, config.targetDirectoryPath),
+        );
 
-            for (const d of dir) {
-                command.push(
-                    cloudStorageDirectorySVC.move(filesInfo, item, config.targetDirectoryPath, d),
-                );
-            }
-        }
+        dirs.forEach((_dir, directoryUUID) => {
+            command.push(
+                cloudStorageDirectorySVC.move(filesInfo, config.targetDirectoryPath, directoryUUID),
+            );
+        });
 
         await Promise.all(command);
     }

@@ -7,14 +7,8 @@ import { ErrorCode } from "../../../ErrorCode";
 import { v4 } from "uuid";
 import { cloudStorageFilesDAO, cloudStorageUserFilesDAO } from "../../dao";
 import { FileResourceType } from "../../../model/cloudStorage/Constants";
-import {
-    calculateDirectoryMaxDeep,
-    filesSeparator,
-    pathPrefixMatch,
-    splitPath,
-} from "./internal/utils/directory";
-import { CloudStorageInfoService } from "./info";
-import { FilesInfoBasic } from "./directory.type";
+import { calculateDirectoryMaxDeep, pathPrefixMatch, splitPath } from "./internal/utils/directory";
+import { FilesInfo } from "./info.type";
 
 export class CloudStorageDirectoryService {
     private readonly logger = createLoggerService<"cloudStorageDirectory">({
@@ -112,27 +106,25 @@ export class CloudStorageDirectoryService {
      * @param {string} newDirectoryName - new directory name (e.g. new_dir)
      */
     public async rename(
-        parentDirectoryPath: string,
-        oldDirectoryName: string,
+        filesInfo: FilesInfo,
+        directoryUUID: string,
         newDirectoryName: string,
     ): Promise<void> {
-        if (oldDirectoryName === newDirectoryName) {
+        const directoryInfo = filesInfo.get(directoryUUID)!;
+
+        if (directoryInfo.fileName === newDirectoryName) {
             this.logger.debug("directory name is same");
             return;
         }
 
-        const fullNewDirectoryPath = `${parentDirectoryPath}${newDirectoryName}/`;
-        if (fullNewDirectoryPath.length > 300) {
+        const fullOldDirectoryPath = `${directoryInfo.directoryPath}${directoryInfo.fileName}/`;
+        const fullNewDirectoryPath = `${directoryInfo.directoryPath}${newDirectoryName}/`;
+        const subAndDir = pathPrefixMatch(filesInfo, fullOldDirectoryPath);
+        const maxLength = calculateDirectoryMaxDeep(subAndDir, fullOldDirectoryPath);
+
+        if (fullNewDirectoryPath.length + maxLength > 300) {
             this.logger.debug("directory is too long");
             throw new FError(ErrorCode.ParamsCheckFailed);
-        }
-
-        const fullOldDirectoryPath = `${parentDirectoryPath}${oldDirectoryName}/`;
-
-        const hasOldDirectory = await this.exists(fullOldDirectoryPath);
-        if (!hasOldDirectory) {
-            this.logger.debug("directory does not exist");
-            throw new FError(ErrorCode.DirectoryNotExists);
         }
 
         const hasNewDirectory = await this.exists(fullNewDirectoryPath);
@@ -140,19 +132,6 @@ export class CloudStorageDirectoryService {
             this.logger.debug("directory already exists");
             throw new FError(ErrorCode.DirectoryAlreadyExists);
         }
-
-        const cloudStorageInfoSVC = new CloudStorageInfoService(
-            this.reqID,
-            this.DBTransaction,
-            this.userUUID,
-        );
-        const filesInfo = await cloudStorageInfoSVC.findFilesInfo();
-
-        const { currentDirectoryUUID, subFilesAndDirUUID } = filesSeparator(
-            filesInfo,
-            parentDirectoryPath,
-            oldDirectoryName,
-        );
 
         await Promise.all([
             cloudStorageFilesDAO.update(
@@ -162,7 +141,7 @@ export class CloudStorageDirectoryService {
                         `REGEXP_REPLACE(directory_path, '^${fullOldDirectoryPath}', '${fullNewDirectoryPath}')`,
                 },
                 {
-                    file_uuid: In(subFilesAndDirUUID),
+                    file_uuid: In(Array.from(subAndDir.keys())),
                 },
             ),
             cloudStorageFilesDAO.update(
@@ -171,7 +150,7 @@ export class CloudStorageDirectoryService {
                     file_name: newDirectoryName,
                 },
                 {
-                    file_uuid: currentDirectoryUUID,
+                    file_uuid: directoryUUID,
                 },
             ),
         ]);
@@ -186,47 +165,33 @@ export class CloudStorageDirectoryService {
      * @param {string} directoryName - directory name (e.g. dir)
      */
     public async move(
-        filesInfo: FilesInfoBasic[],
-        originDirectoryPath: string,
+        filesInfo: FilesInfo,
         targetDirectoryPath: string,
-        directoryName: string,
+        directoryUUID: string,
     ): Promise<void> {
-        if (originDirectoryPath === targetDirectoryPath) {
-            return;
-        }
-        const fullOriginDirectoryPath = `${originDirectoryPath}${directoryName}/`;
+        const directoryInfo = filesInfo.get(directoryUUID)!;
+        const directoryName = directoryInfo.fileName;
+        const parentDirectoryPath = directoryInfo.directoryPath;
+
+        const fullOriginDirectoryPath = `${parentDirectoryPath}${directoryName}/`;
         const fullTargetDirectoryPath = `${targetDirectoryPath}${directoryName}/`;
 
-        const [e1, e2] = await Promise.all([
-            this.exists(fullOriginDirectoryPath),
-            this.exists(fullTargetDirectoryPath),
-        ]);
-
-        if (!e1) {
-            this.logger.debug("origin directory does not exist");
-            throw new FError(ErrorCode.DirectoryNotExists);
-        }
-        if (e2) {
+        if (await this.exists(fullTargetDirectoryPath)) {
             this.logger.debug("target file already exists");
             throw new FError(ErrorCode.DirectoryAlreadyExists);
         }
 
+        const subFilesAndDir = pathPrefixMatch(filesInfo, fullOriginDirectoryPath);
+
         const originDirectoryDeep = calculateDirectoryMaxDeep(
-            pathPrefixMatch(filesInfo, fullOriginDirectoryPath),
-            originDirectoryPath,
-            directoryName,
+            subFilesAndDir,
+            fullOriginDirectoryPath,
         );
 
-        if (originDirectoryDeep + targetDirectoryPath.length >= 300) {
+        if (originDirectoryDeep + fullTargetDirectoryPath.length > 300) {
             this.logger.debug("directory is too long");
             throw new FError(ErrorCode.ParamsCheckFailed);
         }
-
-        const { currentDirectoryUUID, subFilesAndDirUUID } = filesSeparator(
-            filesInfo,
-            originDirectoryPath,
-            directoryName,
-        );
 
         await Promise.all([
             cloudStorageFilesDAO.update(
@@ -236,7 +201,7 @@ export class CloudStorageDirectoryService {
                         `REGEXP_REPLACE(directory_path, '^${fullOriginDirectoryPath}', '${fullTargetDirectoryPath}')`,
                 },
                 {
-                    file_uuid: In(subFilesAndDirUUID),
+                    file_uuid: In(Array.from(subFilesAndDir.keys())),
                 },
             ),
             cloudStorageFilesDAO.update(
@@ -245,9 +210,11 @@ export class CloudStorageDirectoryService {
                     directory_path: targetDirectoryPath,
                 },
                 {
-                    file_uuid: currentDirectoryUUID,
+                    file_uuid: directoryUUID,
                 },
             ),
         ]);
     }
+
+    // public async delete(filesInfo: FilesInfoBasic[], uuids: string[]): Promise<void> {}
 }

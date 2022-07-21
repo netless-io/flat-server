@@ -13,10 +13,24 @@ const namespace = "service.cloud-storage.rename";
 
 initializeDataSource(test, namespace);
 
-test(`${namespace} - rename - not found`, async ava => {
+test(`${namespace} - rename - cloud storage is empty`, async ava => {
     const { t } = await useTransaction();
 
     const cloudStorageRenameSVC = new CloudStorageRenameService(v4(), t, v4());
+
+    await ava.throwsAsync(() => cloudStorageRenameSVC.rename(v4(), v4()), {
+        instanceOf: FError,
+        message: `${Status.Failed}: ${ErrorCode.FileNotFound}`,
+    });
+});
+
+test(`${namespace} - rename - not found file`, async ava => {
+    const { t } = await useTransaction();
+
+    const userUUID = v4();
+    await CreateCS.createDirectory(userUUID, "/");
+
+    const cloudStorageRenameSVC = new CloudStorageRenameService(v4(), t, userUUID);
 
     await ava.throwsAsync(() => cloudStorageRenameSVC.rename(v4(), v4()), {
         instanceOf: FError,

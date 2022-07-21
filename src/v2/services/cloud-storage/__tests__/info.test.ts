@@ -1,11 +1,7 @@
 import test from "ava";
 import { CreateCloudStorageConfigs } from "../../../__tests__/helpers/db/cloud-storage-configs";
 import { CloudStorageInfoService } from "../info";
-import {
-    findFilesInfoSchema,
-    listFilesAndTotalUsageByUserUUIDSchema,
-    listSchema,
-} from "../info.schema";
+import { listFilesAndTotalUsageByUserUUIDSchema, listSchema } from "../info.schema";
 import { Schema } from "../../../__tests__/helpers/schema";
 import { v4 } from "uuid";
 import { initializeDataSource } from "../../../__tests__/helpers/db/test-hooks";
@@ -159,8 +155,7 @@ test(`${namespace} - findFilesInfo - empty data`, async ava => {
     const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, v4());
     const result = await cloudStorageInfoSVC.findFilesInfo();
 
-    ava.is(Schema.check(findFilesInfoSchema, result), null);
-    ava.is(result.length, 0);
+    ava.is(result.size, 0);
 });
 
 test(`${namespace} - findFilesInfo - success`, async ava => {
@@ -172,10 +167,13 @@ test(`${namespace} - findFilesInfo - success`, async ava => {
     const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
     const result = await cloudStorageInfoSVC.findFilesInfo();
 
-    ava.is(Schema.check(findFilesInfoSchema, result), null);
-    ava.is(result.length, 2);
-    ava.deepEqual(result[0].fileUUID, f1.fileUUID);
-    ava.deepEqual(result[1].fileUUID, f2.fileUUID);
+    ava.is(result.size, 2);
+    const fileUUIs = [f1.fileUUID, f2.fileUUID];
+    result.forEach((_item, fileUUID) => {
+        if (!fileUUIs.includes(fileUUID)) {
+            ava.fail();
+        }
+    });
 });
 
 test(`${namespace} - findFileInfo - not found`, async ava => {
