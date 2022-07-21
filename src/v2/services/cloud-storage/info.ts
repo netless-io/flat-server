@@ -76,7 +76,6 @@ export class CloudStorageInfoService {
             },
         );
 
-        this.logger.debug(`list result: ${JSON.stringify(r, null, 2)}`);
         return r;
     }
 
@@ -119,37 +118,5 @@ export class CloudStorageInfoService {
         });
 
         return r;
-    }
-
-    public async findFileInfo(
-        fileUUID: string,
-    ): Promise<CloudStorageInfoFindFileInfoReturn | null> {
-        const result: CloudStorageInfoFindFileInfoReturn | null | undefined =
-            await this.DBTransaction.createQueryBuilder(CloudStorageFilesModel, "f")
-                .select("f.file_uuid", "fileUUID")
-                .addSelect("f.directory_path", "directoryPath")
-                .addSelect("f.file_name", "fileName")
-                .addSelect("f.file_size", "fileSize")
-                .addSelect("f.file_url", "fileURL")
-                .addSelect("f.resource_type", "resourceType")
-                .innerJoin(CloudStorageUserFilesModel, "uf", "uf.file_uuid = f.file_uuid")
-                .where("uf.user_uuid = :userUUID", { userUUID: this.userUUID })
-                .andWhere("f.file_uuid = :fileUUID", { fileUUID })
-                .andWhere("f.is_delete = :isDelete", { isDelete: false })
-                .andWhere("uf.is_delete = :isDelete", { isDelete: false })
-                .getRawOne();
-
-        if (!result) {
-            return null;
-        }
-
-        return {
-            fileUUID: result.fileUUID,
-            directoryPath: result.directoryPath,
-            fileName: result.fileName,
-            fileSize: result.fileSize,
-            fileURL: result.fileURL,
-            resourceType: result.resourceType,
-        };
     }
 }

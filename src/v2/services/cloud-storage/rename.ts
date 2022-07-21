@@ -40,6 +40,7 @@ export class CloudStorageRenameService {
         }
 
         if (fileInfo.resourceType === FileResourceType.Directory) {
+            this.logger.debug("file is directory");
             await new CloudStorageDirectoryService(
                 this.reqID,
                 this.DBTransaction,

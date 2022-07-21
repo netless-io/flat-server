@@ -215,6 +215,4 @@ export class CloudStorageDirectoryService {
             ),
         ]);
     }
-
-    // public async delete(filesInfo: FilesInfoBasic[], uuids: string[]): Promise<void> {}
 }

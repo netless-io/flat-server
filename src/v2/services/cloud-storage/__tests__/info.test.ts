@@ -175,25 +175,3 @@ test(`${namespace} - findFilesInfo - success`, async ava => {
         }
     });
 });
-
-test(`${namespace} - findFileInfo - not found`, async ava => {
-    const { t } = await useTransaction();
-
-    const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, v4());
-    const result = await cloudStorageInfoSVC.findFileInfo(v4());
-
-    ava.is(result, null);
-});
-
-test(`${namespace} - findFileInfo - found file`, async ava => {
-    const { t } = await useTransaction();
-
-    const userUUID = v4();
-    const f1 = await CreateCS.createFile(userUUID);
-
-    const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
-    const result = await cloudStorageInfoSVC.findFileInfo(f1.fileUUID);
-
-    ava.is(result!.fileName, f1.fileName);
-    ava.is(result!.fileUUID, f1.fileUUID);
-});

@@ -23,10 +23,6 @@ export class CloudStorageFileService {
         originDirectoryPath: string,
         targetDirectoryPath: string,
     ): Promise<void> {
-        if (originDirectoryPath === targetDirectoryPath) {
-            return;
-        }
-
         files.forEach(({ fileName }, fileUUID) => {
             if (`${targetDirectoryPath}${fileName}`.length > 300) {
                 this.logger.info("file path too long", {

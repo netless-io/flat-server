@@ -81,11 +81,3 @@ test(`${namespace} - move - file path too long`, async ava => {
         message: `${Status.Failed}: ${ErrorCode.ParamsCheckFailed}`,
     });
 });
-
-test(`${namespace} - move - path is same`, async ava => {
-    const { t } = await useTransaction();
-    const cloudStorageFileSVC = new CloudStorageFileService(v4(), t, v4());
-
-    await cloudStorageFileSVC.move(new Map(), "/", "/");
-    ava.pass();
-});
