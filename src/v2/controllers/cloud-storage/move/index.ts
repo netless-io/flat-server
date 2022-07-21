@@ -12,6 +12,9 @@ export const cloudStorageMoveSchema = {
             Type.String({
                 format: "uuid-v4",
             }),
+            {
+                minItems: 1,
+            },
         ),
     }),
 };
