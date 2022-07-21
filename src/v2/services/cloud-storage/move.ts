@@ -46,6 +46,7 @@ export class CloudStorageMoveService {
         const { files, dirs, originDirectoryPath } = clearUUIDs(filesInfo, config.uuids);
 
         if (originDirectoryPath === config.targetDirectoryPath) {
+            this.logger.debug("origin and target directory are the same");
             return;
         }
 
