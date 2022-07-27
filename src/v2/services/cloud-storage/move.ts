@@ -64,7 +64,7 @@ export class CloudStorageMoveService {
 
         dirs.forEach((_dir, directoryUUID) => {
             command.push(
-                cloudStorageDirectorySVC.move(filesInfo, config.targetDirectoryPath, directoryUUID),
+                cloudStorageDirectorySVC.move(filesInfo, directoryUUID, config.targetDirectoryPath),
             );
         });
 

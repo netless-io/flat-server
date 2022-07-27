@@ -285,7 +285,7 @@ test(`${namespace} - move - target file already exists`, async ava => {
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
     const filesInfo = await cloudStorageInfoSVC.findFilesInfo();
-    await ava.throwsAsync(cloudStorageDirectorySVC.move(filesInfo, d1.directoryPath, d2.fileUUID), {
+    await ava.throwsAsync(cloudStorageDirectorySVC.move(filesInfo, d2.fileUUID, d1.directoryPath), {
         instanceOf: FError,
         message: `${Status.Failed}: ${ErrorCode.DirectoryAlreadyExists}`,
     });
@@ -317,7 +317,7 @@ test(`${namespace} - move - directory is too long`, async ava => {
 
     const filesInfo = await cloudStorageInfoSVC.findFilesInfo();
 
-    await ava.throwsAsync(cloudStorageDirectorySVC.move(filesInfo, d3.directoryPath, d4.fileUUID), {
+    await ava.throwsAsync(cloudStorageDirectorySVC.move(filesInfo, d4.fileUUID, d3.directoryPath), {
         instanceOf: FError,
         message: `${Status.Failed}: ${ErrorCode.ParamsCheckFailed}`,
     });
@@ -336,7 +336,7 @@ test(`${namespace} - move - success execute`, async ava => {
 
     const cloudStorageDirectorySVC = new CloudStorageDirectoryService(v4(), t, userUUID);
 
-    await cloudStorageDirectorySVC.move(filesInfo, d2.directoryPath, d1.fileUUID);
+    await cloudStorageDirectorySVC.move(filesInfo, d1.fileUUID, d2.directoryPath);
 
     const [l1, l2, l3] = await Promise.all([
         cloudStorageInfoSVC.list({
