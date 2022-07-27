@@ -98,13 +98,6 @@ export class CloudStorageDirectoryService {
         ]);
     }
 
-    /**
-     * rename directory
-     * /a/b/c/old_dir -> /a/b/c/new_dir
-     * @param {string} parentDirectoryPath - parent directory (e.g. /a/b/c/)
-     * @param {string} oldDirectoryName - will rename directory name (e.g. old_dir)
-     * @param {string} newDirectoryName - new directory name (e.g. new_dir)
-     */
     public async rename(
         filesInfo: FilesInfo,
         directoryUUID: string,
@@ -156,18 +149,10 @@ export class CloudStorageDirectoryService {
         ]);
     }
 
-    /**
-     * move directory
-     * /a/b/c/dir => /a/x/dir
-     * @param {FilesInfoBasic} filesInfo - files info
-     * @param {string} originDirectoryPath - origin directory path (e.g. /a/b/c/)
-     * @param {string} targetDirectoryPath - target directory (e.g. /a/x/)
-     * @param {string} directoryName - directory name (e.g. dir)
-     */
     public async move(
         filesInfo: FilesInfo,
-        targetDirectoryPath: string,
         directoryUUID: string,
+        targetDirectoryPath: string,
     ): Promise<void> {
         const directoryInfo = filesInfo.get(directoryUUID)!;
         const directoryName = directoryInfo.fileName;
@@ -177,7 +162,7 @@ export class CloudStorageDirectoryService {
         const fullTargetDirectoryPath = `${targetDirectoryPath}${directoryName}/`;
 
         if (await this.exists(fullTargetDirectoryPath)) {
-            this.logger.debug("target file already exists");
+            this.logger.debug("target directory already exists");
             throw new FError(ErrorCode.DirectoryAlreadyExists);
         }
 
