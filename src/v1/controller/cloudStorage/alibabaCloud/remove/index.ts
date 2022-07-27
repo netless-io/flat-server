@@ -1,5 +1,5 @@
 import { In } from "typeorm";
-import { Region, Status } from "../../../../../constants/Project";
+import { Status } from "../../../../../constants/Project";
 import {
     CloudStorageConfigsDAO,
     CloudStorageFilesDAO,
@@ -17,7 +17,6 @@ import path from "path";
 import { ossClient } from "../Utils";
 import OSS from "ali-oss";
 import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
-import { FilePayload } from "../../../../../model/cloudStorage/Types";
 import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 
 @Controller<RequestType, ResponseType>({
@@ -53,7 +52,7 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
             .createQueryBuilder(CloudStorageUserFilesModel, "fc")
             .addSelect("f.file_size", "file_size")
             .addSelect("f.file_url", "file_url")
-            .addSelect("f.payload", "payload")
+            .addSelect("f.resource_type", "resource_type")
             .innerJoin(CloudStorageFilesModel, "f", "fc.file_uuid = f.file_uuid")
             .where(
                 `f.file_uuid IN (:...fileUUIDs)
@@ -88,26 +87,22 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
         const totalUsage = Number(cloudStorageConfigsInfo?.total_usage) || 0;
 
         const { fileList, remainingTotalUsage } = ((): {
-            fileList: FileListType;
+            fileList: string[];
             remainingTotalUsage: number;
         } => {
-            const fileList: FileListType = {};
+            const fileList: string[] = [];
             let remainingTotalUsage = totalUsage;
 
-            fileInfo.forEach(({ file_url, file_size, payload }) => {
-                if (!("region" in payload)) {
+            fileInfo.forEach(({ file_url, file_size, resource_type }) => {
+                if (
+                    [FileResourceType.Directory, FileResourceType.OnlineCourseware].includes(
+                        resource_type,
+                    )
+                ) {
                     throw new Error("unsupported current file remove");
                 }
 
-                const region = payload.region;
-
-                if (typeof fileList[region] === "undefined") {
-                    fileList[region] = [];
-                }
-
-                (fileList as Required<FileListType>)[region].push(
-                    new URL(file_url).pathname.slice(1),
-                );
+                fileList.push(new URL(file_url).pathname.slice(1));
                 remainingTotalUsage -= file_size;
             });
 
@@ -171,36 +166,25 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
         }
     }
 
-    private static async deleteFileInOSS(fileList: FileListType): Promise<any> {
-        await Promise.all(
-            Object.keys(fileList).map(region => {
-                return ossClient[region as Region].deleteMulti(fileList[region as Region]!);
-            }),
-        );
+    private static async deleteFileInOSS(fileList: string[]): Promise<any> {
+        await ossClient.deleteMulti(fileList);
 
-        const newOSSFilePathList: [Region, string][] = [];
+        const newOSSFilePathList: string[] = [];
 
-        for (const key in fileList) {
-            const value = fileList[key as Region]!;
+        for (const filePath of fileList) {
+            const suffix = path.extname(filePath);
+            const fileUUID = path.basename(filePath, suffix);
+            const fileName = `${fileUUID}${suffix}`;
 
-            for (const filePath of value) {
-                const suffix = path.extname(filePath);
-                const fileUUID = path.basename(filePath, suffix);
-                const fileName = `${fileUUID}${suffix}`;
-
-                // old: PREFIX/UUID.png
-                // new: PREFIX/2021-10/12/UUID/UUID.png
-                if (filePath.endsWith(`${fileUUID}/${fileName}`)) {
-                    newOSSFilePathList.push([
-                        key as Region,
-                        filePath.substr(0, filePath.length - fileName.length),
-                    ]);
-                }
+            // old: PREFIX/UUID.png
+            // new: PREFIX/2021-10/12/UUID/UUID.png
+            if (filePath.endsWith(`${fileUUID}/${fileName}`)) {
+                newOSSFilePathList.push(filePath.substr(0, filePath.length - fileName.length));
             }
         }
 
-        for (const [region, directory] of newOSSFilePathList) {
-            await this.recursionDirectory(ossClient[region], directory);
+        for (const directory of newOSSFilePathList) {
+            await this.recursionDirectory(ossClient, directory);
         }
 
         return newOSSFilePathList;
@@ -240,12 +224,8 @@ interface RequestType {
 
 interface ResponseType {}
 
-type FileListType = {
-    [region in Region]?: string[];
-};
-
 interface FileInfoType {
     file_size: number;
     file_url: string;
-    payload: FilePayload;
+    resource_type: FileResourceType;
 }

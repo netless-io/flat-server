@@ -1,4 +1,4 @@
-import { Region, Status } from "../../../../constants/Project";
+import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { createWhiteboardTaskToken } from "../../../../utils/NetlessToken";
 import { CloudStorageFilesDAO, CloudStorageUserFilesDAO } from "../../../../dao";
@@ -13,6 +13,7 @@ import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import path from "path";
 import { In } from "typeorm";
+import { Whiteboard } from "../../../../constants/Config";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -70,7 +71,9 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
 
         const { file_url: resource, payload } = fileInfo;
 
-        const { convertStep, region } = payload as { convertStep: FileConvertStep; region: Region };
+        const { convertStep } = payload as {
+            convertStep: FileConvertStep;
+        };
 
         if (isConverting(convertStep)) {
             return {
@@ -96,10 +99,10 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
         const resourceType = determineType(resource);
 
         const result = isWhiteboardProjector
-            ? await whiteboardCreateProjectorTask(region, {
+            ? await whiteboardCreateProjectorTask({
                   resource,
               })
-            : await whiteboardCreateConversionTask(region, {
+            : await whiteboardCreateConversionTask({
                   resource,
                   type: resourceType,
                   scale: FileConvertStart.scaleByFileType(resource),
@@ -115,7 +118,7 @@ export class FileConvertStart extends AbstractController<RequestType, ResponseTy
                 payload: {
                     taskUUID,
                     taskToken,
-                    region,
+                    region: Whiteboard.convertRegion,
                     convertStep: FileConvertStep.Converting,
                 },
             },

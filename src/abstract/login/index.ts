@@ -71,10 +71,10 @@ export abstract class AbstractLogin {
         const [cnFileSize, enFileSize] = [5027927, 5141265];
 
         await Promise.all([
-            ossClient[Region.CN_HZ].copy(cnPPTXPath, AbstractLogin.guidePPTX, {
+            ossClient.copy(cnPPTXPath, AbstractLogin.guidePPTX, {
                 headers: { "Content-Disposition": getDisposition(cnName) },
             }),
-            ossClient[Region.US_SV].copy(enPPTXPath, AbstractLogin.guidePPTX, {
+            ossClient.copy(enPPTXPath, AbstractLogin.guidePPTX, {
                 headers: { "Content-Disposition": getDisposition(enName) },
             }),
         ]);
@@ -86,7 +86,7 @@ export abstract class AbstractLogin {
                     region: Region.CN_HZ,
                     convertStep: FileConvertStep.None,
                 },
-                fileURL: getOSSFileURLPath(cnPPTXPath, Region.CN_HZ),
+                fileURL: getOSSFileURLPath(cnPPTXPath),
                 fileSize: cnFileSize,
                 fileUUID: cnFileUUID,
                 fileName: cnName,
@@ -97,7 +97,7 @@ export abstract class AbstractLogin {
                     region: Region.US_SV,
                     convertStep: FileConvertStep.None,
                 },
-                fileURL: getOSSFileURLPath(enPPTXPath, Region.US_SV),
+                fileURL: getOSSFileURLPath(enPPTXPath),
                 fileSize: enFileSize,
                 fileUUID: enFileUUID,
                 fileName: enName,

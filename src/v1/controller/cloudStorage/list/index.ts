@@ -1,4 +1,4 @@
-import { Region, Status } from "../../../../constants/Project";
+import { Status } from "../../../../constants/Project";
 import { CloudStorageConfigsDAO } from "../../../../dao";
 import { CloudStorageFilesModel } from "../../../../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../../../../model/cloudStorage/CloudStorageUserFiles";
@@ -8,6 +8,7 @@ import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { FilePayload } from "../../../../model/cloudStorage/Types";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
+import { Whiteboard } from "../../../../constants/Config";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -125,7 +126,7 @@ interface ResponseType {
         taskUUID: string;
         taskToken: string;
         createAt: number;
-        region: Region | "none";
+        region: typeof Whiteboard.convertRegion | "none";
         external: boolean;
         resourceType: FileResourceType;
     }>;

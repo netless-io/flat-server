@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 import { AbstractController } from "../../../../abstract/controller";
 import { User } from "../../../../constants/Config";
-import { Region, Status } from "../../../../constants/Project";
+import { Status } from "../../../../constants/Project";
 import { Controller } from "../../../../decorator/Controller";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
@@ -19,7 +19,7 @@ export class UploadAvatarStart extends AbstractController<RequestType, ResponseT
     public static readonly schema: FastifySchema<RequestType> = {
         body: {
             type: "object",
-            required: ["fileName", "region"],
+            required: ["fileName", "fileSize"],
             properties: {
                 fileName: {
                     type: "string",
@@ -31,28 +31,23 @@ export class UploadAvatarStart extends AbstractController<RequestType, ResponseT
                     minimum: 1,
                     maximum: User.avatar.size,
                 },
-                region: {
-                    type: "string",
-                    enum: [Region.CN_HZ, Region.US_SV, Region.SG, Region.IN_MUM, Region.GB_LON],
-                },
             },
         },
     };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const { fileName, fileSize, region } = this.body;
+        const { fileName, fileSize } = this.body;
         const userUUID = this.userUUID;
 
         const fileUUID = v4();
         const filePath = getFilePath(fileName, userUUID, fileUUID);
-        const { policy, signature } = policyTemplate(fileName, filePath, fileSize, region);
+        const { policy, signature } = policyTemplate(fileName, filePath, fileSize);
 
         await RedisService.hmset(
             RedisKey.userAvatarFileInfo(userUUID, fileUUID),
             {
                 fileName,
                 fileSize: String(fileSize),
-                region,
             },
             60 * 60,
         );
@@ -63,7 +58,7 @@ export class UploadAvatarStart extends AbstractController<RequestType, ResponseT
                 fileUUID,
                 filePath,
                 policy,
-                policyURL: getOSSDomain(region),
+                policyURL: getOSSDomain(),
                 signature,
             },
         };
@@ -78,7 +73,6 @@ interface RequestType {
     body: {
         fileName: string;
         fileSize: number;
-        region: Region;
     };
 }
 
