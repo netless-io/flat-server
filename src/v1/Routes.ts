@@ -5,6 +5,7 @@ import { cloudStorageRouters } from "./controller/cloudStorage/Router";
 import { ControllerClass } from "../abstract/controller";
 import { userRouters } from "./controller/user/Router";
 import { aliCloudRouters } from "./controller/aliCloud/Router";
+import { logRouters } from "./controller/logger/Router";
 
 export const httpRouters: Readonly<
     Array<Readonly<Array<ControllerClass<any, any>>>>
@@ -14,5 +15,6 @@ export const httpRouters: Readonly<
     loginRouters,
     roomRouters,
     cloudStorageRouters,
+    logRouters,
     userRouters,
 ]);
