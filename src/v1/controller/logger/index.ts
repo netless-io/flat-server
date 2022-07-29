@@ -24,15 +24,15 @@ export class Log extends AbstractController<RequestType, ResponseType> {
         },
     };
 
-    public async execute(): Promise<Response<ResponseType>> {
+    public execute(): Promise<Response<ResponseType>> {
         const { message } = this.body;
 
         this.logger.warn(message.slice(0, 600));
 
-        return {
+        return Promise.resolve({
             status: Status.Success,
             data: {},
-        };
+        });
     }
 
     public errorHandler(error: Error): ResponseError {
