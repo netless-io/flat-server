@@ -37,6 +37,7 @@ app.setErrorHandler((err, _request, reply) => {
             status: Status.Failed,
             code: ErrorCode.ParamsCheckFailed,
         });
+        return;
     }
 
     loggerServer.error("request unexpected interruption", parseError(err));
