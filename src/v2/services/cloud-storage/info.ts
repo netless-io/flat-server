@@ -12,6 +12,7 @@ import {
 import { createLoggerService } from "../../../logger";
 import { EntityManager } from "typeorm";
 import { FileResourceType } from "../../../model/cloudStorage/Constants";
+import { filePayloadParse } from "./internal/utils/file-payload-parse";
 
 export class CloudStorageInfoService {
     private readonly logger = createLoggerService<"cloudStorageInfo">({
@@ -69,7 +70,7 @@ export class CloudStorageInfoService {
                     fileName,
                     fileSize,
                     fileURL,
-                    payload,
+                    ...filePayloadParse(resourceType, payload),
                     resourceType,
                     createAt: createAt.valueOf(),
                 };

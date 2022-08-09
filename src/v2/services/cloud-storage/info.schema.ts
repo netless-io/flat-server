@@ -1,13 +1,19 @@
 import { Type } from "@sinclair/typebox";
 import { FileResourceType } from "../../../model/cloudStorage/Constants";
-import { FilePayloadSchema } from "../../../model/cloudStorage/Types";
+import {
+    LocalCoursewarePayloadSchema,
+    WhiteboardConvertPayloadSchema,
+    WhiteboardProjectorPayloadSchema,
+} from "../../../model/cloudStorage/Types";
 
 export const listSchema = Type.Array(
     Type.Object({
         fileUUID: Type.String(),
         createAt: Type.Integer(),
         fileName: Type.String(),
-        payload: FilePayloadSchema,
+        whiteboardConvertPayload: Type.Optional(WhiteboardConvertPayloadSchema),
+        whiteboardProjectorPayload: Type.Optional(WhiteboardProjectorPayloadSchema),
+        localCoursewarePayload: Type.Optional(LocalCoursewarePayloadSchema),
         fileURL: Type.String(),
         fileSize: Type.Integer(),
         resourceType: Type.String({

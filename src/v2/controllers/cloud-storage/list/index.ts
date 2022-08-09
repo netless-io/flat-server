@@ -1,7 +1,8 @@
-import { Type } from "@sinclair/typebox";
+import { Static, Type } from "@sinclair/typebox";
 import { FastifyRequestTypebox, Response } from "../../../../types/Server";
 import { CloudStorageInfoService } from "../../../services/cloud-storage/info";
 import { successJSON } from "../../internal/utils/response-json";
+import { listFilesAndTotalUsageByUserUUIDSchema } from "../../../services/cloud-storage/info.schema";
 
 export const cloudStorageListSchema = {
     body: Type.Object(
@@ -37,7 +38,7 @@ export const cloudStorageListSchema = {
 
 export const cloudStorageList = async (
     req: FastifyRequestTypebox<typeof cloudStorageListSchema>,
-): Promise<Response> => {
+): Promise<Response<Static<typeof listFilesAndTotalUsageByUserUUIDSchema>>> => {
     const data = await new CloudStorageInfoService(
         req.reqID,
         req.DBTransaction,
