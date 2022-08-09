@@ -6,11 +6,11 @@ import { FilesInfo } from "./info.type";
 export class CloudStorageFileService {
     private readonly logger = createLoggerService<"cloudStorageFile">({
         serviceName: "cloudStorageFile",
-        requestID: this.reqID,
+        ids: this.ids,
     });
 
     constructor(
-        private readonly reqID: string,
+        private readonly ids: IDS,
         private readonly DBTransaction: EntityManager,
         // @ts-ignore
         private readonly _userUUID: string,

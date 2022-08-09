@@ -11,18 +11,18 @@ import { clearUUIDs } from "./internal/utils/directory";
 export class CloudStorageMoveService {
     private readonly logger = createLoggerService<"cloudStorageMove">({
         serviceName: "cloudStorageMove",
-        requestID: this.reqID,
+        ids: this.ids,
     });
 
     constructor(
-        private readonly reqID: string,
+        private readonly ids: IDS,
         private readonly DBTransaction: EntityManager,
         private readonly userUUID: string,
     ) {}
 
     public async move(config: CloudStorageMoveConfig): Promise<void> {
         const cloudStorageInfoSVC = new CloudStorageInfoService(
-            this.reqID,
+            this.ids,
             this.DBTransaction,
             this.userUUID,
         );
@@ -30,7 +30,7 @@ export class CloudStorageMoveService {
         const filesInfo = await cloudStorageInfoSVC.findFilesInfo();
 
         const cloudStorageDirectorySVC = new CloudStorageDirectoryService(
-            this.reqID,
+            this.ids,
             this.DBTransaction,
             this.userUUID,
         );
@@ -51,7 +51,7 @@ export class CloudStorageMoveService {
         }
 
         const cloudStorageFileSVC = new CloudStorageFileService(
-            this.reqID,
+            this.ids,
             this.DBTransaction,
             this.userUUID,
         );

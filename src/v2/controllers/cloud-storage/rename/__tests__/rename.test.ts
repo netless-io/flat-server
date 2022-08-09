@@ -8,6 +8,7 @@ import { v4 } from "uuid";
 import { successJSON } from "../../../internal/utils/response-json";
 import { CloudStorageInfoService } from "../../../../services/cloud-storage/info";
 import { CreateCS } from "../../../../__tests__/helpers/db/create-cs-files";
+import { ids } from "../../../../__tests__/helpers/fastify/ids";
 
 const namespace = "v2.controllers.cloud-storage.rename";
 
@@ -36,7 +37,7 @@ test(`${namespace} - rename dir success`, async ava => {
     ava.deepEqual(resp.json(), successJSON({}));
 
     {
-        const result = await new CloudStorageInfoService(v4(), t, userUUID).list({
+        const result = await new CloudStorageInfoService(ids(), t, userUUID).list({
             directoryPath: "/",
             size: 10,
             page: 1,
@@ -48,7 +49,7 @@ test(`${namespace} - rename dir success`, async ava => {
     }
 
     {
-        const result = await new CloudStorageInfoService(v4(), t, userUUID).list({
+        const result = await new CloudStorageInfoService(ids(), t, userUUID).list({
             directoryPath: `/${newDirectoryName}/`,
             size: 10,
             page: 1,

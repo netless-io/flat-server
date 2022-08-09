@@ -5,6 +5,7 @@ import { CreateCS } from "../../../__tests__/helpers/db/create-cs-files";
 import { v4 } from "uuid";
 import { CloudStorageFileService } from "../file";
 import { CloudStorageInfoService } from "../info";
+import { ids } from "../../../__tests__/helpers/fastify/ids";
 
 const namespace = "v2.services.cloud-storage.file";
 
@@ -17,9 +18,9 @@ test(`${namespace} - move`, async ava => {
     const [d1, d2] = await CreateCS.createDirectories(userUUID, "/", 2);
     const [f1, f2] = await CreateCS.createFiles(userUUID, d1.directoryPath, 2);
 
-    const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
+    const cloudStorageInfoSVC = new CloudStorageInfoService(ids(), t, userUUID);
     const filesInfo = await cloudStorageInfoSVC.findFilesInfo();
-    const cloudStorageFileSVC = new CloudStorageFileService(v4(), t, userUUID);
+    const cloudStorageFileSVC = new CloudStorageFileService(ids(), t, userUUID);
 
     const files = new Map();
     files.set(f1.fileUUID, filesInfo.get(f1.fileUUID)!);

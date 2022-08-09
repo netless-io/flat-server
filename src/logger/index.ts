@@ -58,12 +58,25 @@ export const createLoggerAPIv2 = <R extends LoggerContext>(
 };
 
 export const createLoggerService = <T extends string>(
-    context: Partial<LoggerService<T>>,
+    context: Partial<
+        Omit<LoggerService<T>, "requestID" | "sessionID"> & {
+            ids: IDS;
+        }
+    >,
 ): Logger<LoggerService<T>> => {
+    const { ids, ...rest } = context;
+    const reqAndSesID = ids
+        ? {
+              requestID: ids.reqID,
+              sessionID: ids.sesID,
+          }
+        : null;
     return new Logger<LoggerService<T>>(
         "service",
+        // @ts-ignore
         {
-            ...context,
+            ...reqAndSesID,
+            ...rest,
             ...baseContext,
         },
         loggerPlugins as LoggerAbstractPlugin<LoggerService<T>>[],

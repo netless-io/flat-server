@@ -71,6 +71,7 @@ const logger = (request: FastifyRequest): Logger<LoggerAPIv2> => {
     return createLoggerAPIv2<RecursionObject<string | number | boolean>>({
         requestPath: request.routerPath,
         requestID: request.reqID,
+        sessionID: request.sesID,
         [request.routerPath]: {
             user: user
                 ? {

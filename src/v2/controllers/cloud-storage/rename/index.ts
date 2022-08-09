@@ -25,7 +25,7 @@ export const cloudStorageRename = async (
     req: FastifyRequestTypebox<typeof cloudStorageRenameSchema>,
 ): Promise<Response> => {
     const cloudStorageRenameSvc = new CloudStorageRenameService(
-        req.reqID,
+        req.ids,
         req.DBTransaction,
         req.userUUID,
     );
