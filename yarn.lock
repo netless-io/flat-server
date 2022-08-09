@@ -308,10 +308,10 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@fastify-userland/request-id@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@fastify-userland/request-id/-/request-id-1.0.0.tgz#aa1fc8bdbbdc2f8c2dd30119370e4b4773dc6424"
-  integrity sha512-8jrOv6RrI9N9Weg85iI1S8UnoHZ3vWtL78VMEv3EtcxN/O6exqqti+SMhnvqVNvwzVN/15pNnjNOSA0tdC1ZUA==
+"@fastify-userland/request-id@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@fastify-userland/request-id/-/request-id-2.0.1.tgz#2a21099f7f61e34bf3092b3000c03c297c1b0c49"
+  integrity sha512-RFghvgiH/z+lUX470XmwOpD0mcddo2FOM+CTbgh6fPuo4J7fobcPo3gnsdPl4irhE4an0HcpnLaVs31bFEAVqA==
   dependencies:
     fastify-plugin "^3.0.1"
     nanoid "^3.0.0"

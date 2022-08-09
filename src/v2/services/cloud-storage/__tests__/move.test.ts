@@ -8,6 +8,7 @@ import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { CreateCS } from "../../../__tests__/helpers/db/create-cs-files";
 import { CloudStorageInfoService } from "../info";
+import { ids } from "../../../__tests__/helpers/fastify/ids";
 
 const namespace = "v2.services.cloud-storage.move";
 
@@ -17,7 +18,7 @@ test(`${namespace} - file not found`, async ava => {
     const { t } = await useTransaction();
     const [userUUID] = [v4(), v4()];
 
-    const cloudStorageMoveSVC = new CloudStorageMoveService(v4(), t, userUUID);
+    const cloudStorageMoveSVC = new CloudStorageMoveService(ids(), t, userUUID);
     await ava.throwsAsync(
         cloudStorageMoveSVC.move({
             targetDirectoryPath: "/",
@@ -35,7 +36,7 @@ test(`${namespace} - path same`, async ava => {
     const userUUID = v4();
     const [d1, d2] = await CreateCS.createDirectories(userUUID, "/", 2);
 
-    const cloudStorageMoveSVC = new CloudStorageMoveService(v4(), t, userUUID);
+    const cloudStorageMoveSVC = new CloudStorageMoveService(ids(), t, userUUID);
     await cloudStorageMoveSVC.move({
         targetDirectoryPath: "/",
         uuids: [d1.fileUUID, d2.fileUUID],
@@ -50,7 +51,7 @@ test(`${namespace} - target directory does not exist`, async ava => {
 
     const f1 = await CreateCS.createFile(userUUID);
 
-    const cloudStorageMoveSVC = new CloudStorageMoveService(v4(), t, userUUID);
+    const cloudStorageMoveSVC = new CloudStorageMoveService(ids(), t, userUUID);
     await ava.throwsAsync(
         cloudStorageMoveSVC.move({
             targetDirectoryPath: "/a/",
@@ -89,13 +90,13 @@ test(`${namespace} - success execute`, async ava => {
      *          f3
      *      d3/
      */
-    const cloudStorageMoveSVC = new CloudStorageMoveService(v4(), t, userUUID);
+    const cloudStorageMoveSVC = new CloudStorageMoveService(ids(), t, userUUID);
     await cloudStorageMoveSVC.move({
         targetDirectoryPath: d2.directoryPath,
         uuids: [d1.fileUUID, f1.fileUUID],
     });
 
-    const cloudStorageInfoSVC = new CloudStorageInfoService(v4(), t, userUUID);
+    const cloudStorageInfoSVC = new CloudStorageInfoService(ids(), t, userUUID);
     const [l1, l2, l3, l4] = await Promise.all([
         cloudStorageInfoSVC.list({
             order: "DESC",

@@ -23,7 +23,7 @@ export const cloudStorageMove = async (
     req: FastifyRequestTypebox<typeof cloudStorageMoveSchema>,
 ): Promise<Response> => {
     const cloudStorageMoveSVC = new CloudStorageMoveService(
-        req.reqID,
+        req.ids,
         req.DBTransaction,
         req.userUUID,
     );

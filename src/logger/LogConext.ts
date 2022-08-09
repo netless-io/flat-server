@@ -36,6 +36,7 @@ export type LoggerAPI = LoggerBase & {
 export type LoggerAPIv2 = LoggerBase & {
     requestPath: string;
     requestID: string;
+    sessionID: string;
     user: {
         userUUID: string;
         loginSource: string;
@@ -48,6 +49,7 @@ export type LoggerAPIv2 = LoggerBase & {
 export type LoggerService<T extends string> = LoggerBase & {
     serviceName: T;
     requestID: string;
+    sessionID: string;
 } & {
     [key in T]?: RecursionObject<string | number | boolean>;
 };

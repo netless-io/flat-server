@@ -17,11 +17,11 @@ import { filePayloadParse } from "./internal/utils/file-payload-parse";
 export class CloudStorageInfoService {
     private readonly logger = createLoggerService<"cloudStorageInfo">({
         serviceName: "cloudStorageInfo",
-        requestID: this.reqID,
+        ids: this.ids,
     });
 
     constructor(
-        private readonly reqID: string,
+        private readonly ids: IDS,
         private readonly DBTransaction: EntityManager,
         private readonly userUUID: string,
     ) {}

@@ -13,11 +13,11 @@ import { FilesInfo } from "./info.type";
 export class CloudStorageDirectoryService {
     private readonly logger = createLoggerService<"cloudStorageDirectory">({
         serviceName: "cloudStorageDirectory",
-        requestID: this.reqID,
+        ids: this.ids,
     });
 
     constructor(
-        private readonly reqID: string,
+        private readonly ids: IDS,
         private readonly DBTransaction: EntityManager,
         private readonly userUUID: string,
     ) {}

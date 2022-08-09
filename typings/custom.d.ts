@@ -9,3 +9,5 @@ type CapitalizeKeys<T extends Record<string, any>> = {
 };
 
 type ValueInMapRecord<T> = T extends Map<any, infer I> ? I : never;
+
+type IDS = import("@fastify-userland/request-id").FastifyRequestIDS;

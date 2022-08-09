@@ -9,18 +9,18 @@ import { CloudStorageDirectoryService } from "./directory";
 export class CloudStorageRenameService {
     private readonly logger = createLoggerService<"cloudStorageRename">({
         serviceName: "cloudStorageRename",
-        requestID: this.reqID,
+        ids: this.ids,
     });
 
     constructor(
-        private readonly reqID: string,
+        private readonly ids: IDS,
         private readonly DBTransaction: EntityManager,
         private readonly userUUID: string,
     ) {}
 
     public async rename(fileUUID: string, newName: string): Promise<void> {
         const cloudStorageInfoSvc = new CloudStorageInfoService(
-            this.reqID,
+            this.ids,
             this.DBTransaction,
             this.userUUID,
         );
@@ -42,7 +42,7 @@ export class CloudStorageRenameService {
         if (fileInfo.resourceType === FileResourceType.Directory) {
             this.logger.debug("file is directory");
             await new CloudStorageDirectoryService(
-                this.reqID,
+                this.ids,
                 this.DBTransaction,
                 this.userUUID,
             ).rename(filesInfo, fileUUID, newName);
