@@ -39,7 +39,7 @@ test.serial(`${namespace} - ban room`, async ava => {
 test.serial(`${namespace} - create conversion task`, async ava => {
     const stubAxios = sinon.stub(ax, "post");
 
-    await whiteboardCreateConversionTask(Region.CN_HZ, {} as any);
+    await whiteboardCreateConversionTask({} as any);
 
     ava.is(stubAxios.callCount, 1);
 
@@ -49,7 +49,7 @@ test.serial(`${namespace} - create conversion task`, async ava => {
 test.serial(`${namespace} - query conversion task`, async ava => {
     const stubAxios = sinon.stub(ax, "get");
 
-    await whiteboardQueryConversionTask(Region.CN_HZ, "1", "static");
+    await whiteboardQueryConversionTask("1", "static");
 
     ava.is(stubAxios.callCount, 1);
 

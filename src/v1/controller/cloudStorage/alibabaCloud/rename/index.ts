@@ -58,13 +58,14 @@ export class AlibabaCloudRename extends AbstractController<RequestType, Response
         }
 
         const fileInfo = await CloudStorageFilesDAO().findOne(
-            ["file_name", "file_url", "payload"],
+            ["file_name", "file_url", "resource_type"],
             {
                 file_uuid: fileUUID,
                 resource_type: In([
                     FileResourceType.WhiteboardConvert,
                     FileResourceType.LocalCourseware,
                     FileResourceType.NormalResources,
+                    FileResourceType.WhiteboardProjector,
                 ]),
             },
         );
@@ -93,14 +94,20 @@ export class AlibabaCloudRename extends AbstractController<RequestType, Response
                 },
             );
 
-            if (!("region" in fileInfo.payload)) {
+            if (
+                [FileResourceType.Directory, FileResourceType.OnlineCourseware].includes(
+                    fileInfo.resource_type,
+                )
+            ) {
                 throw new Error("unsupported current file rename");
             }
 
             const filePath = new URL(fileInfo.file_url).pathname.slice(1);
-            await ossClient[fileInfo.payload.region].copy(filePath, filePath, {
-                headers: { "Content-Disposition": getDisposition(fileName) },
-            });
+            await ossClient
+                .copy(filePath, filePath, {
+                    headers: { "Content-Disposition": getDisposition(fileName) },
+                })
+                .catch(() => {});
         });
 
         return {

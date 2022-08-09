@@ -1,7 +1,6 @@
 import { CloudStorageConfigsDAO } from "../../../../../dao";
 import { CloudStorage, StorageService } from "../../../../../constants/Config";
 import path from "path";
-import { Region } from "../../../../../constants/Project";
 import { format } from "date-fns/fp";
 
 export const checkTotalUsage = async (
@@ -31,10 +30,10 @@ export const getFilePath = (fileName: string, fileUUID: string): string => {
     )}`;
 };
 
-export const getOSSDomain = (region: Region): string => {
-    return `https://${StorageService.oss[region].bucket}.${StorageService.oss[region].endpoint}`;
+export const getOSSDomain = (): string => {
+    return `https://${StorageService.oss.bucket}.${StorageService.oss.endpoint}`;
 };
 
-export const getOSSFileURLPath = (filePath: string, region: Region): string => {
-    return `${getOSSDomain(region)}/${filePath}`;
+export const getOSSFileURLPath = (filePath: string): string => {
+    return `${getOSSDomain()}/${filePath}`;
 };

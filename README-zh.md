@@ -259,47 +259,20 @@ whiteboard:
     access_key:
     # 白板 SK
     secret_access_key:
+    # 转码地区
+    # "cn-hz" | "us-sv" | "sg" | "in-mum" | "gb-lon"
+    convert_region:
 
 # 存储服务
 storage_service:
     # 目前只支持 oss
     type: oss
     oss:
-        # 中国杭州配置
-        zh_hz:
-            access_key:
-            secret_key:
-            endpoint:
-            bucket:
-            region:
-        # 美国硅谷配置
-        us_sv:
-            access_key:
-            secret_key:
-            endpoint:
-            bucket:
-            region:
-        # 新加坡
-        sg:
-            access_key:
-            secret_key:
-            endpoint:
-            bucket:
-            region:
-        # 印度孟买
-        in_mum:
-            access_key:
-            secret_key:
-            endpoint:
-            bucket:
-            region:
-        # 英国伦敦
-        gb_lon:
-            access_key:
-            secret_key:
-            endpoint:
-            bucket:
-            region:
+        access_key:
+        secret_key:
+        endpoint:
+        bucket:
+        region:
 
 # 内容审查
 censorship:

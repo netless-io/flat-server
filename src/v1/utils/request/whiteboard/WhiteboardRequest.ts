@@ -2,6 +2,7 @@ import { ax } from "../../Axios";
 import { createWhiteboardSDKToken } from "../../../../utils/NetlessToken";
 import { AxiosResponse } from "axios";
 import { Region } from "../../../../constants/Project";
+import { Whiteboard } from "../../../../constants/Config";
 
 /**
  * whiteboard create room api
@@ -48,7 +49,6 @@ export const whiteboardBanRoom = async (
 };
 
 export const whiteboardCreateConversionTask = async (
-    region: Region,
     body: CreateConversionTaskParams,
 ): Promise<AxiosResponse<TaskCreated>> => {
     return await ax.post<TaskCreated>(
@@ -57,14 +57,13 @@ export const whiteboardCreateConversionTask = async (
         {
             headers: {
                 token: createWhiteboardSDKToken(),
-                region,
+                region: Whiteboard.convertRegion,
             },
         },
     );
 };
 
 export const whiteboardQueryConversionTask = async (
-    region: Region,
     uuid: string,
     type: "static" | "dynamic",
 ): Promise<AxiosResponse<TaskStatus>> => {
@@ -73,14 +72,13 @@ export const whiteboardQueryConversionTask = async (
         {
             headers: {
                 token: createWhiteboardSDKToken(),
-                region,
+                region: Whiteboard.convertRegion,
             },
         },
     );
 };
 
 export const whiteboardCreateProjectorTask = async (
-    region: Region,
     body: CreateProjectorTaskParams,
 ): Promise<AxiosResponse<ProjectorTaskCreated>> => {
     return await ax.post<ProjectorTaskCreated>(
@@ -93,14 +91,13 @@ export const whiteboardCreateProjectorTask = async (
         {
             headers: {
                 token: createWhiteboardSDKToken(),
-                region,
+                region: Whiteboard.convertRegion,
             },
         },
     );
 };
 
 export const whiteboardQueryProjectorTask = async (
-    region: Region,
     uuid: string,
 ): Promise<AxiosResponse<ProjectorTaskStatus>> => {
     return await ax.get<ProjectorTaskStatus>(
@@ -108,7 +105,7 @@ export const whiteboardQueryProjectorTask = async (
         {
             headers: {
                 token: createWhiteboardSDKToken(),
-                region,
+                region: Whiteboard.convertRegion,
             },
         },
     );

@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { CloudStorage } from "../../../../../constants/Config";
-import { Region, Status } from "../../../../../constants/Project";
+import { Status } from "../../../../../constants/Project";
 
 import { ErrorCode } from "../../../../../ErrorCode";
 import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
@@ -22,7 +22,7 @@ export class AlibabaCloudUploadStart extends AbstractController<RequestType, Res
     public static readonly schema: FastifySchema<RequestType> = {
         body: {
             type: "object",
-            required: ["fileName", "fileSize", "region"],
+            required: ["fileName", "fileSize"],
             properties: {
                 fileName: {
                     type: "string",
@@ -34,16 +34,12 @@ export class AlibabaCloudUploadStart extends AbstractController<RequestType, Res
                     minimum: 1,
                     maximum: CloudStorage.singleFileSize,
                 },
-                region: {
-                    type: "string",
-                    enum: [Region.CN_HZ, Region.US_SV, Region.SG, Region.IN_MUM, Region.GB_LON],
-                },
             },
         },
     };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const { fileName, fileSize, region } = this.body;
+        const { fileName, fileSize } = this.body;
         const userUUID = this.userUUID;
 
         if (await aliGreenText.textNonCompliant(fileName)) {
@@ -92,14 +88,13 @@ export class AlibabaCloudUploadStart extends AbstractController<RequestType, Res
 
         const fileUUID = v4();
         const filePath = getFilePath(fileName, fileUUID);
-        const { policy, signature } = policyTemplate(fileName, filePath, fileSize, region);
+        const { policy, signature } = policyTemplate(fileName, filePath, fileSize);
 
         await RedisService.hmset(
             RedisKey.cloudStorageFileInfo(userUUID, fileUUID),
             {
                 fileName,
                 fileSize: String(fileSize),
-                region,
             },
             60 * 60,
         );
@@ -110,7 +105,7 @@ export class AlibabaCloudUploadStart extends AbstractController<RequestType, Res
                 fileUUID,
                 filePath,
                 policy,
-                policyURL: getOSSDomain(region),
+                policyURL: getOSSDomain(),
                 signature,
             },
         };
@@ -125,7 +120,6 @@ interface RequestType {
     body: {
         fileName: string;
         fileSize: number;
-        region: Region;
     };
 }
 

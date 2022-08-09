@@ -4,7 +4,7 @@ import {
     CloudStorageUserFilesDAO,
 } from "../../../../../dao";
 import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
-import { Region, Status } from "../../../../../constants/Project";
+import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
@@ -15,6 +15,7 @@ import { AbstractController } from "../../../../../abstract/controller";
 import { isLocalCourseware, isWhiteboardCourseware } from "../../convert/Utils";
 import { FileConvertStep, FileResourceType } from "../../../../../model/cloudStorage/Constants";
 import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
+import { Whiteboard } from "../../../../../constants/Config";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -45,14 +46,13 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
 
         const fileInfo = await RedisService.hmget(
             RedisKey.cloudStorageFileInfo(userUUID, fileUUID),
-            ["fileName", "fileSize", "region"],
+            ["fileName", "fileSize"],
         );
 
         const fileName = fileInfo[0];
         const fileSize = Number(fileInfo[1]);
-        const region = fileInfo[2] as Region;
 
-        if (!fileName || Number.isNaN(fileSize) || !Object.values(Region).includes(region)) {
+        if (!fileName || Number.isNaN(fileSize)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.FileNotFound,
@@ -61,7 +61,7 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
 
         const fullPath = getFilePath(fileName, fileUUID);
 
-        if (!(await isExistObject(fullPath, region))) {
+        if (!(await isExistObject(fullPath))) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.FileNotFound,
@@ -77,7 +77,7 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
             };
         }
 
-        const alibabaCloudFileURL = getOSSFileURLPath(fullPath, region);
+        const alibabaCloudFileURL = getOSSFileURLPath(fullPath);
 
         await dataSource.transaction(async t => {
             const commands: Promise<unknown>[] = [];
@@ -89,7 +89,7 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
                     file_url: alibabaCloudFileURL,
                     file_uuid: fileUUID,
                     payload: {
-                        region,
+                        region: Whiteboard.convertRegion,
                         convert_step:
                             isWhiteboardProjector || !isLocalCourseware(fileName)
                                 ? FileConvertStep.None

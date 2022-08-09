@@ -1,5 +1,5 @@
 import { AbstractController, ControllerClassParams } from "../../../../abstract/controller";
-import { Region, Status } from "../../../../constants/Project";
+import { Status } from "../../../../constants/Project";
 import { Controller } from "../../../../decorator/Controller";
 import { ErrorCode } from "../../../../ErrorCode";
 import { createLoggerContentCensorship, parseError } from "../../../../logger";
@@ -51,13 +51,12 @@ export class UploadAvatarFinish extends AbstractController<RequestType, Response
         const userUUID = this.userUUID;
 
         const redisKey = RedisKey.userAvatarFileInfo(userUUID, fileUUID);
-        const fileInfo = await RedisService.hmget(redisKey, ["fileName", "fileSize", "region"]);
+        const fileInfo = await RedisService.hmget(redisKey, ["fileName", "fileSize"]);
 
         const fileName = fileInfo[0];
         const fileSize = Number(fileInfo[1]);
-        const region = fileInfo[2] as Region;
 
-        if (!fileName || Number.isNaN(fileSize) || !Object.values(Region).includes(region)) {
+        if (!fileName || Number.isNaN(fileSize)) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.FileNotFound,
@@ -66,17 +65,17 @@ export class UploadAvatarFinish extends AbstractController<RequestType, Response
 
         const filePath = getFilePath(fileName, userUUID, fileUUID);
 
-        if (!(await isExistObject(filePath, region))) {
+        if (!(await isExistObject(filePath))) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.FileNotFound,
             };
         }
 
-        const alibabaCloudFileURL = getOSSFileURLPath(filePath, region);
+        const alibabaCloudFileURL = getOSSFileURLPath(filePath);
 
         if (await UploadAvatarFinish.isIllegal(alibabaCloudFileURL)) {
-            await deleteObject(filePath, region);
+            await deleteObject(filePath);
 
             return {
                 status: Status.Failed,
@@ -91,9 +90,9 @@ export class UploadAvatarFinish extends AbstractController<RequestType, Response
             const avatarURL = (await this.svc.user.nameAndAvatar())?.avatarURL;
             if (avatarURL) {
                 // prefix = "https://bucket.endpoint"
-                const prefix = getOSSDomain(region);
+                const prefix = getOSSDomain();
                 if (avatarURL.startsWith(prefix)) {
-                    await deleteObject(avatarURL.slice(prefix.length), region);
+                    await deleteObject(avatarURL.slice(prefix.length));
                 }
             }
 

@@ -262,47 +262,20 @@ whiteboard:
     access_key:
     # Whiteboard SK
     secret_access_key:
+    # Convert Region
+    # "cn-hz" | "us-sv" | "sg" | "in-mum" | "gb-lon"
+    convert_region:
 
 # Storage Service
 storage_service:
     # Currently, only supported OSS
     type: oss
     oss:
-        # Hangzhou, China Configuration
-        zh_hz:
-            access_key:
-            secret_key:
-            endpoint:
-            bucket:
-            region:
-        # Silicon Valley Configuration
-        us_sv:
-            access_key:
-            secret_key:
-            endpoint:
-            bucket:
-            region:
-        # Singapore Configuration
-        sg:
-            access_key:
-            secret_key:
-            endpoint:
-            bucket:
-            region:
-        # Mumbai, India Configuration
-        in_mum:
-            access_key:
-            secret_key:
-            endpoint:
-            bucket:
-            region:
-        # London, England Configuration
-        gb_lon:
-            access_key:
-            secret_key:
-            endpoint:
-            bucket:
-            region:
+        access_key:
+        secret_key:
+        endpoint:
+        bucket:
+        region:
 
 # Content censorship
 censorship:

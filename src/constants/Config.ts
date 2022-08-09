@@ -1,5 +1,4 @@
 import packages from "../../package.json";
-import { Region } from "./Project";
 import { config } from "../utils/ParseConfig";
 
 export const isDev = process.env.NODE_ENV === "development";
@@ -134,6 +133,7 @@ export const JWT = {
 export const Whiteboard = {
     accessKey: config.whiteboard.access_key,
     secretAccessKey: config.whiteboard.secret_access_key,
+    convertRegion: config.whiteboard.convert_region,
 };
 
 export const CloudStorage = {
@@ -148,41 +148,11 @@ export const CloudStorage = {
 export const StorageService = {
     type: config.storage_service.type,
     oss: {
-        [Region.CN_HZ]: {
-            bucket: config.storage_service.oss.zh_hz.bucket,
-            region: config.storage_service.oss.zh_hz.region,
-            accessKey: config.storage_service.oss.zh_hz.access_key,
-            accessKeySecret: config.storage_service.oss.zh_hz.secret_key,
-            endpoint: config.storage_service.oss.zh_hz.endpoint,
-        },
-        [Region.US_SV]: {
-            bucket: config.storage_service.oss.us_sv.bucket,
-            region: config.storage_service.oss.us_sv.region,
-            accessKey: config.storage_service.oss.us_sv.access_key,
-            accessKeySecret: config.storage_service.oss.us_sv.secret_key,
-            endpoint: config.storage_service.oss.us_sv.endpoint,
-        },
-        [Region.SG]: {
-            bucket: config.storage_service.oss.sg.bucket,
-            region: config.storage_service.oss.sg.region,
-            accessKey: config.storage_service.oss.sg.access_key,
-            accessKeySecret: config.storage_service.oss.sg.secret_key,
-            endpoint: config.storage_service.oss.sg.endpoint,
-        },
-        [Region.IN_MUM]: {
-            bucket: config.storage_service.oss.in_mum.bucket,
-            region: config.storage_service.oss.in_mum.region,
-            accessKey: config.storage_service.oss.in_mum.access_key,
-            accessKeySecret: config.storage_service.oss.in_mum.secret_key,
-            endpoint: config.storage_service.oss.in_mum.endpoint,
-        },
-        [Region.GB_LON]: {
-            bucket: config.storage_service.oss.gb_lon.bucket,
-            region: config.storage_service.oss.gb_lon.region,
-            accessKey: config.storage_service.oss.gb_lon.access_key,
-            accessKeySecret: config.storage_service.oss.gb_lon.secret_key,
-            endpoint: config.storage_service.oss.gb_lon.endpoint,
-        },
+        bucket: config.storage_service.oss.bucket,
+        region: config.storage_service.oss.region,
+        accessKey: config.storage_service.oss.access_key,
+        accessKeySecret: config.storage_service.oss.secret_key,
+        endpoint: config.storage_service.oss.endpoint,
     },
 };
 

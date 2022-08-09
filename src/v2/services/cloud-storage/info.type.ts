@@ -1,5 +1,6 @@
 import { FilePayload } from "../../../model/cloudStorage/Types";
 import { FileResourceType } from "../../../model/cloudStorage/Constants";
+import type { FilePayloadParse } from "./internal/utils/file-payload-parse";
 
 export type CloudStorageInfoListParamsConfig = {
     order: "ASC" | "DESC";
@@ -24,9 +25,8 @@ export type CloudStorageInfoListReturn = {
     fileSize: number;
     fileURL: string;
     createAt: number;
-    payload: FilePayload;
     resourceType: FileResourceType;
-};
+} & FilePayloadParse;
 
 export type ListFilesAndTotalUsageByUserUUIDReturn = {
     totalUsage: number;

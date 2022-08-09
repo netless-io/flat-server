@@ -160,45 +160,16 @@ type Config = {
     whiteboard: {
         access_key: string;
         secret_access_key: string;
+        convert_region: "cn-hz" | "us-sv" | "sg" | "in-mum" | "gb-lon";
     };
     storage_service: {
         type: "oss";
         oss: {
-            zh_hz: {
-                access_key: string;
-                secret_key: string;
-                endpoint: string;
-                bucket: string;
-                region: string;
-            };
-            us_sv: {
-                access_key: string;
-                secret_key: string;
-                endpoint: string;
-                bucket: string;
-                region: string;
-            };
-            sg: {
-                access_key: string;
-                secret_key: string;
-                endpoint: string;
-                bucket: string;
-                region: string;
-            };
-            in_mum: {
-                access_key: string;
-                secret_key: string;
-                endpoint: string;
-                bucket: string;
-                region: string;
-            };
-            gb_lon: {
-                access_key: string;
-                secret_key: string;
-                endpoint: string;
-                bucket: string;
-                region: string;
-            };
+            access_key: string;
+            secret_key: string;
+            endpoint: string;
+            bucket: string;
+            region: string;
         };
     };
     censorship: {

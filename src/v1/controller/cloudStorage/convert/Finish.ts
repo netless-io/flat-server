@@ -171,13 +171,13 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
                 throw error;
             }
         } else if (resourceType === FileResourceType.WhiteboardConvert) {
-            const { taskUUID, region } = payload as WhiteboardConvertPayload;
+            const { taskUUID } = payload as WhiteboardConvertPayload;
             const resourceType = determineType(resource);
-            const result = await whiteboardQueryConversionTask(region, taskUUID, resourceType);
+            const result = await whiteboardQueryConversionTask(taskUUID, resourceType);
             return result.data.status;
         } else if (resourceType === FileResourceType.WhiteboardProjector) {
-            const { taskUUID, region } = payload as WhiteboardProjectorPayload;
-            const result = await whiteboardQueryProjectorTask(region, taskUUID);
+            const { taskUUID } = payload as WhiteboardProjectorPayload;
+            const result = await whiteboardQueryProjectorTask(taskUUID);
             return result.data.status;
         }
 
