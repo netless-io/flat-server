@@ -19,6 +19,7 @@ import { registerV2Routers } from "./utils/registryRoutersV2";
 import fastifyRequestID from "@fastify-userland/request-id";
 import fastifyTypeORMQueryRunner from "@fastify-userland/typeorm-query-runner";
 import { fastifyAPILogger } from "./plugins/fastify/api-logger";
+import { initTasks } from "./v2/tasks";
 
 const app = fastify({
     caseSensitive: true,
@@ -93,6 +94,8 @@ void orm().then(async dataSource => {
 
     registerV1Routers(app, httpRouters);
     registerV2Routers(app, v2Routes);
+
+    await initTasks();
     app.listen(
         {
             port: Server.port,
