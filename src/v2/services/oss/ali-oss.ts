@@ -13,7 +13,6 @@ export class AliOSSService extends OSSAbstract {
         super();
     }
 
-    // @ts-ignore
     public async remove(fileList: string | string[]): Promise<void> {
         this.logger.debug("remove file", {
             AliOSS: {
@@ -27,7 +26,7 @@ export class AliOSSService extends OSSAbstract {
             this.logger.debug("remove file done", {
                 AliOSS: {
                     removeFile: fileList,
-                    removeStatus: result.status,
+                    removeStatus: result.res.status,
                 },
             });
             return;
