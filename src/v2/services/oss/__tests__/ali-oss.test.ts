@@ -25,7 +25,9 @@ test.afterEach(() => {
 
 test.serial(`${namespace} - remove single file`, async ava => {
     const returnStub = sinon.stub().resolves({
-        status: "ok",
+        res: {
+            status: "ok",
+        },
     });
 
     deleteStub.callsFake((name: string) => returnStub(name));
