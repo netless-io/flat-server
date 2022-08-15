@@ -5,7 +5,7 @@ import { FilePayload } from "../../../../model/cloudStorage/Types";
 import { FileConvertStep, FileResourceType } from "../../../../model/cloudStorage/Constants";
 import { Region } from "../../../../constants/Project";
 
-const infoByType = (resourceType: FileResourceType) => {
+export const infoByType = (resourceType: FileResourceType) => {
     let payload = {};
     switch (resourceType) {
         case FileResourceType.NormalResources: {
@@ -71,6 +71,8 @@ export class CreateCloudStorageFiles {
             payload: info.payload,
             resource_type: info.resourceType,
         });
+
+        return info;
     }
 
     public static async quick(resourceType: FileResourceType) {
@@ -85,6 +87,7 @@ export class CreateCloudStorageFiles {
             ...infoByType(FileResourceType.Directory),
             directoryPath: parentDirectoryPath,
             fileName: directoryName,
+            fileSize: 0,
         };
         await CreateCloudStorageFiles.full(info);
 

@@ -1,7 +1,7 @@
 import path from "path";
 import { FError } from "../../../../../error/ControllerError";
 import { ErrorCode } from "../../../../../ErrorCode";
-import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
+import { FileResourceType, ossResourceType } from "../../../../../model/cloudStorage/Constants";
 import { FilesInfo } from "../../info.type";
 
 export const splitPath = (p: string): SplitPath => {
@@ -51,6 +51,17 @@ export const calculateDirectoryMaxDeep = (
     });
 
     return maxLength - fullDirectoryPath.length;
+};
+
+export const calculateFilesSize = (filesInfo: FilesInfo): number => {
+    let size = 0;
+    filesInfo.forEach(fileInfo => {
+        if (ossResourceType.includes(fileInfo.resourceType)) {
+            size += fileInfo.fileSize;
+        }
+    });
+
+    return size;
 };
 
 export const clearUUIDs = (filesInfo: FilesInfo, uuids: string[]): ClearUUIDs => {

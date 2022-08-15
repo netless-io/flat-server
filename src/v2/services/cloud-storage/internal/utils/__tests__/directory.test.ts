@@ -1,5 +1,11 @@
 import test from "ava";
-import { calculateDirectoryMaxDeep, clearUUIDs, pathPrefixMatch, splitPath } from "../directory";
+import {
+    calculateDirectoryMaxDeep,
+    calculateFilesSize,
+    clearUUIDs,
+    pathPrefixMatch,
+    splitPath,
+} from "../directory";
 import { FError } from "../../../../../../error/ControllerError";
 import { Status } from "../../../../../../constants/Project";
 import { ErrorCode } from "../../../../../../ErrorCode";
@@ -157,4 +163,35 @@ test(`${namespace} - clearUUIDs`, ava => {
     ava.is(dirs.size, 1);
     ava.is(files.size, 1);
     ava.is(originDirectoryPath, "/");
+});
+
+test(`${namespace} - calculateFilesSize`, ava => {
+    const filesInfo = new Map();
+    filesInfo.set(v4(), {
+        resourceType: FileResourceType.Directory,
+        fileSize: 12,
+    });
+    filesInfo.set(v4(), {
+        resourceType: FileResourceType.NormalResources,
+        fileSize: 20,
+    });
+    filesInfo.set(v4(), {
+        resourceType: FileResourceType.OnlineCourseware,
+        fileSize: 1,
+    });
+    filesInfo.set(v4(), {
+        resourceType: FileResourceType.WhiteboardProjector,
+        fileSize: 2,
+    });
+    filesInfo.set(v4(), {
+        resourceType: FileResourceType.WhiteboardConvert,
+        fileSize: 3,
+    });
+    filesInfo.set(v4(), {
+        resourceType: FileResourceType.LocalCourseware,
+        fileSize: 4,
+    });
+    const result = calculateFilesSize(filesInfo);
+
+    ava.is(result, 20 + 2 + 3 + 4);
 });

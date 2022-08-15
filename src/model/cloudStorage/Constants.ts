@@ -23,3 +23,10 @@ export enum FileResourceType {
     WhiteboardProjector = "WhiteboardProjector",
     Directory = "Directory",
 }
+
+export const ossResourceType = [
+    FileResourceType.NormalResources,
+    FileResourceType.WhiteboardProjector,
+    FileResourceType.WhiteboardConvert,
+    FileResourceType.LocalCourseware,
+];
