@@ -3,6 +3,7 @@ import {
     ServiceID,
     ServicesCatalog,
     ServicesPendingCatalog,
+    ServicesCatalogParams,
 } from "./catalog";
 
 export class ServiceLocator {
@@ -30,7 +31,18 @@ export class ServiceLocator {
         if (creator) {
             return ((this.services[name] as any) = creator());
         }
-        throw new Error(`Service ${name} is not registered`);
+        throw new Error(`service ${name} is not registered`);
+    }
+
+    public getOnceService<T extends ServiceID>(
+        name: T,
+        params: ServicesCatalogParams[T],
+    ): ServicesCatalog[T] {
+        const creator = this.registry[name];
+        if (creator) {
+            return creator(params);
+        }
+        throw new Error(`registry ${name} is not registered`);
     }
 
     public isRegistered(name: ServiceID): boolean {

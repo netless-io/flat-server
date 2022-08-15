@@ -159,6 +159,7 @@ module.exports = {
             rules: {
                 "@typescript-eslint/explicit-function-return-type": "off",
                 "@typescript-eslint/no-unsafe-argument": "off",
+                "@typescript-eslint/no-unsafe-return": "off",
             },
         },
     ],

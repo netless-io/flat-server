@@ -145,11 +145,11 @@ whiteboard:
 storage_service:
   type: oss
   oss:
-    access_key:
-    secret_key:
-    endpoint:
-    bucket:
-    region:
+    access_key: test
+    secret_key: test
+    endpoint: test
+    bucket: test
+    region: test
 
 censorship:
   video:
