@@ -1,14 +1,18 @@
 import test from "ava";
-import { registerService, useService } from "../index";
+import { registerService, useOnceService, useService } from "../index";
 import { v4 } from "uuid";
 import { OSSAbstract } from "../service/oss-abstract";
+import { ids } from "../../__tests__/helpers/fastify/ids";
 
 const namespace = "v2.service-locator";
 
-test(`${namespace} - not should exec when register service`, ava => {
+test.beforeEach(() => {
     (global as any).__SERVICE_LOCATOR = undefined;
+});
+
+test.serial(`${namespace} - not should exec when register service`, ava => {
     const returnValue = v4;
-    registerService("oss", () => {
+    registerService("test" as any, () => {
         ava.fail();
         return returnValue as unknown as OSSAbstract;
     });
@@ -16,59 +20,80 @@ test(`${namespace} - not should exec when register service`, ava => {
     ava.pass();
 });
 
-test(`${namespace} - fail when duplicate register same service`, ava => {
-    (global as any).__SERVICE_LOCATOR = undefined;
+test.serial(`${namespace} - fail when duplicate register same service`, ava => {
     const returnValue = v4;
-    registerService("oss", () => {
+    registerService("test" as any, () => {
         return returnValue as unknown as OSSAbstract;
     });
 
     ava.throws(
         () => {
-            registerService("oss", () => {
+            registerService("test" as any, () => {
                 return returnValue as unknown as OSSAbstract;
             });
         },
         {
-            message: "oss is already registered",
+            message: "test is already registered",
         },
     );
 });
 
-test(`${namespace} - request service success`, ava => {
-    (global as any).__SERVICE_LOCATOR = undefined;
-    const returnValue = v4;
-    registerService("oss", () => {
+test.serial(`${namespace} - request service success`, ava => {
+    const returnValue = v4();
+    registerService("test" as any, () => {
         return returnValue as unknown as OSSAbstract;
     });
 
-    const oss = useService("oss");
+    const oss = useService("test" as any);
 
     ava.is(oss, returnValue as any);
 });
 
-test(`${namespace} - duplicate request service`, ava => {
-    (global as any).__SERVICE_LOCATOR = undefined;
-    const returnValue = v4;
-    registerService("oss", () => {
+test.serial(`${namespace} - duplicate request service`, ava => {
+    const returnValue = v4();
+    registerService("test" as any, () => {
         return returnValue as unknown as OSSAbstract;
     });
 
-    const oss = useService("oss");
-    const oss2 = useService("oss");
+    const oss = useService("test" as any);
+    const oss2 = useService("test" as any);
 
     ava.is(oss, returnValue as any);
     ava.is(oss2, returnValue as any);
 });
 
-test(`${namespace} - fail when request service not found`, ava => {
-    (global as any).__SERVICE_LOCATOR = undefined;
+test.serial(`${namespace} - fail when request service not found`, ava => {
     ava.throws(
         () => {
-            useService("oss2" as any);
+            useService("test" as any);
         },
         {
-            message: "Service oss2 is not registered",
+            message: "service test is not registered",
+        },
+    );
+});
+
+test.serial(`${namespace} - use once service`, ava => {
+    registerService("test" as any, params => {
+        return params;
+    });
+    const id = ids();
+    const svc1 = useOnceService("test" as any, id);
+
+    const id2 = ids();
+    const svc2 = useOnceService("test" as any, id2);
+
+    ava.deepEqual(svc1, id);
+    ava.deepEqual(svc2, id2);
+});
+
+test.serial(`${namespace} - fail when get once service not found`, ava => {
+    ava.throws(
+        () => {
+            useOnceService("test" as any, {});
+        },
+        {
+            message: "registry test is not registered",
         },
     );
 });
