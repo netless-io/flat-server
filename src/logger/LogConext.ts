@@ -4,13 +4,20 @@ export type LoggerError = {
     errorString: string;
     errorMessage: string;
     errorStack: string;
-    errorAxios: {
+    errorAxios?: {
         status?: number;
         statusText?: string;
         url?: string;
         method?: Method;
         data?: string;
         headers?: string;
+    };
+    errorQuery?: {
+        code?: string;
+        sqlMessage?: string;
+        message?: string;
+        sqlState?: string;
+        query?: string;
     };
 };
 

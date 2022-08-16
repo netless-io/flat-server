@@ -1,5 +1,6 @@
 import { LoggerError } from "./LogConext";
 import axios from "axios";
+import { QueryFailedError } from "typeorm";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const parseError = (error: any): Partial<LoggerError> => {
@@ -51,6 +52,32 @@ export const parseError = (error: any): Partial<LoggerError> => {
 
                 return {
                     errorAxios: errorAxios,
+                };
+            }
+
+            if (error instanceof QueryFailedError) {
+                const errorQuery: Record<string, string | number> = {};
+
+                if ("code" in error.driverError) {
+                    errorQuery.code = error.driverError.code;
+                }
+
+                if ("sqlMessage" in error.driverError) {
+                    errorQuery.sqlMessage = error.driverError.sqlMessage;
+                }
+
+                if ("message" in error.driverError) {
+                    errorQuery.message = error.driverError.message;
+                }
+
+                if ("sqlState" in error.driverError) {
+                    errorQuery.sqlState = error.driverError.sqlState;
+                }
+
+                errorQuery.query = error.query;
+
+                return {
+                    errorQuery,
                 };
             }
 
