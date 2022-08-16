@@ -54,10 +54,11 @@ const registerRouters =
                                 resp = result as Response;
                             }
                         } catch (error) {
+                            // @ts-ignore
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                            req[kAPILogger].error("request failed", parseError(error));
+
                             if (autoHandle) {
-                                // @ts-ignore
-                                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                                req[kAPILogger].error("request interruption", parseError(error));
                                 resp = errorToResp(error as Error);
                             }
                         }

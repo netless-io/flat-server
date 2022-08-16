@@ -46,7 +46,11 @@ const plugin = (instance: FastifyInstance, _opts: any, done: () => void): void =
         const log = request[kAPILogger] as Logger<LoggerAPIv2> | undefined;
 
         if (log) {
-            log.error("request unexpected interruption", parseError(error));
+            if (error.validation) {
+                log.debug("validation error", parseError(error));
+            } else {
+                log.error("request failed", parseError(error));
+            }
         }
 
         done();
