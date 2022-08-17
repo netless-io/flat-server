@@ -1,45 +1,50 @@
 import test from "ava";
-import { CreateCloudStorageConfigs } from "../../../__tests__/helpers/db/cloud-storage-configs";
 import { CloudStorageInfoService } from "../info";
 import { listFilesAndTotalUsageByUserUUIDSchema, listSchema } from "../info.schema";
 import { Schema } from "../../../__tests__/helpers/schema";
 import { v4 } from "uuid";
 import { initializeDataSource } from "../../../__tests__/helpers/db/test-hooks";
 import { useTransaction } from "../../../__tests__/helpers/db/query-runner";
-import { CreateCS } from "../../../__tests__/helpers/db/create-cs-files";
 import { ids } from "../../../__tests__/helpers/fastify/ids";
+import { testService } from "../../../__tests__/helpers/db";
 
 const namespace = "services.cloud-storage.info";
 
 initializeDataSource(test, namespace);
 
 test(`${namespace} - totalUsage`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const { createCloudStorageConfigs } = testService(t);
 
-    const { userUUID, totalUsage } = await CreateCloudStorageConfigs.quick();
+    const { userUUID, totalUsage } = await createCloudStorageConfigs.quick();
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(ids(), t, userUUID);
     const totalUsageBySVC = await cloudStorageInfoSVC.totalUsage();
 
     ava.is(totalUsage, totalUsageBySVC);
+
+    await releaseRunner();
 });
 
 test(`${namespace} - totalUsage - empty`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(ids(), t, v4());
     const totalUsage = await cloudStorageInfoSVC.totalUsage();
 
     ava.is(totalUsage, 0);
+
+    await releaseRunner();
 });
 
 test(`${namespace} - list`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const { createCS } = testService(t);
 
     const userUUID = v4();
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [_f1, f2, f3] = await CreateCS.createFiles(userUUID, "/", 3);
+    const [_f1, f2, f3] = await createCS.createFiles(userUUID, "/", 3);
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(ids(), t, userUUID);
     const result = await cloudStorageInfoSVC.list({
@@ -54,15 +59,18 @@ test(`${namespace} - list`, async ava => {
     ava.is(result[1].fileUUID, f2.fileUUID);
 
     ava.is(Schema.check(listSchema, result), null);
+
+    await releaseRunner();
 });
 
 test(`${namespace} - list - dir`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const { createCS } = testService(t);
 
     const userUUID = v4();
-    const d1 = await CreateCS.createDirectory(userUUID);
-    const f1 = await CreateCS.createFile(userUUID);
-    const [f2, f3] = await CreateCS.createFiles(userUUID, d1.directoryPath, 2);
+    const d1 = await createCS.createDirectory(userUUID);
+    const f1 = await createCS.createFile(userUUID);
+    const [f2, f3] = await createCS.createFiles(userUUID, d1.directoryPath, 2);
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(ids(), t, userUUID);
 
@@ -93,10 +101,12 @@ test(`${namespace} - list - dir`, async ava => {
         ava.is(result[1].fileUUID, f1.fileUUID);
         ava.is(Schema.check(listSchema, result), null);
     }
+
+    await releaseRunner();
 });
 
 test(`${namespace} - list - empty`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(ids(), t, v4());
     const result = await cloudStorageInfoSVC.list({
@@ -108,14 +118,17 @@ test(`${namespace} - list - empty`, async ava => {
 
     ava.is(result.length, 0);
     ava.is(Schema.check(listSchema, result), null);
+
+    await releaseRunner();
 });
 
 test(`${namespace} - listFilesAndTotalUsageByUserUUID`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const { createCloudStorageConfigs, createCS } = testService(t);
 
     const userUUID = v4();
-    const { totalUsage } = await CreateCloudStorageConfigs.fixedUserUUID(userUUID);
-    const [f1, f2, f3] = await CreateCS.createFiles(userUUID, "/", 3);
+    const { totalUsage } = await createCloudStorageConfigs.fixedUserUUID(userUUID);
+    const [f1, f2, f3] = await createCS.createFiles(userUUID, "/", 3);
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(ids(), t, userUUID);
     const result = await cloudStorageInfoSVC.listFilesAndTotalUsageByUserUUID({
@@ -132,10 +145,12 @@ test(`${namespace} - listFilesAndTotalUsageByUserUUID`, async ava => {
     ava.is(result.items[2].fileUUID, f3.fileUUID);
 
     ava.is(Schema.check(listFilesAndTotalUsageByUserUUIDSchema, result), null);
+
+    await releaseRunner();
 });
 
 test(`${namespace} - listFilesAndTotalUsageByUserUUID - empty`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(ids(), t, v4());
     const result = await cloudStorageInfoSVC.listFilesAndTotalUsageByUserUUID({
@@ -149,21 +164,26 @@ test(`${namespace} - listFilesAndTotalUsageByUserUUID - empty`, async ava => {
     ava.is(result.items.length, 0);
 
     ava.is(Schema.check(listFilesAndTotalUsageByUserUUIDSchema, result), null);
+
+    await releaseRunner();
 });
 
 test(`${namespace} - findFilesInfo - empty data`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
     const cloudStorageInfoSVC = new CloudStorageInfoService(ids(), t, v4());
     const result = await cloudStorageInfoSVC.findFilesInfo();
 
     ava.is(result.size, 0);
+
+    await releaseRunner();
 });
 
 test(`${namespace} - findFilesInfo - success`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const { createCS } = testService(t);
 
     const userUUID = v4();
-    const [f1, f2] = await CreateCS.createFiles(userUUID, "/", 2);
+    const [f1, f2] = await createCS.createFiles(userUUID, "/", 2);
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(ids(), t, userUUID);
     const result = await cloudStorageInfoSVC.findFilesInfo();
@@ -175,4 +195,6 @@ test(`${namespace} - findFilesInfo - success`, async ava => {
             ava.fail();
         }
     });
+
+    await releaseRunner();
 });

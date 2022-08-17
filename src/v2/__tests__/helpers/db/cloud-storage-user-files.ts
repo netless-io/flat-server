@@ -1,26 +1,28 @@
-import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 import { v4 } from "uuid";
 import { CloudStorageUserFilesModel } from "../../../../model/cloudStorage/CloudStorageUserFiles";
+import { EntityManager } from "typeorm";
 
 export class CreateCloudStorageUserFiles {
-    public static async full(info: { userUUID: string; fileUUID: string }) {
-        await dataSource.getRepository(CloudStorageUserFilesModel).insert({
+    public constructor(private readonly t: EntityManager) {}
+
+    public async full(info: { userUUID: string; fileUUID: string }) {
+        await this.t.getRepository(CloudStorageUserFilesModel).insert({
             user_uuid: info.userUUID,
             file_uuid: info.fileUUID,
         });
     }
 
-    public static async fixedFileUUID(fileUUID: string | string[]) {
-        return CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(v4(), fileUUID);
+    public async fixedFileUUID(fileUUID: string | string[]) {
+        return this.fixedUserUUIDAndFileUUID(v4(), fileUUID);
     }
 
-    public static async fixedUserUUIDAndFileUUID(userUUID: string, fileUUID: string | string[]) {
+    public async fixedUserUUIDAndFileUUID(userUUID: string, fileUUID: string | string[]) {
         if (typeof fileUUID === "string") {
             const info = {
                 userUUID,
                 fileUUID,
             };
-            await CreateCloudStorageUserFiles.full(info);
+            await this.full(info);
 
             return info;
         }
@@ -30,7 +32,7 @@ export class CreateCloudStorageUserFiles {
             file_uuid: item,
         }));
 
-        await dataSource.getRepository(CloudStorageUserFilesModel).insert(infos);
+        await this.t.getRepository(CloudStorageUserFilesModel).insert(infos);
 
         return fileUUID.map(item => ({
             userUUID,

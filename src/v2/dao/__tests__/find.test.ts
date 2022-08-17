@@ -11,10 +11,11 @@ const namespace = "dao.find";
 initializeDataSource(test, namespace);
 
 test(`${namespace} - select is string`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const createUser = new CreateUser(t);
 
     const userName = v4();
-    const { userUUID } = await CreateUser.fixedName(userName);
+    const { userUUID } = await createUser.fixedName(userName);
 
     const result = await userDAO.find(t, "user_uuid", {
         user_name: userName,
@@ -22,13 +23,16 @@ test(`${namespace} - select is string`, async ava => {
 
     ava.is(result.length, 1);
     ava.is(result[0].user_uuid, userUUID);
+
+    await releaseRunner();
 });
 
 test(`${namespace} - select is Array<string>`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const createUser = new CreateUser(t);
 
     const userName = v4();
-    const { userUUID } = await CreateUser.fixedName(userName);
+    const { userUUID } = await createUser.fixedName(userName);
 
     const result = await userDAO.find(t, ["user_uuid"], {
         user_name: userName,
@@ -36,25 +40,30 @@ test(`${namespace} - select is Array<string>`, async ava => {
 
     ava.is(result.length, 1);
     ava.is(result[0].user_uuid, userUUID);
+
+    await releaseRunner();
 });
 
 test(`${namespace} - result is empty`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
 
     const result = await userDAO.find(t, ["user_uuid"], {
         user_uuid: v4(),
     });
 
     ava.is(result.length, 0);
+
+    await releaseRunner();
 });
 
 test(`${namespace} - order`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const createUser = new CreateUser(t);
 
     const userName = v4();
-    const { userUUID: userUUID1 } = await CreateUser.fixedName(userName);
-    const { userUUID: userUUID2 } = await CreateUser.fixedName(userName);
-    const { userUUID: userUUID3 } = await CreateUser.fixedName(userName);
+    const { userUUID: userUUID1 } = await createUser.fixedName(userName);
+    const { userUUID: userUUID2 } = await createUser.fixedName(userName);
+    const { userUUID: userUUID3 } = await createUser.fixedName(userName);
 
     const result = await userDAO.find(
         t,
@@ -71,14 +80,17 @@ test(`${namespace} - order`, async ava => {
     ava.is(result[0].user_uuid, userUUID3);
     ava.is(result[1].user_uuid, userUUID2);
     ava.is(result[2].user_uuid, userUUID1);
+
+    await releaseRunner();
 });
 
 test(`${namespace} - distinct`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const createUser = new CreateUser(t);
 
     const userName = v4();
-    const { userUUID: userUUID1 } = await CreateUser.fixedName(userName);
-    const { userUUID: userUUID2 } = await CreateUser.fixedName(userName);
+    const { userUUID: userUUID1 } = await createUser.fixedName(userName);
+    const { userUUID: userUUID2 } = await createUser.fixedName(userName);
 
     const result = await userDAO.find(
         t,
@@ -93,14 +105,17 @@ test(`${namespace} - distinct`, async ava => {
 
     ava.is(result.length, 1);
     ava.is(result[0].user_name, userName);
+
+    await releaseRunner();
 });
 
 test(`${namespace} - limit`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const createUser = new CreateUser(t);
 
     const userName = v4();
-    const { userUUID: userUUID1 } = await CreateUser.fixedName(userName);
-    await CreateUser.fixedName(userName);
+    const { userUUID: userUUID1 } = await createUser.fixedName(userName);
+    await createUser.fixedName(userName);
 
     const result = await userDAO.find(
         t,
@@ -115,4 +130,6 @@ test(`${namespace} - limit`, async ava => {
 
     ava.is(result.length, 1);
     ava.is(result[0].user_uuid, userUUID1);
+
+    await releaseRunner();
 });

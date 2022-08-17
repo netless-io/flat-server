@@ -2,12 +2,7 @@ import test from "ava";
 import { CloudStorageDeleteService } from "../delete";
 import { v4 } from "uuid";
 import { FileResourceType } from "../../../../model/cloudStorage/Constants";
-import { CreateCloudStorageConfigs } from "../../../__tests__/helpers/db/cloud-storage-configs";
-import {
-    CreateCloudStorageFiles,
-    infoByType,
-} from "../../../__tests__/helpers/db/cloud-storage-files";
-import { CreateCloudStorageUserFiles } from "../../../__tests__/helpers/db/cloud-storage-user-files";
+import { infoByType } from "../../../__tests__/helpers/db/cloud-storage-files";
 import { ids } from "../../../__tests__/helpers/fastify/ids";
 import { useTransaction } from "../../../__tests__/helpers/db/query-runner";
 import { cloudStorageConfigsDAO, cloudStorageUserFilesDAO } from "../../../dao";
@@ -15,6 +10,7 @@ import { initializeDataSource } from "../../../__tests__/helpers/db/test-hooks";
 import { SinonStub, stub } from "sinon";
 import * as sl from "../../../service-locator";
 import * as log from "../../../../logger";
+import { testService } from "../../../__tests__/helpers/db";
 
 const namespace = "v2.services.cloud-storage.delete";
 
@@ -121,22 +117,24 @@ test.serial(`${namespace} - get all files and dirs`, ava => {
 });
 
 test.serial(`${namespace} - delete online courseware`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const { createCloudStorageConfigs, createCloudStorageFiles, createCloudStorageUserFiles } =
+        testService(t);
 
     const userUUID = v4();
-    await CreateCloudStorageConfigs.full({
+    await createCloudStorageConfigs.full({
         userUUID,
         totalUsage: 200,
     });
-    const f1 = await CreateCloudStorageFiles.quick(FileResourceType.OnlineCourseware);
-    const d1 = await CreateCloudStorageFiles.createDirectory("/", v4());
-    const f2 = await CreateCloudStorageFiles.full({
+    const f1 = await createCloudStorageFiles.quick(FileResourceType.OnlineCourseware);
+    const d1 = await createCloudStorageFiles.createDirectory("/", v4());
+    const f2 = await createCloudStorageFiles.full({
         ...infoByType(FileResourceType.OnlineCourseware),
         directoryPath: `${d1.directoryPath}${d1.fileName}/`,
         fileName: "f2.txt",
         fileSize: 100,
     });
-    await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, [
+    await createCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, [
         f1.fileUUID,
         d1.fileUUID,
         f2.fileUUID,
@@ -158,10 +156,12 @@ test.serial(`${namespace} - delete online courseware`, async ava => {
     });
 
     ava.is(userTotalUsage.total_usage, "200");
+
+    await releaseRunner();
 });
 
 test.serial(`${namespace} - delete files list is empty`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
 
     const deleteSVC = new CloudStorageDeleteService(ids(), t, v4());
 
@@ -170,25 +170,29 @@ test.serial(`${namespace} - delete files list is empty`, async ava => {
     });
 
     ava.pass();
+
+    await releaseRunner();
 });
 
 test.serial(`${namespace} - update total usage`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const { createCloudStorageConfigs, createCloudStorageFiles, createCloudStorageUserFiles } =
+        testService(t);
 
     const userUUID = v4();
-    await CreateCloudStorageConfigs.full({
+    await createCloudStorageConfigs.full({
         userUUID,
         totalUsage: 100,
     });
-    const f1 = await CreateCloudStorageFiles.quick(FileResourceType.OnlineCourseware);
-    const d1 = await CreateCloudStorageFiles.createDirectory("/", v4());
-    const f2 = await CreateCloudStorageFiles.full({
+    const f1 = await createCloudStorageFiles.quick(FileResourceType.OnlineCourseware);
+    const d1 = await createCloudStorageFiles.createDirectory("/", v4());
+    const f2 = await createCloudStorageFiles.full({
         ...infoByType(FileResourceType.NormalResources),
         directoryPath: `${d1.directoryPath}${d1.fileName}/`,
         fileName: "f2.txt",
         fileSize: 100,
     });
-    await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, [
+    await createCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, [
         f1.fileUUID,
         d1.fileUUID,
         f2.fileUUID,
@@ -210,18 +214,22 @@ test.serial(`${namespace} - update total usage`, async ava => {
     });
 
     ava.is(userTotalUsage.total_usage, "0");
+
+    await releaseRunner();
 });
 
 test.serial(`${namespace} - delete oss file fail`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const { createCloudStorageConfigs, createCloudStorageFiles, createCloudStorageUserFiles } =
+        testService(t);
 
     const userUUID = v4();
-    await CreateCloudStorageConfigs.full({
+    await createCloudStorageConfigs.full({
         userUUID,
         totalUsage: 10000,
     });
-    const f1 = await CreateCloudStorageFiles.quick(FileResourceType.LocalCourseware);
-    await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, f1.fileUUID);
+    const f1 = await createCloudStorageFiles.quick(FileResourceType.LocalCourseware);
+    await createCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, f1.fileUUID);
 
     const customError = new Error(v4());
 
@@ -249,4 +257,6 @@ test.serial(`${namespace} - delete oss file fail`, async ava => {
     ava.is(loggerWarnReturnStub.getCall(0).lastArg.errorMessage, customError.message);
 
     logger.restore();
+
+    await releaseRunner();
 });

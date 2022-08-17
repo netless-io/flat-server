@@ -7,15 +7,15 @@ import { cloudStorageFilesDAO } from "../../../dao";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { FError } from "../../../../error/ControllerError";
-import { CreateCS } from "../../../__tests__/helpers/db/create-cs-files";
 import { ids } from "../../../__tests__/helpers/fastify/ids";
+import { testService } from "../../../__tests__/helpers/db";
 
 const namespace = "service.cloud-storage.rename";
 
 initializeDataSource(test, namespace);
 
 test(`${namespace} - rename - cloud storage is empty`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
 
     const cloudStorageRenameSVC = new CloudStorageRenameService(ids(), t, v4());
 
@@ -23,13 +23,16 @@ test(`${namespace} - rename - cloud storage is empty`, async ava => {
         instanceOf: FError,
         message: `${Status.Failed}: ${ErrorCode.FileNotFound}`,
     });
+
+    await releaseRunner();
 });
 
 test(`${namespace} - rename - not found file`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const { createCS } = testService(t);
 
     const userUUID = v4();
-    await CreateCS.createDirectory(userUUID, "/");
+    await createCS.createDirectory(userUUID, "/");
 
     const cloudStorageRenameSVC = new CloudStorageRenameService(ids(), t, userUUID);
 
@@ -37,13 +40,16 @@ test(`${namespace} - rename - not found file`, async ava => {
         instanceOf: FError,
         message: `${Status.Failed}: ${ErrorCode.FileNotFound}`,
     });
+
+    await releaseRunner();
 });
 
 test(`${namespace} - rename - directory`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const { createCS } = testService(t);
 
     const [userUUID, newName] = [v4(), v4()];
-    const dir = await CreateCS.createDirectory(userUUID);
+    const dir = await createCS.createDirectory(userUUID);
 
     const cloudStorageRenameSVC = new CloudStorageRenameService(ids(), t, userUUID);
 
@@ -56,4 +62,6 @@ test(`${namespace} - rename - directory`, async ava => {
 
         ava.is(result.file_name, newName);
     }
+
+    await releaseRunner();
 });

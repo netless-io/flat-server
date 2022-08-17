@@ -6,12 +6,11 @@ import { cloudStorageRouters } from "../../routes";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { cloudStorageDelete } from "../index";
 import { successJSON } from "../../../internal/utils/response-json";
-import { CreateCloudStorageConfigs } from "../../../../__tests__/helpers/db/cloud-storage-configs";
-import { CreateCloudStorageFiles } from "../../../../__tests__/helpers/db/cloud-storage-files";
 import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
-import { CreateCloudStorageUserFiles } from "../../../../__tests__/helpers/db/cloud-storage-user-files";
 import { stub } from "sinon";
 import * as sl from "../../../../service-locator";
+import { useTransaction } from "../../../../__tests__/helpers/db/query-runner";
+import { testService } from "../../../../__tests__/helpers/db";
 
 const namespace = "v2.controllers.cloud-storage.delete";
 initializeDataSource(test, namespace);
@@ -65,16 +64,22 @@ test(`${namespace} - uuids is too long`, async ava => {
 });
 
 test.serial(`${namespace} - execute handler`, async ava => {
-    const helperAPI = new HelperAPI();
+    const { t, commitTransaction, releaseRunner } = await useTransaction();
+    const { createCloudStorageConfigs, createCloudStorageFiles, createCloudStorageUserFiles } =
+        testService(t);
 
-    const { userUUID } = await CreateCloudStorageConfigs.quick();
-    const { fileUUID } = await CreateCloudStorageFiles.quick(FileResourceType.OnlineCourseware);
-    await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, fileUUID);
+    const { userUUID } = await createCloudStorageConfigs.quick();
+    const { fileUUID } = await createCloudStorageFiles.quick(FileResourceType.OnlineCourseware);
+    await createCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, fileUUID);
+
+    await commitTransaction();
+    await releaseRunner();
 
     const useOnceService = stub(sl, "useOnceService").returns({
         remove: () => Promise.resolve(),
     });
 
+    const helperAPI = new HelperAPI();
     await helperAPI.import(cloudStorageRouters, cloudStorageDelete);
     const resp = await helperAPI.injectAuth(userUUID, {
         method: "POST",

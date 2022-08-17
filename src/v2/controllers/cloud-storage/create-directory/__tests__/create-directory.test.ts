@@ -14,7 +14,7 @@ const namespace = "v2.controllers.cloud-storage.directory.create";
 initializeDataSource(test, namespace);
 
 test(`${namespace} - create success`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
     const helperAPI = new HelperAPI();
     const [userUUID, directoryName] = [v4(), v4()];
 
@@ -46,4 +46,6 @@ test(`${namespace} - create success`, async ava => {
     ava.is(result.directory_path, "/");
     ava.is(result.file_name, directoryName);
     ava.is(result.resource_type, FileResourceType.Directory);
+
+    await releaseRunner();
 });
