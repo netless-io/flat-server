@@ -5,8 +5,9 @@ import { v4 } from "uuid";
 import { cloudStorageRouters } from "../../routes";
 import { cloudStorageMove, cloudStorageMoveSchema } from "../index";
 import { Schema } from "../../../../__tests__/helpers/schema";
-import { CreateCS } from "../../../../__tests__/helpers/db/create-cs-files";
 import { successJSON } from "../../../internal/utils/response-json";
+import { useTransaction } from "../../../../__tests__/helpers/db/query-runner";
+import { testService } from "../../../../__tests__/helpers/db";
 
 const namespace = "v2.controllers.cloud-storage.move";
 
@@ -66,10 +67,16 @@ test(`${namespace} - move - schema`, ava => {
 });
 
 test(`${namespace} - move - success execute`, async ava => {
+    const { t, commitTransaction, releaseRunner } = await useTransaction();
+    const { createCS } = testService(t);
+
     const helperAPI = new HelperAPI();
     const userUUID = v4();
 
-    const [d1, d2] = await CreateCS.createDirectories(userUUID, "/", 2);
+    const [d1, d2] = await createCS.createDirectories(userUUID, "/", 2);
+
+    await commitTransaction();
+    await releaseRunner();
 
     await helperAPI.import(cloudStorageRouters, cloudStorageMove);
     const resp = await helperAPI.injectAuth(userUUID, {

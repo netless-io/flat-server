@@ -2,19 +2,29 @@ import { CreateCloudStorageConfigs } from "./cloud-storage-configs";
 import { CreateCloudStorageFiles } from "./cloud-storage-files";
 import { CreateCloudStorageUserFiles } from "./cloud-storage-user-files";
 import { v4 } from "uuid";
+import { EntityManager } from "typeorm";
 
 export class CreateCS {
-    public static async createDirectory(
+    private createCloudStorageConfigs = new CreateCloudStorageConfigs(this.t);
+    private createCloudStorageFiles = new CreateCloudStorageFiles(this.t);
+    private createCloudStorageUserFiles = new CreateCloudStorageUserFiles(this.t);
+
+    public constructor(private readonly t: EntityManager) {}
+
+    public async createDirectory(
         userUUID: string,
         parentDirectoryPath = "/",
         directoryName = v4(),
     ) {
-        await CreateCloudStorageConfigs.fixedUserUUID(userUUID);
-        const fileInfo = await CreateCloudStorageFiles.createDirectory(
+        await this.createCloudStorageConfigs.fixedUserUUID(userUUID);
+        const fileInfo = await this.createCloudStorageFiles.createDirectory(
             parentDirectoryPath,
             directoryName,
         );
-        await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, fileInfo.fileUUID);
+        await this.createCloudStorageUserFiles.fixedUserUUIDAndFileUUID(
+            userUUID,
+            fileInfo.fileUUID,
+        );
 
         return {
             directoryName,
@@ -23,21 +33,21 @@ export class CreateCS {
         };
     }
 
-    public static async createDirectories(userUUID: string, parentDirectoryPath = "/", count = 1) {
+    public async createDirectories(userUUID: string, parentDirectoryPath = "/", count = 1) {
         const directoryNames = Array.from({ length: count }, () => v4());
 
-        await CreateCloudStorageConfigs.fixedUserUUID(userUUID);
+        await this.createCloudStorageConfigs.fixedUserUUID(userUUID);
 
         const items = [];
         for (let i = 0; i < count; i++) {
-            const result = await CreateCloudStorageFiles.createDirectory(
+            const result = await this.createCloudStorageFiles.createDirectory(
                 parentDirectoryPath,
                 directoryNames[i],
             );
             items.push(result);
         }
 
-        const result = (await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(
+        const result = (await this.createCloudStorageUserFiles.fixedUserUUIDAndFileUUID(
             userUUID,
             items.map(i => i.fileUUID),
         )) as Array<{ userUUID: string; fileUUID: string }>;
@@ -49,15 +59,18 @@ export class CreateCS {
         }));
     }
 
-    public static async createFile(userUUID: string, parentDirectoryPath = "/", fileName = v4()) {
-        await CreateCloudStorageConfigs.fixedUserUUID(userUUID);
+    public async createFile(userUUID: string, parentDirectoryPath = "/", fileName = v4()) {
+        await this.createCloudStorageConfigs.fixedUserUUID(userUUID);
 
-        const fileInfo = await CreateCloudStorageFiles.fixedDirectoryPath(
+        const fileInfo = await this.createCloudStorageFiles.fixedDirectoryPath(
             parentDirectoryPath,
             fileName,
         );
 
-        await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, fileInfo.fileUUID);
+        await this.createCloudStorageUserFiles.fixedUserUUIDAndFileUUID(
+            userUUID,
+            fileInfo.fileUUID,
+        );
 
         return {
             fileName,
@@ -66,21 +79,21 @@ export class CreateCS {
         };
     }
 
-    public static async createFiles(userUUID: string, parentDirectoryPath = "/", count = 1) {
+    public async createFiles(userUUID: string, parentDirectoryPath = "/", count = 1) {
         const fileNames = Array.from({ length: count }, () => v4());
 
-        await CreateCloudStorageConfigs.fixedUserUUID(userUUID);
+        await this.createCloudStorageConfigs.fixedUserUUID(userUUID);
 
         const items = [];
         for (let i = 0; i < count; i++) {
-            const result = await CreateCloudStorageFiles.fixedDirectoryPath(
+            const result = await this.createCloudStorageFiles.fixedDirectoryPath(
                 parentDirectoryPath,
                 fileNames[i],
             );
             items.push(result);
         }
 
-        const result = (await CreateCloudStorageUserFiles.fixedUserUUIDAndFileUUID(
+        const result = (await this.createCloudStorageUserFiles.fixedUserUUIDAndFileUUID(
             userUUID,
             items.map(i => i.fileUUID),
         )) as Array<{ userUUID: string; fileUUID: string }>;

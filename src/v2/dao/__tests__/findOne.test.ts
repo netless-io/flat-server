@@ -10,43 +10,52 @@ const namespace = "dao.findOne";
 initializeDataSource(test, namespace);
 
 test(`${namespace} - select is string`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const createUser = new CreateUser(t);
 
-    const { userUUID } = await CreateUser.quick();
+    const { userUUID } = await createUser.quick();
     const { user_uuid } = await userDAO.findOne(t, "user_uuid", {
         user_uuid: userUUID,
     });
 
     ava.is(user_uuid, userUUID);
+
+    await releaseRunner();
 });
 
 test(`${namespace} - select is Array<string>`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const createUser = new CreateUser(t);
 
-    const { userUUID } = await CreateUser.quick();
+    const { userUUID } = await createUser.quick();
     const { user_uuid } = await userDAO.findOne(t, ["user_uuid"], {
         user_uuid: userUUID,
     });
 
     ava.is(user_uuid, userUUID);
+
+    await releaseRunner();
 });
 
 test(`${namespace} - result is empty`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
 
     const { user_uuid } = await userDAO.findOne(t, ["user_uuid"], {
         user_uuid: v4(),
     });
 
     ava.is(user_uuid, undefined);
+
+    await releaseRunner();
 });
 
 test(`${namespace} - order`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const createUser = new CreateUser(t);
 
     const userName = v4();
-    await CreateUser.fixedName(userName);
-    const { userUUID } = await CreateUser.fixedName(userName);
+    await createUser.fixedName(userName);
+    const { userUUID } = await createUser.fixedName(userName);
 
     const { user_uuid } = await userDAO.findOne(
         t,
@@ -58,4 +67,6 @@ test(`${namespace} - order`, async ava => {
     );
 
     ava.is(user_uuid, userUUID);
+
+    await releaseRunner();
 });

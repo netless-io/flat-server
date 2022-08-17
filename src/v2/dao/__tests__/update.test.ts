@@ -11,8 +11,9 @@ initializeDataSource(test, namespace);
 
 test(`${namespace} - no config`, async ava => {
     const { t, commitTransaction } = await useTransaction();
+    const createUser = new CreateUser(t);
 
-    const { userUUID } = await CreateUser.quick();
+    const { userUUID } = await createUser.quick();
 
     const newUserName = v4();
     await userDAO.update(
@@ -36,13 +37,14 @@ test(`${namespace} - no config`, async ava => {
 
 test(`${namespace} - limit and order`, async ava => {
     const { t, commitTransaction } = await useTransaction();
+    const createUser = new CreateUser(t);
 
     const [userName, password] = [v4(), v4()];
     await Promise.all([
-        CreateUser.fixedName(userName),
-        CreateUser.fixedName(userName),
-        CreateUser.fixedName(userName),
-        CreateUser.fixedName(userName),
+        createUser.fixedName(userName),
+        createUser.fixedName(userName),
+        createUser.fixedName(userName),
+        createUser.fixedName(userName),
     ]);
 
     await userDAO.update(

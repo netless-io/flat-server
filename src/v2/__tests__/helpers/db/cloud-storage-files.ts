@@ -1,9 +1,9 @@
-import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 import { v4 } from "uuid";
 import { CloudStorageFilesModel } from "../../../../model/cloudStorage/CloudStorageFiles";
 import { FilePayload } from "../../../../model/cloudStorage/Types";
 import { FileConvertStep, FileResourceType } from "../../../../model/cloudStorage/Constants";
 import { Region } from "../../../../constants/Project";
+import { EntityManager } from "typeorm";
 
 export const infoByType = (resourceType: FileResourceType) => {
     let payload = {};
@@ -53,7 +53,9 @@ export const infoByType = (resourceType: FileResourceType) => {
 };
 
 export class CreateCloudStorageFiles {
-    public static async full(info: {
+    public constructor(private readonly t: EntityManager) {}
+
+    public async full(info: {
         fileUUID: string;
         fileName: string;
         fileSize: number;
@@ -62,7 +64,7 @@ export class CreateCloudStorageFiles {
         payload: FilePayload;
         resourceType: FileResourceType;
     }) {
-        await dataSource.getRepository(CloudStorageFilesModel).insert({
+        await this.t.getRepository(CloudStorageFilesModel).insert({
             file_uuid: info.fileUUID,
             file_name: info.fileName,
             file_size: info.fileSize,
@@ -75,26 +77,26 @@ export class CreateCloudStorageFiles {
         return info;
     }
 
-    public static async quick(resourceType: FileResourceType) {
+    public async quick(resourceType: FileResourceType) {
         const info = infoByType(resourceType);
-        await CreateCloudStorageFiles.full(info);
+        await this.full(info);
 
         return info;
     }
 
-    public static async createDirectory(parentDirectoryPath: string, directoryName: string) {
+    public async createDirectory(parentDirectoryPath: string, directoryName: string) {
         const info = {
             ...infoByType(FileResourceType.Directory),
             directoryPath: parentDirectoryPath,
             fileName: directoryName,
             fileSize: 0,
         };
-        await CreateCloudStorageFiles.full(info);
+        await this.full(info);
 
         return info;
     }
 
-    public static async fixedDirectoryPath(directoryPath: string, fileName: string) {
+    public async fixedDirectoryPath(directoryPath: string, fileName: string) {
         const arr = [
             FileResourceType.WhiteboardProjector,
             FileResourceType.WhiteboardConvert,
@@ -109,7 +111,7 @@ export class CreateCloudStorageFiles {
             directoryPath,
             fileName,
         };
-        await CreateCloudStorageFiles.full(info);
+        await this.full(info);
 
         return info;
     }

@@ -1,50 +1,54 @@
-import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 import { CloudStorageConfigsModel } from "../../../../model/cloudStorage/CloudStorageConfigs";
 import { v4 } from "uuid";
+import { EntityManager } from "typeorm";
 
 export class CreateCloudStorageConfigs {
-    public static async full(info: { userUUID: string; totalUsage: number }) {
-        await dataSource
-            .createQueryBuilder()
-            .insert()
-            .into(CloudStorageConfigsModel)
-            .values({
+    public constructor(private readonly t: EntityManager) {}
+
+    public async full(info: { userUUID: string; totalUsage: number }) {
+        const hasUserUUID = await this.t.findOne(CloudStorageConfigsModel, {
+            where: {
+                user_uuid: info.userUUID,
+            },
+        });
+
+        if (!hasUserUUID) {
+            await this.t.insert(CloudStorageConfigsModel, {
                 user_uuid: info.userUUID,
                 total_usage: String(info.totalUsage),
-            })
-            .orIgnore(true)
-            .execute();
+            });
+        }
     }
 
-    public static async quick() {
+    public async quick() {
         const info = {
             userUUID: v4(),
             totalUsage: Math.ceil(Math.random() * 100000),
         };
 
-        await CreateCloudStorageConfigs.full(info);
+        await this.full(info);
 
         return info;
     }
 
-    public static async fixedTotalUsage(totalUsage: number) {
+    public async fixedTotalUsage(totalUsage: number) {
         const info = {
             userUUID: v4(),
             totalUsage,
         };
 
-        await CreateCloudStorageConfigs.full(info);
+        await this.full(info);
 
         return info;
     }
 
-    public static async fixedUserUUID(userUUID: string) {
+    public async fixedUserUUID(userUUID: string) {
         const info = {
             userUUID,
             totalUsage: Math.ceil(Math.random() * 100000),
         };
 
-        await CreateCloudStorageConfigs.full(info);
+        await this.full(info);
 
         return info;
     }

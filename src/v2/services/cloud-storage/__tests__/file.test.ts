@@ -1,22 +1,23 @@
 import { initializeDataSource } from "../../../__tests__/helpers/db/test-hooks";
 import test from "ava";
 import { useTransaction } from "../../../__tests__/helpers/db/query-runner";
-import { CreateCS } from "../../../__tests__/helpers/db/create-cs-files";
 import { v4 } from "uuid";
 import { CloudStorageFileService } from "../file";
 import { CloudStorageInfoService } from "../info";
 import { ids } from "../../../__tests__/helpers/fastify/ids";
+import { testService } from "../../../__tests__/helpers/db";
 
 const namespace = "v2.services.cloud-storage.file";
 
 initializeDataSource(test, namespace);
 
 test(`${namespace} - move`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const { createCS } = testService(t);
 
     const userUUID = v4();
-    const [d1, d2] = await CreateCS.createDirectories(userUUID, "/", 2);
-    const [f1, f2] = await CreateCS.createFiles(userUUID, d1.directoryPath, 2);
+    const [d1, d2] = await createCS.createDirectories(userUUID, "/", 2);
+    const [f1, f2] = await createCS.createFiles(userUUID, d1.directoryPath, 2);
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(ids(), t, userUUID);
     const filesInfo = await cloudStorageInfoSVC.findFilesInfo();
@@ -47,4 +48,6 @@ test(`${namespace} - move`, async ava => {
     ava.is(l2.length, 2);
     ava.is(l2[0].fileUUID, f2.fileUUID);
     ava.is(l2[1].fileUUID, f1.fileUUID);
+
+    await releaseRunner();
 });

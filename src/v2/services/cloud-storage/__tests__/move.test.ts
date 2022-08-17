@@ -6,16 +6,16 @@ import { CloudStorageMoveService } from "../move";
 import { FError } from "../../../../error/ControllerError";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
-import { CreateCS } from "../../../__tests__/helpers/db/create-cs-files";
 import { CloudStorageInfoService } from "../info";
 import { ids } from "../../../__tests__/helpers/fastify/ids";
+import { testService } from "../../../__tests__/helpers/db";
 
 const namespace = "v2.services.cloud-storage.move";
 
 initializeDataSource(test, namespace);
 
 test(`${namespace} - file not found`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
     const [userUUID] = [v4(), v4()];
 
     const cloudStorageMoveSVC = new CloudStorageMoveService(ids(), t, userUUID);
@@ -29,12 +29,16 @@ test(`${namespace} - file not found`, async ava => {
             message: `${Status.Failed}: ${ErrorCode.ParamsCheckFailed}`,
         },
     );
+
+    await releaseRunner();
 });
 
 test(`${namespace} - path same`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const { createCS } = testService(t);
+
     const userUUID = v4();
-    const [d1, d2] = await CreateCS.createDirectories(userUUID, "/", 2);
+    const [d1, d2] = await createCS.createDirectories(userUUID, "/", 2);
 
     const cloudStorageMoveSVC = new CloudStorageMoveService(ids(), t, userUUID);
     await cloudStorageMoveSVC.move({
@@ -43,13 +47,16 @@ test(`${namespace} - path same`, async ava => {
     });
 
     ava.pass();
+    await releaseRunner();
 });
 
 test(`${namespace} - target directory does not exist`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const { createCS } = testService(t);
+
     const userUUID = v4();
 
-    const f1 = await CreateCS.createFile(userUUID);
+    const f1 = await createCS.createFile(userUUID);
 
     const cloudStorageMoveSVC = new CloudStorageMoveService(ids(), t, userUUID);
     await ava.throwsAsync(
@@ -62,10 +69,14 @@ test(`${namespace} - target directory does not exist`, async ava => {
             message: `${Status.Failed}: ${ErrorCode.DirectoryNotExists}`,
         },
     );
+
+    await releaseRunner();
 });
 
 test(`${namespace} - success execute`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const { createCS } = testService(t);
+
     const [userUUID] = [v4(), v4()];
 
     /**
@@ -77,9 +88,9 @@ test(`${namespace} - success execute`, async ava => {
      *          f3
      *      f1
      */
-    const f1 = await CreateCS.createFile(userUUID);
-    const [d1, d2, d3] = await CreateCS.createDirectories(userUUID, "/", 3);
-    const f2 = await CreateCS.createFile(userUUID, d1.directoryPath);
+    const f1 = await createCS.createFile(userUUID);
+    const [d1, d2, d3] = await createCS.createDirectories(userUUID, "/", 3);
+    const f2 = await createCS.createFile(userUUID, d1.directoryPath);
 
     /**
      * /
@@ -136,4 +147,6 @@ test(`${namespace} - success execute`, async ava => {
 
     ava.is(l4.length, 1);
     ava.is(l4[0].fileUUID, f2.fileUUID);
+
+    await releaseRunner();
 });

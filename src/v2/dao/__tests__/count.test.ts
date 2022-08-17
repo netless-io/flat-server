@@ -10,13 +10,14 @@ const namespace = "dao.count";
 initializeDataSource(test, namespace);
 
 test(`${namespace} - remove`, async ava => {
-    const { t } = await useTransaction();
+    const { t, releaseRunner } = await useTransaction();
+    const createUser = new CreateUser(t);
 
     const userName = v4();
     await Promise.all([
-        CreateUser.fixedName(userName),
-        CreateUser.fixedName(userName),
-        CreateUser.fixedName(userName),
+        createUser.fixedName(userName),
+        createUser.fixedName(userName),
+        createUser.fixedName(userName),
     ]);
 
     const count = await userDAO.count(t, {
@@ -24,4 +25,6 @@ test(`${namespace} - remove`, async ava => {
     });
 
     ava.is(count, 3);
+
+    await releaseRunner();
 });

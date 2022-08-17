@@ -1,15 +1,17 @@
-import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 import { UserModel } from "../../../../model/user/User";
 import { v4 } from "uuid";
+import { EntityManager } from "typeorm";
 
 export class CreateUser {
-    public static async full(info: {
+    public constructor(private readonly t: EntityManager) {}
+
+    public async full(info: {
         userUUID: string;
         userName: string;
         userPassword: string;
         avatarUrl: string;
     }) {
-        await dataSource.getRepository(UserModel).insert({
+        await this.t.getRepository(UserModel).insert({
             user_uuid: info.userUUID,
             user_name: info.userName,
             user_password: info.userPassword,
@@ -17,7 +19,7 @@ export class CreateUser {
         });
     }
 
-    public static async quick() {
+    public async quick() {
         const info = {
             userUUID: v4(),
             userName: v4(),
@@ -25,12 +27,12 @@ export class CreateUser {
             avatarUrl: v4(),
         };
 
-        await CreateUser.full(info);
+        await this.full(info);
 
         return info;
     }
 
-    public static async fixedName(userName: string) {
+    public async fixedName(userName: string) {
         const info = {
             userUUID: v4(),
             userName,
@@ -38,7 +40,7 @@ export class CreateUser {
             avatarUrl: v4(),
         };
 
-        await CreateUser.full(info);
+        await this.full(info);
 
         return info;
     }
