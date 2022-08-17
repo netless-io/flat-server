@@ -39,6 +39,7 @@ export class JoinRoom extends AbstractController<RequestType, ResponseType> {
 
                 if (result) {
                     uuid = result;
+                    this.logger.info(`invite code: ${this.body.uuid}, room uuid: ${uuid}`);
                 }
             } catch (error) {
                 this.logger.error("get room uuid by invite code failed", parseError(error));
