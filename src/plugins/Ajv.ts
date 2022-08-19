@@ -98,3 +98,18 @@ export const ajvSelfPlugin = (ajv: Ajv): void => {
     ajv.addFormat("directory-name", directoryName);
     ajv.addFormat("directory-path", directoryPath);
 };
+
+export const validateDirectoryName = (str: string): void => {
+    const ajv = new Ajv();
+    ajv.addFormat("directory-name", directoryName);
+
+    const validate = ajv.compile({
+        type: "string",
+        format: "directory-name",
+    });
+
+    validate(str);
+    if (validate.errors) {
+        throw new Ajv.ValidationError(validate.errors);
+    }
+};
