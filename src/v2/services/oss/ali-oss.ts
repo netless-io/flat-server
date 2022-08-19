@@ -89,4 +89,17 @@ export class AliOSSService extends OSSAbstract {
 
         await this.recursionRemove(directory, files.nextMarker);
     }
+
+    public async rename(filePath: string, newFileName: string): Promise<void> {
+        await aliOSSClient.copy(filePath, filePath, {
+            headers: {
+                "Content-Disposition": AliOSSService.toDispositionFileNameEncode(newFileName),
+            },
+        });
+    }
+
+    private static toDispositionFileNameEncode(str: string): string {
+        const encodeFileName = encodeURIComponent(str);
+        return `attachment; filename="${encodeFileName}"; filename*=UTF-8''${encodeFileName}`;
+    }
 }

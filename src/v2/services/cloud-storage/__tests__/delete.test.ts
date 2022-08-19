@@ -18,6 +18,7 @@ initializeDataSource(test, namespace);
 
 let useOnceService: SinonStub;
 test.beforeEach(() => {
+    // @ts-ignore
     useOnceService = stub(sl, "useOnceService").returns({
         remove: () => Promise.resolve(),
     });
@@ -234,6 +235,7 @@ test.serial(`${namespace} - delete oss file fail`, async ava => {
     const customError = new Error(v4());
 
     useOnceService.restore();
+    // @ts-ignore
     useOnceService = stub(sl, "useOnceService").returns({
         remove: () => Promise.reject(customError),
     });

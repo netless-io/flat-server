@@ -1,7 +1,10 @@
-import { createLoggerService } from "../../../logger";
+import { createLoggerService, parseError } from "../../../logger";
 import { EntityManager, In } from "typeorm";
 import { cloudStorageFilesDAO } from "../../dao";
 import { FilesInfo } from "./info.type";
+import { ossResourceType } from "../../../model/cloudStorage/Constants";
+import path from "path";
+import { useOnceService } from "../../service-locator";
 
 export class CloudStorageFileService {
     private readonly logger = createLoggerService<"cloudStorageFile">({
@@ -40,5 +43,32 @@ export class CloudStorageFileService {
                 filesUUID: uuids.join(", "),
             },
         });
+    }
+
+    public async rename(
+        filesInfo: FilesInfo,
+        fileUUID: string,
+        newFileName: string,
+    ): Promise<void> {
+        const fileInfo = filesInfo.get(fileUUID)!;
+
+        await cloudStorageFilesDAO.update(
+            this.DBTransaction,
+            {
+                file_name: `${newFileName}${path.extname(fileInfo.fileName)}`,
+            },
+            {
+                file_uuid: fileUUID,
+            },
+        );
+
+        if (ossResourceType.includes(fileInfo.resourceType)) {
+            const filePath = new URL(fileInfo.fileURL).pathname;
+
+            const oss = useOnceService("oss", this.ids);
+            oss.rename(filePath, newFileName).catch(error => {
+                this.logger.warn("rename oss file failed", parseError(error));
+            });
+        }
     }
 }
