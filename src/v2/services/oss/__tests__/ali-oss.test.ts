@@ -10,17 +10,20 @@ const namespace = "v2.services.oss.ali-oss";
 let deleteStub: SinonStub;
 let deleteMultiStub: SinonStub;
 let listStub: SinonStub;
+let copyStub: SinonStub;
 
 test.beforeEach(() => {
     deleteStub = sinon.stub(aliOSSClient, "delete");
     deleteMultiStub = sinon.stub(aliOSSClient, "deleteMulti");
     listStub = sinon.stub(aliOSSClient, "list");
+    copyStub = sinon.stub(aliOSSClient, "copy");
 });
 
 test.afterEach(() => {
     deleteStub.restore();
     deleteMultiStub.restore();
     listStub.restore();
+    copyStub.restore();
 });
 
 test.serial(`${namespace} - remove single file`, async ava => {
@@ -116,4 +119,29 @@ test.serial(`${namespace} - multi recursion remove`, async ava => {
     await aliOSS.recursionRemove("/");
 
     ava.deepEqual(deleteReturnStub.getCall(1).args[0], ["/test/test.png"]);
+});
+
+test.serial(`${namespace} - rename file`, async ava => {
+    const returnStub = sinon.stub().resolves();
+
+    copyStub.callsFake((filePath: string, filePath2: string, obj: any) =>
+        returnStub(filePath, filePath2, obj),
+    );
+
+    const [filePath, newFileName] = [`/test/${v4()}.png`, v4()];
+
+    const aliOSS = new AliOSSService(ids());
+    await aliOSS.rename(filePath, newFileName);
+
+    ava.deepEqual(returnStub.args[0], [
+        filePath,
+        filePath,
+        {
+            headers: {
+                "Content-Disposition": `attachment; filename="${encodeURIComponent(
+                    newFileName,
+                )}"; filename*=UTF-8''${encodeURIComponent(newFileName)}`,
+            },
+        },
+    ]);
 });

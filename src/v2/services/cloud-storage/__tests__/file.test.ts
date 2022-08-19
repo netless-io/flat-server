@@ -5,11 +5,29 @@ import { v4 } from "uuid";
 import { CloudStorageFileService } from "../file";
 import { CloudStorageInfoService } from "../info";
 import { ids } from "../../../__tests__/helpers/fastify/ids";
+import { cloudStorageFilesDAO } from "../../../dao";
+import { FileResourceType } from "../../../../model/cloudStorage/Constants";
+import { infoByType } from "../../../__tests__/helpers/db/cloud-storage-files";
+import path from "path";
+import { SinonStub, stub } from "sinon";
+import * as sl from "../../../service-locator";
 import { testService } from "../../../__tests__/helpers/db";
+import * as log from "../../../../logger";
 
 const namespace = "v2.services.cloud-storage.file";
 
 initializeDataSource(test, namespace);
+
+let useOnceService: SinonStub;
+test.beforeEach(() => {
+    // @ts-ignore
+    useOnceService = stub(sl, "useOnceService").returns({
+        rename: () => Promise.resolve(),
+    });
+});
+test.afterEach(() => {
+    useOnceService.restore();
+});
 
 test(`${namespace} - move`, async ava => {
     const { t, releaseRunner } = await useTransaction();
@@ -49,5 +67,125 @@ test(`${namespace} - move`, async ava => {
     ava.is(l2[0].fileUUID, f2.fileUUID);
     ava.is(l2[1].fileUUID, f1.fileUUID);
 
+    await releaseRunner();
+});
+
+test.serial(`${namespace} - rename - online courseware`, async ava => {
+    const { t, releaseRunner } = await useTransaction();
+    const { createCloudStorageFiles } = testService(t);
+    const [fileUUID, oldFileName, newFileName] = [v4(), `${v4()}.txt`, `${v4()}.png`];
+
+    await createCloudStorageFiles.full({
+        ...infoByType(FileResourceType.OnlineCourseware),
+        fileUUID,
+        fileName: oldFileName,
+    });
+
+    const filesInfo = new Map();
+    filesInfo.set(fileUUID, {
+        fileName: oldFileName,
+    });
+
+    const cloudStorageFileSVC = new CloudStorageFileService(ids(), t, v4());
+    await cloudStorageFileSVC.rename(filesInfo, fileUUID, newFileName);
+
+    const file = await cloudStorageFilesDAO.findOne(t, "file_name", {
+        file_uuid: fileUUID,
+    });
+
+    ava.is(file.file_name, `${newFileName}${path.extname(oldFileName)}`);
+
+    await releaseRunner();
+});
+
+test.serial(`${namespace} - rename - oss resource`, async ava => {
+    const { t, releaseRunner } = await useTransaction();
+    const { createCloudStorageFiles } = testService(t);
+    const [fileUUID, fileURL, oldFileName, newFileName] = [
+        v4(),
+        `https://a.com/x/t/${v4()}.png`,
+        `${v4()}.txt`,
+        `${v4()}.png`,
+    ];
+
+    await createCloudStorageFiles.full({
+        ...infoByType(FileResourceType.LocalCourseware),
+        fileUUID,
+        fileName: oldFileName,
+    });
+
+    const renameStub = stub().resolves();
+    useOnceService.restore();
+    // @ts-ignore
+    useOnceService = stub(sl, "useOnceService").returns({
+        rename: renameStub,
+    });
+
+    const filesInfo = new Map();
+    filesInfo.set(fileUUID, {
+        fileName: oldFileName,
+        resourceType: FileResourceType.LocalCourseware,
+        fileURL,
+    });
+
+    const cloudStorageFileSVC = new CloudStorageFileService(ids(), t, v4());
+    await cloudStorageFileSVC.rename(filesInfo, fileUUID, newFileName);
+
+    const file = await cloudStorageFilesDAO.findOne(t, "file_name", {
+        file_uuid: fileUUID,
+    });
+
+    ava.is(file.file_name, `${newFileName}${path.extname(oldFileName)}`);
+    ava.deepEqual(renameStub.getCall(0).args, [new URL(fileURL).pathname, newFileName]);
+
+    useOnceService.restore();
+    await releaseRunner();
+});
+
+test.serial(`${namespace} - rename - oss resource failed`, async ava => {
+    const { t, releaseRunner } = await useTransaction();
+    const { createCloudStorageFiles } = testService(t);
+    const [fileUUID, fileURL, oldFileName, newFileName] = [
+        v4(),
+        `https://a.com/x/t/${v4()}.png`,
+        `${v4()}.txt`,
+        `${v4()}.png`,
+    ];
+
+    await createCloudStorageFiles.full({
+        ...infoByType(FileResourceType.LocalCourseware),
+        fileUUID,
+        fileName: oldFileName,
+    });
+
+    useOnceService.restore();
+    // @ts-ignore
+    useOnceService = stub(sl, "useOnceService").returns({
+        rename: () => Promise.reject(new Error("xx")),
+    });
+
+    const loggerWarnReturnStub = stub().resolves();
+    // @ts-ignore
+    const logger = stub(log, "createLoggerService").returns({
+        warn: loggerWarnReturnStub,
+        debug: () => {},
+        error: () => {},
+        info: () => {},
+    });
+
+    const filesInfo = new Map();
+    filesInfo.set(fileUUID, {
+        fileName: oldFileName,
+        resourceType: FileResourceType.LocalCourseware,
+        fileURL,
+    });
+
+    const cloudStorageFileSVC = new CloudStorageFileService(ids(), t, v4());
+    await cloudStorageFileSVC.rename(filesInfo, fileUUID, newFileName);
+
+    ava.is(loggerWarnReturnStub.getCall(0).firstArg, "rename oss file failed");
+
+    useOnceService.restore();
+    logger.restore();
     await releaseRunner();
 });

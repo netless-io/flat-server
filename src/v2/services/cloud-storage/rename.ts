@@ -5,6 +5,7 @@ import { FileResourceType } from "../../../model/cloudStorage/Constants";
 import { ErrorCode } from "../../../ErrorCode";
 import { FError } from "../../../error/ControllerError";
 import { CloudStorageDirectoryService } from "./directory";
+import { CloudStorageFileService } from "./file";
 
 export class CloudStorageRenameService {
     private readonly logger = createLoggerService<"cloudStorageRename">({
@@ -46,8 +47,13 @@ export class CloudStorageRenameService {
                 this.DBTransaction,
                 this.userUUID,
             ).rename(filesInfo, fileUUID, newName);
+        } else {
+            this.logger.debug("file is file");
+            await new CloudStorageFileService(this.ids, this.DBTransaction, this.userUUID).rename(
+                filesInfo,
+                fileUUID,
+                newName,
+            );
         }
-
-        // TODO: implement rename for file
     }
 }
