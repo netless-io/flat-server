@@ -75,6 +75,7 @@ test.serial(`${namespace} - execute handler`, async ava => {
     await commitTransaction();
     await releaseRunner();
 
+    // @ts-ignore
     const useOnceService = stub(sl, "useOnceService").returns({
         remove: () => Promise.resolve(),
     });
