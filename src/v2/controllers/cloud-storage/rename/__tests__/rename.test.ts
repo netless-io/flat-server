@@ -5,12 +5,14 @@ import { HelperAPI } from "../../../../__tests__/helpers/api";
 import { cloudStorageRouters } from "../../routes";
 import { cloudStorageRename } from "../";
 import { v4 } from "uuid";
-import { successJSON } from "../../../internal/utils/response-json";
+import { failJSON, successJSON } from "../../../internal/utils/response-json";
 import { CloudStorageInfoService } from "../../../../services/cloud-storage/info";
 import { ids } from "../../../../__tests__/helpers/fastify/ids";
 import { testService } from "../../../../__tests__/helpers/db";
 import { stub } from "sinon";
 import * as sl from "../../../../service-locator";
+import { aliGreenText } from "../../../../../v1/utils/AliGreen";
+import { ErrorCode } from "../../../../../ErrorCode";
 
 const namespace = "v2.controllers.cloud-storage.rename";
 
@@ -113,4 +115,25 @@ test.serial(`${namespace} - rename file`, async ava => {
     useOnceService.restore();
 
     await releaseRunner();
+});
+
+test(`${namespace} - text non-compliant`, async ava => {
+    const helperAPI = new HelperAPI();
+
+    const aliGreenTextStub = stub(aliGreenText, "textNonCompliant").returns(Promise.resolve(true));
+
+    await helperAPI.import(cloudStorageRouters, cloudStorageRename);
+    const resp = await helperAPI.injectAuth(v4(), {
+        method: "POST",
+        url: "/v2/cloud-storage/rename",
+        payload: {
+            fileUUID: v4(),
+            newName: v4(),
+        },
+    });
+
+    ava.is(resp.statusCode, 200);
+    ava.deepEqual(resp.json(), failJSON(ErrorCode.NonCompliant));
+
+    aliGreenTextStub.restore();
 });

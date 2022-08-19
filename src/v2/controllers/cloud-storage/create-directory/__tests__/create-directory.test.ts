@@ -4,10 +4,13 @@ import { HelperAPI } from "../../../../__tests__/helpers/api";
 import { v4 } from "uuid";
 import { cloudStorageRouters } from "../../routes";
 import { cloudStorageDirectoryCreate } from "../";
-import { successJSON } from "../../../internal/utils/response-json";
+import { failJSON, successJSON } from "../../../internal/utils/response-json";
 import { cloudStorageFilesDAO, cloudStorageUserFilesDAO } from "../../../../dao";
 import { useTransaction } from "../../../../__tests__/helpers/db/query-runner";
 import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
+import { ErrorCode } from "../../../../../ErrorCode";
+import { aliGreenText } from "../../../../../v1/utils/AliGreen";
+import { stub } from "sinon";
 
 const namespace = "v2.controllers.cloud-storage.directory.create";
 
@@ -48,4 +51,25 @@ test(`${namespace} - create success`, async ava => {
     ava.is(result.resource_type, FileResourceType.Directory);
 
     await releaseRunner();
+});
+
+test.serial(`${namespace} - text non-compliant`, async ava => {
+    const helperAPI = new HelperAPI();
+
+    const aliGreenTextStub = stub(aliGreenText, "textNonCompliant").returns(Promise.resolve(true));
+
+    await helperAPI.import(cloudStorageRouters, cloudStorageDirectoryCreate);
+    const resp = await helperAPI.injectAuth(v4(), {
+        method: "POST",
+        url: "/v2/cloud-storage/create-directory",
+        payload: {
+            parentDirectoryPath: "/",
+            directoryName: v4(),
+        },
+    });
+
+    ava.is(resp.statusCode, 200);
+    ava.deepEqual(resp.json(), failJSON(ErrorCode.NonCompliant));
+
+    aliGreenTextStub.restore();
 });
