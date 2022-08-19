@@ -12,7 +12,6 @@ export const cloudStorageRenameSchema = {
             newName: Type.String({
                 maxLength: 50,
                 minLength: 1,
-                format: "directory-name",
             }),
         },
         {

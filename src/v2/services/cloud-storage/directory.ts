@@ -9,6 +9,7 @@ import { cloudStorageFilesDAO, cloudStorageUserFilesDAO } from "../../dao";
 import { FileResourceType } from "../../../model/cloudStorage/Constants";
 import { calculateDirectoryMaxDeep, pathPrefixMatch, splitPath } from "./internal/utils/directory";
 import { FilesInfo } from "./info.type";
+import { validateDirectoryName } from "../../../plugins/Ajv";
 
 export class CloudStorageDirectoryService {
     private readonly logger = createLoggerService<"cloudStorageDirectory">({
@@ -103,6 +104,8 @@ export class CloudStorageDirectoryService {
         directoryUUID: string,
         newDirectoryName: string,
     ): Promise<void> {
+        validateDirectoryName(newDirectoryName);
+
         const directoryInfo = filesInfo.get(directoryUUID)!;
 
         if (directoryInfo.fileName === newDirectoryName) {

@@ -13,6 +13,7 @@ import { CloudStorageDirectoryService } from "../directory";
 import { CloudStorageInfoService } from "../info";
 import { ids } from "../../../__tests__/helpers/fastify/ids";
 import { testService } from "../../../__tests__/helpers/db";
+import ValidationError from "ajv/dist/runtime/validation_error";
 
 const namespace = "services.cloud-storage.directory";
 
@@ -141,6 +142,21 @@ test(`${namespace} - createDirectory - directory already exist`, async ava => {
     await ava.throwsAsync(cloudStorageDirectorySVC.create("/", directoryName), {
         instanceOf: FError,
         message: `${Status.Failed}: ${ErrorCode.DirectoryAlreadyExists}`,
+    });
+
+    await releaseRunner();
+});
+
+test.serial(`${namespace} - rename - params failed`, async ava => {
+    const { t, releaseRunner } = await useTransaction();
+
+    const filesInfo = new Map();
+
+    const cloudStorageDirectorySVC = new CloudStorageDirectoryService(ids(), t, v4());
+
+    await ava.throwsAsync(() => cloudStorageDirectorySVC.rename(filesInfo, v4(), "aa/"), {
+        instanceOf: ValidationError,
+        message: "validation failed",
     });
 
     await releaseRunner();
