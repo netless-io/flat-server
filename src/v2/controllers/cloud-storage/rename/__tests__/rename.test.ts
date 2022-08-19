@@ -11,14 +11,13 @@ import { ids } from "../../../../__tests__/helpers/fastify/ids";
 import { testService } from "../../../../__tests__/helpers/db";
 import { stub } from "sinon";
 import * as sl from "../../../../service-locator";
-import { aliGreenText } from "../../../../../v1/utils/AliGreen";
 import { ErrorCode } from "../../../../../ErrorCode";
 
 const namespace = "v2.controllers.cloud-storage.rename";
 
 initializeDataSource(test, namespace);
 
-test(`${namespace} - rename dir success`, async ava => {
+test.serial(`${namespace} - rename dir success`, async ava => {
     const { t, commitTransaction, releaseRunner } = await useTransaction();
     const { createCS } = testService(t);
 
@@ -28,6 +27,10 @@ test(`${namespace} - rename dir success`, async ava => {
     const [f1, f2] = await createCS.createFiles(userUUID, dir.directoryPath, 2);
 
     await commitTransaction();
+
+    const complianceTextStub = stub(sl, "useOnceService").returns({
+        textNormal: () => Promise.resolve(true),
+    });
 
     const helperAPI = new HelperAPI();
     await helperAPI.import(cloudStorageRouters, cloudStorageRename);
@@ -68,6 +71,7 @@ test(`${namespace} - rename dir success`, async ava => {
         ava.is(result[1].fileName, f1.fileName);
     }
 
+    complianceTextStub.restore();
     await releaseRunner();
 });
 
@@ -84,6 +88,7 @@ test.serial(`${namespace} - rename file`, async ava => {
     // @ts-ignore
     const useOnceService = stub(sl, "useOnceService").returns({
         rename: () => Promise.resolve(),
+        textNormal: () => Promise.resolve(true),
     });
 
     const helperAPI = new HelperAPI();
@@ -120,7 +125,9 @@ test.serial(`${namespace} - rename file`, async ava => {
 test(`${namespace} - text non-compliant`, async ava => {
     const helperAPI = new HelperAPI();
 
-    const aliGreenTextStub = stub(aliGreenText, "textNonCompliant").returns(Promise.resolve(true));
+    const complianceTextStub = stub(sl, "useOnceService").returns({
+        textNormal: () => Promise.resolve(false),
+    });
 
     await helperAPI.import(cloudStorageRouters, cloudStorageRename);
     const resp = await helperAPI.injectAuth(v4(), {
@@ -135,5 +142,5 @@ test(`${namespace} - text non-compliant`, async ava => {
     ava.is(resp.statusCode, 200);
     ava.deepEqual(resp.json(), failJSON(ErrorCode.NonCompliant));
 
-    aliGreenTextStub.restore();
+    complianceTextStub.restore();
 });

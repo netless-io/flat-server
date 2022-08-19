@@ -1,11 +1,14 @@
 import { OSSAbstract } from "../service/oss-abstract";
+import { ComplianceTextAbstract } from "../service/compliance-text-abstract";
 
 export interface ServicesCatalog {
     oss: OSSAbstract;
+    complianceText: ComplianceTextAbstract;
 }
 
 export interface ServicesCatalogParams {
     oss: IDS;
+    complianceText: IDS;
 }
 
 export type ServiceID = Extract<keyof ServicesCatalog, string>;

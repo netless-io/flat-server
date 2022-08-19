@@ -169,9 +169,9 @@ censorship:
       access_secret:
       callback_address:
   text:
-    enable: false
+    enable: true
     type: aliCloud
     aliCloud:
-      access_id:
-      access_secret:
-      endpoint:
+      access_id: test
+      access_secret: test
+      endpoint: green.cn-shanghai.aliyuncs.com

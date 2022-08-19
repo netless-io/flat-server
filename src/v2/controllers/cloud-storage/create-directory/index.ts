@@ -2,9 +2,9 @@ import { Type } from "@sinclair/typebox";
 import { FastifyRequestTypebox, Response } from "../../../../types/Server";
 import { successJSON } from "../../internal/utils/response-json";
 import { CloudStorageDirectoryService } from "../../../services/cloud-storage/directory";
-import { aliGreenText } from "../../../../v1/utils/AliGreen";
 import { FError } from "../../../../error/ControllerError";
 import { ErrorCode } from "../../../../ErrorCode";
+import { useOnceService } from "../../../service-locator";
 
 export const cloudStorageDirectoryCreateSchema = {
     body: Type.Object(
@@ -29,7 +29,9 @@ export const cloudStorageDirectoryCreateSchema = {
 export const cloudStorageDirectoryCreate = async (
     req: FastifyRequestTypebox<typeof cloudStorageDirectoryCreateSchema>,
 ): Promise<Response> => {
-    if (await aliGreenText.textNonCompliant(req.body.directoryName)) {
+    const complianceText = useOnceService("complianceText", req.ids);
+
+    if (!(await complianceText.textNormal(req.body.directoryName))) {
         throw new FError(ErrorCode.NonCompliant);
     }
 
