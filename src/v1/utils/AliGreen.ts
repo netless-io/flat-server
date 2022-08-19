@@ -119,9 +119,9 @@ export const aliGreenVideo = new AliGreen(
 );
 
 export const aliGreenText = new AliGreen(
-    Censorship.video.aliCloud.accessID,
-    Censorship.video.aliCloud.accessSecret,
-    Censorship.video.aliCloud.endpoint,
+    Censorship.text.aliCloud.accessID,
+    Censorship.text.aliCloud.accessSecret,
+    Censorship.text.aliCloud.endpoint,
 );
 
 type AliImageResp = {

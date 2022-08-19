@@ -9,17 +9,21 @@ import { cloudStorageFilesDAO, cloudStorageUserFilesDAO } from "../../../../dao"
 import { useTransaction } from "../../../../__tests__/helpers/db/query-runner";
 import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
 import { ErrorCode } from "../../../../../ErrorCode";
-import { aliGreenText } from "../../../../../v1/utils/AliGreen";
 import { stub } from "sinon";
+import * as sl from "../../../../service-locator";
 
 const namespace = "v2.controllers.cloud-storage.directory.create";
 
 initializeDataSource(test, namespace);
 
-test(`${namespace} - create success`, async ava => {
+test.serial(`${namespace} - create success`, async ava => {
     const { t, releaseRunner } = await useTransaction();
     const helperAPI = new HelperAPI();
     const [userUUID, directoryName] = [v4(), v4()];
+
+    const complianceTextStub = stub(sl, "useOnceService").returns({
+        textNormal: () => Promise.resolve(true),
+    });
 
     await helperAPI.import(cloudStorageRouters, cloudStorageDirectoryCreate);
     const resp = await helperAPI.injectAuth(userUUID, {
@@ -50,13 +54,16 @@ test(`${namespace} - create success`, async ava => {
     ava.is(result.file_name, directoryName);
     ava.is(result.resource_type, FileResourceType.Directory);
 
+    complianceTextStub.restore();
     await releaseRunner();
 });
 
 test.serial(`${namespace} - text non-compliant`, async ava => {
     const helperAPI = new HelperAPI();
 
-    const aliGreenTextStub = stub(aliGreenText, "textNonCompliant").returns(Promise.resolve(true));
+    const complianceTextStub = stub(sl, "useOnceService").returns({
+        textNormal: () => Promise.resolve(false),
+    });
 
     await helperAPI.import(cloudStorageRouters, cloudStorageDirectoryCreate);
     const resp = await helperAPI.injectAuth(v4(), {
@@ -71,5 +78,5 @@ test.serial(`${namespace} - text non-compliant`, async ava => {
     ava.is(resp.statusCode, 200);
     ava.deepEqual(resp.json(), failJSON(ErrorCode.NonCompliant));
 
-    aliGreenTextStub.restore();
+    complianceTextStub.restore();
 });

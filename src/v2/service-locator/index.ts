@@ -16,5 +16,6 @@ export const registerService = <T extends ServiceID>(
     service: T,
     creator: (params?: ServicesCatalogParams[T]) => ServicesInstance<T>,
 ): void => {
+    // @ts-ignore
     ServiceLocator.getInstance().register(service, creator);
 };
