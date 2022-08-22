@@ -2,7 +2,7 @@ import { Controller } from "../../../../../../decorator/Controller";
 import { WeChat } from "../../../../../../constants/Config";
 import { AbstractController } from "../../../../../../abstract/controller";
 import { FastifySchema, Response, ResponseError } from "../../../../../../types/Server";
-import { Logger, LoggerAPI } from "../../../../../../logger";
+import { Logger, LoggerAPI, parseError } from "../../../../../../logger";
 import redisService from "../../../../../../thirdPartyService/RedisService";
 import RedisService from "../../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../../utils/Redis";
@@ -56,6 +56,8 @@ export class BindingWeChatWeb extends AbstractController<RequestType, any> {
             60 * 60,
         );
 
+        this.logger.error("bind web webChat failed", parseError(error));
+
         return this.autoHandlerError(error);
     }
 }
@@ -102,6 +104,8 @@ export class BindingWeChatMobile extends AbstractController<RequestType, any> {
             error instanceof ControllerError ? String(error.errorCode) : "false",
             60 * 60,
         );
+
+        this.logger.error("bind mobile webChat failed", parseError(error));
 
         return this.autoHandlerError(error);
     }
