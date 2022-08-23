@@ -74,7 +74,7 @@ export class Logger<C extends LoggerContext> {
     }
 }
 
-export type LoggerContext = RecursionObject<string | number | boolean>;
+export type LoggerContext = RecursionObject<string | number | boolean | undefined>;
 
 export type LoggerLevel = "debug" | "info" | "warn" | "error";
 
