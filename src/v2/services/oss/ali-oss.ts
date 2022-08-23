@@ -12,6 +12,8 @@ export class AliOSSService extends OSSAbstract {
         ids: this.ids,
     });
 
+    public readonly domain = `https://${StorageService.oss.bucket}.${StorageService.oss.endpoint}`;
+
     public constructor(private readonly ids: IDS) {
         super();
     }
