@@ -21,6 +21,7 @@ test.serial(`${namespace} - create success`, async ava => {
     const helperAPI = new HelperAPI();
     const [userUUID, directoryName] = [v4(), v4()];
 
+    // @ts-ignore
     const complianceTextStub = stub(sl, "useOnceService").returns({
         textNormal: () => Promise.resolve(true),
     });
@@ -61,6 +62,7 @@ test.serial(`${namespace} - create success`, async ava => {
 test.serial(`${namespace} - text non-compliant`, async ava => {
     const helperAPI = new HelperAPI();
 
+    // @ts-ignore
     const complianceTextStub = stub(sl, "useOnceService").returns({
         textNormal: () => Promise.resolve(false),
     });

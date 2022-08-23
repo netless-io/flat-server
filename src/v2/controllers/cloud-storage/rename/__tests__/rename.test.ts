@@ -28,6 +28,7 @@ test.serial(`${namespace} - rename dir success`, async ava => {
 
     await commitTransaction();
 
+    // @ts-ignore
     const complianceTextStub = stub(sl, "useOnceService").returns({
         textNormal: () => Promise.resolve(true),
     });
@@ -125,6 +126,7 @@ test.serial(`${namespace} - rename file`, async ava => {
 test(`${namespace} - text non-compliant`, async ava => {
     const helperAPI = new HelperAPI();
 
+    // @ts-ignore
     const complianceTextStub = stub(sl, "useOnceService").returns({
         textNormal: () => Promise.resolve(false),
     });
