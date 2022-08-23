@@ -55,6 +55,14 @@ export class CloudStorageDirectoryService {
         return exists;
     }
 
+    public async assertExists(directoryPath: string): Promise<void> {
+        const result = await this.exists(directoryPath);
+
+        if (!result) {
+            throw new FError(ErrorCode.DirectoryNotExists);
+        }
+    }
+
     /**
      * create directory
      * @param {string} parentDirectoryPath - parent directory (e.g. /a/b/c/)
