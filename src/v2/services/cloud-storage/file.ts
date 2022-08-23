@@ -2,9 +2,11 @@ import { createLoggerService, parseError } from "../../../logger";
 import { EntityManager, In } from "typeorm";
 import { cloudStorageFilesDAO } from "../../dao";
 import { FilesInfo } from "./info.type";
-import { ossResourceType } from "../../../model/cloudStorage/Constants";
+import { FileResourceType, ossResourceType } from "../../../model/cloudStorage/Constants";
 import path from "path";
 import { useOnceService } from "../../service-locator";
+import { FError } from "../../../error/ControllerError";
+import { ErrorCode } from "../../../ErrorCode";
 
 export class CloudStorageFileService {
     private readonly logger = createLoggerService<"cloudStorageFile">({
@@ -69,6 +71,37 @@ export class CloudStorageFileService {
             oss.rename(filePath, newFileName).catch(error => {
                 this.logger.warn("rename oss file failed", parseError(error));
             });
+        }
+    }
+
+    public getFileResourceTypeByFileName(fileName: string): FileResourceType {
+        const extname = path.extname(fileName).toLowerCase();
+        switch (extname) {
+            case ".pptx": {
+                return FileResourceType.WhiteboardProjector;
+            }
+            case ".ppt":
+            case ".pdf": {
+                return FileResourceType.WhiteboardConvert;
+            }
+            case ".doc":
+            case ".docx":
+            case ".png":
+            case ".jpg":
+            case ".jpeg":
+            case ".gif":
+            case ".mp3":
+            case ".mp4": {
+                return FileResourceType.NormalResources;
+            }
+            default: {
+                this.logger.warn("fileName extname is not preset", {
+                    cloudStorageFile: {
+                        fileName,
+                    },
+                });
+                throw new FError(ErrorCode.ParamsCheckFailed);
+            }
         }
     }
 }

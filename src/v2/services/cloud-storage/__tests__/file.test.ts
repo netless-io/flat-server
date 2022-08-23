@@ -13,6 +13,9 @@ import { SinonStub, stub } from "sinon";
 import * as sl from "../../../service-locator";
 import { testService } from "../../../__tests__/helpers/db";
 import * as log from "../../../../logger";
+import { FError } from "../../../../error/ControllerError";
+import { Status } from "../../../../constants/Project";
+import { ErrorCode } from "../../../../ErrorCode";
 
 const namespace = "v2.services.cloud-storage.file";
 
@@ -187,5 +190,34 @@ test.serial(`${namespace} - rename - oss resource failed`, async ava => {
 
     useOnceService.restore();
     logger.restore();
+    await releaseRunner();
+});
+
+test.serial(`${namespace} - get FileResourceType by fileName`, async ava => {
+    const { t, releaseRunner } = await useTransaction();
+
+    const pptFile = new CloudStorageFileService(ids(), t, v4()).getFileResourceTypeByFileName(
+        "1.ppt",
+    );
+    ava.is(pptFile, FileResourceType.WhiteboardConvert);
+
+    const pptxFile = new CloudStorageFileService(ids(), t, v4()).getFileResourceTypeByFileName(
+        "1.pptx",
+    );
+    ava.is(pptxFile, FileResourceType.WhiteboardProjector);
+
+    const mp4File = new CloudStorageFileService(ids(), t, v4()).getFileResourceTypeByFileName(
+        "1.mp4",
+    );
+    ava.is(mp4File, FileResourceType.NormalResources);
+
+    ava.throws(
+        () => new CloudStorageFileService(ids(), t, v4()).getFileResourceTypeByFileName("1.c"),
+        {
+            instanceOf: FError,
+            message: `${Status.Failed}: ${ErrorCode.ParamsCheckFailed}`,
+        },
+    );
+
     await releaseRunner();
 });
