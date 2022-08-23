@@ -62,6 +62,20 @@ test(`${namespace} - existsDirectory - should return false`, async ava => {
     await releaseRunner();
 });
 
+test(`${namespace} - assert existsDirectory - should throw FError`, async ava => {
+    const { t, releaseRunner } = await useTransaction();
+
+    const userUUID = v4();
+    const cloudStorageDirectorySVC = new CloudStorageDirectoryService(ids(), t, userUUID);
+
+    await ava.throwsAsync(() => cloudStorageDirectorySVC.assertExists(`/${v4()}/`), {
+        instanceOf: FError,
+        message: `${Status.Failed}: ${ErrorCode.DirectoryNotExists}`,
+    });
+
+    await releaseRunner();
+});
+
 test(`${namespace} - createDirectory - create nested success`, async ava => {
     const { t, releaseRunner } = await useTransaction();
     const { createCS } = testService(t);
