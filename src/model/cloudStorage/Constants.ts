@@ -30,3 +30,8 @@ export const ossResourceType = [
     FileResourceType.WhiteboardConvert,
     FileResourceType.LocalCourseware,
 ];
+
+export const whiteboardResourceType = [
+    FileResourceType.WhiteboardProjector,
+    FileResourceType.WhiteboardConvert,
+];
