@@ -4,6 +4,7 @@ import { aliOSSClient } from "../ali-oss-client";
 import { AliOSSService } from "../ali-oss";
 import { v4 } from "uuid";
 import { ids } from "../../../__tests__/helpers/fastify/ids";
+import { StorageService } from "../../../../constants/Config";
 
 const namespace = "v2.services.oss.ali-oss";
 
@@ -166,5 +167,28 @@ test.serial(`${namespace} - rename file`, async ava => {
                 )}"; filename*=UTF-8''${encodeURIComponent(newFileName)}`,
             },
         },
+    ]);
+});
+
+test.serial(`${namespace} - generate policy template`, ava => {
+    const [fileName, fileSize] = [`${v4()}.mp3`, 20];
+    const filePath = `/${v4()}/${fileName}`;
+
+    const aliOSS = new AliOSSService(ids());
+    const { policy, signature } = aliOSS.policyTemplate(fileName, filePath, fileSize);
+
+    ava.is(typeof signature, "string");
+    const data = JSON.parse(Buffer.from(policy, "base64").toString());
+
+    ava.is(data.conditions.length, 4);
+    ava.is(data.conditions[0].bucket, StorageService.oss.bucket);
+    ava.deepEqual(data.conditions[1], ["content-length-range", fileSize, fileSize]);
+    ava.deepEqual(data.conditions[2], ["eq", "$key", filePath]);
+    ava.deepEqual(data.conditions[3], [
+        "eq",
+        "$Content-Disposition",
+        `attachment; filename="${encodeURIComponent(
+            fileName,
+        )}"; filename*=UTF-8''${encodeURIComponent(fileName)}`,
     ]);
 });
