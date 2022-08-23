@@ -11,12 +11,14 @@ let deleteStub: SinonStub;
 let deleteMultiStub: SinonStub;
 let listStub: SinonStub;
 let copyStub: SinonStub;
+let headStub: SinonStub;
 
 test.beforeEach(() => {
     deleteStub = sinon.stub(aliOSSClient, "delete");
     deleteMultiStub = sinon.stub(aliOSSClient, "deleteMulti");
     listStub = sinon.stub(aliOSSClient, "list");
     copyStub = sinon.stub(aliOSSClient, "copy");
+    headStub = sinon.stub(aliOSSClient, "head");
 });
 
 test.afterEach(() => {
@@ -24,6 +26,27 @@ test.afterEach(() => {
     deleteMultiStub.restore();
     listStub.restore();
     copyStub.restore();
+    headStub.restore();
+});
+
+test.serial(`${namespace} - file exists`, async ava => {
+    headStub.resolves();
+
+    const filename = v4();
+    const aliOSS = new AliOSSService(ids());
+    const result = await aliOSS.exists(filename);
+
+    ava.true(result);
+});
+
+test.serial(`${namespace} - file not exists`, async ava => {
+    headStub.rejects(new Error("x"));
+
+    const filename = v4();
+    const aliOSS = new AliOSSService(ids());
+    const result = await aliOSS.exists(filename);
+
+    ava.false(result);
 });
 
 test.serial(`${namespace} - remove single file`, async ava => {
