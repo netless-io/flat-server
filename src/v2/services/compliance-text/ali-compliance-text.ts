@@ -4,6 +4,8 @@ import { ax } from "../../../v1/utils/Axios";
 import { createHash, createHmac } from "crypto";
 import { v4 } from "uuid";
 import { ComplianceTextAbstract } from "../../service-locator/service/compliance-text-abstract";
+import { FError } from "../../../error/ControllerError";
+import { ErrorCode } from "../../../ErrorCode";
 
 export class AliComplianceTextService extends ComplianceTextAbstract {
     private static greenVersion = "2017-01-12";
@@ -60,6 +62,14 @@ export class AliComplianceTextService extends ComplianceTextAbstract {
                 return true;
             })
             .catch(() => true);
+    }
+
+    public async assertTextNormal(text: string): Promise<void> {
+        const result = await this.textNormal(text);
+
+        if (!result) {
+            throw new FError(ErrorCode.NonCompliant);
+        }
     }
 
     private headers(requestBody: Record<string, any>, path: string): Record<string, string> {
