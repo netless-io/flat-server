@@ -2,6 +2,9 @@ import { OSSAbstract } from "../../service-locator/service/oss-abstract";
 import path from "path";
 import { aliOSSClient } from "./ali-oss-client";
 import { createLoggerService } from "../../../logger";
+import { addMinutes } from "date-fns/fp";
+import { StorageService } from "../../../constants/Config";
+import crypto from "crypto";
 
 export class AliOSSService extends OSSAbstract {
     private readonly logger = createLoggerService<"AliOSS">({
@@ -105,6 +108,39 @@ export class AliOSSService extends OSSAbstract {
                 "Content-Disposition": AliOSSService.toDispositionFileNameEncode(newFileName),
             },
         });
+    }
+
+    public policyTemplate(
+        fileName: string,
+        filePath: string,
+        fileSize: number,
+        expiration = 60 * 2,
+    ): {
+        policy: string;
+        signature: string;
+    } {
+        const policyString = JSON.stringify({
+            expiration: addMinutes(expiration)(new Date()).toISOString(),
+            conditions: [
+                {
+                    bucket: StorageService.oss.bucket,
+                },
+                ["content-length-range", fileSize, fileSize],
+                ["eq", "$key", filePath],
+                ["eq", "$Content-Disposition", AliOSSService.toDispositionFileNameEncode(fileName)],
+            ],
+        });
+
+        const policy = Buffer.from(policyString).toString("base64");
+        const signature = crypto
+            .createHmac("sha1", StorageService.oss.accessKeySecret)
+            .update(policy)
+            .digest("base64");
+
+        return {
+            policy,
+            signature,
+        };
     }
 
     private static toDispositionFileNameEncode(str: string): string {
