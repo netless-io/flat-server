@@ -58,7 +58,7 @@ export type LoggerService<T extends string> = LoggerBase & {
     requestID: string;
     sessionID: string;
 } & {
-    [key in T]?: RecursionObject<string | number | boolean>;
+    [key in T]?: RecursionObject<string | number | boolean | undefined>;
 };
 
 export type LoggerSMS = LoggerBase & {
