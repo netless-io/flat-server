@@ -13,6 +13,15 @@ export class AliOSSService extends OSSAbstract {
         super();
     }
 
+    public async exists(filePath: string): Promise<boolean> {
+        try {
+            await aliOSSClient.head(filePath);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
     public async remove(fileList: string | string[]): Promise<void> {
         this.logger.debug("remove file", {
             AliOSS: {
