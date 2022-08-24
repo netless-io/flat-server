@@ -28,15 +28,8 @@ test.afterEach(() => {
 });
 
 test.serial(`${namespace} - get files pathname in fileURL`, ava => {
-    const uuids = Array.from({ length: 6 }, () => v4());
-    const [
-        normalResourceID,
-        whiteboardProjectorID,
-        localCoursewareID,
-        directoryID,
-        onlineCoursewareID,
-        whiteboardConvertID,
-    ] = uuids;
+    const uuids = Array.from({ length: 4 }, () => v4());
+    const [normalResourceID, whiteboardProjectorID, directoryID, whiteboardConvertID] = uuids;
 
     const filesInfo = new Map();
     filesInfo.set(whiteboardProjectorID, {
@@ -51,14 +44,6 @@ test.serial(`${namespace} - get files pathname in fileURL`, ava => {
         fileURL: "https://oss.example.com/NormalResources.txt",
         resourceType: FileResourceType.NormalResources,
     });
-    filesInfo.set(localCoursewareID, {
-        fileURL: "https://oss.example.com/LocalCourseware.txt",
-        resourceType: FileResourceType.LocalCourseware,
-    });
-    filesInfo.set(onlineCoursewareID, {
-        fileURL: "https://oss.example.com/OnlineCourseware.txt",
-        resourceType: FileResourceType.OnlineCourseware,
-    });
     filesInfo.set(directoryID, {
         fileURL: "https://oss.example.com/Directory.txt",
         resourceType: FileResourceType.Directory,
@@ -66,12 +51,9 @@ test.serial(`${namespace} - get files pathname in fileURL`, ava => {
 
     const result = CloudStorageDeleteService.getFilesPathnameInURL(filesInfo, uuids);
 
-    ava.is(result.length, 4);
+    ava.is(result.length, 3);
     result.forEach(filePathname => {
-        if (
-            filePathname.indexOf("OnlineCourseware") > -1 ||
-            filePathname.indexOf("Directory") > -1
-        ) {
+        if (filePathname.indexOf("Directory") > -1) {
             ava.fail();
         }
     });
@@ -117,50 +99,6 @@ test.serial(`${namespace} - get all files and dirs`, ava => {
     ava.is(result.get(uuids[0]), undefined);
 });
 
-test.serial(`${namespace} - delete online courseware`, async ava => {
-    const { t, releaseRunner } = await useTransaction();
-    const { createCloudStorageConfigs, createCloudStorageFiles, createCloudStorageUserFiles } =
-        testService(t);
-
-    const userUUID = v4();
-    await createCloudStorageConfigs.full({
-        userUUID,
-        totalUsage: 200,
-    });
-    const f1 = await createCloudStorageFiles.quick(FileResourceType.OnlineCourseware);
-    const d1 = await createCloudStorageFiles.createDirectory("/", v4());
-    const f2 = await createCloudStorageFiles.full({
-        ...infoByType(FileResourceType.OnlineCourseware),
-        directoryPath: `${d1.directoryPath}${d1.fileName}/`,
-        fileName: "f2.txt",
-        fileSize: 100,
-    });
-    await createCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, [
-        f1.fileUUID,
-        d1.fileUUID,
-        f2.fileUUID,
-    ]);
-
-    const deleteSVC = new CloudStorageDeleteService(ids(), t, userUUID);
-
-    await deleteSVC.delete({
-        uuids: [f1.fileUUID, d1.fileUUID],
-    });
-
-    const userFiles = await cloudStorageUserFilesDAO.find(t, "id", {
-        user_uuid: userUUID,
-    });
-    ava.is(userFiles.length, 0);
-
-    const userTotalUsage = await cloudStorageConfigsDAO.findOne(t, "total_usage", {
-        user_uuid: userUUID,
-    });
-
-    ava.is(userTotalUsage.total_usage, "200");
-
-    await releaseRunner();
-});
-
 test.serial(`${namespace} - delete files list is empty`, async ava => {
     const { t, releaseRunner } = await useTransaction();
 
@@ -181,11 +119,7 @@ test.serial(`${namespace} - update total usage`, async ava => {
         testService(t);
 
     const userUUID = v4();
-    await createCloudStorageConfigs.full({
-        userUUID,
-        totalUsage: 100,
-    });
-    const f1 = await createCloudStorageFiles.quick(FileResourceType.OnlineCourseware);
+    const f1 = await createCloudStorageFiles.quick(FileResourceType.NormalResources);
     const d1 = await createCloudStorageFiles.createDirectory("/", v4());
     const f2 = await createCloudStorageFiles.full({
         ...infoByType(FileResourceType.NormalResources),
@@ -198,6 +132,10 @@ test.serial(`${namespace} - update total usage`, async ava => {
         d1.fileUUID,
         f2.fileUUID,
     ]);
+    await createCloudStorageConfigs.full({
+        userUUID,
+        totalUsage: f1.fileSize + f2.fileSize,
+    });
 
     const deleteSVC = new CloudStorageDeleteService(ids(), t, userUUID);
 
@@ -229,7 +167,7 @@ test.serial(`${namespace} - delete oss file fail`, async ava => {
         userUUID,
         totalUsage: 10000,
     });
-    const f1 = await createCloudStorageFiles.quick(FileResourceType.LocalCourseware);
+    const f1 = await createCloudStorageFiles.quick(FileResourceType.NormalResources);
     await createCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, f1.fileUUID);
 
     const customError = new Error(v4());

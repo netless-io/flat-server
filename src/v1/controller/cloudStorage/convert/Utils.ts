@@ -4,10 +4,6 @@ export const determineType = (resource: string): "static" | "dynamic" => {
     return resource.endsWith(".pptx") ? "dynamic" : "static";
 };
 
-export const isLocalCourseware = (resource: string): boolean => {
-    return resource.endsWith(".ice");
-};
-
 export const isWhiteboardCourseware = (resource: string): boolean => {
     return (
         resource.endsWith(".ppt") ||

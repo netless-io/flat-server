@@ -34,35 +34,13 @@ export interface WhiteboardProjectorPayload extends RegionPayload, ConvertPayloa
     taskToken: string;
 }
 
-export const LocalCoursewarePayloadSchema = Type.Object({
-    convertStep: FileConvertStepSchema,
-});
-// e.g: ice
-export interface LocalCoursewarePayload extends ConvertPayload {}
-
-export const OnlineCoursewarePayloadSchema = Type.Object({});
-// e.g: vf
-export interface OnlineCoursewarePayload {}
-
-export const ResourcesPayloadSchema = Type.Object({});
 // e.g: mp4 / mp3 / png
-export interface ResourcesPayload {}
+export interface NormalResourcesPayloadSchema {}
 
-export const DirectoryPayloadSchema = Type.Object({});
 export interface DirectoryPayload {}
 
-export const FilePayloadSchema = Type.Union([
-    WhiteboardConvertPayloadSchema,
-    LocalCoursewarePayloadSchema,
-    OnlineCoursewarePayloadSchema,
-    ResourcesPayloadSchema,
-    WhiteboardProjectorPayloadSchema,
-    DirectoryPayloadSchema,
-]);
 export type FilePayload =
     | WhiteboardConvertPayload
-    | LocalCoursewarePayload
-    | OnlineCoursewarePayload
-    | ResourcesPayload
+    | NormalResourcesPayloadSchema
     | WhiteboardProjectorPayload
     | DirectoryPayload;

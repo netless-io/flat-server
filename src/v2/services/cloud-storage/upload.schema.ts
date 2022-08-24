@@ -23,7 +23,6 @@ export const GetFileInfoByRedisReturnSchema = Type.Object({
             FileResourceType.NormalResources,
             FileResourceType.WhiteboardProjector,
             FileResourceType.WhiteboardConvert,
-            FileResourceType.LocalCourseware,
         ],
     }),
 });

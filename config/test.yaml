@@ -44,9 +44,6 @@ cloud_storage:
     - gif
     - mp3
     - mp4
-    - ice
-  url_file_suffix:
-    - vf
 
 user:
   avatar:

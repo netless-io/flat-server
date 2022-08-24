@@ -1,7 +1,6 @@
 import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
 import {
     FilePayload,
-    LocalCoursewarePayload,
     WhiteboardConvertPayload,
     WhiteboardProjectorPayload,
 } from "../../../../../model/cloudStorage/Types";
@@ -12,8 +11,7 @@ export const filePayloadParse = (
 ): FilePayloadParse => {
     switch (resourceType) {
         case FileResourceType.Directory:
-        case FileResourceType.NormalResources:
-        case FileResourceType.OnlineCourseware: {
+        case FileResourceType.NormalResources: {
             return {};
         }
         case FileResourceType.WhiteboardConvert: {
@@ -40,15 +38,6 @@ export const filePayloadParse = (
                 },
             };
         }
-        case FileResourceType.LocalCourseware: {
-            const p = payload as LocalCoursewarePayload;
-
-            return {
-                localCoursewarePayload: {
-                    convertStep: p.convertStep,
-                },
-            };
-        }
     }
 };
 
@@ -60,7 +49,4 @@ export type FilePayloadParse =
       }
     | {
           whiteboardProjectorPayload: WhiteboardProjectorPayload;
-      }
-    | {
-          localCoursewarePayload: LocalCoursewarePayload;
       };

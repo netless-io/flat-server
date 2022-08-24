@@ -15,7 +15,6 @@ test(`${namespace} - inject self plugin`, ava => {
         "uuid-v4",
         "file-suffix",
         "avatar-suffix",
-        "url-file-suffix",
         "url",
         "phone",
         "directory-name",
@@ -182,52 +181,6 @@ test(`${namespace} - avatar-suffix`, ava => {
         };
 
         validate(testAvatarSuffixValidSuccess);
-
-        ava.is(validate.errors, null);
-    }
-});
-
-test(`${namespace} - url-file-suffix`, ava => {
-    const ajv = new Ajv();
-    ajvSelfPlugin(ajv);
-
-    const validate = ajv.compile({
-        type: "object",
-        required: ["fileName"],
-        properties: {
-            fileName: {
-                type: "string",
-                format: "url-file-suffix",
-            },
-        },
-    });
-
-    {
-        const testURLFileSuffixValidFail = {
-            fileName: "hi.txt",
-        };
-
-        validate(testURLFileSuffixValidFail);
-
-        ava.true(validate.errors !== null);
-    }
-
-    {
-        const testURLFileSuffixValidSuccess = {
-            fileName: `yes.${CloudStorage.allowUrlFileSuffix[0]}`,
-        };
-
-        validate(testURLFileSuffixValidSuccess);
-
-        ava.is(validate.errors, null);
-    }
-
-    {
-        const testURLFileSuffixValidSuccess = {
-            fileName: `yes.${CloudStorage.allowUrlFileSuffix[0].toUpperCase()}`,
-        };
-
-        validate(testURLFileSuffixValidSuccess);
 
         ava.is(validate.errors, null);
     }

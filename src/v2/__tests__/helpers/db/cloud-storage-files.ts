@@ -12,12 +12,7 @@ export const infoByType = (resourceType: FileResourceType) => {
             payload = { region: Region.IN_MUM };
             break;
         }
-        case FileResourceType.LocalCourseware: {
-            payload = { region: Region.CN_HZ, convertStep: FileConvertStep.Converting };
-            break;
-        }
-        case FileResourceType.Directory:
-        case FileResourceType.OnlineCourseware: {
+        case FileResourceType.Directory: {
             payload = {};
             break;
         }
@@ -100,9 +95,7 @@ export class CreateCloudStorageFiles {
         const arr = [
             FileResourceType.WhiteboardProjector,
             FileResourceType.WhiteboardConvert,
-            FileResourceType.OnlineCourseware,
             FileResourceType.NormalResources,
-            FileResourceType.LocalCourseware,
         ];
         const rand = Math.floor(Math.random() * arr.length);
 

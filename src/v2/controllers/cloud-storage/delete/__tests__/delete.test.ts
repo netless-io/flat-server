@@ -69,7 +69,7 @@ test.serial(`${namespace} - execute handler`, async ava => {
         testService(t);
 
     const { userUUID } = await createCloudStorageConfigs.quick();
-    const { fileUUID } = await createCloudStorageFiles.quick(FileResourceType.OnlineCourseware);
+    const { fileUUID } = await createCloudStorageFiles.quick(FileResourceType.NormalResources);
     await createCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, fileUUID);
 
     await commitTransaction();

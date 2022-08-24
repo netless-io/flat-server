@@ -73,34 +73,6 @@ test(`${namespace} - move`, async ava => {
     await releaseRunner();
 });
 
-test.serial(`${namespace} - rename - online courseware`, async ava => {
-    const { t, releaseRunner } = await useTransaction();
-    const { createCloudStorageFiles } = testService(t);
-    const [fileUUID, oldFileName, newFileName] = [v4(), `${v4()}.txt`, `${v4()}.png`];
-
-    await createCloudStorageFiles.full({
-        ...infoByType(FileResourceType.OnlineCourseware),
-        fileUUID,
-        fileName: oldFileName,
-    });
-
-    const filesInfo = new Map();
-    filesInfo.set(fileUUID, {
-        fileName: oldFileName,
-    });
-
-    const cloudStorageFileSVC = new CloudStorageFileService(ids(), t, v4());
-    await cloudStorageFileSVC.rename(filesInfo, fileUUID, newFileName);
-
-    const file = await cloudStorageFilesDAO.findOne(t, "file_name", {
-        file_uuid: fileUUID,
-    });
-
-    ava.is(file.file_name, `${newFileName}${path.extname(oldFileName)}`);
-
-    await releaseRunner();
-});
-
 test.serial(`${namespace} - rename - oss resource`, async ava => {
     const { t, releaseRunner } = await useTransaction();
     const { createCloudStorageFiles } = testService(t);
@@ -112,7 +84,7 @@ test.serial(`${namespace} - rename - oss resource`, async ava => {
     ];
 
     await createCloudStorageFiles.full({
-        ...infoByType(FileResourceType.LocalCourseware),
+        ...infoByType(FileResourceType.NormalResources),
         fileUUID,
         fileName: oldFileName,
     });
@@ -127,7 +99,7 @@ test.serial(`${namespace} - rename - oss resource`, async ava => {
     const filesInfo = new Map();
     filesInfo.set(fileUUID, {
         fileName: oldFileName,
-        resourceType: FileResourceType.LocalCourseware,
+        resourceType: FileResourceType.NormalResources,
         fileURL,
     });
 
@@ -156,7 +128,7 @@ test.serial(`${namespace} - rename - oss resource failed`, async ava => {
     ];
 
     await createCloudStorageFiles.full({
-        ...infoByType(FileResourceType.LocalCourseware),
+        ...infoByType(FileResourceType.NormalResources),
         fileUUID,
         fileName: oldFileName,
     });
@@ -179,7 +151,7 @@ test.serial(`${namespace} - rename - oss resource failed`, async ava => {
     const filesInfo = new Map();
     filesInfo.set(fileUUID, {
         fileName: oldFileName,
-        resourceType: FileResourceType.LocalCourseware,
+        resourceType: FileResourceType.NormalResources,
         fileURL,
     });
 

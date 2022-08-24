@@ -12,7 +12,7 @@ import { checkTotalUsage, getFilePath, getOSSFileURLPath } from "./Utils";
 import { isExistObject } from "../Utils";
 import { Controller } from "../../../../../decorator/Controller";
 import { AbstractController } from "../../../../../abstract/controller";
-import { isLocalCourseware, isWhiteboardCourseware } from "../../convert/Utils";
+import { isWhiteboardCourseware } from "../../convert/Utils";
 import { FileConvertStep, FileResourceType } from "../../../../../model/cloudStorage/Constants";
 import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 import { Whiteboard } from "../../../../../constants/Config";
@@ -90,15 +90,10 @@ export class AlibabaCloudUploadFinish extends AbstractController<RequestType, Re
                     file_uuid: fileUUID,
                     payload: {
                         region: Whiteboard.convertRegion,
-                        convert_step:
-                            isWhiteboardProjector || !isLocalCourseware(fileName)
-                                ? FileConvertStep.None
-                                : FileConvertStep.Converting,
+                        convert_step: FileConvertStep.None,
                     },
                     resource_type: isWhiteboardProjector
                         ? FileResourceType.WhiteboardProjector
-                        : isLocalCourseware(fileName)
-                        ? FileResourceType.LocalCourseware
                         : isWhiteboardCourseware(fileName)
                         ? FileResourceType.WhiteboardConvert
                         : FileResourceType.NormalResources,
