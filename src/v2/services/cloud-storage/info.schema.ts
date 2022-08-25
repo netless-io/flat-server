@@ -1,7 +1,6 @@
 import { Type } from "@sinclair/typebox";
 import { FileResourceType } from "../../../model/cloudStorage/Constants";
 import {
-    LocalCoursewarePayloadSchema,
     WhiteboardConvertPayloadSchema,
     WhiteboardProjectorPayloadSchema,
 } from "../../../model/cloudStorage/Types";
@@ -13,16 +12,13 @@ export const listSchema = Type.Array(
         fileName: Type.String(),
         whiteboardConvertPayload: Type.Optional(WhiteboardConvertPayloadSchema),
         whiteboardProjectorPayload: Type.Optional(WhiteboardProjectorPayloadSchema),
-        localCoursewarePayload: Type.Optional(LocalCoursewarePayloadSchema),
         fileURL: Type.String(),
         fileSize: Type.Integer(),
         resourceType: Type.String({
             enum: [
-                FileResourceType.OnlineCourseware,
-                FileResourceType.LocalCourseware,
-                FileResourceType.NormalResources,
                 FileResourceType.WhiteboardConvert,
                 FileResourceType.WhiteboardProjector,
+                FileResourceType.NormalResources,
                 FileResourceType.Directory,
             ],
         }),

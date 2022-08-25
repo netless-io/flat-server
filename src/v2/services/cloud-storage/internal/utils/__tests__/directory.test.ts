@@ -63,7 +63,7 @@ test(`${namespace} - pathPrefixMatch`, ava => {
     filesInfo.set(u3, {
         directoryPath: "/x/b/c/",
         fileName: "f",
-        resourceType: FileResourceType.LocalCourseware,
+        resourceType: FileResourceType.NormalResources,
         fileURL: v4(),
         fileSize: 0,
     });
@@ -176,10 +176,6 @@ test(`${namespace} - calculateFilesSize`, ava => {
         fileSize: 20,
     });
     filesInfo.set(v4(), {
-        resourceType: FileResourceType.OnlineCourseware,
-        fileSize: 1,
-    });
-    filesInfo.set(v4(), {
         resourceType: FileResourceType.WhiteboardProjector,
         fileSize: 2,
     });
@@ -187,11 +183,7 @@ test(`${namespace} - calculateFilesSize`, ava => {
         resourceType: FileResourceType.WhiteboardConvert,
         fileSize: 3,
     });
-    filesInfo.set(v4(), {
-        resourceType: FileResourceType.LocalCourseware,
-        fileSize: 4,
-    });
     const result = calculateFilesSize(filesInfo);
 
-    ava.is(result, 20 + 2 + 3 + 4);
+    ava.is(result, 20 + 2 + 3);
 });

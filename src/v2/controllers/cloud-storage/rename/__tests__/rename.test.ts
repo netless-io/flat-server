@@ -5,13 +5,12 @@ import { HelperAPI } from "../../../../__tests__/helpers/api";
 import { cloudStorageRouters } from "../../routes";
 import { cloudStorageRename } from "../";
 import { v4 } from "uuid";
-import { failJSON, successJSON } from "../../../internal/utils/response-json";
+import { successJSON } from "../../../internal/utils/response-json";
 import { CloudStorageInfoService } from "../../../../services/cloud-storage/info";
 import { ids } from "../../../../__tests__/helpers/fastify/ids";
 import { testService } from "../../../../__tests__/helpers/db";
 import { stub } from "sinon";
 import * as sl from "../../../../service-locator";
-import { ErrorCode } from "../../../../../ErrorCode";
 
 const namespace = "v2.controllers.cloud-storage.rename";
 
@@ -30,7 +29,7 @@ test.serial(`${namespace} - rename dir success`, async ava => {
 
     // @ts-ignore
     const complianceTextStub = stub(sl, "useOnceService").returns({
-        textNormal: () => Promise.resolve(true),
+        assertTextNormal: () => Promise.resolve(void 0),
     });
 
     const helperAPI = new HelperAPI();
@@ -89,7 +88,7 @@ test.serial(`${namespace} - rename file`, async ava => {
     // @ts-ignore
     const useOnceService = stub(sl, "useOnceService").returns({
         rename: () => Promise.resolve(),
-        textNormal: () => Promise.resolve(true),
+        assertTextNormal: () => Promise.resolve(void 0),
     });
 
     const helperAPI = new HelperAPI();
@@ -121,28 +120,4 @@ test.serial(`${namespace} - rename file`, async ava => {
     useOnceService.restore();
 
     await releaseRunner();
-});
-
-test(`${namespace} - text non-compliant`, async ava => {
-    const helperAPI = new HelperAPI();
-
-    // @ts-ignore
-    const complianceTextStub = stub(sl, "useOnceService").returns({
-        textNormal: () => Promise.resolve(false),
-    });
-
-    await helperAPI.import(cloudStorageRouters, cloudStorageRename);
-    const resp = await helperAPI.injectAuth(v4(), {
-        method: "POST",
-        url: "/v2/cloud-storage/rename",
-        payload: {
-            fileUUID: v4(),
-            newName: v4(),
-        },
-    });
-
-    ava.is(resp.statusCode, 200);
-    ava.deepEqual(resp.json(), failJSON(ErrorCode.NonCompliant));
-
-    complianceTextStub.restore();
 });

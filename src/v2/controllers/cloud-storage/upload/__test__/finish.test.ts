@@ -14,10 +14,10 @@ import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
 const namespace = "v2.controllers.cloudStorage.upload.finish";
 initializeDataSource(test, namespace);
 
-test(`${namespace} - upload finish`, async ava => {
+test.serial(`${namespace} - upload finish`, async ava => {
     // @ts-ignore
     const useOnceServiceStub = stub(sl, "useOnceService").returns({
-        exists: () => Promise.resolve(true),
+        assertExists: () => Promise.resolve(void 0),
     });
 
     const [userUUID, fileUUID, fileName, fileSize, targetDirectoryPath, fileResourceType] = [

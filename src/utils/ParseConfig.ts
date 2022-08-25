@@ -66,7 +66,6 @@ type Config = {
         total_size: number;
         prefix_path: string;
         allow_file_suffix: string[];
-        url_file_suffix: string[];
     };
     user: {
         avatar: {

@@ -4,11 +4,10 @@ import { HelperAPI } from "../../../../__tests__/helpers/api";
 import { v4 } from "uuid";
 import { cloudStorageRouters } from "../../routes";
 import { cloudStorageDirectoryCreate } from "../";
-import { failJSON, successJSON } from "../../../internal/utils/response-json";
+import { successJSON } from "../../../internal/utils/response-json";
 import { cloudStorageFilesDAO, cloudStorageUserFilesDAO } from "../../../../dao";
 import { useTransaction } from "../../../../__tests__/helpers/db/query-runner";
 import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
-import { ErrorCode } from "../../../../../ErrorCode";
 import { stub } from "sinon";
 import * as sl from "../../../../service-locator";
 
@@ -23,7 +22,7 @@ test.serial(`${namespace} - create success`, async ava => {
 
     // @ts-ignore
     const complianceTextStub = stub(sl, "useOnceService").returns({
-        textNormal: () => Promise.resolve(true),
+        assertTextNormal: () => Promise.resolve(void 0),
     });
 
     await helperAPI.import(cloudStorageRouters, cloudStorageDirectoryCreate);
@@ -57,28 +56,4 @@ test.serial(`${namespace} - create success`, async ava => {
 
     complianceTextStub.restore();
     await releaseRunner();
-});
-
-test.serial(`${namespace} - text non-compliant`, async ava => {
-    const helperAPI = new HelperAPI();
-
-    // @ts-ignore
-    const complianceTextStub = stub(sl, "useOnceService").returns({
-        textNormal: () => Promise.resolve(false),
-    });
-
-    await helperAPI.import(cloudStorageRouters, cloudStorageDirectoryCreate);
-    const resp = await helperAPI.injectAuth(v4(), {
-        method: "POST",
-        url: "/v2/cloud-storage/create-directory",
-        payload: {
-            parentDirectoryPath: "/",
-            directoryName: v4(),
-        },
-    });
-
-    ava.is(resp.statusCode, 200);
-    ava.deepEqual(resp.json(), failJSON(ErrorCode.NonCompliant));
-
-    complianceTextStub.restore();
 });

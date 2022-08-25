@@ -128,10 +128,6 @@ cloud_storage:
         - gif
         - mp3
         - mp4
-        - ice
-    # Cloud Storage supported file url extensions
-    url_file_suffix:
-        - vf
 
 login:
     wechat:

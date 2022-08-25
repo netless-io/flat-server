@@ -17,18 +17,15 @@ export const FileConvertStepSchema = Type.String({
 
 export enum FileResourceType {
     WhiteboardConvert = "WhiteboardConvert",
-    LocalCourseware = "LocalCourseware",
-    OnlineCourseware = "OnlineCourseware",
-    NormalResources = "NormalResources",
     WhiteboardProjector = "WhiteboardProjector",
+    NormalResources = "NormalResources",
     Directory = "Directory",
 }
 
 export const ossResourceType = [
-    FileResourceType.NormalResources,
     FileResourceType.WhiteboardProjector,
     FileResourceType.WhiteboardConvert,
-    FileResourceType.LocalCourseware,
+    FileResourceType.NormalResources,
 ];
 
 export const whiteboardResourceType = [

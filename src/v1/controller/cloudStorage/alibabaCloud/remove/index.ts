@@ -65,7 +65,6 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
                     userUUID,
                     resourceType: [
                         FileResourceType.WhiteboardConvert,
-                        FileResourceType.LocalCourseware,
                         FileResourceType.NormalResources,
                         FileResourceType.WhiteboardProjector,
                     ],
@@ -94,11 +93,7 @@ export class AlibabaCloudRemoveFile extends AbstractController<RequestType, Resp
             let remainingTotalUsage = totalUsage;
 
             fileInfo.forEach(({ file_url, file_size, resource_type }) => {
-                if (
-                    [FileResourceType.Directory, FileResourceType.OnlineCourseware].includes(
-                        resource_type,
-                    )
-                ) {
+                if (resource_type === FileResourceType.Directory) {
                     throw new Error("unsupported current file remove");
                 }
 

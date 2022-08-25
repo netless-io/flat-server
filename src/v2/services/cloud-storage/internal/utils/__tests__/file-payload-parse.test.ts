@@ -19,11 +19,6 @@ test(`${namespace} - should return empty object`, ava => {
         const r = filePayloadParse(FileResourceType.NormalResources, payload);
         ava.deepEqual(r, {});
     }
-
-    {
-        const r = filePayloadParse(FileResourceType.OnlineCourseware, payload);
-        ava.deepEqual(r, {});
-    }
 });
 
 test(`${namespace} - should return whiteboardConvertPayload`, ava => {
@@ -51,21 +46,5 @@ test(`${namespace} - should return whiteboardProjectorPayload`, ava => {
 
     ava.deepEqual(r, {
         whiteboardProjectorPayload: payload,
-    });
-});
-
-test(`${namespace} - should return localCoursewarePayload`, ava => {
-    const payload = {
-        region: Region.GB_LON,
-        convertStep: FileConvertStep.Converting,
-        taskToken: v4(),
-        taskUUID: v4(),
-    };
-    const r = filePayloadParse(FileResourceType.LocalCourseware, payload);
-
-    ava.deepEqual(r, {
-        localCoursewarePayload: {
-            convertStep: payload.convertStep,
-        },
     });
 });

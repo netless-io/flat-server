@@ -5,6 +5,9 @@ import { AliOSSService } from "../ali-oss";
 import { v4 } from "uuid";
 import { ids } from "../../../__tests__/helpers/fastify/ids";
 import { StorageService } from "../../../../constants/Config";
+import { FError } from "../../../../error/ControllerError";
+import { Status } from "../../../../constants/Project";
+import { ErrorCode } from "../../../../ErrorCode";
 
 const namespace = "v2.services.oss.ali-oss";
 
@@ -40,6 +43,16 @@ test.serial(`${namespace} - file exists`, async ava => {
     ava.true(result);
 });
 
+test.serial(`${namespace} - assert file exists`, async ava => {
+    headStub.resolves();
+
+    const filename = v4();
+    const aliOSS = new AliOSSService(ids());
+    await aliOSS.assertExists(filename);
+
+    ava.pass();
+});
+
 test.serial(`${namespace} - file not exists`, async ava => {
     headStub.rejects(new Error("x"));
 
@@ -48,6 +61,17 @@ test.serial(`${namespace} - file not exists`, async ava => {
     const result = await aliOSS.exists(filename);
 
     ava.false(result);
+});
+
+test.serial(`${namespace} - assert file not exists`, async ava => {
+    headStub.rejects(new Error("y"));
+
+    const filename = v4();
+    const aliOSS = new AliOSSService(ids());
+    await ava.throwsAsync(() => aliOSS.assertExists(filename), {
+        instanceOf: FError,
+        message: `${Status.Failed}: ${ErrorCode.FileNotFound}`,
+    });
 });
 
 test.serial(`${namespace} - remove single file`, async ava => {

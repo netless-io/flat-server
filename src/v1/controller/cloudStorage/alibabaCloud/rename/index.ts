@@ -63,7 +63,6 @@ export class AlibabaCloudRename extends AbstractController<RequestType, Response
                 file_uuid: fileUUID,
                 resource_type: In([
                     FileResourceType.WhiteboardConvert,
-                    FileResourceType.LocalCourseware,
                     FileResourceType.NormalResources,
                     FileResourceType.WhiteboardProjector,
                 ]),
@@ -94,11 +93,7 @@ export class AlibabaCloudRename extends AbstractController<RequestType, Response
                 },
             );
 
-            if (
-                [FileResourceType.Directory, FileResourceType.OnlineCourseware].includes(
-                    fileInfo.resource_type,
-                )
-            ) {
+            if (fileInfo.resource_type === FileResourceType.Directory) {
                 throw new Error("unsupported current file rename");
             }
 

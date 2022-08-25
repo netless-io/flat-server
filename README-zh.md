@@ -125,10 +125,6 @@ cloud_storage:
         - gif
         - mp3
         - mp4
-        - ice
-    # 云盘支持上传 URL 的文件扩展名
-    url_file_suffix:
-        - vf
 
 login:
     wechat:

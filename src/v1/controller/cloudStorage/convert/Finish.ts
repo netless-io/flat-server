@@ -10,10 +10,7 @@ import { FileConvertStep, FileResourceType } from "../../../../model/cloudStorag
 import { determineType, isConvertDone, isConvertFailed } from "./Utils";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
-import path from "path";
-import axios from "axios";
 import {
-    LocalCoursewarePayload,
     WhiteboardConvertPayload,
     WhiteboardProjectorPayload,
 } from "../../../../model/cloudStorage/Types";
@@ -152,26 +149,11 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
 
     private static async queryConversionStatus(
         resource: string,
-        payload: WhiteboardConvertPayload | LocalCoursewarePayload,
+        payload: WhiteboardConvertPayload,
         resourceType: FileResourceType,
     ): Promise<"Waiting" | "Converting" | "Finished" | "Fail" | "Abort" | null> {
-        if (resourceType === FileResourceType.LocalCourseware) {
-            const fileName = path.basename(resource);
-            const dir = resource.substr(0, resource.length - fileName.length);
-            const resultPath = `${dir}result`;
-
-            try {
-                const response = await axios.head(resultPath);
-                return response.headers["x-oss-meta-success"] === "true" ? "Finished" : "Fail";
-            } catch (error) {
-                if (axios.isAxiosError(error) && error.response?.status === 404) {
-                    return "Converting";
-                }
-
-                throw error;
-            }
-        } else if (resourceType === FileResourceType.WhiteboardConvert) {
-            const { taskUUID } = payload as WhiteboardConvertPayload;
+        if (resourceType === FileResourceType.WhiteboardConvert) {
+            const { taskUUID } = payload;
             const resourceType = determineType(resource);
             const result = await whiteboardQueryConversionTask(taskUUID, resourceType);
             return result.data.status;
