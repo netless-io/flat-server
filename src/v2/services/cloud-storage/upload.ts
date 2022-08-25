@@ -158,10 +158,14 @@ export class CloudStorageUploadService {
     }
 
     public async getTotalUsageByUpdated(currentFileSize: number): Promise<number> {
-        const result = await cloudStorageConfigsDAO.findOne(this.DBTransaction, "total_usage", {
-            user_uuid: this.userUUID,
-        });
-        const totalUsage = (Number(result.total_usage) || 0) + currentFileSize;
+        const { total_usage } = await cloudStorageConfigsDAO.findOne(
+            this.DBTransaction,
+            "total_usage",
+            {
+                user_uuid: this.userUUID,
+            },
+        );
+        const totalUsage = (Number(total_usage) || 0) + currentFileSize;
 
         if (totalUsage > CloudStorage.totalSize) {
             this.logger.info("totalUsage > CloudStorage.totalSize", {

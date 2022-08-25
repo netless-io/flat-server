@@ -28,11 +28,11 @@ test(`${namespace} - no config`, async ava => {
 
     await commitTransaction();
 
-    const result = await userDAO.findOne(t, "user_name", {
+    const { user_name } = await userDAO.findOne(t, "user_name", {
         user_uuid: userUUID,
     });
 
-    ava.is(result.user_name, newUserName);
+    ava.is(user_name, newUserName);
 });
 
 test(`${namespace} - limit and order`, async ava => {

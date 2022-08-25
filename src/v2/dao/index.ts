@@ -26,10 +26,22 @@ class DAO<M extends Model> {
 
     public async findOne<T extends keyof M>(
         t: EntityManager,
+        select: T,
+        where: FindOptionsWhere<M>,
+        order?: [keyof M & string, "ASC" | "DESC"],
+    ): Promise<Partial<Pick<M, T>>>;
+    public async findOne<T extends keyof M>(
+        t: EntityManager,
+        select: T[],
+        where: FindOptionsWhere<M>,
+        order?: [keyof M & string, "ASC" | "DESC"],
+    ): Promise<Pick<M, T> | null>;
+    public async findOne<T extends keyof M>(
+        t: EntityManager,
         select: T | T[],
         where: FindOptionsWhere<M>,
         order?: [keyof M & string, "ASC" | "DESC"],
-    ): Promise<Partial<Pick<M, T>>> {
+    ): Promise<Pick<M, T>> {
         let sql = t
             .getRepository(this.model)
             .createQueryBuilder()
@@ -39,7 +51,15 @@ class DAO<M extends Model> {
         if (order) {
             sql = sql.orderBy(...order);
         }
-        return (await sql.getRawOne()) || {};
+
+        const result = await sql.getRawOne();
+        if (Array.isArray(select)) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return result || null;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return result || {};
     }
 
     public async find<T extends keyof M>(

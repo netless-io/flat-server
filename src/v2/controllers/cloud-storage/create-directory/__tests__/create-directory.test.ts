@@ -16,6 +16,7 @@ const namespace = "v2.controllers.cloud-storage.directory.create";
 initializeDataSource(test, namespace);
 
 test.serial(`${namespace} - create success`, async ava => {
+    ava.plan(5);
     const { t, releaseRunner } = await useTransaction();
     const helperAPI = new HelperAPI();
     const [userUUID, directoryName] = [v4(), v4()];
@@ -50,9 +51,11 @@ test.serial(`${namespace} - create success`, async ava => {
         },
     );
 
-    ava.is(result.directory_path, "/");
-    ava.is(result.file_name, directoryName);
-    ava.is(result.resource_type, FileResourceType.Directory);
+    if (result) {
+        ava.is(result.directory_path, "/");
+        ava.is(result.file_name, directoryName);
+        ava.is(result.resource_type, FileResourceType.Directory);
+    }
 
     complianceTextStub.restore();
     await releaseRunner();
