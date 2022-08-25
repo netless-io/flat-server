@@ -70,9 +70,9 @@ export class CloudStorageInfoService {
                     fileName,
                     fileSize,
                     fileURL,
-                    ...filePayloadParse(resourceType, payload),
                     resourceType,
                     createAt: createAt.valueOf(),
+                    meta: filePayloadParse(resourceType, payload),
                 };
             },
         );

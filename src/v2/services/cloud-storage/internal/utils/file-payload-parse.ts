@@ -18,7 +18,7 @@ export const filePayloadParse = (
             const p = payload as WhiteboardConvertPayload;
 
             return {
-                whiteboardConvertPayload: {
+                whiteboardConvert: {
                     taskUUID: p.taskUUID,
                     taskToken: p.taskToken,
                     convertStep: p.convertStep,
@@ -30,7 +30,7 @@ export const filePayloadParse = (
             const p = payload as WhiteboardProjectorPayload;
 
             return {
-                whiteboardProjectorPayload: {
+                whiteboardProjector: {
                     taskUUID: p.taskUUID,
                     taskToken: p.taskToken,
                     convertStep: p.convertStep,
@@ -45,8 +45,8 @@ export type FilePayloadParse =
     // eslint-disable-next-line @typescript-eslint/ban-types
     | {}
     | {
-          whiteboardConvertPayload: WhiteboardConvertPayload;
+          whiteboardConvert: WhiteboardConvertPayload;
       }
     | {
-          whiteboardProjectorPayload: WhiteboardProjectorPayload;
+          whiteboardProjector: WhiteboardProjectorPayload;
       };
