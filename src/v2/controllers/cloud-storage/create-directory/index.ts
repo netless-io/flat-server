@@ -2,8 +2,6 @@ import { Type } from "@sinclair/typebox";
 import { FastifyRequestTypebox, Response } from "../../../../types/Server";
 import { successJSON } from "../../internal/utils/response-json";
 import { CloudStorageDirectoryService } from "../../../services/cloud-storage/directory";
-import { FError } from "../../../../error/ControllerError";
-import { ErrorCode } from "../../../../ErrorCode";
 import { useOnceService } from "../../../service-locator";
 
 export const cloudStorageDirectoryCreateSchema = {
@@ -30,10 +28,7 @@ export const cloudStorageDirectoryCreate = async (
     req: FastifyRequestTypebox<typeof cloudStorageDirectoryCreateSchema>,
 ): Promise<Response> => {
     const complianceText = useOnceService("complianceText", req.ids);
-
-    if (!(await complianceText.textNormal(req.body.directoryName))) {
-        throw new FError(ErrorCode.NonCompliant);
-    }
+    await complianceText.assertTextNormal(req.body.directoryName);
 
     await new CloudStorageDirectoryService(req.ids, req.DBTransaction, req.userUUID).create(
         req.body.parentDirectoryPath,

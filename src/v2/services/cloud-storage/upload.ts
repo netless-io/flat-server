@@ -33,7 +33,6 @@ export class CloudStorageUploadService {
     });
 
     private readonly oss = useOnceService("oss", this.ids);
-    private readonly complianceText = useOnceService("complianceText", this.ids);
 
     constructor(
         private readonly ids: IDS,
@@ -45,7 +44,6 @@ export class CloudStorageUploadService {
         config: CloudStorageUploadStartConfig,
     ): Promise<CloudStorageUploadStartReturn> {
         const { fileName, fileSize, targetDirectoryPath } = config;
-        await this.complianceText.assertTextNormal(fileName);
         await this.assertConcurrentLimit();
         await this.assertConcurrentFileSize(await this.getTotalUsageByUpdated(fileSize));
         await new CloudStorageDirectoryService(
@@ -97,7 +95,7 @@ export class CloudStorageUploadService {
         ).assertExists(targetDirectoryPath);
 
         const ossFilePath = CloudStorageUploadService.generateOSSFilePath(fileName, fileUUID);
-        await this.assertOSSExists(ossFilePath);
+        await this.oss.assertExists(ossFilePath);
 
         const totalUsage = await this.getTotalUsageByUpdated(fileSize);
 
@@ -201,19 +199,6 @@ export class CloudStorageUploadService {
                 },
             });
             throw new FError(ErrorCode.NotEnoughTotalUsage);
-        }
-    }
-
-    public async assertOSSExists(ossFilePath: string): Promise<void> {
-        const result = await this.oss.exists(ossFilePath);
-
-        if (!result) {
-            this.logger.info("oss file not found", {
-                CloudStorageUpload: {
-                    ossFilePath,
-                },
-            });
-            throw new FError(ErrorCode.FileNotFound);
         }
     }
 

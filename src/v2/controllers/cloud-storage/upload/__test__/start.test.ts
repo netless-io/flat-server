@@ -12,7 +12,7 @@ import { uploadStartReturnSchema } from "../../../../services/cloud-storage/uplo
 const namespace = "v2.controllers.cloudStorage.upload.start";
 initializeDataSource(test, namespace);
 
-test(`${namespace} - upload start`, async ava => {
+test.serial(`${namespace} - upload start`, async ava => {
     // @ts-ignore
     const useOnceServiceStub = stub(sl, "useOnceService").returns({
         assertTextNormal: () => Promise.resolve(void 0),

@@ -2,8 +2,6 @@ import { Type } from "@sinclair/typebox";
 import { FastifyRequestTypebox, Response } from "../../../../types/Server";
 import { successJSON } from "../../internal/utils/response-json";
 import { CloudStorageRenameService } from "../../../services/cloud-storage/rename";
-import { FError } from "../../../../error/ControllerError";
-import { ErrorCode } from "../../../../ErrorCode";
 import { useOnceService } from "../../../service-locator";
 
 export const cloudStorageRenameSchema = {
@@ -27,10 +25,7 @@ export const cloudStorageRename = async (
     req: FastifyRequestTypebox<typeof cloudStorageRenameSchema>,
 ): Promise<Response> => {
     const complianceText = useOnceService("complianceText", req.ids);
-
-    if (!(await complianceText.textNormal(req.body.newName))) {
-        throw new FError(ErrorCode.NonCompliant);
-    }
+    await complianceText.assertTextNormal(req.body.newName);
 
     const cloudStorageRenameSVC = new CloudStorageRenameService(
         req.ids,

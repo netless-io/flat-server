@@ -5,6 +5,8 @@ import { createLoggerService } from "../../../logger";
 import { addMinutes } from "date-fns/fp";
 import { StorageService } from "../../../constants/Config";
 import crypto from "crypto";
+import { FError } from "../../../error/ControllerError";
+import { ErrorCode } from "../../../ErrorCode";
 
 export class AliOSSService extends OSSAbstract {
     private readonly logger = createLoggerService<"AliOSS">({
@@ -24,6 +26,19 @@ export class AliOSSService extends OSSAbstract {
             return true;
         } catch {
             return false;
+        }
+    }
+
+    public async assertExists(filePath: string): Promise<void> {
+        const result = await this.exists(filePath);
+
+        if (!result) {
+            this.logger.info("oss file not found", {
+                AliOSS: {
+                    filePath,
+                },
+            });
+            throw new FError(ErrorCode.FileNotFound);
         }
     }
 

@@ -34,8 +34,7 @@ test.beforeEach(() => {
     useOnceService = stub(sl, "useOnceService").returns({
         domain: "x",
         policyTemplate: () => ({ policy: "x", signature: "y" }),
-        exists: () => Promise.resolve(true),
-        assertTextNormal: () => Promise.resolve(void 0),
+        assertExists: () => Promise.resolve(void 0),
     });
 });
 test.afterEach(() => {
@@ -187,37 +186,6 @@ test.serial(`${namespace} - getFileInfoByRedis - result is empty`, async ava => 
             message: `${Status.Failed}: ${ErrorCode.FileNotFound}`,
         });
     }
-
-    await releaseRunner();
-});
-
-test.serial(`${namespace} - assertOSSExist - not exists`, async ava => {
-    const { t, releaseRunner } = await useTransaction();
-    const userUUID = v4();
-
-    useOnceService.restore();
-    // @ts-ignore
-    useOnceService = stub(sl, "useOnceService").returns({
-        exists: () => Promise.resolve(false),
-    });
-
-    const cloudStorageUploadSVC = new CloudStorageUploadService(ids(), t, userUUID);
-    await ava.throwsAsync(() => cloudStorageUploadSVC.assertOSSExists("file.png"), {
-        instanceOf: FError,
-        message: `${Status.Failed}: ${ErrorCode.FileNotFound}`,
-    });
-
-    await releaseRunner();
-});
-
-test.serial(`${namespace} - assertOSSExist - exists`, async ava => {
-    const { t, releaseRunner } = await useTransaction();
-    const userUUID = v4();
-
-    const cloudStorageUploadSVC = new CloudStorageUploadService(ids(), t, userUUID);
-    await cloudStorageUploadSVC.assertOSSExists("file.png");
-
-    ava.pass();
 
     await releaseRunner();
 });

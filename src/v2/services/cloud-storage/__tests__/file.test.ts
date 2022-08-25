@@ -32,7 +32,7 @@ test.afterEach(() => {
     useOnceService.restore();
 });
 
-test(`${namespace} - move`, async ava => {
+test.serial(`${namespace} - move`, async ava => {
     const { t, releaseRunner } = await useTransaction();
     const { createCS } = testService(t);
 
