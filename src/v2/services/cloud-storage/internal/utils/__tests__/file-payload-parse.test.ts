@@ -31,7 +31,7 @@ test(`${namespace} - should return whiteboardConvertPayload`, ava => {
     const r = filePayloadParse(FileResourceType.WhiteboardConvert, payload);
 
     ava.deepEqual(r, {
-        whiteboardConvertPayload: payload,
+        whiteboardConvert: payload,
     });
 });
 
@@ -45,6 +45,6 @@ test(`${namespace} - should return whiteboardProjectorPayload`, ava => {
     const r = filePayloadParse(FileResourceType.WhiteboardProjector, payload);
 
     ava.deepEqual(r, {
-        whiteboardProjectorPayload: payload,
+        whiteboardProjector: payload,
     });
 });

@@ -10,8 +10,6 @@ export const listSchema = Type.Array(
         fileUUID: Type.String(),
         createAt: Type.Integer(),
         fileName: Type.String(),
-        whiteboardConvertPayload: Type.Optional(WhiteboardConvertPayloadSchema),
-        whiteboardProjectorPayload: Type.Optional(WhiteboardProjectorPayloadSchema),
         fileURL: Type.String(),
         fileSize: Type.Integer(),
         resourceType: Type.String({
@@ -21,6 +19,10 @@ export const listSchema = Type.Array(
                 FileResourceType.NormalResources,
                 FileResourceType.Directory,
             ],
+        }),
+        meta: Type.Object({
+            whiteboardConvert: Type.Optional(WhiteboardConvertPayloadSchema),
+            whiteboardProjector: Type.Optional(WhiteboardProjectorPayloadSchema),
         }),
     }),
     {

@@ -26,7 +26,8 @@ export type CloudStorageInfoListReturn = {
     fileURL: string;
     createAt: number;
     resourceType: FileResourceType;
-} & FilePayloadParse;
+    meta: FilePayloadParse;
+};
 
 export type ListFilesAndTotalUsageByUserUUIDReturn = {
     totalUsage: number;
