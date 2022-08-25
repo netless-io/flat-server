@@ -148,11 +148,11 @@ test.serial(`${namespace} - update total usage`, async ava => {
     });
     ava.is(userFiles.length, 0);
 
-    const userTotalUsage = await cloudStorageConfigsDAO.findOne(t, "total_usage", {
+    const { total_usage } = await cloudStorageConfigsDAO.findOne(t, "total_usage", {
         user_uuid: userUUID,
     });
 
-    ava.is(userTotalUsage.total_usage, "0");
+    ava.is(total_usage, "0");
 
     await releaseRunner();
 });

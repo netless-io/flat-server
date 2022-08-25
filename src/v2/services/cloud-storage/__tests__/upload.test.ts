@@ -291,10 +291,10 @@ test.serial(`${namespace} - updateTotalUsage`, async ava => {
 
     await new CloudStorageUploadService(ids(), t, userUUID).updateTotalUsage(20);
 
-    const configs = await cloudStorageConfigsDAO.findOne(t, "total_usage", {
+    const { total_usage } = await cloudStorageConfigsDAO.findOne(t, "total_usage", {
         user_uuid: userUUID,
     });
-    ava.is(configs.total_usage, String(20));
+    ava.is(total_usage, String(20));
 
     await releaseRunner();
 });
@@ -322,18 +322,18 @@ test.serial(`${namespace} - insertFile`, async ava => {
     });
 
     {
-        const userFile = await cloudStorageUserFilesDAO.findOne(t, "file_uuid", {
+        const { file_uuid } = await cloudStorageUserFilesDAO.findOne(t, "file_uuid", {
             user_uuid: userUUID,
             file_uuid: fileUUID,
         });
-        ava.is(userFile.file_uuid, fileUUID);
+        ava.is(file_uuid, fileUUID);
     }
     {
-        const files = await cloudStorageFilesDAO.findOne(t, "directory_path", {
+        const { directory_path } = await cloudStorageFilesDAO.findOne(t, "directory_path", {
             file_name: fileName,
             file_uuid: fileUUID,
         });
-        ava.is(files.directory_path, directoryPath);
+        ava.is(directory_path, directoryPath);
     }
 
     await releaseRunner();
@@ -370,24 +370,24 @@ test.serial(`${namespace} - finish`, async ava => {
     });
 
     {
-        const configs = await cloudStorageConfigsDAO.findOne(t, "total_usage", {
+        const { total_usage } = await cloudStorageConfigsDAO.findOne(t, "total_usage", {
             user_uuid: userUUID,
         });
-        ava.is(configs.total_usage, String(fileSize));
+        ava.is(total_usage, String(fileSize));
     }
     {
-        const userFile = await cloudStorageUserFilesDAO.findOne(t, "file_uuid", {
+        const { file_uuid } = await cloudStorageUserFilesDAO.findOne(t, "file_uuid", {
             user_uuid: userUUID,
             file_uuid: fileUUID,
         });
-        ava.is(userFile.file_uuid, fileUUID);
+        ava.is(file_uuid, fileUUID);
     }
     {
-        const files = await cloudStorageFilesDAO.findOne(t, "directory_path", {
+        const { directory_path } = await cloudStorageFilesDAO.findOne(t, "directory_path", {
             file_name: fileName,
             file_uuid: fileUUID,
         });
-        ava.is(files.directory_path, targetDirectoryPath);
+        ava.is(directory_path, targetDirectoryPath);
     }
 
     const redisValue = await RedisService.get(RedisKey.cloudStorageFileInfo(userUUID, fileUUID));

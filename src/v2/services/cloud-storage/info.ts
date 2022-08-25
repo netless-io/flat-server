@@ -27,14 +27,18 @@ export class CloudStorageInfoService {
     ) {}
 
     public async totalUsage(): Promise<number> {
-        const result = await cloudStorageConfigsDAO.findOne(this.DBTransaction, "total_usage", {
-            user_uuid: this.userUUID,
-        });
+        const { total_usage } = await cloudStorageConfigsDAO.findOne(
+            this.DBTransaction,
+            "total_usage",
+            {
+                user_uuid: this.userUUID,
+            },
+        );
 
-        const totalUsage = Number(result.total_usage) || 0;
+        const totalUsage = Number(total_usage) || 0;
         this.logger.debug(`totalUsage is: ${totalUsage}`);
 
-        return Number(result.total_usage) || 0;
+        return totalUsage;
     }
 
     public async list(

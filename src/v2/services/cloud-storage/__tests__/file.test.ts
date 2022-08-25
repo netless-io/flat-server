@@ -106,11 +106,11 @@ test.serial(`${namespace} - rename - oss resource`, async ava => {
     const cloudStorageFileSVC = new CloudStorageFileService(ids(), t, v4());
     await cloudStorageFileSVC.rename(filesInfo, fileUUID, newFileName);
 
-    const file = await cloudStorageFilesDAO.findOne(t, "file_name", {
+    const { file_name } = await cloudStorageFilesDAO.findOne(t, "file_name", {
         file_uuid: fileUUID,
     });
 
-    ava.is(file.file_name, `${newFileName}${path.extname(oldFileName)}`);
+    ava.is(file_name, `${newFileName}${path.extname(oldFileName)}`);
     ava.deepEqual(renameStub.getCall(0).args, [new URL(fileURL).pathname, newFileName]);
 
     useOnceService.restore();

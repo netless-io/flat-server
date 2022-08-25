@@ -24,15 +24,18 @@ test(`${namespace} - select is string`, async ava => {
 });
 
 test(`${namespace} - select is Array<string>`, async ava => {
+    ava.plan(1);
     const { t, releaseRunner } = await useTransaction();
     const createUser = new CreateUser(t);
 
     const { userUUID } = await createUser.quick();
-    const { user_uuid } = await userDAO.findOne(t, ["user_uuid"], {
+    const result = await userDAO.findOne(t, ["user_uuid", "user_name"], {
         user_uuid: userUUID,
     });
 
-    ava.is(user_uuid, userUUID);
+    if (result) {
+        ava.is(result.user_uuid, userUUID);
+    }
 
     await releaseRunner();
 });
@@ -40,7 +43,7 @@ test(`${namespace} - select is Array<string>`, async ava => {
 test(`${namespace} - result is empty`, async ava => {
     const { t, releaseRunner } = await useTransaction();
 
-    const { user_uuid } = await userDAO.findOne(t, ["user_uuid"], {
+    const { user_uuid } = await userDAO.findOne(t, "user_uuid", {
         user_uuid: v4(),
     });
 

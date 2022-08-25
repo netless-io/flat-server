@@ -56,11 +56,11 @@ test(`${namespace} - rename - directory`, async ava => {
     await cloudStorageRenameSVC.rename(dir.fileUUID, newName);
 
     {
-        const result = await cloudStorageFilesDAO.findOne(t, "file_name", {
+        const { file_name } = await cloudStorageFilesDAO.findOne(t, "file_name", {
             file_uuid: dir.fileUUID,
         });
 
-        ava.is(result.file_name, newName);
+        ava.is(file_name, newName);
     }
 
     await releaseRunner();

@@ -90,23 +90,22 @@ test(`${namespace} - createDirectory - create nested success`, async ava => {
     await cloudStorageDirectorySVC.create(d2.directoryPath, directoryName);
 
     {
-        const result = await cloudStorageUserFilesDAO.findOne(t, "id", {
+        const result = await cloudStorageUserFilesDAO.findOne(t, ["id"], {
             user_uuid: userUUID,
             file_uuid: d1.fileUUID,
         });
-        ava.is(!!result, true);
+        ava.not(result, null);
     }
 
     {
-        const result = await cloudStorageFilesDAO.findOne(t, "id", {
+        const result = await cloudStorageFilesDAO.findOne(t, ["id"], {
             file_uuid: d2.fileUUID,
             file_name: d2.directoryName,
-            directory_path: d2.directoryPath,
+            directory_path: d1.directoryPath,
             resource_type: FileResourceType.Directory,
-            file_url: `file://${directoryName}`,
             file_size: 0,
         });
-        ava.is(!!result, true);
+        ava.not(result, null);
     }
 
     await releaseRunner();
