@@ -6,6 +6,8 @@ import { cloudStorageMove, cloudStorageMoveSchema } from "./move";
 import { cloudStorageDelete, cloudStorageDeleteSchema } from "./delete";
 import { cloudStorageUploadStart, cloudStorageUploadStartSchema } from "./upload/start";
 import { cloudStorageUploadFinish, cloudStorageUploadFinishSchema } from "./upload/finish";
+import { cloudStorageConvertStart, cloudStorageConvertStartSchema } from "./convert/start";
+import { cloudStorageConvertFinish, cloudStorageConvertFinishSchema } from "./convert/finish";
 
 export const cloudStorageRouters = (server: Server): void => {
     server.post("cloud-storage/list", cloudStorageList, {
@@ -34,5 +36,13 @@ export const cloudStorageRouters = (server: Server): void => {
 
     server.post("cloud-storage/upload/finish", cloudStorageUploadFinish, {
         schema: cloudStorageUploadFinishSchema,
+    });
+
+    server.post("cloud-storage/convert/start", cloudStorageConvertStart, {
+        schema: cloudStorageConvertStartSchema,
+    });
+
+    server.post("cloud-storage/convert/finish", cloudStorageConvertFinish, {
+        schema: cloudStorageConvertFinishSchema,
     });
 };

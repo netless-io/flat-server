@@ -1,15 +1,15 @@
 import { v4 } from "uuid";
-import { CloudStorageFilesModel } from "../../../../model/cloudStorage/CloudStorageFiles";
 import { FilePayload } from "../../../../model/cloudStorage/Types";
 import { FileConvertStep, FileResourceType } from "../../../../model/cloudStorage/Constants";
 import { Region } from "../../../../constants/Project";
 import { EntityManager } from "typeorm";
+import { cloudStorageFilesDAO } from "../../../dao";
 
 export const infoByType = (resourceType: FileResourceType) => {
-    let payload = {};
+    let payload: FilePayload = {};
     switch (resourceType) {
         case FileResourceType.NormalResources: {
-            payload = { region: Region.IN_MUM };
+            payload = {};
             break;
         }
         case FileResourceType.Directory: {
@@ -59,7 +59,7 @@ export class CreateCloudStorageFiles {
         payload: FilePayload;
         resourceType: FileResourceType;
     }) {
-        await this.t.getRepository(CloudStorageFilesModel).insert({
+        await cloudStorageFilesDAO.insert(this.t, {
             file_uuid: info.fileUUID,
             file_name: info.fileName,
             file_size: info.fileSize,

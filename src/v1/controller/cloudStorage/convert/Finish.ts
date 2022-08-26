@@ -155,11 +155,11 @@ export class FileConvertFinish extends AbstractController<RequestType, ResponseT
         if (resourceType === FileResourceType.WhiteboardConvert) {
             const { taskUUID } = payload;
             const resourceType = determineType(resource);
-            const result = await whiteboardQueryConversionTask(taskUUID, resourceType);
+            const result = await whiteboardQueryConversionTask(taskUUID!, resourceType);
             return result.data.status;
         } else if (resourceType === FileResourceType.WhiteboardProjector) {
             const { taskUUID } = payload as WhiteboardProjectorPayload;
-            const result = await whiteboardQueryProjectorTask(taskUUID);
+            const result = await whiteboardQueryProjectorTask(taskUUID!);
             return result.data.status;
         }
 

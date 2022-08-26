@@ -75,6 +75,9 @@ export class CreateCS {
         return {
             fileName,
             fileUUID: fileInfo.fileUUID,
+            fileURL: fileInfo.fileURL,
+            resourceType: fileInfo.resourceType,
+            payload: fileInfo.payload,
             filePath: `${parentDirectoryPath}${fileName}`,
         };
     }

@@ -40,6 +40,8 @@ export enum ErrorCode {
     FileConvertFailed, // file convert failed
     FileIsConverting, // file is converting
     FileIsConvertWaiting, // file convert is in waiting status
+    FileNotIsConvertNone, // file convert not is none
+    FileNotIsConverting, // file convert is processing
 
     LoginGithubSuspended = 900000, // https://docs.github.com/en/developers/apps/troubleshooting-authorization-request-errors
     LoginGithubURLMismatch,

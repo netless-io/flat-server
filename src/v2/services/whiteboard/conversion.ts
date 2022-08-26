@@ -2,6 +2,7 @@ import { createLoggerService } from "../../../logger";
 import { ax } from "../../../v1/utils/Axios";
 import { Whiteboard } from "../../../constants/Config";
 import { WhiteboardTokenService } from "./token";
+import path from "path";
 
 export class WhiteboardConversionService {
     private readonly logger = createLoggerService<"WhiteboardConversion">({
@@ -11,10 +12,16 @@ export class WhiteboardConversionService {
 
     public constructor(private readonly ids: IDS) {}
 
-    public async create(body: CreateParams): Promise<string> {
+    public async create(resource: string): Promise<string> {
         const result = await ax.post<TaskCreated>(
             "https://api.netless.link/v5/services/conversion/tasks",
-            body,
+            {
+                resource,
+                type: "static",
+                pack: true,
+                canvasVersion: false,
+                scale: WhiteboardConversionService.scaleByFileType(resource),
+            },
             {
                 headers: {
                     token: WhiteboardTokenService.createSDK(),
@@ -34,9 +41,9 @@ export class WhiteboardConversionService {
         return result.data.uuid;
     }
 
-    public async query(uuid: string, type: "static" | "dynamic"): Promise<TaskStatus["status"]> {
+    public async query(uuid: string): Promise<TaskStatus["status"]> {
         const { data } = await ax.get<TaskStatus>(
-            `https://api.netless.link/v5/services/conversion/tasks/${uuid}?type=${type}`,
+            `https://api.netless.link/v5/services/conversion/tasks/${uuid}?type=static`,
             {
                 headers: {
                     token: WhiteboardTokenService.createSDK(),
@@ -60,37 +67,31 @@ export class WhiteboardConversionService {
 
         return data.status;
     }
-}
 
-type CreateParams = CreateStaticParams | CreateDynamicParams;
+    // see: https://developer.netless.link/server-en/home/server-conversion
+    private static scaleByFileType(resource: string): number {
+        const extname = path.extname(resource);
 
-interface CreateStaticParams {
-    resource: string;
-    type: "static";
-    /** @default 1.2 */
-    scale?: number;
-    /** @default 'png' */
-    outputFormat?: "png" | "jpg" | "jpeg" | "webp";
-    pack?: boolean;
-}
-
-interface CreateDynamicParams {
-    resource: string;
-    type: "dynamic";
-    /** @default false */
-    preview?: boolean;
-    canvasVersion: boolean;
+        switch (extname) {
+            case ".pdf": {
+                return 2.4;
+            }
+            default: {
+                return 1.2;
+            }
+        }
+    }
 }
 
 interface TaskCreated {
     uuid: string;
-    type: "static" | "dynamic";
+    type: "static";
     status: "Waiting" | "Converting" | "Finished" | "Fail";
 }
 
 interface TaskStatus {
     uuid: string;
-    type: "static" | "dynamic";
+    type: "static";
     status: "Waiting" | "Converting" | "Finished" | "Fail";
     failedReason: string;
     progress: {

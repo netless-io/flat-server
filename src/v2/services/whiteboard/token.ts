@@ -45,7 +45,7 @@ export class WhiteboardTokenService {
         );
     }
 
-    public static createTask(whiteboardTaskUUID: string, lifespan = 10): string {
+    public static createTask(whiteboardTaskUUID: string, lifespan = 0): string {
         return WhiteboardTokenService.task(
             Whiteboard.accessKey,
             Whiteboard.secretAccessKey,

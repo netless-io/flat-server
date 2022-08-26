@@ -3,7 +3,7 @@ import { ax } from "../../../v1/utils/Axios";
 import { WhiteboardTokenService } from "./token";
 import { Whiteboard } from "../../../constants/Config";
 
-export class WhiteboardProjectService {
+export class WhiteboardProjectorService {
     private readonly logger = createLoggerService<"WhiteboardProject">({
         serviceName: "WhiteboardProject",
         ids: this.ids,
@@ -11,11 +11,11 @@ export class WhiteboardProjectService {
 
     public constructor(private readonly ids: IDS) {}
 
-    public async create(body: CreateTaskParams): Promise<string> {
+    public async create(resource: string): Promise<string> {
         const { data } = await ax.post<TaskCreated>(
             "https://api.netless.link/v5/projector/tasks",
             {
-                ...body,
+                resource,
                 preview: true,
                 pack: false,
             },
@@ -64,24 +64,6 @@ export class WhiteboardProjectService {
         });
 
         return data.status;
-    };
-}
-
-interface CreateTaskParams {
-    resource: string;
-    preview?: boolean;
-    pack?: boolean;
-    webhookEndpoint?: string;
-    webhookRetry?: number;
-    targetStorageDriver?: {
-        ak?: string;
-        sk?: string;
-        token?: string;
-        bucket: string;
-        path?: string;
-        provider: "aliyun" | "qiniu" | "aws" | "qcloud" | "ucloud" | "huaweicloud";
-        region: string;
-        domain?: string;
     };
 }
 
