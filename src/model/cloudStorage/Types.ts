@@ -13,25 +13,25 @@ interface ConvertPayload {
 export const WhiteboardConvertPayloadSchema = Type.Object({
     region: RegionSchema,
     convertStep: FileConvertStepSchema,
-    taskUUID: Type.String(),
-    taskToken: Type.String(),
+    taskUUID: Type.Optional(Type.String()),
+    taskToken: Type.Optional(Type.String()),
 });
 // e.g: ppt / pdf
 export interface WhiteboardConvertPayload extends RegionPayload, ConvertPayload {
-    taskUUID: string;
-    taskToken: string;
+    taskUUID?: string;
+    taskToken?: string;
 }
 
 export const WhiteboardProjectorPayloadSchema = Type.Object({
     region: RegionSchema,
     convertStep: FileConvertStepSchema,
-    taskUUID: Type.String(),
-    taskToken: Type.String(),
+    taskUUID: Type.Optional(Type.String()),
+    taskToken: Type.Optional(Type.String()),
 });
 // e.g: pptx
 export interface WhiteboardProjectorPayload extends RegionPayload, ConvertPayload {
-    taskUUID: string;
-    taskToken: string;
+    taskUUID?: string;
+    taskToken?: string;
 }
 
 // e.g: mp4 / mp3 / png

@@ -15,27 +15,13 @@ export const filePayloadParse = (
             return {};
         }
         case FileResourceType.WhiteboardConvert: {
-            const p = payload as WhiteboardConvertPayload;
-
             return {
-                whiteboardConvert: {
-                    taskUUID: p.taskUUID,
-                    taskToken: p.taskToken,
-                    convertStep: p.convertStep,
-                    region: p.region,
-                },
+                whiteboardConvert: payload as WhiteboardConvertPayload,
             };
         }
         case FileResourceType.WhiteboardProjector: {
-            const p = payload as WhiteboardProjectorPayload;
-
             return {
-                whiteboardProjector: {
-                    taskUUID: p.taskUUID,
-                    taskToken: p.taskToken,
-                    convertStep: p.convertStep,
-                    region: p.region,
-                },
+                whiteboardProjector: payload as WhiteboardProjectorPayload,
             };
         }
     }

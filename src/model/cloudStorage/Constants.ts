@@ -32,3 +32,8 @@ export const whiteboardResourceType = [
     FileResourceType.WhiteboardProjector,
     FileResourceType.WhiteboardConvert,
 ];
+
+export const supportConvertResourceType = [
+    FileResourceType.WhiteboardProjector,
+    FileResourceType.WhiteboardConvert,
+];

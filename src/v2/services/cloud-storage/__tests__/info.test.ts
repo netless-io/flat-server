@@ -7,6 +7,9 @@ import { initializeDataSource } from "../../../__tests__/helpers/db/test-hooks";
 import { useTransaction } from "../../../__tests__/helpers/db/query-runner";
 import { ids } from "../../../__tests__/helpers/fastify/ids";
 import { testService } from "../../../__tests__/helpers/db";
+import { FError } from "../../../../error/ControllerError";
+import { Status } from "../../../../constants/Project";
+import { ErrorCode } from "../../../../ErrorCode";
 
 const namespace = "services.cloud-storage.info";
 
@@ -196,5 +199,16 @@ test(`${namespace} - findFilesInfo - success`, async ava => {
         }
     });
 
+    await releaseRunner();
+});
+
+test(`${namespace} - assert file ownership`, async ava => {
+    const { t, releaseRunner } = await useTransaction();
+    const cloudStorageInfoSVC = new CloudStorageInfoService(ids(), t, v4());
+
+    await ava.throwsAsync(() => cloudStorageInfoSVC.assertFileOwnership(v4()), {
+        instanceOf: FError,
+        message: `${Status.Failed}: ${ErrorCode.FileNotFound}`,
+    });
     await releaseRunner();
 });

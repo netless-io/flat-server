@@ -1,4 +1,4 @@
-import { cloudStorageConfigsDAO } from "../../dao";
+import { cloudStorageConfigsDAO, cloudStorageUserFilesDAO } from "../../dao";
 import { CloudStorageFilesModel } from "../../../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "../../../model/cloudStorage/CloudStorageUserFiles";
 import {
@@ -13,6 +13,8 @@ import { createLoggerService } from "../../../logger";
 import { EntityManager } from "typeorm";
 import { FileResourceType } from "../../../model/cloudStorage/Constants";
 import { filePayloadParse } from "./internal/utils/file-payload-parse";
+import { FError } from "../../../error/ControllerError";
+import { ErrorCode } from "../../../ErrorCode";
 
 export class CloudStorageInfoService {
     private readonly logger = createLoggerService<"cloudStorageInfo">({
@@ -123,5 +125,16 @@ export class CloudStorageInfoService {
         });
 
         return r;
+    }
+
+    public async assertFileOwnership(fileUUID: string): Promise<void> {
+        const result = await cloudStorageUserFilesDAO.findOne(this.DBTransaction, ["id"], {
+            file_uuid: fileUUID,
+            user_uuid: this.userUUID,
+        });
+
+        if (!result) {
+            throw new FError(ErrorCode.FileNotFound);
+        }
     }
 }
