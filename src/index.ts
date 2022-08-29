@@ -70,7 +70,7 @@ void orm().then(async dataSource => {
         app.register(jwtVerify),
         app.register(cors, {
             methods: ["GET", "POST", "OPTIONS"],
-            allowedHeaders: ["Content-Type", "Authorization"],
+            allowedHeaders: ["Content-Type", "Authorization", "x-request-id", "x-session-id"],
             maxAge: 100,
         }),
         app.register(formBody),
