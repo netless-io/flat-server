@@ -33,7 +33,7 @@ export const listSchema = Type.Array(
 export const listFilesAndTotalUsageByUserUUIDSchema = Type.Object(
     {
         totalUsage: Type.Integer(),
-        items: listSchema,
+        files: listSchema,
         canCreateDirectory: Type.Boolean(),
     },
     {

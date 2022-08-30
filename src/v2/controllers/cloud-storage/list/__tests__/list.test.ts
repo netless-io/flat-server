@@ -29,7 +29,7 @@ test(`${namespace} - empty data`, async ava => {
         resp.json(),
         successJSON({
             totalUsage: 0,
-            items: [],
+            files: [],
             canCreateDirectory: true,
         }),
     );

@@ -142,10 +142,10 @@ test(`${namespace} - listFilesAndTotalUsageByUserUUID`, async ava => {
     });
 
     ava.is(result.totalUsage, totalUsage);
-    ava.is(result.items.length, 3);
-    ava.is(result.items[0].fileUUID, f1.fileUUID);
-    ava.is(result.items[1].fileUUID, f2.fileUUID);
-    ava.is(result.items[2].fileUUID, f3.fileUUID);
+    ava.is(result.files.length, 3);
+    ava.is(result.files[0].fileUUID, f1.fileUUID);
+    ava.is(result.files[1].fileUUID, f2.fileUUID);
+    ava.is(result.files[2].fileUUID, f3.fileUUID);
 
     ava.is(Schema.check(listFilesAndTotalUsageByUserUUIDSchema, result), null);
 
@@ -164,7 +164,7 @@ test(`${namespace} - listFilesAndTotalUsageByUserUUID - empty`, async ava => {
     });
 
     ava.is(result.totalUsage, 0);
-    ava.is(result.items.length, 0);
+    ava.is(result.files.length, 0);
 
     ava.is(Schema.check(listFilesAndTotalUsageByUserUUIDSchema, result), null);
 
