@@ -5,12 +5,17 @@ import { UserUpdateService } from "../../../services/user/update";
 import { successJSON } from "../../internal/utils/response-json";
 
 export const userRenameSchema = {
-    body: Type.Object({
-        newUserName: Type.String({
-            minLength: 1,
-            maxLength: 50,
-        }),
-    }),
+    body: Type.Object(
+        {
+            newUserName: Type.String({
+                minLength: 1,
+                maxLength: 50,
+            }),
+        },
+        {
+            additionalProperties: false,
+        },
+    ),
 };
 
 export const userRename = async (
