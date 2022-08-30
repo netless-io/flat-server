@@ -1,6 +1,6 @@
-import { UserModel } from "../../../../model/user/User";
 import { v4 } from "uuid";
 import { EntityManager } from "typeorm";
+import { userDAO } from "../../../dao";
 
 export class CreateUser {
     public constructor(private readonly t: EntityManager) {}
@@ -11,7 +11,7 @@ export class CreateUser {
         userPassword: string;
         avatarUrl: string;
     }) {
-        await this.t.getRepository(UserModel).insert({
+        await userDAO.insert(this.t, {
             user_uuid: info.userUUID,
             user_name: info.userName,
             user_password: info.userPassword,
