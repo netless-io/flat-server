@@ -91,7 +91,7 @@ export class CloudStorageInfoService {
     ): Promise<ListFilesAndTotalUsageByUserUUIDReturn> {
         return {
             totalUsage: await this.totalUsage(),
-            items: await this.list(config),
+            files: await this.list(config),
             // directory path max length is 300
             canCreateDirectory: config.directoryPath.length < 299,
         };

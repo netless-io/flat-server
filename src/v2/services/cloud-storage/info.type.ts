@@ -31,7 +31,7 @@ export type CloudStorageInfoListReturn = {
 
 export type ListFilesAndTotalUsageByUserUUIDReturn = {
     totalUsage: number;
-    items: CloudStorageInfoListReturn[];
+    files: CloudStorageInfoListReturn[];
     canCreateDirectory: boolean;
 };
 
