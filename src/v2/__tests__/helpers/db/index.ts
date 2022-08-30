@@ -3,6 +3,7 @@ import { CreateCloudStorageConfigs } from "./cloud-storage-configs";
 import { CreateCloudStorageFiles } from "./cloud-storage-files";
 import { CreateCloudStorageUserFiles } from "./cloud-storage-user-files";
 import { CreateCS } from "./create-cs-files";
+import { CreateUser } from "./user";
 
 export const testService = (t: EntityManager) => {
     return {
@@ -10,5 +11,6 @@ export const testService = (t: EntityManager) => {
         createCloudStorageFiles: new CreateCloudStorageFiles(t),
         createCloudStorageUserFiles: new CreateCloudStorageUserFiles(t),
         createCS: new CreateCS(t),
+        createUser: new CreateUser(t),
     };
 };
