@@ -9,14 +9,16 @@ export class CreateUser {
         userUUID: string;
         userName: string;
         userPassword: string;
-        avatarUrl: string;
+        avatarURL: string;
     }) {
         await userDAO.insert(this.t, {
             user_uuid: info.userUUID,
             user_name: info.userName,
             user_password: info.userPassword,
-            avatar_url: info.avatarUrl,
+            avatar_url: info.avatarURL,
         });
+
+        return info;
     }
 
     public async quick() {
@@ -24,7 +26,7 @@ export class CreateUser {
             userUUID: v4(),
             userName: v4(),
             userPassword: v4(),
-            avatarUrl: v4(),
+            avatarURL: v4(),
         };
 
         await this.full(info);
@@ -37,7 +39,7 @@ export class CreateUser {
             userUUID: v4(),
             userName,
             userPassword: v4(),
-            avatarUrl: v4(),
+            avatarURL: v4(),
         };
 
         await this.full(info);
