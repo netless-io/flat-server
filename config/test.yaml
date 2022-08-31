@@ -150,13 +150,13 @@ storage_service:
 
 censorship:
   video:
-    enable: false
+    enable: true
     type: aliCloud
     aliCloud:
-      uid:
-      access_id:
-      access_secret:
-      endpoint:
+      uid: test
+      access_id: test
+      access_secret: test
+      endpoint: green.cn-shanghai.aliyuncs.com
   voice:
     enable: false
     type: aliCloud
