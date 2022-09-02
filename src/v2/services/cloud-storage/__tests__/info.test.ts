@@ -10,6 +10,8 @@ import { testService } from "../../../__tests__/helpers/db";
 import { FError } from "../../../../error/ControllerError";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
+import { cloudStorageFilesDAO } from "../../../dao";
+import { FileResourceType } from "../../../../model/cloudStorage/Constants";
 
 const namespace = "services.cloud-storage.info";
 
@@ -48,6 +50,18 @@ test(`${namespace} - list`, async ava => {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_f1, f2, f3] = await createCS.createFiles(userUUID, "/", 3);
+
+    await cloudStorageFilesDAO.update(
+        t,
+        {
+            resource_type: FileResourceType.WhiteboardProjector,
+            file_name: "1.pptx",
+            file_size: 20,
+        },
+        {
+            file_uuid: f2.fileUUID,
+        },
+    );
 
     const cloudStorageInfoSVC = new CloudStorageInfoService(ids(), t, userUUID);
     const result = await cloudStorageInfoSVC.list({
