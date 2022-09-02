@@ -249,7 +249,7 @@ export class CloudStorageUploadService {
         return whiteboardResourceType.includes(fileResourceType)
             ? {
                   region: Whiteboard.convertRegion,
-                  convert_step: FileConvertStep.None,
+                  convertStep: FileConvertStep.None,
               }
             : {};
     }

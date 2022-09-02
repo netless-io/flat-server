@@ -54,7 +54,7 @@ test.serial(`${namespace} - generateFilePayload - WhiteboardProjector`, ava => {
 
     ava.deepEqual(payload, {
         region: Whiteboard.convertRegion,
-        convert_step: FileConvertStep.None,
+        convertStep: FileConvertStep.None,
     });
 });
 
