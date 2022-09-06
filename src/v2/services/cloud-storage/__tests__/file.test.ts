@@ -183,6 +183,16 @@ test.serial(`${namespace} - get FileResourceType by fileName`, async ava => {
     );
     ava.is(mp4File, FileResourceType.NormalResources);
 
+    const docFile = new CloudStorageFileService(ids(), t, v4()).getFileResourceTypeByFileName(
+        "1.doc",
+    );
+    ava.is(docFile, FileResourceType.WhiteboardConvert);
+
+    const docxFile = new CloudStorageFileService(ids(), t, v4()).getFileResourceTypeByFileName(
+        "1.docx",
+    );
+    ava.is(docxFile, FileResourceType.WhiteboardConvert);
+
     ava.throws(
         () => new CloudStorageFileService(ids(), t, v4()).getFileResourceTypeByFileName("1.c"),
         {
