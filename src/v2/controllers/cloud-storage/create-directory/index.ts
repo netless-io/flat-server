@@ -3,6 +3,7 @@ import { FastifyRequestTypebox, Response } from "../../../../types/Server";
 import { successJSON } from "../../internal/utils/response-json";
 import { CloudStorageDirectoryService } from "../../../services/cloud-storage/directory";
 import { useOnceService } from "../../../service-locator";
+import { CloudStorageCreateDirectory } from "../../../services/cloud-storage/delete.type";
 
 export const cloudStorageDirectoryCreateSchema = {
     body: Type.Object(
@@ -26,14 +27,15 @@ export const cloudStorageDirectoryCreateSchema = {
 
 export const cloudStorageDirectoryCreate = async (
     req: FastifyRequestTypebox<typeof cloudStorageDirectoryCreateSchema>,
-): Promise<Response> => {
+): Promise<Response<CloudStorageCreateDirectory>> => {
     const complianceText = useOnceService("complianceText", req.ids);
     await complianceText.assertTextNormal(req.body.directoryName);
 
-    await new CloudStorageDirectoryService(req.ids, req.DBTransaction, req.userUUID).create(
-        req.body.parentDirectoryPath,
-        req.body.directoryName,
-    );
+    const result = await new CloudStorageDirectoryService(
+        req.ids,
+        req.DBTransaction,
+        req.userUUID,
+    ).create(req.body.parentDirectoryPath, req.body.directoryName);
 
-    return successJSON({});
+    return successJSON(result);
 };
