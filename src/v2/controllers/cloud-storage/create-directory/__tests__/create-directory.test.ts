@@ -4,7 +4,6 @@ import { HelperAPI } from "../../../../__tests__/helpers/api";
 import { v4 } from "uuid";
 import { cloudStorageRouters } from "../../routes";
 import { cloudStorageDirectoryCreate } from "../";
-import { successJSON } from "../../../internal/utils/response-json";
 import { cloudStorageFilesDAO, cloudStorageUserFilesDAO } from "../../../../dao";
 import { useTransaction } from "../../../../__tests__/helpers/db/query-runner";
 import { FileResourceType } from "../../../../../model/cloudStorage/Constants";
@@ -37,7 +36,7 @@ test.serial(`${namespace} - create success`, async ava => {
     });
 
     ava.is(resp.statusCode, 200);
-    ava.deepEqual(resp.json(), successJSON({}));
+    ava.truthy(resp.json().data.fileUUID);
 
     const { file_uuid } = await cloudStorageUserFilesDAO.findOne(t, "file_uuid", {
         user_uuid: userUUID,

@@ -10,6 +10,7 @@ import { FileResourceType } from "../../../model/cloudStorage/Constants";
 import { calculateDirectoryMaxDeep, pathPrefixMatch, splitPath } from "./internal/utils/directory";
 import { FilesInfo } from "./info.type";
 import { validateDirectoryName } from "../../../plugins/Ajv";
+import { CloudStorageCreateDirectory } from "./delete.type";
 
 export class CloudStorageDirectoryService {
     private readonly logger = createLoggerService<"cloudStorageDirectory">({
@@ -68,7 +69,10 @@ export class CloudStorageDirectoryService {
      * @param {string} parentDirectoryPath - parent directory (e.g. /a/b/c/)
      * @param {string} directoryName - will create directory name (e.g. new_dir)
      */
-    public async create(parentDirectoryPath: string, directoryName: string): Promise<void> {
+    public async create(
+        parentDirectoryPath: string,
+        directoryName: string,
+    ): Promise<CloudStorageCreateDirectory> {
         const fullDirectoryPath = `${parentDirectoryPath}${directoryName}/`;
 
         if (fullDirectoryPath.length > 300) {
@@ -105,6 +109,10 @@ export class CloudStorageDirectoryService {
                 file_uuid: fileUUID,
             }),
         ]);
+
+        return {
+            fileUUID,
+        };
     }
 
     public async rename(
