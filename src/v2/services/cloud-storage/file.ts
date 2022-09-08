@@ -80,12 +80,12 @@ export class CloudStorageFileService {
             case ".pptx": {
                 return FileResourceType.WhiteboardProjector;
             }
+            case ".doc":
+            case ".docx":
             case ".ppt":
             case ".pdf": {
                 return FileResourceType.WhiteboardConvert;
             }
-            case ".doc":
-            case ".docx":
             case ".png":
             case ".jpg":
             case ".jpeg":
