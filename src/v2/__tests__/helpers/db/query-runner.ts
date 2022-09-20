@@ -18,6 +18,10 @@ export const useTransaction = async () => {
             await queryRunner.rollbackTransaction();
         },
         releaseRunner: async () => {
+            if (queryRunner.isTransactionActive) {
+                await queryRunner.commitTransaction();
+            }
+
             await queryRunner.release();
         },
     };
