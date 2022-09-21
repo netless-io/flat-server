@@ -8,10 +8,10 @@ import { useTransaction } from "../../../__tests__/helpers/db/query-runner";
 import { ids } from "../../../__tests__/helpers/fastify/ids";
 import { testService } from "../../../__tests__/helpers/db";
 import { FError } from "../../../../error/ControllerError";
-import { Status } from "../../../../constants/Project";
+import { Region, Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { cloudStorageFilesDAO } from "../../../dao";
-import { FileResourceType } from "../../../../model/cloudStorage/Constants";
+import { FileConvertStep, FileResourceType } from "../../../../model/cloudStorage/Constants";
 
 const namespace = "services.cloud-storage.info";
 
@@ -57,6 +57,12 @@ test(`${namespace} - list`, async ava => {
             resource_type: FileResourceType.WhiteboardProjector,
             file_name: "1.pptx",
             file_size: 20,
+            payload: {
+                region: Region.GB_LON,
+                convertStep: FileConvertStep.Done,
+                taskUUID: v4(),
+                taskToken: v4(),
+            },
         },
         {
             file_uuid: f2.fileUUID,
