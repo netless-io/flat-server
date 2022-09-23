@@ -126,6 +126,17 @@ cloud_storage:
         - mp3
         - mp4
 
+user:
+    avatar:
+        # 最大大小。默认： 5M
+        size: 5242880
+        # 用户支持上传的图片后缀
+        allow_suffix:
+            - png
+            - jpg
+            - jpeg
+
+
 login:
     wechat:
         # 见: https://developers.weixin.qq.com/doc/oplatform/Website_App/WeChat_Login/Wechat_Login.html
