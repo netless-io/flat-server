@@ -92,9 +92,9 @@ class DAO<M extends Model> {
         return await sql.getRawMany();
     }
 
-    public async insert<D extends Parameters<InsertQueryBuilder<M>["values"]>[0]>(
+    public async insert<D extends QueryDeepPartialEntity<M>>(
         t: EntityManager,
-        data: D,
+        data: D | D[],
         config?: {
             orUpdate?: (keyof D & string)[];
             orIgnore?: boolean;
