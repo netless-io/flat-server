@@ -2,7 +2,7 @@ import test from "ava";
 import Ajv from "ajv";
 import { ajvSelfPlugin } from "../Ajv";
 import { v4 } from "uuid";
-import { CloudStorage, User } from "../../constants/Config";
+import { CloudStorage, OAuth, User } from "../../constants/Config";
 
 const namespace = "[plugins][plugins-ajv]";
 
@@ -15,7 +15,9 @@ test(`${namespace} - inject self plugin`, ava => {
         "uuid-v4",
         "file-suffix",
         "avatar-suffix",
+        "oauth-logo-suffix",
         "url",
+        "https",
         "phone",
         "directory-name",
         "directory-path",
@@ -186,6 +188,52 @@ test(`${namespace} - avatar-suffix`, ava => {
     }
 });
 
+test(`${namespace} - oauth-logo-suffix`, ava => {
+    const ajv = new Ajv();
+    ajvSelfPlugin(ajv);
+
+    const validate = ajv.compile({
+        type: "object",
+        required: ["fileName"],
+        properties: {
+            fileName: {
+                type: "string",
+                format: "oauth-logo-suffix",
+            },
+        },
+    });
+
+    {
+        const testOAuthLogoSuffixValidFail = {
+            fileName: v4(),
+        };
+
+        validate(testOAuthLogoSuffixValidFail);
+
+        ava.true(validate.errors !== null);
+    }
+
+    {
+        const testOAuthLogoSuffixValidSuccess = {
+            fileName: `test.${OAuth.logo.allowSuffix[0]}`,
+        };
+
+        validate(testOAuthLogoSuffixValidSuccess);
+
+        ava.is(validate.errors, null);
+    }
+
+    {
+        const testOAuthLogoSuffixValidSuccess = {
+            fileName: `test.${OAuth.logo.allowSuffix[0].toUpperCase()}`,
+        };
+
+        validate(testOAuthLogoSuffixValidSuccess);
+
+        ava.is(validate.errors, null);
+    }
+});
+
 test(`${namespace} - url`, ava => {
     const ajv = new Ajv();
     ajvSelfPlugin(ajv);
@@ -214,6 +262,42 @@ test(`${namespace} - url`, ava => {
     {
         const testURLValidSuccess = {
             url: "http://google.com/a/1?a=1!@#$%^*()_&x=1#!c=2",
+        };
+
+        validate(testURLValidSuccess);
+
+        ava.is(validate.errors, null);
+    }
+});
+
+test(`${namespace} - https`, ava => {
+    const ajv = new Ajv();
+    ajvSelfPlugin(ajv);
+
+    const validate = ajv.compile({
+        type: "object",
+        required: ["url"],
+        properties: {
+            url: {
+                type: "string",
+                format: "https",
+            },
+        },
+    });
+
+    {
+        const testURLValidFail = {
+            url: "http://google.com",
+        };
+
+        validate(testURLValidFail);
+
+        ava.true(validate.errors !== null);
+    }
+
+    {
+        const testURLValidSuccess = {
+            url: "https://google.com/a/1?a=1!@#$%^*()_&x=1#!c=2",
         };
 
         validate(testURLValidSuccess);

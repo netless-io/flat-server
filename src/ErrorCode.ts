@@ -52,4 +52,8 @@ export enum ErrorCode {
     SMSAlreadyBinding, // phone are binding by other users
 
     CensorshipFailed = 120000, // censorship failed
+
+    OAuthUUIDNotFound = 130000, // oauth uuid not found
+    OAuthClientIDNotFound, // oauth client id not found
+    OAuthSecretUUIDNotFound, // oauth secret uuid not found
 }

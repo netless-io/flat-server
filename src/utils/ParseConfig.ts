@@ -73,6 +73,13 @@ type Config = {
             allow_suffix: string[];
         };
     };
+    oauth: {
+        logo: {
+            prefix_path: string;
+            size: number;
+            allow_suffix: string[];
+        };
+    };
     login: {
         wechat: {
             web: {

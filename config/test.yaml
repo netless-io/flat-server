@@ -54,6 +54,15 @@ user:
       - jpg
       - jpeg
 
+oauth:
+  logo:
+    prefix_path: oauth-logo
+    size: 5242880
+    allow_suffix:
+      - png
+      - jpg
+      - jpeg
+
 login:
   wechat:
     web:

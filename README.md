@@ -139,6 +139,18 @@ user:
             - jpg
             - jpeg
 
+oauth:
+    logo:
+        # Upload logo path prefix. Default: oauth-logo (No / prefix or suffix)
+        prefix_path: oauth-logo
+        # Maximum size. Default: 5M
+        size: 5242880
+        # Logo supported upload image file extensions
+        allow_suffix:
+            - png
+            - jpg
+            - jpeg
+
 login:
     wechat:
         # See: https://developers.weixin.qq.com/doc/oplatform/Website_App/WeChat_Login/Wechat_Login.html
