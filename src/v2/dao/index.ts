@@ -70,6 +70,7 @@ class DAO<M extends Model> {
             order?: [keyof M & string, "ASC" | "DESC"];
             distinct?: boolean;
             limit?: number;
+            offset?: number;
         },
     ): Promise<Pick<M, T>[]> {
         let sql = t
@@ -77,7 +78,8 @@ class DAO<M extends Model> {
             .createQueryBuilder()
             .select(DAOUtils.select(select))
             .where(DAOUtils.softDelete(where))
-            .limit(config?.limit);
+            .limit(config?.limit)
+            .offset(config?.offset);
 
         if (config?.distinct) {
             sql = sql.distinct(config.distinct);

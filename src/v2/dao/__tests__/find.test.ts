@@ -133,3 +133,27 @@ test(`${namespace} - limit`, async ava => {
 
     await releaseRunner();
 });
+
+test(`${namespace} - offset`, async ava => {
+    const { t, releaseRunner } = await useTransaction();
+    const createUser = new CreateUser(t);
+
+    const userName = v4();
+    await Promise.all([Array.from({ length: 5 }, () => createUser.fixedName(userName))]);
+
+    const result = await userDAO.find(
+        t,
+        "user_uuid",
+        {
+            user_name: userName,
+        },
+        {
+            offset: 2,
+            limit: 2,
+        },
+    );
+
+    ava.is(result.length, 2);
+
+    await releaseRunner();
+});
