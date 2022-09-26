@@ -46,4 +46,16 @@ export class CreateUser {
 
         return info;
     }
+    public async fixedUUID(userUUID: string) {
+        const info = {
+            userUUID,
+            userName: v4(),
+            userPassword: v4(),
+            avatarURL: v4(),
+        };
+
+        await this.full(info);
+
+        return info;
+    }
 }

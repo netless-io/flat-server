@@ -17,6 +17,9 @@ import { UserAppleModel } from "../model/user/Apple";
 import { UserAgoraModel } from "../model/user/Agora";
 import { UserGoogleModel } from "../model/user/Google";
 import { UserPhoneModel } from "../model/user/Phone";
+import { OAuthInfosModel } from "../model/oauth/oauth-infos";
+import { OAuthSecretsModel } from "../model/oauth/oauth-secrets";
+import { OAuthUsersModel } from "../model/oauth/oauth-users";
 
 export const dataSource = new DataSource({
     type: "mysql",
@@ -42,6 +45,9 @@ export const dataSource = new DataSource({
         CloudStorageConfigsModel,
         CloudStorageFilesModel,
         CloudStorageUserFilesModel,
+        OAuthInfosModel,
+        OAuthSecretsModel,
+        OAuthUsersModel,
     ],
     extra: {
         connectionLimit: isTest ? 50 : 10,

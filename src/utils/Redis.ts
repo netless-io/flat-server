@@ -20,4 +20,6 @@ export const RedisKey = {
     userDelete: (userUUID: string): string => `user:delete:${userUUID}`,
     videoIllegalCount: (roomUUID: string): string => `illegal:video:${roomUUID}`,
     voiceIllegalCount: (roomUUID: string): string => `illegal:voice:${roomUUID}`,
+    oauthLogoFileInfo: (oauthUUID: string, fileUUID: string): string =>
+        `oauth:logo:${oauthUUID}:${fileUUID}`,
 };

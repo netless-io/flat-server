@@ -162,6 +162,14 @@ export const User = {
     },
 };
 
+export const OAuth = {
+    logo: {
+        prefixPath: config.oauth.logo.prefix_path,
+        size: config.oauth.logo.size,
+        allowSuffix: config.oauth.logo.allow_suffix,
+    },
+};
+
 export const LogConfig = {
     pathname: config.log.pathname,
     filename: config.log.filename,

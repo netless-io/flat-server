@@ -2,7 +2,6 @@ import { Model } from "../../model";
 import { EntityTarget } from "typeorm";
 import { UserModel } from "../../model/user/User";
 import { FindOptionsWhere } from "typeorm/find-options/FindOptionsWhere";
-import { InsertQueryBuilder } from "typeorm/query-builder/InsertQueryBuilder";
 import { EntityManager } from "typeorm/entity-manager/EntityManager";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 import { UserWeChatModel } from "../../model/user/WeChat";
@@ -20,6 +19,9 @@ import { RoomRecordModel } from "../../model/room/RoomRecord";
 import { CloudStorageUserFilesModel } from "../../model/cloudStorage/CloudStorageUserFiles";
 import { CloudStorageFilesModel } from "../../model/cloudStorage/CloudStorageFiles";
 import { CloudStorageConfigsModel } from "../../model/cloudStorage/CloudStorageConfigs";
+import { OAuthInfosModel } from "../../model/oauth/oauth-infos";
+import { OAuthSecretsModel } from "../../model/oauth/oauth-secrets";
+import { OAuthUsersModel } from "../../model/oauth/oauth-users";
 
 class DAO<M extends Model> {
     public constructor(private readonly model: EntityTarget<M>) {}
@@ -188,3 +190,6 @@ export const roomRecordDAO = new DAO(RoomRecordModel);
 export const cloudStorageUserFilesDAO = new DAO(CloudStorageUserFilesModel);
 export const cloudStorageFilesDAO = new DAO(CloudStorageFilesModel);
 export const cloudStorageConfigsDAO = new DAO(CloudStorageConfigsModel);
+export const oauthInfosDAO = new DAO(OAuthInfosModel);
+export const oauthSecretsDAO = new DAO(OAuthSecretsModel);
+export const oauthUsersDAO = new DAO(OAuthUsersModel);

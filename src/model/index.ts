@@ -14,6 +14,9 @@ import { RoomRecordModel } from "./room/RoomRecord";
 import { CloudStorageFilesModel } from "./cloudStorage/CloudStorageFiles";
 import { CloudStorageUserFilesModel } from "./cloudStorage/CloudStorageUserFiles";
 import { CloudStorageConfigsModel } from "./cloudStorage/CloudStorageConfigs";
+import { OAuthInfosModel } from "./oauth/oauth-infos";
+import { OAuthSecretsModel } from "./oauth/oauth-secrets";
+import { OAuthUsersModel } from "./oauth/oauth-users";
 
 export type Model =
     | UserModel
@@ -31,4 +34,7 @@ export type Model =
     | RoomRecordModel
     | CloudStorageFilesModel
     | CloudStorageUserFilesModel
-    | CloudStorageConfigsModel;
+    | CloudStorageConfigsModel
+    | OAuthInfosModel
+    | OAuthSecretsModel
+    | OAuthUsersModel;

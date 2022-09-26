@@ -136,6 +136,17 @@ user:
             - jpg
             - jpeg
 
+oauth:
+    logo:
+        # 上传 logo 在 oss 中的路径。默认为：oauth-logo（前后不能有 /）
+        prefix_path: oauth-logo
+        # 最大大小。默认：5M
+        size: 5242880
+        # logo 支持上传的图片后缀
+        allow_suffix:
+            - png
+            - jpg
+            - jpeg
 
 login:
     wechat:
