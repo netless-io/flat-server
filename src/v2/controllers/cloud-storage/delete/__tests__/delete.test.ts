@@ -68,7 +68,7 @@ test.serial(`${namespace} - execute handler`, async ava => {
     const { createCloudStorageConfigs, createCloudStorageFiles, createCloudStorageUserFiles } =
         testService(t);
 
-    const { userUUID } = await createCloudStorageConfigs.quick();
+    const { userUUID } = await createCloudStorageConfigs.fixedTotalUsage(99999999999);
     const { fileUUID } = await createCloudStorageFiles.quick(FileResourceType.NormalResources);
     await createCloudStorageUserFiles.fixedUserUUIDAndFileUUID(userUUID, fileUUID);
 
