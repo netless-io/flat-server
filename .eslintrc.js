@@ -65,6 +65,7 @@ module.exports = {
         "quote-props": ["off"],
         "no-console": ["off"],
         "object-curly-newline": ["off"],
+        "no-unused-vars": ["off"],
 
         "@typescript-eslint/quotes": ["error", "double"],
         "@typescript-eslint/no-floating-promises": ["error"],
