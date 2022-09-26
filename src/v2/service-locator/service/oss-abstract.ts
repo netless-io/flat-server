@@ -13,4 +13,12 @@ export abstract class OSSAbstract {
         policy: string;
         signature: string;
     };
+
+    public removeDomain(url: string): string {
+        if (url.startsWith(this.domain)) {
+            return url.slice(this.domain.length + 1);
+        }
+
+        return url;
+    }
 }
