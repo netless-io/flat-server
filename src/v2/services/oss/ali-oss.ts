@@ -50,7 +50,7 @@ export class AliOSSService extends OSSAbstract {
         });
 
         if (!Array.isArray(fileList)) {
-            const result = await aliOSSClient.delete(fileList);
+            const result = await aliOSSClient.delete(this.removeDomain(fileList));
 
             this.logger.debug("remove file done", {
                 AliOSS: {
@@ -61,11 +61,13 @@ export class AliOSSService extends OSSAbstract {
             return;
         }
 
-        await aliOSSClient.deleteMulti(fileList);
+        const list = fileList.map(file => this.removeDomain(file));
+
+        await aliOSSClient.deleteMulti(list);
 
         const newOSSFilePathList: string[] = [];
 
-        for (const filePath of fileList) {
+        for (const filePath of list) {
             const suffix = path.extname(filePath);
             const fileUUID = path.basename(filePath, suffix);
             const fileName = `${fileUUID}${suffix}`;
