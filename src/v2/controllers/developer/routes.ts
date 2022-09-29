@@ -20,6 +20,7 @@ import {
     DeveloperOAuthLogoUploadStartSchema,
 } from "./oauth/oauth-logo";
 import { developerOAuthList, DeveloperOAuthListSchema } from "./oauth/list";
+import { developerOAuthUpdate, DeveloperOAuthUpdateSchema } from "./oauth/update";
 
 export const developerOAuthRouters = (server: Server): void => {
     server.post("developer/oauth/list", developerOAuthList, {
@@ -32,6 +33,10 @@ export const developerOAuthRouters = (server: Server): void => {
 
     server.post("developer/oauth/delete", developerOAuthDelete, {
         schema: DeveloperOAuthDeleteSchema,
+    });
+
+    server.post("developer/oauth/update", developerOAuthUpdate, {
+        schema: DeveloperOAuthUpdateSchema,
     });
 
     server.post("developer/oauth/setting/detail", developerOAuthSettingDetail, {
