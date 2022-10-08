@@ -77,6 +77,9 @@ const logger = (request: FastifyRequest): Logger<LoggerAPIv2> => {
         requestID: request.reqID,
         sessionID: request.sesID,
         [request.routerPath]: {
+            oauth2: {
+                ...request.oauth2,
+            },
             user: user
                 ? {
                       userUUID: user?.userUUID,
