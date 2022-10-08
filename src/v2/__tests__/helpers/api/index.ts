@@ -3,7 +3,7 @@ import { ajvTypeBoxPlugin, TypeBoxTypeProvider } from "@fastify/type-provider-ty
 import { registerV2Routers, Server as FServer } from "../../../../utils/registryRoutersV2";
 import { InjectOptions, Response as LightMyRequestResponse } from "light-my-request";
 import { HelperJWT } from "../jwt/create-jwt";
-import jwtVerify from "../../../../plugins/fastify/JWT";
+import { fastifyAuthenticate } from "../../../../plugins/fastify/authenticate";
 import cors from "@fastify/cors";
 import formBody from "@fastify/formbody";
 import reqID from "@fastify-userland/request-id";
@@ -24,7 +24,7 @@ export class HelperAPI {
 
     private readonly registerPlugin = (async () => {
         await Promise.all([
-            this.app.register(jwtVerify),
+            this.app.register(fastifyAuthenticate),
             this.app.register(cors, {
                 methods: ["GET", "POST", "OPTIONS"],
                 allowedHeaders: ["Content-Type", "Authorization"],

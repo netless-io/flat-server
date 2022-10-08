@@ -22,4 +22,5 @@ export const RedisKey = {
     voiceIllegalCount: (roomUUID: string): string => `illegal:voice:${roomUUID}`,
     oauthLogoFileInfo: (oauthUUID: string, fileUUID: string): string =>
         `oauth:logo:${oauthUUID}:${fileUUID}`,
+    oauthAccessToken: (accessToken: string): string => `oauth:accessToken:${accessToken}`,
 };

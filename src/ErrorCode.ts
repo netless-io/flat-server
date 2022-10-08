@@ -11,6 +11,8 @@ export enum ErrorCode {
     NonCompliant, // non compliant
     UnsupportedOperation, // operation not supported
 
+    OAUTH2AccessTokenInvalid, // oauth2 access token invalid
+
     RoomNotFound = 200000, // room not found
     RoomIsEnded, // room has been ended
     RoomIsRunning, // room status is running

@@ -8,7 +8,6 @@ import { orm } from "./thirdPartyService/TypeORMService";
 import { ErrorCode } from "./ErrorCode";
 import { loggerServer, parseError } from "./logger";
 import { MetricsSever } from "./metrics";
-import jwtVerify from "./plugins/fastify/JWT";
 import cors from "@fastify/cors";
 import formBody from "@fastify/formbody";
 import { registerV1Routers } from "./utils/RegistryRouters";
@@ -20,6 +19,7 @@ import fastifyRequestID from "@fastify-userland/request-id";
 import fastifyTypeORMQueryRunner from "@fastify-userland/typeorm-query-runner";
 import { fastifyAPILogger } from "./plugins/fastify/api-logger";
 import { initTasks } from "./v2/tasks";
+import { fastifyAuthenticate } from "./plugins/fastify/authenticate";
 
 const app = fastify({
     caseSensitive: true,
@@ -67,7 +67,7 @@ app.get("/health-check", async (_req, reply) => {
 
 void orm().then(async dataSource => {
     await Promise.all([
-        app.register(jwtVerify),
+        app.register(fastifyAuthenticate),
         app.register(cors, {
             methods: ["GET", "POST", "OPTIONS"],
             allowedHeaders: ["Content-Type", "Authorization", "x-request-id", "x-session-id"],
