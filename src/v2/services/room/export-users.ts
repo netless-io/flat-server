@@ -76,7 +76,7 @@ export class RoomExportUsersService {
         const r = roomUsers.map(({ userName, joinRoomDate, userPhone }) => ({
             userName,
             joinRoomDate: joinRoomDate.valueOf(),
-            userPhone: includePhoneNumber ? userPhone : "0",
+            userPhone: includePhoneNumber ? userPhone : undefined,
         }));
 
         return r;

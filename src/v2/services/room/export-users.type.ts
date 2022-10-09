@@ -1,6 +1,6 @@
 export type RoomExportUserItem = {
     userName: string;
-    userPhone: string;
+    userPhone?: string;
     joinRoomDate: number;
 };
 
