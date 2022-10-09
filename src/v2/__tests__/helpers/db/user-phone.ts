@@ -15,13 +15,13 @@ export class CreateUserPhone {
     }
 
     public async quick(info: { userUUID?: string; userName?: string; phoneNumber?: string }) {
-        const params = {
+        const fullInfo = {
             userUUID: info.userUUID || v4(),
             userName: info.userName || v4().slice(6),
             phoneNumber: info.phoneNumber || randomPhoneNumber(),
         };
-        await this.full(params);
-        return params;
+        await this.full(fullInfo);
+        return fullInfo;
     }
 }
 
