@@ -7,6 +7,7 @@ import { Region } from "../../../../constants/Project";
 
 export class CreateRoom {
     public constructor(private readonly t: EntityManager) {}
+
     public async full(info: {
         roomUUID: string;
         periodicUUID: string;
@@ -34,19 +35,30 @@ export class CreateRoom {
         return info;
     }
 
-    public async quick(info: { ownerUUID: string }) {
-        const beginTime = addHours(1)(Date.now());
+    public async quick(info: {
+        ownerUUID?: string;
+        beginTime?: Date;
+        endTime?: Date;
+        roomUUID?: string;
+        periodicUUID?: string;
+        title?: string;
+        roomType?: RoomType;
+        roomStatus?: RoomStatus;
+        whiteboardRoomUUID?: string;
+        region?: Region;
+    }) {
+        const beginTime = info.beginTime || addHours(1)(Date.now());
         const roomInfo = {
-            roomUUID: v4(),
-            periodicUUID: "",
-            ownerUUID: info.ownerUUID,
-            title: "test room",
-            roomType: RoomType.OneToOne,
-            roomStatus: RoomStatus.Stopped,
-            beginTime: beginTime,
-            endTime: addMinutes(30)(beginTime),
-            whiteboardRoomUUID: v4().replace("-", ""),
-            region: Region.SG,
+            roomUUID: info.roomUUID || v4(),
+            periodicUUID: info.periodicUUID || "",
+            ownerUUID: info.ownerUUID || v4(),
+            title: info.title || v4(),
+            roomType: info.roomType || RoomType.OneToOne,
+            roomStatus: info.roomStatus || RoomStatus.Stopped,
+            beginTime,
+            endTime: info.endTime || addMinutes(30)(beginTime),
+            whiteboardRoomUUID: info.whiteboardRoomUUID || v4().replace("-", ""),
+            region: info.region || Region.SG,
         };
         await this.full(roomInfo);
         return roomInfo;

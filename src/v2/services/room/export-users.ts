@@ -27,16 +27,6 @@ export class RoomExportUsersService {
 
     public async roomAndUsersIncludePhone(roomUUID: string): Promise<RoomExportUsersReturn> {
         const room = await this.getRoomInfoIncludeOwnerName(roomUUID);
-        if (!room) {
-            this.logger.info("room not found", {
-                roomExportUsers: {
-                    userUUID: this.userUUID,
-                    roomUUID: roomUUID,
-                },
-            });
-            throw new FError(ErrorCode.RoomNotFound);
-        }
-
         if (room.ownerUUID !== this.userUUID) {
             this.logger.info("insufficient permissions,user is not room's owner", {
                 roomExportUsers: {
@@ -48,7 +38,10 @@ export class RoomExportUsersService {
             throw new FError(ErrorCode.NotPermission);
         }
 
-        const users = await this.getUsersByRoomUUID(roomUUID, this.phoneSMSEnabled);
+        const users = await this.getUsersByRoomUUID(
+            roomUUID,
+            RoomExportUsersService.phoneSMSEnabled,
+        );
 
         return {
             roomEndDate: room.roomEndDate,
@@ -69,14 +62,13 @@ export class RoomExportUsersService {
             .addSelect("ru.created_at", "joinRoomDate");
 
         if (includePhoneNumber) {
-            db.innerJoin(UserPhoneModel, "up", "ru.user_uuid = up.user_uuid").addSelect(
-                "up.phone_number",
-                "userPhone",
-            );
+            db.innerJoin(UserPhoneModel, "up", "ru.user_uuid = up.user_uuid")
+                .addSelect("up.phone_number", "userPhone")
+                .andWhere("up.is_delete = :isDelete", { isDelete: false });
         }
 
         const roomUsers = await db
-            .where("ru.room_uuid = :roomUUID", { roomUUID })
+            .andWhere("ru.room_uuid = :roomUUID", { roomUUID })
             .andWhere("ru.is_delete = :isDelete", { isDelete: false })
             .andWhere("u.is_delete = :isDelete", { isDelete: false })
             .getRawMany<Omit<RoomExportUserItem, "joinRoomDate"> & { joinRoomDate: Date }>();
@@ -90,9 +82,7 @@ export class RoomExportUsersService {
         return r;
     }
 
-    private async getRoomInfoIncludeOwnerName(
-        roomUUID: string,
-    ): Promise<RoomInfoWithOwnerName | undefined> {
+    private async getRoomInfoIncludeOwnerName(roomUUID: string): Promise<RoomInfoWithOwnerName> {
         const roomInfo = await this.DBTransaction.createQueryBuilder(RoomModel, "r")
             .innerJoin(UserModel, "u", "u.user_uuid = r.owner_uuid")
             .addSelect("r.room_uuid", "roomUUID")
@@ -112,7 +102,13 @@ export class RoomExportUsersService {
             >();
 
         if (!roomInfo) {
-            return roomInfo;
+            this.logger.info("room not found", {
+                roomExportUsers: {
+                    userUUID: this.userUUID,
+                    roomUUID: roomUUID,
+                },
+            });
+            throw new FError(ErrorCode.RoomNotFound);
         }
 
         const { roomStartDate, roomEndDate, ...rest } = roomInfo;
@@ -123,7 +119,7 @@ export class RoomExportUsersService {
         };
     }
 
-    private get phoneSMSEnabled(): boolean {
+    public static get phoneSMSEnabled(): boolean {
         return PhoneSMS.enable;
     }
 }

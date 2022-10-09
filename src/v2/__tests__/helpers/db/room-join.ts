@@ -1,6 +1,7 @@
 import { EntityManager } from "typeorm";
 import cryptoRandomString from "crypto-random-string";
 import { roomUserDAO } from "../../../dao";
+import { v4 } from "uuid";
 
 export class CreateRoomJoin {
     public constructor(private readonly t: EntityManager) {}
@@ -13,11 +14,11 @@ export class CreateRoomJoin {
         return info;
     }
 
-    public async quick(info: { roomUUID: string; userUUID: string }) {
+    public async quick(info: { roomUUID?: string; userUUID?: string; rtcUID?: string }) {
         const roomUserInfo = {
-            roomUUID: info.roomUUID,
-            userUUID: info.userUUID,
-            rtcUID: cryptoRandomString({ length: 6, type: "numeric" }),
+            roomUUID: info.roomUUID || v4(),
+            userUUID: info.userUUID || v4(),
+            rtcUID: info.rtcUID || cryptoRandomString({ length: 6, type: "numeric" }),
         };
         await this.full(roomUserInfo);
         return roomUserInfo;

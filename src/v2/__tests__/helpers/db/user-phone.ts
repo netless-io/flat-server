@@ -1,4 +1,5 @@
 import { EntityManager } from "typeorm";
+import { v4 } from "uuid";
 import { userPhoneDAO } from "../../../dao";
 
 export class CreateUserPhone {
@@ -13,17 +14,14 @@ export class CreateUserPhone {
         return info;
     }
 
-    public async quick(info: { userUUID: string; userName: string }) {
-        const phoneNumber = randomPhoneNumber();
-        await this.full({
-            userUUID: info.userUUID,
-            userName: info.userName,
-            phoneNumber: phoneNumber,
-        });
-        return {
-            ...info,
-            phoneNumber,
+    public async quick(info: { userUUID?: string; userName?: string; phoneNumber?: string }) {
+        const params = {
+            userUUID: info.userUUID || v4(),
+            userName: info.userName || v4().slice(6),
+            phoneNumber: info.phoneNumber || randomPhoneNumber(),
         };
+        await this.full(params);
+        return params;
     }
 }
 
