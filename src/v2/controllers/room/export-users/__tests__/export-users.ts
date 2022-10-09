@@ -10,7 +10,7 @@ const namespace = "v2.controllers.room.export.users";
 
 initializeDataSource(test, namespace);
 
-test.serial(`${namespace} - export users`, async ava => {
+test(`${namespace} - export users`, async ava => {
     const { t, releaseRunner, commitTransaction } = await useTransaction();
     const { createUser, createUserPhone, createRoom, createRoomJoin } = testService(t);
 
