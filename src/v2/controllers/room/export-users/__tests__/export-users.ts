@@ -57,26 +57,29 @@ test(`${namespace} - export users`, async ava => {
     });
 
     ava.is(resp.statusCode, 200);
+
     const response = resp.json();
     const { roomTitle, roomStartDate, roomEndDate, ownerName, users } =
         response.data as RoomExportUsersReturn;
+
     ava.is(room.title, roomTitle);
     ava.is(room.beginTime.valueOf(), roomStartDate);
     ava.is(room.endTime.valueOf(), roomEndDate);
     ava.is(owner.userName, ownerName);
     ava.is(roomUserCount, users.length);
 
-    const usersMap: Record<string, typeof owner> = {};
+    const mockUsersMap: Record<string, typeof owner> = {};
     mockUsers.forEach(u => {
-        usersMap[u.userName] = u;
+        mockUsersMap[u.userName] = u;
     });
 
     users.forEach(u => {
         const { userName, userPhone } = u;
+        const mockUser = mockUsersMap[userName];
         const assertPhoneNumber = RoomExportUsersService.phoneSMSEnabled
-            ? usersMap[userName].phoneNumber
+            ? mockUser.phoneNumber
             : undefined;
-        ava.is(userName, usersMap[userName].userName);
+        ava.is(userName, mockUser.userName);
         ava.is(userPhone, assertPhoneNumber);
     });
 });
