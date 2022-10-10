@@ -5,6 +5,8 @@ import { roomRouters } from "../../routes";
 import { roomExportUsers } from "../";
 import { testService } from "../../../../__tests__/helpers/db";
 import { useTransaction } from "../../../../__tests__/helpers/db/query-runner";
+import { RoomExportUsersService } from "../../../../services/room/export-users";
+import { RoomExportUsersReturn } from "v2/services/room/export-users.type";
 
 const namespace = "v2.controllers.room.export.users";
 
@@ -15,27 +17,34 @@ test(`${namespace} - export users`, async ava => {
     const { createUser, createUserPhone, createRoom, createRoomJoin } = testService(t);
 
     const roomUserCount = 10;
-    const users = [];
-    for (let i = 0; i < roomUserCount; i++) {
-        const user = await createUser.quick();
-        const userPhone = await createUserPhone.quick({
-            userName: user.userName,
-            userUUID: user.userUUID,
-        });
-        users.push({ ...user, phoneNumber: userPhone.phoneNumber });
-    }
+    const mockUsers = await Promise.all(
+        Array.from({ length: roomUserCount }, async () => {
+            const user = await createUser.quick();
+            const { phoneNumber } = await createUserPhone.quick({
+                userName: user.userName,
+                userUUID: user.userUUID,
+            });
+            return {
+                ...user,
+                phoneNumber,
+            };
+        }),
+    );
 
-    const owner = users[0];
+    const owner = mockUsers[0];
     const room = await createRoom.quick({ ownerUUID: owner.userUUID });
 
-    for (const u of users) {
-        await createRoomJoin.quick({
-            roomUUID: room.roomUUID,
-            userUUID: u.userUUID,
-        });
-    }
+    await Promise.all(
+        mockUsers.map(u => {
+            return createRoomJoin.quick({
+                roomUUID: room.roomUUID,
+                userUUID: u.userUUID,
+            });
+        }),
+    );
 
     await commitTransaction();
+    await releaseRunner();
 
     const helperAPI = new HelperAPI();
     await helperAPI.import(roomRouters, roomExportUsers);
@@ -49,11 +58,25 @@ test(`${namespace} - export users`, async ava => {
 
     ava.is(resp.statusCode, 200);
     const response = resp.json();
-    ava.is(room.title, response.data.roomTitle);
-    ava.is(room.beginTime.valueOf(), response.data.roomStartDate);
-    ava.is(room.endTime.valueOf(), response.data.roomEndDate);
-    ava.is(owner.userName, response.data.ownerName);
-    ava.is(roomUserCount, response.data.users.length);
+    const { roomTitle, roomStartDate, roomEndDate, ownerName, users } =
+        response.data as RoomExportUsersReturn;
+    ava.is(room.title, roomTitle);
+    ava.is(room.beginTime.valueOf(), roomStartDate);
+    ava.is(room.endTime.valueOf(), roomEndDate);
+    ava.is(owner.userName, ownerName);
+    ava.is(roomUserCount, users.length);
 
-    await releaseRunner();
+    const usersMap: Record<string, typeof owner> = {};
+    mockUsers.forEach(u => {
+        usersMap[u.userName] = u;
+    });
+
+    users.forEach(u => {
+        const { userName, userPhone } = u;
+        const assertPhoneNumber = RoomExportUsersService.phoneSMSEnabled
+            ? usersMap[userName].phoneNumber
+            : undefined;
+        ava.is(userName, usersMap[userName].userName);
+        ava.is(userPhone, assertPhoneNumber);
+    });
 });

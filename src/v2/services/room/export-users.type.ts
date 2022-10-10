@@ -18,5 +18,4 @@ export type RoomInfoWithOwnerName = {
     roomStartDate: number;
     roomEndDate: number;
     ownerName: string;
-    ownerUUID: string;
 };

@@ -21,6 +21,8 @@ export const roomExportUsers = async (
     req: FastifyRequestTypebox<typeof roomExportUsersSchema>,
 ): Promise<Response<RoomExportUsersReturn>> => {
     const roomExportUsersSVC = new RoomExportUsersService(req.ids, req.DBTransaction, req.userUUID);
+    await roomExportUsersSVC.assertRoomOwner(req.body.roomUUID);
     const data = await roomExportUsersSVC.roomAndUsersIncludePhone(req.body.roomUUID);
+
     return successJSON(data);
 };

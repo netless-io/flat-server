@@ -1,4 +1,5 @@
 import test from "ava";
+import { v4 } from "uuid";
 import { testService } from "../../../__tests__/helpers/db";
 import { useTransaction } from "../../../__tests__/helpers/db/query-runner";
 import { initializeDataSource } from "../../../__tests__/helpers/db/test-hooks";
@@ -14,34 +15,75 @@ test(`${namespace} - roomAndUsersIncludePhone`, async ava => {
     const { createUser, createUserPhone, createRoom, createRoomJoin } = testService(t);
 
     const roomUserCount = 10;
-    const users = [];
-    for (let i = 0; i < roomUserCount; i++) {
-        const user = await createUser.quick();
-        const userPhone = await createUserPhone.quick({
-            userName: user.userName,
-            userUUID: user.userUUID,
-        });
-        users.push({ ...user, phoneNumber: userPhone.phoneNumber });
-    }
+    const mockUsers = await Promise.all(
+        Array.from({ length: roomUserCount }, async () => {
+            const user = await createUser.quick();
+            const { phoneNumber } = await createUserPhone.quick({
+                userName: user.userName,
+                userUUID: user.userUUID,
+            });
+            return {
+                ...user,
+                phoneNumber,
+            };
+        }),
+    );
 
-    const owner = users[0];
+    const owner = mockUsers[0];
     const room = await createRoom.quick({ ownerUUID: owner.userUUID });
 
-    for (const u of users) {
-        await createRoomJoin.quick({
-            roomUUID: room.roomUUID,
-            userUUID: u.userUUID,
-        });
-    }
+    await Promise.all(
+        mockUsers.map(u => {
+            return createRoomJoin.quick({
+                roomUUID: room.roomUUID,
+                userUUID: u.userUUID,
+            });
+        }),
+    );
 
     const roomExportUsersSVC = new RoomExportUsersService(ids(), t, owner.userUUID);
     const roomExportUsersInfo = await roomExportUsersSVC.roomAndUsersIncludePhone(room.roomUUID);
+    const { roomTitle, roomStartDate, roomEndDate, ownerName, users } = roomExportUsersInfo;
+    ava.is(room.title, roomTitle);
+    ava.is(room.beginTime.valueOf(), roomStartDate);
+    ava.is(room.endTime.valueOf(), roomEndDate);
+    ava.is(owner.userName, ownerName);
+    ava.is(roomUserCount, users.length);
 
-    ava.is(room.title, roomExportUsersInfo.roomTitle);
-    ava.is(room.beginTime.valueOf(), roomExportUsersInfo.roomStartDate);
-    ava.is(room.endTime.valueOf(), roomExportUsersInfo.roomEndDate);
-    ava.is(owner.userName, roomExportUsersInfo.ownerName);
-    ava.is(roomUserCount, roomExportUsersInfo.users.length);
+    const usersMap: Record<string, typeof owner> = {};
+    mockUsers.forEach(u => {
+        usersMap[u.userName] = u;
+    });
+
+    users.forEach(u => {
+        const { userName, userPhone } = u;
+        const assertPhoneNumber = RoomExportUsersService.phoneSMSEnabled
+            ? usersMap[userName].phoneNumber
+            : undefined;
+        ava.is(userName, usersMap[userName].userName);
+        ava.is(userPhone, assertPhoneNumber);
+    });
 
     await releaseRunner();
+});
+
+test(`${namespace} - assert room owner`, async ava => {
+    const { t, releaseRunner } = await useTransaction();
+    const { createRoom } = testService(t);
+
+    const [userUUID] = [v4(), v4()];
+
+    const room = await createRoom.quick({ ownerUUID: userUUID });
+
+    {
+        const roomExportUsersSVC = new RoomExportUsersService(ids(), t, userUUID);
+        await ava.notThrowsAsync(roomExportUsersSVC.assertRoomOwner(room.roomUUID));
+    }
+
+    {
+        const roomExportUsersSVC = new RoomExportUsersService(ids(), t, v4());
+        await ava.throwsAsync(roomExportUsersSVC.assertRoomOwner(room.roomUUID));
+    }
+
+    releaseRunner;
 });
