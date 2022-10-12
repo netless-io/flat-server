@@ -1,5 +1,5 @@
 import test from "ava";
-import { Status } from "constants/Project";
+import { Status } from "../../../../constants/Project";
 import { FError } from "../../../../error/ControllerError";
 import { ErrorCode } from "../../../../ErrorCode";
 import { v4 } from "uuid";
@@ -28,6 +28,7 @@ test(`${namespace} - roomAndUsersIncludePhone`, async ava => {
             return {
                 ...user,
                 phoneNumber,
+                joinRoomDate: 0,
             };
         }),
     );
@@ -39,10 +40,11 @@ test(`${namespace} - roomAndUsersIncludePhone`, async ava => {
     const room = await createRoom.quick({ ownerUUID: owner.userUUID });
 
     for (const u of mockUsers) {
-        await createRoomJoin.quick({
+        const result = await createRoomJoin.quick({
             roomUUID: room.roomUUID,
             userUUID: u.userUUID,
         });
+        u.joinRoomDate = result.createdAt;
     }
 
     const roomExportUsersSVC = new RoomExportUsersService(ids(), t, owner.userUUID);
@@ -56,15 +58,18 @@ test(`${namespace} - roomAndUsersIncludePhone`, async ava => {
         users: [
             {
                 userName: owner.userName,
-                phoneNumber: owner.phoneNumber,
+                userPhone: owner.phoneNumber,
+                joinRoomDate: owner.joinRoomDate,
             },
             {
                 userName: user1.userName,
-                phoneNumber: user1.phoneNumber,
+                userPhone: user1.phoneNumber,
+                joinRoomDate: user1.joinRoomDate,
             },
             {
                 userName: user2.userName,
-                phoneNumber: user2.phoneNumber,
+                userPhone: user2.phoneNumber,
+                joinRoomDate: user2.joinRoomDate,
             },
         ],
     });

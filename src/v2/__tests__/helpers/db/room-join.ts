@@ -11,7 +11,17 @@ export class CreateRoomJoin {
             user_uuid: info.userUUID,
             rtc_uid: info.rtcUID,
         });
-        return info;
+
+        const result = await roomUserDAO.findOne(this.t, ["created_at"], {
+            room_uuid: info.roomUUID,
+            user_uuid: info.userUUID,
+            rtc_uid: info.rtcUID,
+        });
+
+        return {
+            info,
+            createdAt: result?.created_at.valueOf() || -1,
+        };
     }
 
     public async quick(info: { roomUUID?: string; userUUID?: string; rtcUID?: string }) {
@@ -20,7 +30,6 @@ export class CreateRoomJoin {
             userUUID: info.userUUID || v4(),
             rtcUID: info.rtcUID || cryptoRandomString({ length: 6, type: "numeric" }),
         };
-        await this.full(roomUserInfo);
-        return roomUserInfo;
+        return await this.full(roomUserInfo);
     }
 }

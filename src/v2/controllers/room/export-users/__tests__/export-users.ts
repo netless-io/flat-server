@@ -1,4 +1,5 @@
 import test from "ava";
+import { RoomExportUsersReturn } from "../../../../services/room/export-users.type";
 import { roomExportUsers } from "../";
 import { HelperAPI } from "../../../../__tests__/helpers/api";
 import { testService } from "../../../../__tests__/helpers/db";
@@ -26,6 +27,7 @@ test(`${namespace} - export users`, async ava => {
             return {
                 ...user,
                 phoneNumber,
+                joinRoomDate: 0,
             };
         }),
     );
@@ -37,10 +39,11 @@ test(`${namespace} - export users`, async ava => {
     const room = await createRoom.quick({ ownerUUID: owner.userUUID });
 
     for (const u of mockUsers) {
-        await createRoomJoin.quick({
+        const result = await createRoomJoin.quick({
             roomUUID: room.roomUUID,
             userUUID: u.userUUID,
         });
+        u.joinRoomDate = result.createdAt;
     }
 
     await commitTransaction();
@@ -59,7 +62,7 @@ test(`${namespace} - export users`, async ava => {
     ava.is(resp.statusCode, 200);
     ava.deepEqual(
         resp.json(),
-        successJSON({
+        successJSON<RoomExportUsersReturn>({
             roomTitle: room.title,
             roomStartDate: room.beginTime.valueOf(),
             roomEndDate: room.endTime.valueOf(),
@@ -67,15 +70,18 @@ test(`${namespace} - export users`, async ava => {
             users: [
                 {
                     userName: owner.userName,
-                    phoneNumber: owner.phoneNumber,
+                    userPhone: owner.phoneNumber,
+                    joinRoomDate: owner.joinRoomDate,
                 },
                 {
                     userName: user1.userName,
-                    phoneNumber: user1.phoneNumber,
+                    userPhone: user1.phoneNumber,
+                    joinRoomDate: user1.joinRoomDate,
                 },
                 {
                     userName: user2.userName,
-                    phoneNumber: user2.phoneNumber,
+                    userPhone: user2.phoneNumber,
+                    joinRoomDate: user2.joinRoomDate,
                 },
             ],
         }),
