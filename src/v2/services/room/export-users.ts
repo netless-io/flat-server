@@ -36,7 +36,7 @@ export class RoomExportUsersService {
             roomStartDate: room.roomStartDate,
             ownerName: room.ownerName,
             roomTitle: room.roomTitle,
-            users: users,
+            users,
         };
     }
 

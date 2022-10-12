@@ -35,18 +35,20 @@ export class CreateRoom {
         return info;
     }
 
-    public async quick(info: {
-        ownerUUID?: string;
-        beginTime?: Date;
-        endTime?: Date;
-        roomUUID?: string;
-        periodicUUID?: string;
-        title?: string;
-        roomType?: RoomType;
-        roomStatus?: RoomStatus;
-        whiteboardRoomUUID?: string;
-        region?: Region;
-    }) {
+    public async quick(
+        info: {
+            ownerUUID?: string;
+            beginTime?: Date;
+            endTime?: Date;
+            roomUUID?: string;
+            periodicUUID?: string;
+            title?: string;
+            roomType?: RoomType;
+            roomStatus?: RoomStatus;
+            whiteboardRoomUUID?: string;
+            region?: Region;
+        } = {},
+    ) {
         const beginTime = info.beginTime || addHours(1)(Date.now());
         const roomInfo = {
             roomUUID: info.roomUUID || v4(),

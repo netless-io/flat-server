@@ -1,15 +1,11 @@
 import test from "ava";
-import { initializeDataSource } from "../../../../__tests__/helpers/db/test-hooks";
-import { HelperAPI } from "../../../../__tests__/helpers/api";
-import { roomRouters } from "../../routes";
 import { roomExportUsers } from "../";
+import { HelperAPI } from "../../../../__tests__/helpers/api";
 import { testService } from "../../../../__tests__/helpers/db";
 import { useTransaction } from "../../../../__tests__/helpers/db/query-runner";
-import { RoomExportUsersService } from "../../../../services/room/export-users";
-import {
-    RoomExportUserItem,
-    RoomExportUsersReturn,
-} from "../../../../services/room/export-users.type";
+import { initializeDataSource } from "../../../../__tests__/helpers/db/test-hooks";
+import { successJSON } from "../../../internal/utils/response-json";
+import { roomRouters } from "../../routes";
 
 const namespace = "v2.controllers.room.export.users";
 
@@ -40,20 +36,12 @@ test(`${namespace} - export users`, async ava => {
 
     const room = await createRoom.quick({ ownerUUID: owner.userUUID });
 
-    await createRoomJoin.quick({
-        roomUUID: room.roomUUID,
-        userUUID: owner.userUUID,
-    });
-
-    await createRoomJoin.quick({
-        roomUUID: room.roomUUID,
-        userUUID: user1.userUUID,
-    });
-
-    await createRoomJoin.quick({
-        roomUUID: room.roomUUID,
-        userUUID: user2.userUUID,
-    });
+    for (const u of mockUsers) {
+        await createRoomJoin.quick({
+            roomUUID: room.roomUUID,
+            userUUID: u.userUUID,
+        });
+    }
 
     await commitTransaction();
     await releaseRunner();
@@ -69,25 +57,27 @@ test(`${namespace} - export users`, async ava => {
     });
 
     ava.is(resp.statusCode, 200);
-
-    const response = resp.json();
-    const { roomTitle, roomStartDate, roomEndDate, ownerName, users } =
-        response.data as RoomExportUsersReturn;
-
-    ava.is(room.title, roomTitle);
-    ava.is(room.beginTime.valueOf(), roomStartDate);
-    ava.is(room.endTime.valueOf(), roomEndDate);
-    ava.is(owner.userName, ownerName);
-    ava.is(mockUserCount, users.length);
-
-    const assertUserInfo = (userInfo: typeof owner, exportUserInfo: RoomExportUserItem) => {
-        const assertPhoneNumber = RoomExportUsersService.phoneSMSEnabled
-            ? userInfo.phoneNumber
-            : undefined;
-        ava.is(exportUserInfo.userName, userInfo.userName);
-        ava.is(exportUserInfo.userPhone, assertPhoneNumber);
-    };
-    assertUserInfo(owner, users[0]);
-    assertUserInfo(user1, users[1]);
-    assertUserInfo(user2, users[2]);
+    ava.deepEqual(
+        resp.json(),
+        successJSON({
+            roomTitle: room.title,
+            roomStartDate: room.beginTime.valueOf(),
+            roomEndDate: room.endTime.valueOf(),
+            ownerName: owner.userName,
+            users: [
+                {
+                    userName: owner.userName,
+                    phoneNumber: owner.phoneNumber,
+                },
+                {
+                    userName: user1.userName,
+                    phoneNumber: user1.phoneNumber,
+                },
+                {
+                    userName: user2.userName,
+                    phoneNumber: user2.phoneNumber,
+                },
+            ],
+        }),
+    );
 });
