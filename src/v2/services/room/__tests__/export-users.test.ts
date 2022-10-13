@@ -50,7 +50,9 @@ test(`${namespace} - roomAndUsersIncludePhone`, async ava => {
 
     {
         const phoneSMSEnabled = stub(RoomExportUsersService, "phoneSMSEnabled").value(true);
+
         const roomExportUsersSVC = new RoomExportUsersService(ids(), t, owner.userUUID);
+
         const roomExportUsersInfo = await roomExportUsersSVC.roomAndUsersIncludePhone(
             room.roomUUID,
         );
@@ -83,7 +85,9 @@ test(`${namespace} - roomAndUsersIncludePhone`, async ava => {
 
     {
         const phoneSMSEnabled = stub(RoomExportUsersService, "phoneSMSEnabled").value(false);
+
         const roomExportUsersSVC = new RoomExportUsersService(ids(), t, owner.userUUID);
+
         const roomExportUsersInfo = await roomExportUsersSVC.roomAndUsersIncludePhone(
             room.roomUUID,
         );

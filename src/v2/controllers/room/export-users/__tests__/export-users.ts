@@ -56,6 +56,7 @@ test(`${namespace} - export users`, async ava => {
 
     {
         const phoneSMSEnabled = stub(RoomExportUsersService, "phoneSMSEnabled").value(true);
+
         const resp = await helperAPI.injectAuth(owner.userUUID, {
             method: "POST",
             url: "/v2/room/export-users",
@@ -96,6 +97,7 @@ test(`${namespace} - export users`, async ava => {
 
     {
         const phoneSMSEnabled = stub(RoomExportUsersService, "phoneSMSEnabled").value(false);
+
         const resp = await helperAPI.injectAuth(owner.userUUID, {
             method: "POST",
             url: "/v2/room/export-users",
