@@ -8,6 +8,7 @@ import { useTransaction } from "../../../__tests__/helpers/db/query-runner";
 import { initializeDataSource } from "../../../__tests__/helpers/db/test-hooks";
 import { ids } from "../../../__tests__/helpers/fastify/ids";
 import { RoomExportUsersService } from "../export-users";
+import { stub } from "sinon";
 
 const namespace = "services.room.export-users";
 
@@ -47,32 +48,71 @@ test(`${namespace} - roomAndUsersIncludePhone`, async ava => {
         u.joinRoomDate = result.createdAt;
     }
 
-    const roomExportUsersSVC = new RoomExportUsersService(ids(), t, owner.userUUID);
-    const roomExportUsersInfo = await roomExportUsersSVC.roomAndUsersIncludePhone(room.roomUUID);
+    {
+        const phoneSMSEnabled = stub(RoomExportUsersService, "phoneSMSEnabled").value(true);
+        const roomExportUsersSVC = new RoomExportUsersService(ids(), t, owner.userUUID);
+        const roomExportUsersInfo = await roomExportUsersSVC.roomAndUsersIncludePhone(
+            room.roomUUID,
+        );
 
-    ava.deepEqual(roomExportUsersInfo, {
-        roomTitle: room.title,
-        roomStartDate: room.beginTime.valueOf(),
-        roomEndDate: room.endTime.valueOf(),
-        ownerName: owner.userName,
-        users: [
-            {
-                userName: owner.userName,
-                userPhone: owner.phoneNumber,
-                joinRoomDate: owner.joinRoomDate,
-            },
-            {
-                userName: user1.userName,
-                userPhone: user1.phoneNumber,
-                joinRoomDate: user1.joinRoomDate,
-            },
-            {
-                userName: user2.userName,
-                userPhone: user2.phoneNumber,
-                joinRoomDate: user2.joinRoomDate,
-            },
-        ],
-    });
+        ava.deepEqual(roomExportUsersInfo, {
+            roomTitle: room.title,
+            roomStartDate: room.beginTime.valueOf(),
+            roomEndDate: room.endTime.valueOf(),
+            ownerName: owner.userName,
+            users: [
+                {
+                    userName: owner.userName,
+                    userPhone: owner.phoneNumber,
+                    joinRoomDate: owner.joinRoomDate,
+                },
+                {
+                    userName: user1.userName,
+                    userPhone: user1.phoneNumber,
+                    joinRoomDate: user1.joinRoomDate,
+                },
+                {
+                    userName: user2.userName,
+                    userPhone: user2.phoneNumber,
+                    joinRoomDate: user2.joinRoomDate,
+                },
+            ],
+        });
+        phoneSMSEnabled.restore();
+    }
+
+    {
+        const phoneSMSEnabled = stub(RoomExportUsersService, "phoneSMSEnabled").value(false);
+        const roomExportUsersSVC = new RoomExportUsersService(ids(), t, owner.userUUID);
+        const roomExportUsersInfo = await roomExportUsersSVC.roomAndUsersIncludePhone(
+            room.roomUUID,
+        );
+
+        ava.deepEqual(roomExportUsersInfo, {
+            roomTitle: room.title,
+            roomStartDate: room.beginTime.valueOf(),
+            roomEndDate: room.endTime.valueOf(),
+            ownerName: owner.userName,
+            users: [
+                {
+                    userName: owner.userName,
+                    userPhone: undefined,
+                    joinRoomDate: owner.joinRoomDate,
+                },
+                {
+                    userName: user1.userName,
+                    userPhone: undefined,
+                    joinRoomDate: user1.joinRoomDate,
+                },
+                {
+                    userName: user2.userName,
+                    userPhone: undefined,
+                    joinRoomDate: user2.joinRoomDate,
+                },
+            ],
+        });
+        phoneSMSEnabled.restore();
+    }
 
     await releaseRunner();
 });
