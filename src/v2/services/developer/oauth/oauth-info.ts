@@ -157,7 +157,7 @@ export class DeveloperOAuthInfoService {
             .addSelect("oi.app_desc", "appDesc")
             .addSelect("oi.homepage_url", "homepageURL")
             .addSelect("oi.logo_url", "logoURL")
-            .addSelect("oi.scopes", "scopes")
+            .addSelect("ou.scopes", "scopes")
             .andWhere("ou.user_uuid = :userUUID", { userUUID: this.userUUID })
             .andWhere("oi.oauth_uuid = :oauthUUID", { oauthUUID })
             .andWhere("oi.is_delete = false")

@@ -1,11 +1,7 @@
-import { DeveloperOAuthScope } from "../src/model/oauth/oauth-infos";
+import "fastify";
 
 declare module "fastify" {
     interface FastifyRequest {
-        oauth2: {
-            userUUID: string;
-            scope: DeveloperOAuthScope[];
-            oauthUUID: string;
-        };
+        notAutoHandle?: true;
     }
 }

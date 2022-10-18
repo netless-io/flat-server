@@ -1,15 +1,10 @@
 import { createLoggerService } from "../../../../logger";
 import { EntityManager } from "typeorm";
 import { oauthUsersDAO } from "../../../dao";
-import { OAuthInfosModel } from "../../../../model/oauth/oauth-infos";
-import { OAuthUsersModel } from "../../../../model/oauth/oauth-users";
-import {
-    DeveloperOAuthUserGrantConfig,
-    DeveloperOAuthUserInfoConfig,
-    DeveloperOAuthUserInfoReturn,
-    DeveloperOAuthUserInfoSQL,
-} from "./oauth-user.type";
-import { UserModel } from "../../../../model/user/User";
+import { DeveloperOAuthUserGrantConfig } from "./oauth-user.type";
+import { DeveloperOAuthScope } from "../../../../model/oauth/oauth-infos";
+import { FError } from "../../../../error/ControllerError";
+import { ErrorCode } from "../../../../ErrorCode";
 
 export class DeveloperOAuthUserService {
     private readonly logger = createLoggerService<"developerOAuthUser">({
@@ -22,35 +17,6 @@ export class DeveloperOAuthUserService {
         private readonly DBTransaction: EntityManager,
         private readonly userUUID: string,
     ) {}
-
-    public async info(config: DeveloperOAuthUserInfoConfig): Promise<DeveloperOAuthUserInfoReturn> {
-        const result = await this.DBTransaction.createQueryBuilder(OAuthUsersModel, "ou")
-            .innerJoin(OAuthInfosModel, "oi", "ou.oauth_uuid = oi.oauth_uuid")
-            .innerJoin(UserModel, "u", "oi.owner_uuid = u.user_uuid")
-            .addSelect("oi.oauth_uuid", "oauthUUID")
-            .addSelect("oi.app_name", "appName")
-            .addSelect("oi.logo_url", "logoURL")
-            .addSelect("oi.homepage_url", "homepageURL")
-            .addSelect("u.user_name", "ownerName")
-            .andWhere("ou.user_uuid = :userUUID", { userUUID: this.userUUID })
-            .andWhere("ou.is_delete = false")
-            .andWhere("oi.is_delete = false")
-            .andWhere("u.is_delete = false")
-            .orderBy("ou.created_at", "DESC")
-            .offset((config.page - 1) * config.size)
-            .limit(config.size)
-            .getRawMany<DeveloperOAuthUserInfoSQL>();
-
-        return result.map(item => {
-            return {
-                ownerName: item.ownerName,
-                oauthUUID: item.oauthUUID,
-                appName: item.appName,
-                logoURL: item.logoURL,
-                homepageURL: item.homepageURL,
-            };
-        });
-    }
 
     public async countByOAuthUUID(oauthUUID: string): Promise<number> {
         return oauthUsersDAO.count(this.DBTransaction, {
@@ -76,10 +42,6 @@ export class DeveloperOAuthUserService {
     }
 
     public async grant(config: DeveloperOAuthUserGrantConfig): Promise<void> {
-        if (await this.hasGrant(config.oauthUUID)) {
-            return;
-        }
-
         const scopes = config.scopes.join(" ");
 
         this.logger.debug("grant oauth", {
@@ -89,11 +51,18 @@ export class DeveloperOAuthUserService {
             },
         });
 
-        await oauthUsersDAO.insert(this.DBTransaction, {
-            oauth_uuid: config.oauthUUID,
-            user_uuid: this.userUUID,
-            scopes,
-        });
+        await oauthUsersDAO.insert(
+            this.DBTransaction,
+            {
+                oauth_uuid: config.oauthUUID,
+                user_uuid: this.userUUID,
+                scopes,
+                is_delete: false,
+            },
+            {
+                orUpdate: ["scopes", "is_delete"],
+            },
+        );
     }
 
     public async revoke(oauthUUID: string): Promise<void> {
@@ -125,5 +94,17 @@ export class DeveloperOAuthUserService {
         }
 
         return !!result;
+    }
+
+    public async getScopes(oauthUUID: string): Promise<DeveloperOAuthScope[]> {
+        const result = await oauthUsersDAO.findOne(this.DBTransaction, ["scopes"], {
+            oauth_uuid: oauthUUID,
+            user_uuid: this.userUUID,
+        });
+
+        if (!result) {
+            throw new FError(ErrorCode.ParamsCheckFailed);
+        }
+        return result.scopes.split(" ") as DeveloperOAuthScope[];
     }
 }

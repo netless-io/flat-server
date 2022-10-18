@@ -30,6 +30,12 @@ class RedisService {
         await this.client.del(typeof key === "string" ? [key] : key);
     }
 
+    public async delByPattern(pattern: string): Promise<void> {
+        await this.scanCallback(async keys => {
+            await this.del(keys);
+        }, pattern);
+    }
+
     public async incr(key: string): Promise<number> {
         return await this.client.incr(key);
     }
@@ -93,6 +99,29 @@ class RedisService {
             stream.on("end", () => {
                 resolve(Array.from(new Set(result)));
             });
+            stream.on("error", reject);
+        });
+    }
+
+    public async scanCallback(
+        func: (key: string[]) => Promise<void>,
+        match: string,
+        count = 100,
+    ): Promise<void> {
+        const stream = this.client.scanStream({
+            match,
+            count,
+        });
+
+        stream.on("data", async (keys: string[]) => {
+            if (keys.length > 0) {
+                await func(keys);
+            }
+        });
+
+        await new Promise((resolve, reject) => {
+            stream.on("close", resolve);
+            stream.on("end", resolve);
             stream.on("error", reject);
         });
     }

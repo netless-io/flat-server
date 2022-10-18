@@ -23,4 +23,15 @@ export const RedisKey = {
     oauthLogoFileInfo: (oauthUUID: string, fileUUID: string): string =>
         `oauth:logo:${oauthUUID}:${fileUUID}`,
     oauthAccessToken: (accessToken: string): string => `oauth:accessToken:${accessToken}`,
+    oauthAuthorizeCode: (code: string): string => `oauth:authorize:code:${code}`,
+    oauthAuthorizeCSRFToken: (oauthUUID: string, userUUID: string): string =>
+        `oauth:authorize:csrfToken:${oauthUUID}:${userUUID}`,
+    oauthAuthorizeScopes: (oauthUUID: string, userUUID: string): string =>
+        `oauth:authorize:scopes:${oauthUUID}:${userUUID}`,
+    oauthAuthorizeAccessToken: (accessToken: string): string =>
+        `oauth:authorize:accessToken:${accessToken}`,
+    oauthAuthorizeRefreshToken: (refreshToken: string): string =>
+        `oauth:authorize:refreshToken:${refreshToken}`,
+    oauthAuthorizeTokenByUserUUID: (clientID: string, userUUID: string) =>
+        `oauth:authorize:clientID:${clientID}:user:${userUUID}`,
 };
