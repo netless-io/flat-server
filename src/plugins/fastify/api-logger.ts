@@ -16,7 +16,7 @@ const plugin = (instance: FastifyInstance, _opts: any, done: () => void): void =
 
     instance.addHook("onRequest", (request, _reply, done) => {
         if (request.routerPath?.startsWith("/v2")) {
-            const log = logger(request);
+            const log = apiLogger(request);
 
             log.debug("receive request");
 
@@ -61,11 +61,13 @@ const plugin = (instance: FastifyInstance, _opts: any, done: () => void): void =
 
 export const fastifyAPILogger = fp(plugin);
 
-const logger = (request: FastifyRequest): Logger<LoggerAPIv2> => {
+const apiLogger = (request: FastifyRequest): Logger<LoggerAPIv2> => {
     const user = ((): any => {
-        if (request.headers["authorization"]) {
-            // 7 => "Bearer "
-            return jwtDecoder(request.headers["authorization"].slice(7)).payload;
+        if (request.headers && request.headers["authorization"]) {
+            if (request.headers["authorization"].startsWith("Bearer ")) {
+                // 7 => "Bearer "
+                return jwtDecoder(request.headers["authorization"].slice(7)).payload;
+            }
         }
 
         return {};
@@ -77,9 +79,6 @@ const logger = (request: FastifyRequest): Logger<LoggerAPIv2> => {
         requestID: request.reqID,
         sessionID: request.sesID,
         [request.routerPath]: {
-            oauth2: {
-                ...request.oauth2,
-            },
             user: user
                 ? {
                       userUUID: user?.userUUID,

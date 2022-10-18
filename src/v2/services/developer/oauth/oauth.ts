@@ -16,6 +16,8 @@ import { oauthInfosDAO } from "../../../dao";
 import { OAuthInfosModel } from "../../../../model/oauth/oauth-infos";
 import { OAuthUsersModel } from "../../../../model/oauth/oauth-users";
 import { UserModel } from "../../../../model/user/User";
+import RedisService from "../../../../thirdPartyService/RedisService";
+import { RedisKey } from "../../../../utils/Redis";
 
 export class DeveloperOAuthService {
     // @ts-ignore
@@ -155,6 +157,9 @@ export class DeveloperOAuthService {
             this.DBTransaction,
             this.userUUID,
         );
+
+        const clientID = await oauthInfosSVC.findClientID(oauthUUID);
+        await RedisService.delByPattern(RedisKey.oauthAuthorizeTokenByUserUUID(clientID, "*"));
 
         await Promise.all([
             oauthInfosSVC.delete(oauthUUID),

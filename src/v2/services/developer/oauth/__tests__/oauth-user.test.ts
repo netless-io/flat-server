@@ -10,56 +10,6 @@ import { DeveloperOAuthScope } from "../../../../../model/oauth/oauth-infos";
 const namespace = "v2.services.developer.oauth.oauth-user";
 initializeDataSource(test, namespace);
 
-test(`${namespace} - info`, async ava => {
-    const { t, releaseRunner } = await useTransaction();
-    const { createUser, createOAuthInfos, createOAuthUsers } = testService(t);
-
-    const [userInfo, ownerInfo] = await Promise.all([createUser.quick(), createUser.quick()]);
-    const [oauthInfo, oauthInfo2] = await Promise.all([
-        createOAuthInfos.quick({
-            ownerUUID: ownerInfo.userUUID,
-        }),
-        createOAuthInfos.quick({
-            ownerUUID: ownerInfo.userUUID,
-        }),
-    ]);
-    await createOAuthUsers.quick({
-        userUUID: userInfo.userUUID,
-        oauthUUID: oauthInfo.oauthUUID,
-        scopes: oauthInfo.scopes[0],
-    });
-    await createOAuthUsers.quick({
-        userUUID: userInfo.userUUID,
-        oauthUUID: oauthInfo2.oauthUUID,
-        scopes: oauthInfo2.scopes[0],
-    });
-
-    const oauthUserSVC = new DeveloperOAuthUserService(ids(), t, userInfo.userUUID);
-    const result = await oauthUserSVC.info({
-        page: 1,
-        size: 10,
-    });
-
-    ava.deepEqual(result, [
-        {
-            ownerName: ownerInfo.userName,
-            oauthUUID: oauthInfo2.oauthUUID,
-            appName: oauthInfo2.appName,
-            logoURL: oauthInfo2.logoURL,
-            homepageURL: oauthInfo2.homepageURL,
-        },
-        {
-            ownerName: ownerInfo.userName,
-            oauthUUID: oauthInfo.oauthUUID,
-            appName: oauthInfo.appName,
-            logoURL: oauthInfo.logoURL,
-            homepageURL: oauthInfo.homepageURL,
-        },
-    ]);
-
-    await releaseRunner();
-});
-
 test(`${namespace} - countByOAuthUUID`, async ava => {
     const { t, releaseRunner } = await useTransaction();
     const { createOAuthUsers } = testService(t);

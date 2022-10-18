@@ -119,4 +119,15 @@ export class DeveloperOAuthSecretService {
             this.userUUID,
         ).assertIsOwner(oauthUUID);
     }
+
+    public async assertExist(clientID: string, clientSecret: string): Promise<void> {
+        const oauthSecret = await oauthSecretsDAO.findOne(this.DBTransaction, ["id"], {
+            client_id: clientID,
+            client_secret: clientSecret,
+        });
+
+        if (!oauthSecret) {
+            throw new FError(ErrorCode.ParamsCheckFailed);
+        }
+    }
 }

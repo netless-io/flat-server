@@ -82,12 +82,14 @@ export const developerOAuthUpdate = async (
     );
     await developerOAuthInfoSVC.assertIsOwner(req.body.oauthUUID);
 
+    const scopes = Array.from(new Set(req.body.scopes)) as DeveloperOAuthScope[];
+
     await developerOAuthInfoSVC.update({
         oauthUUID: req.body.oauthUUID,
         appName: req.body.appName,
         appDesc: req.body.appDesc,
         homepageURL: req.body.homepageURL,
-        scopes: req.body.scopes as DeveloperOAuthScope[],
+        scopes,
         callbacksURL: req.body.callbacksURL,
     });
 

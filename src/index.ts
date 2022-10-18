@@ -10,6 +10,8 @@ import { loggerServer, parseError } from "./logger";
 import { MetricsSever } from "./metrics";
 import cors from "@fastify/cors";
 import formBody from "@fastify/formbody";
+import pointOfView from "@fastify/view";
+import cookie from "@fastify/cookie";
 import { registerV1Routers } from "./utils/RegistryRouters";
 import { httpRouters } from "./v1/Routes";
 import { ajvTypeBoxPlugin, TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
@@ -32,7 +34,7 @@ if (MetricsConfig.enabled) {
     new MetricsSever(app).start();
 }
 
-app.setErrorHandler((err, _request, reply) => {
+app.setErrorHandler((err, request, reply) => {
     if (err.validation) {
         void reply.status(200).send({
             status: Status.Failed,
@@ -43,10 +45,15 @@ app.setErrorHandler((err, _request, reply) => {
 
     loggerServer.error("request unexpected interruption", parseError(err));
 
-    void reply.status(500).send({
-        status: Status.Failed,
-        code: ErrorCode.ServerFail,
-    });
+    if (!request.notAutoHandle) {
+        void reply.status(200).send({
+            status: Status.Failed,
+            code: ErrorCode.CurrentProcessFailed,
+        });
+        return;
+    }
+
+    return new Error(`request-id: ${request.reqID}. session-id: ${request.sesID}`);
 });
 
 app.get("/apple-app-site-association", (_, replay) => {
@@ -67,6 +74,12 @@ app.get("/health-check", async (_req, reply) => {
 
 void orm().then(async dataSource => {
     await Promise.all([
+        app.register(cookie),
+        app.register(pointOfView, {
+            engine: {
+                eta: require("eta"),
+            },
+        }),
         app.register(fastifyAuthenticate),
         app.register(cors, {
             methods: ["GET", "POST", "OPTIONS"],

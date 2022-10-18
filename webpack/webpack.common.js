@@ -4,6 +4,8 @@ const nodeExternals = require("webpack-node-externals");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const { NoEmitOnErrorsPlugin } = require("webpack");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
+const CopyPlugin = require("file-loader");
+const path = require("path");
 
 module.exports = {
     entry: [paths.entryFile],
@@ -18,6 +20,20 @@ module.exports = {
                         loader: "ts-loader",
                         options: {
                             transpileOnly: true,
+                        },
+                    },
+                ],
+                exclude: /node_modules/,
+            },
+            {
+                test: /\.eta$/,
+                use: [
+                    {
+                        loader: "file-loader",
+                        options: {
+                            name: "[name]-[hash].[ext]",
+                            outputPath: "eta-templates",
+                            publicPath: "dist/eta-templates",
                         },
                     },
                 ],

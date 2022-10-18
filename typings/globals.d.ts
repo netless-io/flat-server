@@ -10,3 +10,8 @@ declare namespace NodeJS {
         METRICS_PORT: string;
     }
 }
+
+declare module "*.eta" {
+    const a: string;
+    export default a;
+}

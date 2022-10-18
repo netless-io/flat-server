@@ -35,20 +35,22 @@ const registerRouters =
                         schema: config.schema,
                     },
                     async (req, reply: FastifyReply) => {
+                        if (!autoHandle) {
+                            req.notAutoHandle = true;
+                        }
+
                         let resp: Response | null = null;
 
+                        const request = Object.assign(req, {
+                            // @ts-ignore
+                            userUUID: req?.user?.userUUID,
+                            // @ts-ignore
+                            loginSource: req?.user?.loginSource,
+                            DBTransaction: req.queryRunner.manager,
+                        });
+
                         try {
-                            const result = await handler(
-                                {
-                                    ...req,
-                                    // @ts-ignore
-                                    userUUID: req?.user?.userUUID,
-                                    // @ts-ignore
-                                    loginSource: req?.user?.loginSource,
-                                    DBTransaction: req.queryRunner.manager,
-                                },
-                                reply,
-                            );
+                            const result = await handler(request, reply);
 
                             if (autoHandle) {
                                 resp = result as Response;
@@ -60,6 +62,8 @@ const registerRouters =
 
                             if (autoHandle) {
                                 resp = errorToResp(error as Error);
+                            } else {
+                                throw error;
                             }
                         }
 
