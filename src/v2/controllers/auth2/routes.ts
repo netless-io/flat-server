@@ -21,13 +21,13 @@ export const oauthRouters = (server: Server): void => {
         autoHandle: false,
     });
 
-    server.post("oauth2/accessToken", oauth2AccessToken, {
+    server.post("oauth2/access-token", oauth2AccessToken, {
         schema: OAuth2AccessTokenSchema,
         auth: false,
         autoHandle: false,
     });
 
-    server.post("oauth2/refreshToken", oauthRefreshToken, {
+    server.post("oauth2/refresh-token", oauthRefreshToken, {
         schema: OAuth2RefreshTokenSchema,
         auth: false,
         autoHandle: false,
