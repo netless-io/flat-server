@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Authorize</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box }
+        body {
+            margin: 0;
+            background-color: #EBF2FF;
+            line-height: 1.5;
+            font-family: "PingFang SC", "Source Han Sans SC", "Microsoft YaHei", "Helvetica Neue", "Noto Sans CJK SC", "WenQuanYi Micro Hei", sans-serif;
+        }
+        .box {
+            position: absolute;
+            width: 480px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            border-radius: 8px;
+            padding-bottom: 24px;
+        }
+        .logos {
+            padding: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo, .line {
+            font-size: 0;
+        }
+        .line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 8px;
+        }
+        .line svg {
+            width: 36px;
+            height: 36px;
+        }
+        .line::before,
+        .line::after {
+            content: '';
+            width: 44px;
+            border-top: 1px dashed #B7BBC1;
+        }
+        .logo img, .logo svg {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        .title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .author {
+            margin: 0;
+            padding-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5D6066;
+            font-size: 14px;
+            font-weight: 400;
+        }
+        .name {
+            padding: 0 0.25ch;
+        }
+        .avatar {
+            font-size: 0;
+            padding-right: 8px;
+        }
+        .avatar img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        .scopes {
+            padding: 16px;
+            font-size: 12px;
+            color: #5D6066;
+        }
+        .scopes ul {
+            margin: 0;
+            padding: 12px;
+            border: 1px solid #E5E8F0;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            list-style-type: none;
+        }
+        .scopes li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 18px;
+        }
+        .scopes .icon {
+            width: 18px;
+            height: 18px;
+        }
+        .actions {
+            padding: 0 16px 32px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .actions button {
+            flex: 1;
+            height: 32px;
+            background-color: #fff;
+            border: 1px solid #B7BBC1;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #5D6066;
+            cursor: pointer;
+            transition: box-shadow 0.15s ease;
+        }
+        .actions button:hover {
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+        }
+        .actions .primary {
+            background-color: #3381FF;
+            border-color: #2867CC;
+            color: #ECF0F7;
+        }
+        .callback {
+            text-align: center;
+        }
+        .callback h4 {
+            margin: 0;
+            padding-bottom: 8px;
+            font-size: 12px;
+            font-weight: 400;
+            color: #B7BBC1;
+        }
+        .callback p {
+            margin: 0;
+            padding-bottom: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #5D6066;
+        }
+    </style>
+</head>
+<body>
+<!-- icons -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="i-tick" viewBox="0 0 36 36">
+        <path fill="#fff" d="M5.063 18c0-7.145 5.792-12.938 12.937-12.938S30.938 10.855 30.938 18c0 7.145-5.793 12.938-12.938 12.938-7.145 0-12.938-5.793-12.938-12.938Z"/>
+        <path fill="#44AD00" fill-rule="evenodd" d="M5.063 18c0-7.145 5.792-12.938 12.937-12.938S30.938 10.855 30.938 18c0 7.145-5.793 12.938-12.938 12.938-7.145 0-12.938-5.793-12.938-12.938Zm19.6-3.087-1.326-1.326-6.837 6.838-3.837-3.838-1.326 1.326 4.5 4.5.13.108a.938.938 0 0 0 1.196-.108l7.5-7.5Z" clip-rule="evenodd"/>
+    </symbol>
+    <symbol id="i-flat" viewBox="0 0 88 88">
+        <rect width="88" height="88" fill="url(#i-flat-gradient)" rx="44"/>
+        <path fill="#fff" fill-rule="evenodd" d="M25.625 30a3.5 3.5 0 0 1 3.5-3.5h3.5V30h-7Zm0 .875h5.25V33.5h1.75V37h-1.75v12.25h-5.25V37h-1.75v-3.5h1.75v-2.625Zm8.75-4.375h1.75a3.5 3.5 0 0 1 3.5 3.5v19.25h-5.25V26.5Zm14.875 7H44V37h5.25v8.75h-2.625v-3.5h1.75v-3.5h-3.5a3.5 3.5 0 0 0-3.5 3.5v3.5a3.5 3.5 0 0 0 3.5 3.5H54.5V37a3.5 3.5 0 0 0-3.5-3.5h-1.75ZM61.5 49.25h-5.25V26.5H58a3.5 3.5 0 0 1 3.5 3.5v3.5h1.75V37H61.5v12.25ZM23 54.5h14l7 1.75 7-1.75h14v1.75H51L44 58l-7-1.75H23V54.5Zm7 3.5h7l7 1.75L51 58h21v1.75H51l-7 1.75-7-1.75H16V58h14Z" clip-rule="evenodd"/>
+    </symbol>
+</svg>
+<!-- content -->
+<div class="box">
+    <div class="logos">
+        <div class="logo">
+            <img src="<%= it.logoURL %>" alt="logo">
+        </div>
+        <div class="line">
+            <svg class="icon"><use xlink:href="#i-tick" /></svg>
+        </div>
+        <div class="logo">
+            <svg class="icon">
+                <defs>
+                    <linearGradient id="i-flat-gradient" x1="44" x2="44" y1="0" y2="88" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#3381FF"/>
+                        <stop offset="1" stop-color="#3733FF"/>
+                    </linearGradient>
+                </defs>
+                <use xlink:href="#i-flat" />
+            </svg>
+        </div>
+    </div>
+    <h2 class="title">
+        <span data-i18n="authorize"></span>
+        <span><%= it.appName %></span>
+    </h2>
+    <h3 class="author">
+      <span class="avatar">
+        <img src="<%= it.ownerAvatarURL %>" alt="avatar">
+      </span>
+        <span data-i18n="by"></span>
+        <span class="name" id="$author"><%= it.ownerName %></span>
+        <span data-i18n="by-end"></span>
+    </h3>
+    <div class="scopes">
+        <ul>
+        <% it.scopes.forEach(scope => { %>
+            <li>
+                <svg class="icon"><use xlink:href="#i-tick" /></svg>
+                <span data-i18n="<%= scope %>"></span>
+            </li>
+        <% }) %>
+        </ul>
+    </div>
+    <form class="actions" action="" method="POST">
+        <input type="hidden" name="csrfToken" value="<%= it.csrfToken %>">
+        <input type="hidden" name="oauthUUID" value="<%= it.oauthUUID %>">
+        <input type="hidden" name="state" value="<%= it.state %>">
+        <input type="hidden" name="redirectURI" value="<%= it.redirectURI %>">
+        <button data-i18n="cancel" type="submit" name="authorize" value="false"></button>
+        <button class="primary" data-i18n="authorize" type="submit" name="authorize" value="true"></button>
+    </form>
+    <div class="callback">
+        <h4 data-i18n="callback"></h4>
+        <p><%= it.callbackURL %></p>
+    </div>
+</div>
+<script>
+    const __i18n__ = {
+        'zh-CN': {
+            cancel: '取消',
+            authorize: '授权',
+            callback: '重定向地址',
+            by: '由',
+            'by-end': '创建',
+            'user.uuid:read': "读取您的 UUID 标识符",
+            'user.name:read': "读取您的昵称",
+            'user.avatar:read': '读取您的头像',
+        },
+        'en': {
+            cancel: 'Cancel',
+            authorize: 'Authorize',
+            callback: 'Callback URL',
+            by: 'By',
+            'by-end': 'created',
+            'user.uuid:read': 'Read User UUID',
+            'user.name:read': "Read User Name",
+            'user.avatar:read': "Read User Avatar"
+        }
+    };
+
+    let t;
+    if (navigator.language.startsWith('zh')) {
+       t = __i18n__['zh-CN']
+    } else {
+       t = __i18n__['en']
+    }
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        if (t[el.dataset.i18n])
+            el.textContent = t[el.dataset.i18n]
+        else
+            console.warn('Missing translation', el.dataset.i18n, el)
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Authorize</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box }
+    body {
+      margin: 0;
+      background-color: #EBF2FF;
+      line-height: 1.5;
+      font-family: "PingFang SC", "Source Han Sans SC", "Microsoft YaHei", "Helvetica Neue", "Noto Sans CJK SC", "WenQuanYi Micro Hei", sans-serif;
+    }
+    .alert {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #FFF;
+      padding: 32px;
+      text-align: center;
+    }
+    .alert h4 {
+      margin: 0;
+      font-size: 18px;
+      color: #000;
+      padding-bottom: 8px;
+    }
+    .alert p {
+      margin: 0;
+      font-size: 14px;
+      color: #5D6066;
+    }
+    .alert a {
+      color: inherit;
+      text-decoration: none;
+    }
+    .alert a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="alert">
+    <h4 data-i18n="alert-1"></h4>
+    <p>
+      <a data-i18n="alert-2" href="<%~ it.redirectURL %>"></a>
+    </p>
+  </div>
+  <script>
+    var __i18n__ = {
+      'zh-CN': {
+        'alert-1': '您正在被重定向到已授权的应用程序',
+        'alert-2': '如果你的浏览器没有自动跳转，请点击这里。',
+      },
+      'en': {
+        'alert-1': 'You are being redirected to the authorized application.',
+        'alert-2': 'Please click here if your browser does not redirect you back.',
+      }
+    };
+
+    let t;
+    if (navigator.language.startsWith('zh')) {
+       t = __i18n__['zh-CN']
+    } else {
+       t = __i18n__['en']
+    }
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        if (t[el.dataset.i18n])
+            el.textContent = t[el.dataset.i18n]
+        else
+            console.warn('Missing translation', el.dataset.i18n, el)
+    });
+
+    window.onload = () => {
+        location.href = "<%~ it.redirectURL %>";
+    }
+  </script>
+</body>
+</html>

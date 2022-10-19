@@ -62,6 +62,8 @@ export const developerOAuthCreate = async (
     const complianceText = useOnceService("complianceText", req.ids);
     await complianceText.assertTextNormal([req.body.appName, req.body.appDesc].join(" "));
 
+    const scopes = Array.from(new Set(req.body.scopes)) as DeveloperOAuthScope[];
+
     const oauthUUID = await new DeveloperOAuthService(
         req.ids,
         req.DBTransaction,
@@ -71,7 +73,7 @@ export const developerOAuthCreate = async (
         appDesc: req.body.appDesc,
         homepageURL: req.body.homepageURL,
         callbacksURL: req.body.callbacksURL,
-        scopes: req.body.scopes as DeveloperOAuthScope[],
+        scopes,
     });
 
     return successJSON({
