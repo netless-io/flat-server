@@ -96,7 +96,7 @@ export class AlibabaCloudUploadStart extends AbstractController<RequestType, Res
                 fileName,
                 fileSize: String(fileSize),
             },
-            60 * 60,
+            60,
         );
 
         return {
