@@ -88,7 +88,6 @@
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "mysql2": "^2.2.5",
-    "n-readlines": "^1.0.1",
     "nanoid": "^3.1.31",
     "node-rsa": "^1.1.1",
     "prom-client": "^14.0.0",
