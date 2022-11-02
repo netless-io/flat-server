@@ -89,10 +89,10 @@ export class RecordStopped extends AbstractController<RequestType, ResponseType>
             room_uuid: roomUUID,
         });
         if (recordInfo === undefined) {
-            return Promise.reject(new Error("record info not found"));
+            throw new Error("record info not found");
         }
         const allRoomUsersRtcRecordPath = roomUsersRtcInfo.map(({ rtc_uid }) => {
-            const agoraResourceURL = `${recordInfo.agora_sid}_${roomUUID}___uid_s_${rtc_uid}__uid_e_av.m3u8`;
+            const agoraResourceURL = `${recordInfo.agora_sid}_${roomUUID}__uid_s_${rtc_uid}__uid_e_av.m3u8`;
             return agoraResourceURL;
         });
         const existedUsersRecordPath = allRoomUsersRtcRecordPath.filter(async url => {
@@ -101,8 +101,8 @@ export class RecordStopped extends AbstractController<RequestType, ResponseType>
             return urlExist;
         });
 
-        for await (const userPath of existedUsersRecordPath) {
-            void patchForM3U8(userPath, resourcePath);
+        for (const userPath of existedUsersRecordPath) {
+            await patchForM3U8(userPath, resourcePath);
         }
     }
 
