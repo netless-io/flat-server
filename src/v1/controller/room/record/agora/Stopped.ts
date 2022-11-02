@@ -13,6 +13,10 @@ import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
 import { timeExceedRedundancyOneMinute } from "../../utils/CheckTime";
 import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
+import { Agora } from "../../../../../constants/Config";
+import { RoomUserModel } from "../../../../../model/room/RoomUser";
+import { isExistObject } from "../../../cloudStorage/alibabaCloud/Utils";
+import { patchForM3U8 } from "../PatchForAgoraM3U8";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -94,11 +98,46 @@ export class RecordAgoraStopped extends AbstractController<RequestType, Response
             });
         });
 
+        await this.patchForAgoraRecordM3U8Files();
         return {
             status: Status.Success,
             // @ts-ignore
             data: agoraResponse,
         };
+    }
+
+    async patchForAgoraRecordM3U8Files(): Promise<void> {
+        const { roomUUID } = this.body;
+        const roomUsersInfoBasic = dataSource
+            .createQueryBuilder(RoomUserModel, "ru")
+            .addSelect("ru.rtc_uid", "rtc_uid")
+            .andWhere("room_uuid = :roomUUID", {
+                roomUUID,
+            })
+            .andWhere("ru.is_delete = false");
+
+        const roomUsersRtcInfo = await roomUsersInfoBasic.getRawMany<RoomUsersRtcUIDInfo>();
+        const resourcePath = `/${Agora.ossFolder}/${roomUUID.replace(/-/g, "")}`;
+
+        const recordInfo = await RoomRecordDAO().findOne(["agora_sid"], {
+            room_uuid: roomUUID,
+        });
+        if (recordInfo === undefined) {
+            throw new Error("record info not found");
+        }
+        const allRoomUsersRtcRecordPath = roomUsersRtcInfo.map(({ rtc_uid }) => {
+            const agoraResourceURL = `${recordInfo.agora_sid}_${roomUUID}__uid_s_${rtc_uid}__uid_e_av.m3u8`;
+            return agoraResourceURL;
+        });
+        const existedUsersRecordPath = allRoomUsersRtcRecordPath.filter(async url => {
+            const fullPath = `${resourcePath}/${url}`;
+            const urlExist = await isExistObject(fullPath);
+            return urlExist;
+        });
+
+        for (const userPath of existedUsersRecordPath) {
+            await patchForM3U8(userPath, resourcePath);
+        }
     }
 
     public errorHandler(error: Error): ResponseError {
@@ -112,3 +151,5 @@ interface RequestType {
         agoraParams: AgoraCloudRecordParamsType;
     };
 }
+
+type RoomUsersRtcUIDInfo = Pick<RoomUserModel, "rtc_uid">;
