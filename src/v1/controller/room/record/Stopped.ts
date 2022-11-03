@@ -5,6 +5,7 @@ import { RoomDAO, RoomRecordDAO } from "../../../../dao";
 import { roomIsRunning } from "../utils/RoomStatus";
 import { Controller } from "../../../../decorator/Controller";
 import { AbstractController } from "../../../../abstract/controller";
+
 @Controller<RequestType, ResponseType>({
     method: "post",
     // the logic here is consistent with room/record/stopped
@@ -28,6 +29,7 @@ export class RecordStopped extends AbstractController<RequestType, ResponseType>
     public async execute(): Promise<Response<ResponseType>> {
         const { roomUUID } = this.body;
         const userUUID = this.userUUID;
+
         const roomInfo = await RoomDAO().findOne(["room_status"], {
             room_uuid: roomUUID,
             owner_uuid: userUUID,

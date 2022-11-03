@@ -21,7 +21,6 @@
     "@types/ioredis": "^4.17.8",
     "@types/js-yaml": "^4.0.5",
     "@types/lodash": "^4.14.170",
-    "@types/n-readlines": "^1.0.3",
     "@types/node": "^18.0.0",
     "@types/node-rsa": "^1.1.1",
     "@types/qs": "^6.9.7",
