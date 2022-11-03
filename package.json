@@ -6,8 +6,8 @@
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack --watch --progress --config webpack/webpack.dev.js",
     "build": "cross-env NODE_ENV=production webpack --progress --config webpack/webpack.prod.js",
-    "test:sycn:orm": "ts-node -r dotenv-flow/config scripts/sync-orm.ts -- --default-node-env=test --dotenv-flow-path=config",
-    "test:local": "./scripts/prepare-test-env.sh && yarn run test:sycn:orm && yarn run test",
+    "test:sync:orm": "ts-node -r dotenv-flow/config scripts/sync-orm.ts -- --default-node-env=test --dotenv-flow-path=config",
+    "test:local": "./scripts/prepare-test-env.sh && yarn run test:sync:orm && yarn run test",
     "test": "c8 --reporter=html ava",
     "lint": "lint-staged"
   },
