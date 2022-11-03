@@ -661,13 +661,6 @@
   resolved "https://registry.yarnpkg.com/@types/minimist/-/minimist-1.2.1.tgz#283f669ff76d7b8260df8ab7a4262cc83d988256"
   integrity sha512-fZQQafSREFyuZcdWFAExYjBiCL7AUCdgsk80iO0q4yihYYdcIiH28CcuPTGFgLOCC8RlW49GSQxdHwZP+I7CNg==
 
-"@types/n-readlines@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@types/n-readlines/-/n-readlines-1.0.3.tgz#0a4a02d6f55280e5ad82f372d5c8e3eebfc05db4"
-  integrity sha512-6zMvlOZp56sEEndnkEX+A05Q+LrPB7yDUX1d5oE0aOF9rIE10ndhZHEy0mBFqzBUIw5sSFMUypwgD3FehplPvg==
-  dependencies:
-    "@types/node" "*"
-
 "@types/node-rsa@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@types/node-rsa/-/node-rsa-1.1.1.tgz#c3649c0ae7fdb93d3e65076a08d3fc9feb017a67"
@@ -4368,11 +4361,6 @@ mz@^2.4.0, mz@^2.7.0:
     any-promise "^1.0.0"
     object-assign "^4.0.1"
     thenify-all "^1.0.0"
-
-n-readlines@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/n-readlines/-/n-readlines-1.0.1.tgz#bbb7364d38bc31a170a199f986fcacfa76b95f6e"
-  integrity sha512-z4SyAIVgMy7CkgsoNw7YVz40v0g4+WWvvqy8+ZdHrCtgevcEO758WQyrYcw3XPxcLxF+//RszTz/rO48nzD0wQ==
 
 named-placeholders@^1.1.2:
   version "1.1.2"
