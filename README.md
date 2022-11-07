@@ -30,7 +30,7 @@ yarn install --frozen-lockfile
 
 ### Setup Environment
 
-1. Create files `development.local.yaml`.
+1. Create files `config/development.local.yaml`.
 1. Add environment variables following the `config/defaults.yaml` format.
 
 - See [Environment Variables Reference](#environment-variables-reference) bellow.
