@@ -9,6 +9,7 @@ import { oauthInfosDAO } from "../../../../dao";
 import { testService } from "../../../../__tests__/helpers/db";
 import { Schema } from "../../../../__tests__/helpers/schema";
 import { developerOAuthInfoReturnSchema } from "../oauth.schema";
+import { DeveloperOAuthListByUserReturn } from "../oauth.type";
 
 const namespace = "v2.services.developer.oauth";
 initializeDataSource(test, namespace);
@@ -164,22 +165,30 @@ test(`${namespace} - listByUser`, async ava => {
         size: 2,
     });
 
-    ava.deepEqual(result, [
-        {
-            ownerName: user3.userName,
-            oauthUUID: oauthInfo3.oauthUUID,
-            appName: oauthInfo3.appName,
-            homepageURL: oauthInfo3.homepageURL,
-            logoURL: oauthInfo3.logoURL,
-        },
-        {
-            ownerName: user2.userName,
-            oauthUUID: oauthInfo2.oauthUUID,
-            appName: oauthInfo2.appName,
-            homepageURL: oauthInfo2.homepageURL,
-            logoURL: oauthInfo2.logoURL,
-        },
-    ]);
+    ava.deepEqual(
+        result.sort(sortByOauthUUID),
+        [
+            {
+                ownerName: user3.userName,
+                oauthUUID: oauthInfo3.oauthUUID,
+                appName: oauthInfo3.appName,
+                homepageURL: oauthInfo3.homepageURL,
+                logoURL: oauthInfo3.logoURL,
+            },
+            {
+                ownerName: user2.userName,
+                oauthUUID: oauthInfo2.oauthUUID,
+                appName: oauthInfo2.appName,
+                homepageURL: oauthInfo2.homepageURL,
+                logoURL: oauthInfo2.logoURL,
+            },
+        ].sort(sortByOauthUUID),
+    );
+
+    type Item = DeveloperOAuthListByUserReturn[number];
+    function sortByOauthUUID(a: Item, b: Item) {
+        return a.oauthUUID.localeCompare(b.oauthUUID);
+    }
 
     await releaseRunner();
 });
