@@ -3,7 +3,6 @@ import { WeChat } from "../../../../../../constants/Config";
 import { AbstractController } from "../../../../../../abstract/controller";
 import { FastifySchema, Response, ResponseError } from "../../../../../../types/Server";
 import { Logger, LoggerAPI, parseError } from "../../../../../../logger";
-import redisService from "../../../../../../thirdPartyService/RedisService";
 import RedisService from "../../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../../utils/Redis";
 import { LoginWechat } from "../../../../login/platforms/LoginWechat";
@@ -46,11 +45,11 @@ export class BindingWeChatWeb extends AbstractController<RequestType, any> {
 
         await wechatCallback(code, authUUID, "WEB", this.logger);
 
-        await redisService.set(RedisKey.bindingAuthStatus(this.querystring.state), "true", 60 * 60);
+        await RedisService.set(RedisKey.bindingAuthStatus(this.querystring.state), "true", 60 * 60);
     }
 
     public async errorHandler(error: Error): Promise<ResponseError> {
-        await redisService.set(
+        await RedisService.set(
             RedisKey.bindingAuthStatus(this.querystring.state),
             "false",
             60 * 60,
@@ -90,7 +89,7 @@ export class BindingWeChatMobile extends AbstractController<RequestType, any> {
 
         await wechatCallback(code, authUUID, "MOBILE", this.logger);
 
-        await redisService.set(RedisKey.bindingAuthStatus(this.querystring.state), "true", 60 * 60);
+        await RedisService.set(RedisKey.bindingAuthStatus(this.querystring.state), "true", 60 * 60);
 
         return {
             status: Status.Success,
@@ -99,7 +98,7 @@ export class BindingWeChatMobile extends AbstractController<RequestType, any> {
     }
 
     public async errorHandler(error: Error): Promise<ResponseError> {
-        await redisService.set(
+        await RedisService.set(
             RedisKey.bindingAuthStatus(this.querystring.state),
             error instanceof ControllerError ? String(error.errorCode) : "false",
             60 * 60,
