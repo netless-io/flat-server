@@ -53,6 +53,7 @@ export abstract class AbstractController<
             return {
                 status: error.status,
                 code: error.errorCode,
+                message: error.message,
             };
         }
 
@@ -64,6 +65,7 @@ export abstract class AbstractController<
         return {
             status: Status.Failed,
             code: ErrorCode.CurrentProcessFailed,
+            message: error.message,
         };
     }
 
