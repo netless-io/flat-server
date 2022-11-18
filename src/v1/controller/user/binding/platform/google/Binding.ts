@@ -2,7 +2,6 @@ import { Controller } from "../../../../../../decorator/Controller";
 import { Google } from "../../../../../../constants/Config";
 import { AbstractController } from "../../../../../../abstract/controller";
 import { FastifySchema, ResponseError } from "../../../../../../types/Server";
-import redisService from "../../../../../../thirdPartyService/RedisService";
 import RedisService from "../../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../../utils/Redis";
 import { ControllerError } from "../../../../../../error/ControllerError";
@@ -68,13 +67,13 @@ export class BindingGoogle extends AbstractController<RequestType, any> {
 
         await googleSVC.create(userInfo);
 
-        await redisService.set(RedisKey.bindingAuthStatus(this.querystring.state), "true", 60 * 60);
+        await RedisService.set(RedisKey.bindingAuthStatus(this.querystring.state), "true", 60 * 60);
 
         return this.reply.send(successHTML(this.querystring.platform !== "web", true));
     }
 
     public async errorHandler(error: Error): Promise<ResponseError> {
-        await redisService.set(
+        await RedisService.set(
             RedisKey.bindingAuthStatus(this.querystring.state),
             "false",
             60 * 60,
