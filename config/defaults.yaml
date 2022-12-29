@@ -69,6 +69,10 @@ oauth:
       - jpeg
 
 login:
+  qq:
+    enable: false
+    app_id:
+    app_secret:
   wechat:
     web:
       enable: false

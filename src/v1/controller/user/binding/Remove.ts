@@ -1,6 +1,7 @@
 import { Controller } from "../../../../decorator/Controller";
 import { AbstractController } from "../../../../abstract/controller";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
+import { ServiceUserQQ } from "../../../service/user/UserQQ";
 import { ServiceUserWeChat } from "../../../service/user/UserWeChat";
 import { ServiceUserPhone } from "../../../service/user/UserPhone";
 import { ServiceUserAgora } from "../../../service/user/UserAgora";
@@ -25,6 +26,7 @@ export class RemoveBinding extends AbstractController<RequestType, ResponseType>
                 target: {
                     type: "string",
                     enum: [
+                        LoginPlatform.QQ,
                         LoginPlatform.WeChat,
                         LoginPlatform.Phone,
                         LoginPlatform.Agora,
@@ -38,6 +40,7 @@ export class RemoveBinding extends AbstractController<RequestType, ResponseType>
     };
 
     private readonly svc = {
+        [LoginPlatform.QQ]: new ServiceUserQQ(this.userUUID),
         [LoginPlatform.WeChat]: new ServiceUserWeChat(this.userUUID),
         [LoginPlatform.Phone]: new ServiceUserPhone(this.userUUID),
         [LoginPlatform.Agora]: new ServiceUserAgora(this.userUUID),

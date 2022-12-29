@@ -43,6 +43,12 @@ export const WeChat = {
     },
 };
 
+export const QQ = {
+    enable: config.login.qq.enable,
+    appId: config.login.qq.app_id,
+    appSecret: config.login.qq.app_secret,
+};
+
 export const Github = {
     enable: config.login.github.enable,
     clientId: config.login.github.client_id,

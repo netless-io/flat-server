@@ -2,6 +2,7 @@ import { Controller } from "../../../../decorator/Controller";
 import { AbstractController } from "../../../../abstract/controller";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { LoginPlatform, Status } from "../../../../constants/Project";
+import { ServiceUserQQ } from "../../../service/user/UserQQ";
 import { ServiceUserWeChat } from "../../../service/user/UserWeChat";
 import { ServiceUserPhone } from "../../../service/user/UserPhone";
 import { ServiceUserAgora } from "../../../service/user/UserAgora";
@@ -18,6 +19,7 @@ export class BindingList extends AbstractController<RequestType, ResponseType> {
     public static readonly schema: FastifySchema<RequestType> = {};
 
     private readonly svc = {
+        [LoginPlatform.QQ]: new ServiceUserQQ(this.userUUID),
         [LoginPlatform.WeChat]: new ServiceUserWeChat(this.userUUID),
         [LoginPlatform.Phone]: new ServiceUserPhone(this.userUUID),
         [LoginPlatform.Agora]: new ServiceUserAgora(this.userUUID),

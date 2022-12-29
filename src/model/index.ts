@@ -1,4 +1,5 @@
 import { UserModel } from "./user/User";
+import { UserQQModel } from "./user/QQ";
 import { UserWeChatModel } from "./user/WeChat";
 import { UserGithubModel } from "./user/Github";
 import { UserAppleModel } from "./user/Apple";
@@ -20,6 +21,7 @@ import { OAuthUsersModel } from "./oauth/oauth-users";
 
 export type Model =
     | UserModel
+    | UserQQModel
     | UserWeChatModel
     | UserGithubModel
     | UserAppleModel
