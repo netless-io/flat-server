@@ -93,6 +93,11 @@ type Config = {
                 app_secret: string;
             };
         };
+        qq: {
+            enable: boolean;
+            app_id: string;
+            app_secret: string;
+        };
         github: {
             enable: boolean;
             client_id: string;

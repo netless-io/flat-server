@@ -114,6 +114,7 @@ interface R<O> {
             auth?: boolean;
             schema: S;
             autoHandle?: O;
+            enable?: boolean;
         },
     ): void;
 }
