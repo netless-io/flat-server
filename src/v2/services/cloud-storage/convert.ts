@@ -110,6 +110,23 @@ export class CloudStorageConvertService {
         const whiteboardConversionSVC = new WhiteboardConversionService(this.ids);
 
         const taskUUID = await whiteboardConversionSVC.create(fileURL);
+        if (!taskUUID) {
+            await cloudStorageFilesDAO.update(
+                this.DBTransaction,
+                {
+                    payload: {
+                        convertStep: FileConvertStep.Failed,
+                        region: payload.region,
+                    },
+                },
+                {
+                    file_uuid: fileUUID,
+                }
+            )
+
+            throw new FError(ErrorCode.FileConvertFailed);
+        }
+
         const taskToken = WhiteboardTokenService.createTask(taskUUID);
 
         await cloudStorageFilesDAO.update(
@@ -193,6 +210,23 @@ export class CloudStorageConvertService {
         const whiteboardProjectorSVC = new WhiteboardProjectorService(this.ids);
 
         const taskUUID = await whiteboardProjectorSVC.create(fileURL);
+        if (!taskUUID) {
+            await cloudStorageFilesDAO.update(
+                this.DBTransaction,
+                {
+                    payload: {
+                        convertStep: FileConvertStep.Failed,
+                        region: payload.region,
+                    },
+                },
+                {
+                    file_uuid: fileUUID,
+                }
+            )
+
+            throw new FError(ErrorCode.FileConvertFailed);
+        }
+
         const taskToken = WhiteboardTokenService.createTask(taskUUID);
 
         await cloudStorageFilesDAO.update(
