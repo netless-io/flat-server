@@ -12,7 +12,7 @@ export class WhiteboardConversionService {
 
     public constructor(private readonly ids: IDS) {}
 
-    public async create(resource: string): Promise<string> {
+    public async create(resource: string): Promise<string | undefined> {
         const result = await ax.post<TaskCreated>(
             "https://api.netless.link/v5/services/conversion/tasks",
             {
