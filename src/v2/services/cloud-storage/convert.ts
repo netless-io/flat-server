@@ -112,7 +112,8 @@ export class CloudStorageConvertService {
         const taskUUID = await whiteboardConversionSVC.create(fileURL);
         if (!taskUUID) {
             await cloudStorageFilesDAO.update(
-                this.DBTransaction,
+                // we don't want to rollback this action
+                null,
                 {
                     payload: {
                         convertStep: FileConvertStep.Failed,
@@ -212,7 +213,8 @@ export class CloudStorageConvertService {
         const taskUUID = await whiteboardProjectorSVC.create(fileURL);
         if (!taskUUID) {
             await cloudStorageFilesDAO.update(
-                this.DBTransaction,
+                // we don't want to rollback this action
+                null,
                 {
                     payload: {
                         convertStep: FileConvertStep.Failed,

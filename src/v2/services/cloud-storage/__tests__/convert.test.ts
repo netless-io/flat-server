@@ -301,6 +301,41 @@ test(`${namespace} - start whiteboard projector - convertStep not none`, async a
     await releaseRunner();
 });
 
+test.serial(`${namespace} - start whiteboard projector - failed`, async ava => {
+    const stubAxios = sinon.stub(ax, "post").resolves({
+        data: {
+            uuid: undefined,
+        },
+    });
+
+    const { t, releaseRunner } = await useTransaction();
+
+    const fileUUID = v4();
+
+    const cloudStorageConvertSVC = new CloudStorageConvertService(ids(), t, fileUUID);
+
+    await ava.throwsAsync(
+        () =>
+            cloudStorageConvertSVC.startWhiteboardProjector(v4(), v4(), {
+                region: Region.SG,
+                convertStep: FileConvertStep.Converting,
+            }),
+        {
+            instanceOf: FError,
+            message: `${Status.Failed}: ${ErrorCode.FileConvertFailed}`,
+        },
+    );
+
+    const data = await cloudStorageFilesDAO.findOne(t, 'payload', {
+        file_uuid: fileUUID,
+    });
+
+    ava.is((data.payload as any)?.convertStep, FileConvertStep.Failed);
+
+    stubAxios.restore();
+    await releaseRunner();
+});
+
 test.serial(`${namespace} - start whiteboard projector - success`, async ava => {
     const { t, releaseRunner } = await useTransaction();
     const { createCloudStorageFiles } = testService(t);

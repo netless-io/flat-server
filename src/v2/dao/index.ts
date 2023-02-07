@@ -22,6 +22,7 @@ import { CloudStorageConfigsModel } from "../../model/cloudStorage/CloudStorageC
 import { OAuthInfosModel } from "../../model/oauth/oauth-infos";
 import { OAuthSecretsModel } from "../../model/oauth/oauth-secrets";
 import { OAuthUsersModel } from "../../model/oauth/oauth-users";
+import { dataSource } from "../../thirdPartyService/TypeORMService";
 
 class DAO<M extends Model> {
     public constructor(private readonly model: EntityTarget<M>) {}
@@ -117,7 +118,7 @@ class DAO<M extends Model> {
     }
 
     public async update(
-        t: EntityManager,
+        t: EntityManager | null,
         updateData: QueryDeepPartialEntity<M>,
         where: FindOptionsWhere<M>,
         config?: {
@@ -125,8 +126,7 @@ class DAO<M extends Model> {
             limit?: number;
         },
     ): Promise<void> {
-        let sql = t
-            .createQueryBuilder()
+        let sql = (t ? t.createQueryBuilder() : dataSource.createQueryBuilder())
             .update(this.model)
             .set(updateData)
             .where(DAOUtils.softDelete(where))
