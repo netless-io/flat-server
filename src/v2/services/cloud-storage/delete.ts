@@ -66,11 +66,13 @@ export class CloudStorageDeleteService {
         const deleteFileSize = calculateFilesSize(deleteFiles);
 
         if (deleteFileSize > 0) {
+            const remainingTotalUsage = calculateFilesSize(filesInfo) - deleteFileSize;
+
             commands.push(
                 cloudStorageConfigsDAO.update(
                     this.DBTransaction,
                     {
-                        total_usage: () => `total_usage - ${deleteFileSize}`,
+                        total_usage: String(remainingTotalUsage < 0 ? 0 : remainingTotalUsage),
                     },
                     {
                         user_uuid: this.userUUID,
