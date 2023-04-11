@@ -32,18 +32,6 @@ export class RecordInfo extends AbstractController<RequestType, ResponseType> {
         const { roomUUID } = this.body;
         const userUUID = this.userUUID;
 
-        const roomUserInfo = await RoomUserDAO().findOne(["id"], {
-            room_uuid: roomUUID,
-            user_uuid: userUUID,
-        });
-
-        if (roomUserInfo === undefined) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.RoomNotFound,
-            };
-        }
-
         const roomInfo = await RoomDAO().findOne(
             ["room_status", "whiteboard_room_uuid", "room_type", "title", "owner_uuid", "region"],
             {
