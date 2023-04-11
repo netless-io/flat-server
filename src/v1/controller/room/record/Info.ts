@@ -2,7 +2,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../types/Server
 import { Agora } from "../../../../constants/Config";
 import { Region, Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO, RoomRecordDAO, RoomUserDAO } from "../../../../dao";
+import { RoomDAO, RoomRecordDAO } from "../../../../dao";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
 import { getRTMToken } from "../../../utils/AgoraToken";
