@@ -51,7 +51,6 @@ export class AlibabaCloudUploadStart extends AbstractController<RequestType, Res
             const uploadingFiles = await RedisService.scan(
                 RedisKey.cloudStorageFileInfo(userUUID, "*"),
                 CloudStorage.concurrent + 1,
-                true,
             );
 
             if (uploadingFiles.length >= CloudStorage.concurrent) {

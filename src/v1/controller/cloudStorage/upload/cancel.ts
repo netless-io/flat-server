@@ -37,7 +37,6 @@ export class UploadCancel extends AbstractController<RequestType, ResponseType> 
             const uploadingFiles = await RedisService.scan(
                 RedisKey.cloudStorageFileInfo(userUUID, "*"),
                 CloudStorage.concurrent + 1,
-                true,
             );
 
             if (uploadingFiles.length > 0) {

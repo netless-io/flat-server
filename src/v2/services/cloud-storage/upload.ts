@@ -149,7 +149,6 @@ export class CloudStorageUploadService {
         const uploadingFiles = await RedisService.scan(
             RedisKey.cloudStorageFileInfo(this.userUUID, "*"),
             CloudStorage.concurrent + 1,
-            true,
         );
 
         if (uploadingFiles.length >= CloudStorage.concurrent) {
@@ -184,7 +183,6 @@ export class CloudStorageUploadService {
         const uploadingFiles = await RedisService.scan(
             RedisKey.cloudStorageFileInfo(this.userUUID, "*"),
             CloudStorage.concurrent + 1,
-            true,
         );
 
         const uploadingFileTotalSize = await uploadingFiles.reduce(async (accP, current) => {
