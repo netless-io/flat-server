@@ -71,15 +71,12 @@ class RedisService {
 
     public async scan(
         match: string,
-        count = 100,
-        totalCount: boolean | number = false,
+        count = 100, // max number of keys to return
     ): Promise<string[]> {
         const stream = this.client.scanStream({
             match,
-            count,
+            count: 100, // how many rows to scan on each iteration (a 'data' event)
         });
-
-        const realCount = typeof totalCount === "boolean" ? count : totalCount;
 
         let result: string[] = [];
 
@@ -87,8 +84,8 @@ class RedisService {
             stream.on("data", data => {
                 result = result.concat(data as string);
 
-                if (totalCount && result.length >= realCount) {
-                    result.splice(realCount);
+                if (count && result.length >= count) {
+                    result.splice(count);
                     stream.destroy();
                 }
             });
