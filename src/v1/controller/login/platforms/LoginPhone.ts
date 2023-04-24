@@ -7,6 +7,7 @@ import { ServiceCloudStorageConfigs } from "../../../service/cloudStorage/CloudS
 import { ServiceCloudStorageUserFiles } from "../../../service/cloudStorage/CloudStorageUserFiles";
 import { ServiceUserPhone } from "../../../service/user/UserPhone";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
+import { ServiceUserSensitive } from "../../../service/user/UserSensitive";
 
 @Login()
 export class LoginPhone extends AbstractLogin {
@@ -18,6 +19,7 @@ export class LoginPhone extends AbstractLogin {
         this.svc = {
             user: new ServiceUser(this.userUUID),
             userPhone: new ServiceUserPhone(this.userUUID),
+            userSensitive: new ServiceUserSensitive(this.userUUID),
             cloudStorageFiles: new ServiceCloudStorageFiles(),
             cloudStorageConfigs: new ServiceCloudStorageConfigs(this.userUUID),
             cloudStorageUserFiles: new ServiceCloudStorageUserFiles(this.userUUID),
@@ -33,8 +35,14 @@ export class LoginPhone extends AbstractLogin {
             const createUser = this.svc.user.create(info, t);
 
             const createUserPhone = this.svc.userPhone.create(info, t);
+            const createUserSensitive = this.svc.userSensitive.phone(info, t);
 
-            return await Promise.all([createUser, createUserPhone, this.setGuidePPTX(this.svc, t)]);
+            return await Promise.all([
+                createUser,
+                createUserPhone,
+                createUserSensitive,
+                this.setGuidePPTX(this.svc, t),
+            ]);
         });
     }
 
@@ -50,6 +58,7 @@ export class LoginPhone extends AbstractLogin {
 interface RegisterService {
     user: ServiceUser;
     userPhone: ServiceUserPhone;
+    userSensitive: ServiceUserSensitive;
     cloudStorageFiles: ServiceCloudStorageFiles;
     cloudStorageUserFiles: ServiceCloudStorageUserFiles;
     cloudStorageConfigs: ServiceCloudStorageConfigs;

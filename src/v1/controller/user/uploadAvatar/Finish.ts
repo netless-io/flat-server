@@ -12,6 +12,7 @@ import { getOSSDomain, getOSSFileURLPath } from "../../cloudStorage/alibabaCloud
 import { deleteObject, isExistObject } from "../../cloudStorage/alibabaCloud/Utils";
 import { getFilePath } from "./Utils";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
+import { ServiceUserSensitive } from "../../../service/user/UserSensitive";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -34,6 +35,7 @@ export class UploadAvatarFinish extends AbstractController<RequestType, Response
 
     public readonly svc: {
         user: ServiceUser;
+        userSensitive: ServiceUserSensitive;
     };
 
     private static readonly censorshipLogger = createLoggerContentCensorship({});
@@ -43,6 +45,7 @@ export class UploadAvatarFinish extends AbstractController<RequestType, Response
 
         this.svc = {
             user: new ServiceUser(this.userUUID),
+            userSensitive: new ServiceUserSensitive(this.userUUID),
         };
     }
 
@@ -86,6 +89,7 @@ export class UploadAvatarFinish extends AbstractController<RequestType, Response
         // Delete previous avatar and set new avatar.
         await dataSource.transaction(async t => {
             await this.svc.user.updateAvatar(alibabaCloudFileURL, t);
+            await this.svc.userSensitive.avatar({ avatarURL: alibabaCloudFileURL }, t);
 
             const avatarURL = (await this.svc.user.nameAndAvatar())?.avatarURL;
             if (avatarURL) {

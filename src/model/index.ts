@@ -17,6 +17,7 @@ import { CloudStorageConfigsModel } from "./cloudStorage/CloudStorageConfigs";
 import { OAuthInfosModel } from "./oauth/oauth-infos";
 import { OAuthSecretsModel } from "./oauth/oauth-secrets";
 import { OAuthUsersModel } from "./oauth/oauth-users";
+import { UserSensitiveModel } from "./user/Sensitive";
 
 export type Model =
     | UserModel
@@ -26,6 +27,7 @@ export type Model =
     | UserAgoraModel
     | UserGoogleModel
     | UserPhoneModel
+    | UserSensitiveModel
     | RoomModel
     | RoomUserModel
     | RoomPeriodicConfigModel

@@ -17,6 +17,7 @@ import { UserAppleModel } from "../model/user/Apple";
 import { UserAgoraModel } from "../model/user/Agora";
 import { UserGoogleModel } from "../model/user/Google";
 import { UserPhoneModel } from "../model/user/Phone";
+import { UserSensitiveModel } from "../model/user/Sensitive";
 import { OAuthInfosModel } from "../model/oauth/oauth-infos";
 import { OAuthSecretsModel } from "../model/oauth/oauth-secrets";
 import { OAuthUsersModel } from "../model/oauth/oauth-users";
@@ -36,6 +37,7 @@ export const dataSource = new DataSource({
         UserAgoraModel,
         UserGoogleModel,
         UserPhoneModel,
+        UserSensitiveModel,
         RoomModel,
         RoomUserModel,
         RoomPeriodicConfigModel,

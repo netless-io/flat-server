@@ -16,6 +16,7 @@ import { UserAppleModel } from "../model/user/Apple";
 import { UserAgoraModel } from "../model/user/Agora";
 import { UserGoogleModel } from "../model/user/Google";
 import { UserPhoneModel } from "../model/user/Phone";
+import { UserSensitiveModel } from "../model/user/Sensitive";
 
 export const UserDAO = DAOImplement(UserModel) as ReturnType<DAO<UserModel>>;
 
@@ -30,6 +31,10 @@ export const UserAgoraDAO = DAOImplement(UserAgoraModel) as ReturnType<DAO<UserA
 export const UserGoogleDAO = DAOImplement(UserGoogleModel) as ReturnType<DAO<UserGoogleModel>>;
 
 export const UserPhoneDAO = DAOImplement(UserPhoneModel) as ReturnType<DAO<UserPhoneModel>>;
+
+export const UserSensitiveDAO = DAOImplement(UserSensitiveModel) as ReturnType<
+    DAO<UserSensitiveModel>
+>;
 
 export const RoomDAO = DAOImplement(RoomModel) as ReturnType<DAO<RoomModel>>;
 
