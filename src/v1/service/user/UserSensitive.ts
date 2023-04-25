@@ -14,8 +14,12 @@ export class ServiceUserSensitive {
         return await UserSensitiveDAO(t).insert({
             user_uuid: this.userUUID,
             type: SensitiveType.Phone,
-            content: data.phone,
+            content: this.desensitivePhone(data.phone),
         });
+    }
+
+    private desensitivePhone(phone: string): string {
+        return phone.slice(0, 3) + "*******" + phone.slice(-1);
     }
 
     public async avatar(
