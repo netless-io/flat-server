@@ -15,6 +15,13 @@ export class UserSensitiveService {
     ) {}
 
     public async list(range: { from: Date; to: Date }): Promise<UserSensitiveListReturn[]> {
+        this.logger.debug("list user sensitive", {
+            userSensitive: {
+                from: range.from.valueOf(),
+                to: range.to.valueOf(),
+            },
+        });
+
         const result: UserSensitiveListReturn[] = await this.DBTransaction.createQueryBuilder(
             UserSensitiveModel,
             "us",
@@ -26,6 +33,14 @@ export class UserSensitiveService {
             .andWhere("us.created_at <= :to", { to: range.to })
             .andWhere("us.is_delete = :isDelete", { isDelete: false })
             .getRawMany();
+
+        this.logger.debug("list user sensitive done", {
+            userSensitive: {
+                from: range.from.valueOf(),
+                to: range.to.valueOf(),
+                count: result.length,
+            },
+        });
 
         return result;
     }
