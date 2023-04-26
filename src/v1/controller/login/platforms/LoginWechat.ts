@@ -10,6 +10,7 @@ import { ServiceCloudStorageFiles } from "../../../service/cloudStorage/CloudSto
 import { ServiceCloudStorageConfigs } from "../../../service/cloudStorage/CloudStorageConfigs";
 import { ServiceCloudStorageUserFiles } from "../../../service/cloudStorage/CloudStorageUserFiles";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
+import { ServiceUserSensitive } from "../../../service/user/UserSensitive";
 
 @Login()
 export class LoginWechat extends AbstractLogin {
@@ -21,6 +22,7 @@ export class LoginWechat extends AbstractLogin {
         this.svc = {
             user: new ServiceUser(this.userUUID),
             userWeChat: new ServiceUserWeChat(this.userUUID),
+            userSensitive: new ServiceUserSensitive(this.userUUID),
             cloudStorageFiles: new ServiceCloudStorageFiles(),
             cloudStorageConfigs: new ServiceCloudStorageConfigs(this.userUUID),
             cloudStorageUserFiles: new ServiceCloudStorageUserFiles(this.userUUID),
@@ -32,10 +34,12 @@ export class LoginWechat extends AbstractLogin {
             const createUser = this.svc.user.create(info, t);
 
             const createUserWeChat = this.svc.userWeChat.create(info, t);
+            const createUserSensitive = this.svc.userSensitive.wechatName({ name: info.userName }, t);
 
             return await Promise.all([
                 createUser,
                 createUserWeChat,
+                createUserSensitive,
                 this.setGuidePPTX(this.svc, t),
             ]);
         });
@@ -80,7 +84,7 @@ export class LoginWechat extends AbstractLogin {
         };
     }
 
-    private static async wechatRequest<T>(url: string): Promise<T> {
+    private static async wechatRequest<T extends {}>(url: string): Promise<T> {
         const response: AxiosResponse<T | WeChatRequestFailed> = await ax.get(url);
 
         if ("errmsg" in response.data) {
@@ -94,6 +98,7 @@ export class LoginWechat extends AbstractLogin {
 interface RegisterService {
     user: ServiceUser;
     userWeChat: ServiceUserWeChat;
+    userSensitive: ServiceUserSensitive,
     cloudStorageFiles: ServiceCloudStorageFiles;
     cloudStorageUserFiles: ServiceCloudStorageUserFiles;
     cloudStorageConfigs: ServiceCloudStorageConfigs;

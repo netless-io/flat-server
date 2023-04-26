@@ -6,6 +6,7 @@ import { Status } from "../../../../constants/Project";
 import { aliGreenText } from "../../../utils/AliGreen";
 import { ControllerError } from "../../../../error/ControllerError";
 import { ErrorCode } from "../../../../ErrorCode";
+import { ServiceUserSensitive } from "../../../service/user/UserSensitive";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -29,6 +30,7 @@ export class Rename extends AbstractController<RequestType, ResponseType> {
 
     public readonly svc: {
         user: ServiceUser;
+        userSensitive: ServiceUserSensitive;
     };
 
     public constructor(params: ControllerClassParams) {
@@ -36,6 +38,7 @@ export class Rename extends AbstractController<RequestType, ResponseType> {
 
         this.svc = {
             user: new ServiceUser(this.userUUID),
+            userSensitive: new ServiceUserSensitive(this.userUUID),
         };
     }
 
@@ -45,6 +48,7 @@ export class Rename extends AbstractController<RequestType, ResponseType> {
         }
 
         await this.svc.user.updateName(this.body.name);
+        await this.svc.userSensitive.name({ name: this.body.name });
 
         return {
             status: Status.Success,
