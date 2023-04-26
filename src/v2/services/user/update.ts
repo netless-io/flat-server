@@ -1,6 +1,7 @@
 import { createLoggerService } from "../../../logger";
 import { EntityManager } from "typeorm";
-import { userDAO } from "../../dao";
+import { userDAO, userSensitiveDAO } from "../../dao";
+import { SensitiveType } from "../../../model/user/Constants";
 
 export class UserUpdateService {
     private readonly logger = createLoggerService<"userUpdate">({
@@ -41,6 +42,11 @@ export class UserUpdateService {
                 user_uuid: this.userUUID,
             },
         );
+        await userSensitiveDAO.insert(this.DBTransaction, {
+            user_uuid: this.userUUID,
+            type: SensitiveType.Avatar,
+            content: newAvatarURL,
+        });
         this.logger.debug("avatar URL updated", {
             userUpdate: {
                 newAvatarURL,

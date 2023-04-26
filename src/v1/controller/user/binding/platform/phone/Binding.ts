@@ -10,6 +10,7 @@ import { ErrorCode } from "../../../../../../ErrorCode";
 import { Status } from "../../../../../../constants/Project";
 import { ServiceUserPhone } from "../../../../../service/user/UserPhone";
 import { UserDAO } from "../../../../../../dao";
+import { ServiceUserSensitive } from "../../../../../service/user/UserSensitive";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -38,6 +39,7 @@ export class BindingPhone extends AbstractController<RequestType, ResponseType> 
 
     private svc = {
         userPhone: new ServiceUserPhone(this.userUUID),
+        userSensitive: new ServiceUserSensitive(this.userUUID),
     };
 
     private static ExhaustiveAttackCount = 10;
@@ -74,6 +76,9 @@ export class BindingPhone extends AbstractController<RequestType, ResponseType> 
         await this.svc.userPhone.create({
             phone,
             userName: userInfo.user_name,
+        });
+        await this.svc.userSensitive.phone({
+            phone,
         });
 
         await BindingPhone.clearVerificationCode(safePhone);
