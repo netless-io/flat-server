@@ -42,7 +42,7 @@ export class UserSensitiveService {
             },
         });
 
-        return result;
+        return result.map(({ type, content }) => ({ type, content }));
     }
 }
 
