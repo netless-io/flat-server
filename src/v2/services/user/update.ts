@@ -25,6 +25,11 @@ export class UserUpdateService {
                 user_uuid: this.userUUID,
             },
         );
+        await userSensitiveDAO.insert(this.DBTransaction, {
+            user_uuid: this.userUUID,
+            type: SensitiveType.Name,
+            content: newUserName,
+        });
         this.logger.debug("user name updated", {
             userUpdate: {
                 newUserName,

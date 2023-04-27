@@ -34,4 +34,31 @@ export class ServiceUserSensitive {
             content: data.avatarURL,
         });
     }
+
+    public async name(
+        data: {
+            name: string;
+        },
+        t?: EntityManager,
+    ): Promise<InsertResult> {
+        return await UserSensitiveDAO(t).insert({
+            user_uuid: this.userUUID,
+            type: SensitiveType.Name,
+            content: data.name,
+        });
+    }
+
+    public async wechatName(
+        data: {
+            name: string;
+        },
+        t?: EntityManager,
+    ): Promise<InsertResult> {
+        return await UserSensitiveDAO(t).insert({
+            user_uuid: this.userUUID,
+            type: SensitiveType.WeChatName,
+            content: data.name,
+        });
+    }
+
 }

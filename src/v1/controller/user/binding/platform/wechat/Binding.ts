@@ -10,6 +10,7 @@ import { ServiceUserWeChat } from "../../../../../service/user/UserWeChat";
 import { ControllerError } from "../../../../../../error/ControllerError";
 import { ErrorCode } from "../../../../../../ErrorCode";
 import { Status } from "../../../../../../constants/Project";
+import { ServiceUserSensitive } from "../../../../../service/user/UserSensitive";
 
 @Controller<RequestType, any>({
     method: "get",
@@ -124,6 +125,7 @@ const wechatCallback = async (
     }
 
     const wechatSVC = new ServiceUserWeChat(userUUID);
+    const sensitiveSVC = new ServiceUserSensitive(userUUID);
 
     const exist = await wechatSVC.exist();
     if (exist) {
@@ -139,6 +141,7 @@ const wechatCallback = async (
     }
 
     await wechatSVC.create(userInfo);
+    await sensitiveSVC.wechatName({ name: userInfo.userName });
 };
 
 interface RequestType {
