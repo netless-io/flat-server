@@ -44,6 +44,14 @@ cloud_storage:
     - gif
     - mp3
     - mp4
+  temp_photo:
+    single_file_size: 5242880
+    total_files: 60
+    prefix_path: cloud-storage/temp-photo
+    allow_suffix:
+      - png
+      - jpg
+      - jpeg
 
 user:
   avatar:

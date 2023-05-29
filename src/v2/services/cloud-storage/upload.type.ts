@@ -33,3 +33,20 @@ export interface GetFileInfoByRedisReturn {
     targetDirectoryPath: string;
     fileResourceType: FileResourceType;
 }
+
+export interface TempPhotoUploadStartConfig {
+    fileName: string;
+    fileSize: number;
+}
+
+export interface TempPhotoUploadStartReturn {
+    fileUUID: string;
+    ossDomain: string;
+    ossFilePath: string;
+    policy: string;
+    signature: string;
+}
+
+export interface TempPhotoUploadFinishConfig {
+    fileUUID: string;
+}

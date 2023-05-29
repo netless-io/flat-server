@@ -142,6 +142,12 @@ export const CloudStorage = {
     totalSize: config.cloud_storage.total_size,
     prefixPath: config.cloud_storage.prefix_path,
     allowFileSuffix: config.cloud_storage.allow_file_suffix,
+    tempPhoto: {
+        singleFileSize: config.cloud_storage.temp_photo.single_file_size,
+        totalFiles: config.cloud_storage.temp_photo.total_files,
+        prefixPath: config.cloud_storage.temp_photo.prefix_path,
+        allowSuffix: config.cloud_storage.temp_photo.allow_suffix,
+    },
 };
 
 export const StorageService = {

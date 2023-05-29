@@ -49,6 +49,16 @@ cloud_storage:
     - gif
     - mp3
     - mp4
+  temp_photo:
+    # max single file size: 5M
+    single_file_size: 5242880
+    # max files per day per user: 60
+    total_files: 60
+    prefix_path: cloud-storage/temp-photo
+    allow_suffix:
+      - png
+      - jpg
+      - jpeg
 
 user:
   avatar:

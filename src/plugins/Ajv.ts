@@ -41,6 +41,14 @@ const avatarSuffix: FormatDefinition<string> = {
     },
 };
 
+const tempPhotoSuffix: FormatDefinition<string> = {
+    validate: fileName => {
+        const suffix = path.extname(fileName).slice(1).toLowerCase();
+
+        return CloudStorage.tempPhoto.allowSuffix.includes(suffix);
+    },
+};
+
 const oauthLogoSuffix: FormatDefinition<string> = {
     validate: fileName => {
         const suffix = path.extname(fileName).slice(1).toLowerCase();
@@ -98,6 +106,7 @@ export const ajvSelfPlugin = (ajv: Ajv): void => {
     ajv.addFormat("uuid-v4", uuidV4);
     ajv.addFormat("file-suffix", fileSuffix);
     ajv.addFormat("avatar-suffix", avatarSuffix);
+    ajv.addFormat("temp-photo-suffix", tempPhotoSuffix);
     ajv.addFormat("oauth-logo-suffix", oauthLogoSuffix);
     ajv.addFormat("url", url);
     ajv.addFormat("https", https);
