@@ -9,6 +9,8 @@ export const RedisKey = {
     agoraRTMUserToken: (userUUID: string): string => `agora:rtm:userUUID:${userUUID}`,
     cloudStorageFileInfo: (userUUID: string, fileUUID: string): string =>
         `cloudStorage:${userUUID}:${fileUUID}`,
+    cloudStorageTempPhotoInfo: (userUUID: string, fileUUID: string): string =>
+        `cloudStorage:tempPhoto:${userUUID}:${fileUUID}`,
     userAvatarFileInfo: (userUUID: string, fileUUID: string): string =>
         `user:avatar:${userUUID}:${fileUUID}`,
     roomInviteCode: (inviteCode: string): string => `room:invite:${inviteCode}`,
