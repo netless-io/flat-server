@@ -4,6 +4,7 @@ import { developerOAuthRouters } from "./developer/routes";
 import { applicationRouters } from "./application/routes";
 import { roomRouters } from "./room/routes";
 import { oauthRouters } from "./auth2/routes";
+import { tempPhotoRouters } from "./temp-photo/routes";
 
 export const v2Routes = [
     userRouters,
@@ -12,4 +13,5 @@ export const v2Routes = [
     applicationRouters,
     roomRouters,
     oauthRouters,
+    tempPhotoRouters,
 ];

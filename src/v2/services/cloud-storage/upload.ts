@@ -6,6 +6,9 @@ import {
     CloudStorageUploadStartReturn,
     GetFileInfoByRedisReturn,
     InsertFileInfo,
+    TempPhotoUploadFinishConfig,
+    TempPhotoUploadStartConfig,
+    TempPhotoUploadStartReturn,
 } from "./upload.type";
 import { FError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
@@ -250,5 +253,96 @@ export class CloudStorageUploadService {
                   convertStep: FileConvertStep.None,
               }
             : {};
+    }
+
+    // Codes below are for temp photo uploading.
+    public static generateTempPhotoOSSFilePath = (fileName: string, fileUUID: string): string => {
+        const datePath = format("yyyy-MM/dd")(Date.now());
+        const prefix = CloudStorage.tempPhoto.prefixPath;
+        // e.g: PREFIX/temp-photo/2021-10/19/UUID/UUID.jpg
+        return `${prefix}/${datePath}/${fileUUID}/${fileUUID}${path.extname(fileName)}`;
+    };
+
+    public async assertTempPhotoConcurrentLimit(): Promise<void> {
+        const uploadingFiles = await RedisService.scan(
+            RedisKey.cloudStorageTempPhotoInfo(this.userUUID, "*"),
+            CloudStorage.tempPhoto.totalFiles + 1,
+        );
+
+        if (uploadingFiles.length >= CloudStorage.tempPhoto.totalFiles) {
+            throw new FError(ErrorCode.UploadConcurrentLimit);
+        }
+    }
+
+    public async getTempPhotoFileInfoByRedis(
+        fileUUID: string,
+    ): Promise<TempPhotoUploadStartConfig> {
+        const fileInfo = await RedisService.hmget(
+            RedisKey.cloudStorageTempPhotoInfo(this.userUUID, fileUUID),
+            ["fileName", "fileSize"],
+        );
+
+        const fileName = fileInfo[0];
+        const fileSize = Number(fileInfo[1] || undefined);
+
+        if (!fileName || Number.isNaN(fileSize)) {
+            this.logger.info("not found temp photo in redis", {
+                CloudStorageUpload: {
+                    fileNameIsEmpty: !fileName,
+                    fileSizeIsNaN: Number.isNaN(fileSize),
+                },
+            });
+            throw new FError(ErrorCode.FileNotFound);
+        }
+
+        return {
+            fileName,
+            fileSize,
+        };
+    }
+
+    public async tempPhotoStart(
+        config: TempPhotoUploadStartConfig,
+    ): Promise<TempPhotoUploadStartReturn> {
+        const { fileName, fileSize } = config;
+        await this.assertTempPhotoConcurrentLimit();
+
+        const fileUUID = v4();
+        const oneDay = 60 * 60 * 24;
+        await RedisService.hmset(
+            RedisKey.cloudStorageTempPhotoInfo(this.userUUID, fileUUID),
+            {
+                fileName,
+                fileSize: String(fileSize),
+            },
+            oneDay,
+        );
+
+        const ossFilePath = CloudStorageUploadService.generateTempPhotoOSSFilePath(
+            fileName,
+            fileUUID,
+        );
+        const { policy, signature } = this.oss.policyTemplate(fileName, ossFilePath, fileSize);
+
+        return {
+            fileUUID,
+            ossFilePath,
+            ossDomain: this.oss.domain,
+            policy,
+            signature,
+        };
+    }
+
+    public async tempPhotoFinish(config: TempPhotoUploadFinishConfig): Promise<void> {
+        const { fileUUID } = config;
+
+        const { fileName } = await this.getTempPhotoFileInfoByRedis(fileUUID);
+
+        const ossFilePath = CloudStorageUploadService.generateTempPhotoOSSFilePath(
+            fileName,
+            fileUUID,
+        );
+
+        await this.oss.assertExists(ossFilePath);
     }
 }
