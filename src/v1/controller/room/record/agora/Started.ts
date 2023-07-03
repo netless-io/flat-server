@@ -55,25 +55,43 @@ export class RecordAgoraStarted extends AbstractController<RequestType, Response
         const { roomUUID, agoraParams, agoraData } = this.body;
         const userUUID = this.userUUID;
 
-        // Limit transcodingConfig.width and transcodingConfig.height to 1920 and 1080 respectively.
-        // Keep width height ratio.
-        // Give config back to agoraData.
+        // Limit width less than 1920 and greater than 96, height less than 1080 and greater than 96.
         const transcodingConfig = agoraData.clientRequest.recordingConfig?.transcodingConfig;
         if (transcodingConfig) {
-            const { width, height } = transcodingConfig;
+            let { width, height } = transcodingConfig;
             let shouldUpdate = false;
-            if (width > 1920) {
-                transcodingConfig.width = 1920;
-                transcodingConfig.height = Math.floor((1920 / width) * height);
-                shouldUpdate = true;
-            }
-            if (height > 1080) {
-                transcodingConfig.height = 1080;
-                transcodingConfig.width = Math.floor((1080 / height) * width);
+            const minLength = 96;
+            if (width > 1920 || height > 1080 || width < minLength || height < minLength) {
+                if (width > 1920) {
+                    height = Math.floor((height * 1920) / width);
+                    width = 1920;
+                }
+                if (height > 1080) {
+                    width = Math.floor((width * 1080) / height);
+                    height = 1080;
+                }
+                if (width < minLength) {
+                    height = Math.floor((height * minLength) / width);
+                    width = minLength;
+                }
+                if (height < minLength) {
+                    width = Math.floor((width * minLength) / height);
+                    height = minLength;
+                }
+                if (width > 1920) {
+                    width = 1920;
+                }
+                if (height > 1080) {
+                    height = 1080;
+                }
                 shouldUpdate = true;
             }
             if (shouldUpdate && agoraData.clientRequest.recordingConfig) {
-                agoraData.clientRequest.recordingConfig.transcodingConfig = transcodingConfig;
+                agoraData.clientRequest.recordingConfig.transcodingConfig = {
+                    ...transcodingConfig,
+                    width,
+                    height,
+                };
             }
         }
 
