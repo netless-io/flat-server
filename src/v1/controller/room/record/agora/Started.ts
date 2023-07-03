@@ -55,6 +55,28 @@ export class RecordAgoraStarted extends AbstractController<RequestType, Response
         const { roomUUID, agoraParams, agoraData } = this.body;
         const userUUID = this.userUUID;
 
+        // Limit transcodingConfig.width and transcodingConfig.height to 1920 and 1080 respectively.
+        // Keep width height ratio.
+        // Give config back to agoraData.
+        const transcodingConfig = agoraData.clientRequest.recordingConfig?.transcodingConfig;
+        if (transcodingConfig) {
+            const { width, height } = transcodingConfig;
+            let shouldUpdate = false;
+            if (width > 1920) {
+                transcodingConfig.width = 1920;
+                transcodingConfig.height = Math.floor((1920 / width) * height);
+                shouldUpdate = true;
+            }
+            if (height > 1080) {
+                transcodingConfig.height = 1080;
+                transcodingConfig.width = Math.floor((1080 / height) * width);
+                shouldUpdate = true;
+            }
+            if (shouldUpdate && agoraData.clientRequest.recordingConfig) {
+                agoraData.clientRequest.recordingConfig.transcodingConfig = transcodingConfig;
+            }
+        }
+
         const roomInfo = await RoomDAO().findOne(["room_status"], {
             room_uuid: roomUUID,
             owner_uuid: userUUID,
