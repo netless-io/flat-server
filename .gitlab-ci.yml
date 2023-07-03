@@ -23,13 +23,6 @@ stages:
     HOST_NAME: $HOST_NAME_CHINA
     KUBE_CONFIG: $KUBE_CONFIG_CHINA
 
-.us:
-  before_script:
-    - cp $PROJECT_CONFIG_UNITED_STATES ./helm/files/production.yaml
-  variables:
-    HOST_NAME: $HOST_NAME_UNITED_STATES
-    KUBE_CONFIG: $KUBE_CONFIG_UNITED_STATES
-
 .docker_build: &DOCKER_BUILD
   stage: build_image
   image: docker:19.03.12
@@ -118,24 +111,9 @@ deploy_dev_cn:
   extends: .cn
   <<: *DEV
 
-deploy_dev_us:
-  <<: *DEPLOY
-  extends: .us
-  variables:
-    DOCKER_TAG: dev-$CI_COMMIT_SHA
-  <<: *DEV
-
 deploy_prod_cn:
   <<: *DEPLOY
   extends: .cn
   variables:
     DOCKER_TAG: $CI_COMMIT_SHA
   <<: *PROD
-
-deploy_prod_us:
-  <<: *DEPLOY
-  extends: .us
-  variables:
-    DOCKER_TAG: $CI_COMMIT_SHA
-  <<: *PROD
-
