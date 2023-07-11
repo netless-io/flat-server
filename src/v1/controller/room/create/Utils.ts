@@ -1,7 +1,9 @@
+import { v4 } from "uuid";
 import { Logger, LoggerAPI, parseError } from "../../../../logger";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import { generateInviteCode } from "../utils/GenerateInviteCode";
+import { Server } from "../../../../constants/Config";
 
 export const generateRoomInviteCode = async (
     roomUUID: string,
@@ -10,7 +12,8 @@ export const generateRoomInviteCode = async (
     let inviteCode = "";
     try {
         // when invite code is used up, fallback to uuid
-        inviteCode = (await generateInviteCode()) || roomUUID;
+        const code = await generateInviteCode();
+        inviteCode = code === null ? roomUUID : `${Server.regionCode}`.concat(code);
     } catch (error) {
         logger.warn("generate invite code failed", parseError(error));
         inviteCode = roomUUID;
@@ -40,4 +43,8 @@ export const generateRoomInviteCode = async (
     }
 
     return inviteCode;
+};
+
+export const generateRoomUUID = (): string => {
+    return `${Server.region}-` + v4();
 };

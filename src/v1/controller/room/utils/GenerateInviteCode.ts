@@ -22,5 +22,6 @@ export const generateInviteCode = async (): Promise<string | null> => {
         inviteCodeList.push(inviteCodeFn());
     }
 
+    // insert region code at front
     return await RedisService.vacantKey(inviteCodeList);
 };

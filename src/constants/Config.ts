@@ -9,6 +9,8 @@ export const Server = {
     name: "flat-server",
     version: packages.version,
     env: config.server.env,
+    region: config.server.region,
+    regionCode: config.server.region_code || 0,
 };
 
 export const Redis = {
