@@ -9,7 +9,7 @@ export const Server = {
     name: "flat-server",
     version: packages.version,
     env: config.server.env,
-    region: config.server.region,
+    region: config.server.region || "CN",
     regionCode: config.server.region_code || 0,
 };
 
