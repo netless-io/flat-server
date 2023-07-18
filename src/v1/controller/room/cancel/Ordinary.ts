@@ -25,7 +25,6 @@ export class CancelOrdinary extends AbstractController<RequestType, ResponseType
             properties: {
                 roomUUID: {
                     type: "string",
-                    format: "uuid-v4",
                 },
             },
         },
