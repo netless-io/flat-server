@@ -10,7 +10,8 @@ export const Server = {
     version: packages.version,
     env: config.server.env,
     region: config.server.region || "CN",
-    regionCode: config.server.region_code || 0,
+    // value: 1-9
+    regionCode: config.server.region_code || 1,
 };
 
 export const Redis = {
