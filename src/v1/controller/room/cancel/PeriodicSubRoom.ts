@@ -29,7 +29,6 @@ export class CancelPeriodicSubRoom extends AbstractController<RequestType, Respo
                 },
                 roomUUID: {
                     type: "string",
-                    format: "uuid-v4",
                 },
             },
         },

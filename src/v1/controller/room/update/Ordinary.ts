@@ -23,7 +23,6 @@ export class UpdateOrdinary extends AbstractController<RequestType, ResponseType
             properties: {
                 roomUUID: {
                     type: "string",
-                    format: "uuid-v4",
                 },
                 beginTime: {
                     type: "number",
