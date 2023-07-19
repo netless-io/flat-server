@@ -54,52 +54,55 @@ export const joinPeriodic = async (
     }
 
     const { room_uuid: roomUUID, whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
-    let rtcUID: string;
+
+    await dataSource.transaction(async t => {
+        const commands: Promise<unknown>[] = [];
+
+        commands.push(
+            RoomUserDAO(t).insert(
+                {
+                    room_uuid: roomUUID,
+                    user_uuid: userUUID,
+                    rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
+                },
+                {
+                    orUpdate: {
+                        is_delete: false,
+                    },
+                },
+            ),
+        );
+
+        commands.push(
+            RoomPeriodicUserDAO(t).insert(
+                {
+                    periodic_uuid: periodicUUID,
+                    user_uuid: userUUID,
+                },
+                {
+                    orUpdate: {
+                        is_delete: false,
+                    },
+                },
+            ),
+        );
+
+        return await Promise.all(commands);
+    });
 
     const roomUserInfo = await RoomUserDAO().findOne(["rtc_uid"], {
         room_uuid: roomUUID,
         user_uuid: userUUID,
     });
 
+    let rtcUID: string;
     if (roomUserInfo !== undefined) {
         rtcUID = roomUserInfo.rtc_uid;
     } else {
-        rtcUID = cryptoRandomString({ length: 6, type: "numeric" });
-
-        await dataSource.transaction(async t => {
-            const commands: Promise<unknown>[] = [];
-
-            commands.push(
-                RoomUserDAO(t).insert(
-                    {
-                        room_uuid: roomUUID,
-                        user_uuid: userUUID,
-                        rtc_uid: rtcUID,
-                    },
-                    {
-                        orUpdate: {
-                            is_delete: false,
-                        },
-                    },
-                ),
-            );
-
-            commands.push(
-                RoomPeriodicUserDAO(t).insert(
-                    {
-                        periodic_uuid: periodicUUID,
-                        user_uuid: userUUID,
-                    },
-                    {
-                        orUpdate: {
-                            is_delete: false,
-                        },
-                    },
-                ),
-            );
-
-            return await Promise.all(commands);
-        });
+        return {
+            status: Status.Failed,
+            code: ErrorCode.CurrentProcessFailed,
+        };
     }
 
     return {

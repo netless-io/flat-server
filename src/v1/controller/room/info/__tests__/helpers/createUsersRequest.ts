@@ -28,11 +28,15 @@ export const createUsersRequest = (
     } as ControllerClassParams);
 };
 
-export const createRoom = async (ownerUUID: string, roomUUID: string): Promise<void> => {
+export const createRoom = async (
+    ownerUUID: string,
+    roomUUID: string,
+    roomStatus: RoomStatus = RoomStatus.Stopped,
+): Promise<void> => {
     await RoomDAO().insert({
         room_uuid: roomUUID,
         periodic_uuid: "",
-        room_status: RoomStatus.Stopped,
+        room_status: roomStatus,
         begin_time: new Date(),
         end_time: new Date(),
         title: "test",
