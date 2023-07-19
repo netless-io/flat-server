@@ -24,7 +24,6 @@ export class RecordAgoraQuery extends AbstractController<RequestType, ResponseTy
             properties: {
                 roomUUID: {
                     type: "string",
-                    format: "uuid-v4",
                 },
                 agoraParams: {
                     type: "object",

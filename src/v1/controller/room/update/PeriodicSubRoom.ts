@@ -31,7 +31,6 @@ export class UpdatePeriodicSubRoom extends AbstractController<RequestType, Respo
                 },
                 roomUUID: {
                     type: "string",
-                    format: "uuid-v4",
                 },
                 beginTime: {
                     type: "number",

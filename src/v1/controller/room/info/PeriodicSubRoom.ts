@@ -28,7 +28,6 @@ export class PeriodicSubRoomInfo extends AbstractController<RequestType, Respons
             properties: {
                 roomUUID: {
                     type: "string",
-                    format: "uuid-v4",
                 },
                 periodicUUID: {
                     type: "string",

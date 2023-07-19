@@ -27,7 +27,6 @@ export class RecordAgoraStopped extends AbstractController<RequestType, Response
             properties: {
                 roomUUID: {
                     type: "string",
-                    format: "uuid-v4",
                 },
                 agoraParams: {
                     type: "object",
