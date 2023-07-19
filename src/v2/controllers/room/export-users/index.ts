@@ -7,9 +7,7 @@ import { Type } from "@sinclair/typebox";
 export const roomExportUsersSchema = {
     body: Type.Object(
         {
-            roomUUID: Type.String({
-                format: "uuid-v4",
-            }),
+            roomUUID: Type.String(),
         },
         {
             additionalProperties: false,

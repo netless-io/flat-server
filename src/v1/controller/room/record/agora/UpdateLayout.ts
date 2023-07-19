@@ -26,7 +26,6 @@ export class RecordAgoraUpdateLayout extends AbstractController<RequestType, Res
             properties: {
                 roomUUID: {
                     type: "string",
-                    format: "uuid-v4",
                 },
                 agoraParams: {
                     type: "object",
