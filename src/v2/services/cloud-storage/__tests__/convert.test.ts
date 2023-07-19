@@ -322,15 +322,16 @@ test.serial(`${namespace} - start whiteboard projector - failed`, async ava => {
             }),
         {
             instanceOf: FError,
-            message: `${Status.Failed}: ${ErrorCode.FileConvertFailed}`,
+            // it won't start when step != None
+            message: `${Status.Failed}: ${ErrorCode.FileNotIsConvertNone}`,
         },
     );
 
-    const data = await cloudStorageFilesDAO.findOne(t, 'payload', {
+    const data = await cloudStorageFilesDAO.findOne(t, "payload", {
         file_uuid: fileUUID,
     });
 
-    ava.is((data.payload as any)?.convertStep, FileConvertStep.Failed);
+    ava.is((data.payload as any)?.convertStep, undefined);
 
     stubAxios.restore();
     await releaseRunner();

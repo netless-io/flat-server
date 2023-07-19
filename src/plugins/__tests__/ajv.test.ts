@@ -10,17 +10,18 @@ test(`${namespace} - inject self plugin`, ava => {
     const ajv = new Ajv();
     ajvSelfPlugin(ajv);
 
-    ava.deepEqual(Object.keys(ajv.formats), [
-        "unix-timestamp",
-        "uuid-v4",
-        "file-suffix",
+    ava.deepEqual(Object.keys(ajv.formats).sort(), [
         "avatar-suffix",
-        "oauth-logo-suffix",
-        "url",
-        "https",
-        "phone",
         "directory-name",
         "directory-path",
+        "file-suffix",
+        "https",
+        "oauth-logo-suffix",
+        "phone",
+        "temp-photo-suffix",
+        "unix-timestamp",
+        "url",
+        "uuid-v4",
     ]);
 });
 

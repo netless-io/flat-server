@@ -1,7 +1,6 @@
 import { RoomType } from "../../../../model/room/Constants";
 import { Region, Status } from "../../../../constants/Project";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { v4 } from "uuid";
 import { ErrorCode } from "../../../../ErrorCode";
 import {
     beginTimeLessEndTime,
@@ -12,7 +11,7 @@ import { AbstractController, ControllerClassParams } from "../../../../abstract/
 import { Controller } from "../../../../decorator/Controller";
 import { ControllerError } from "../../../../error/ControllerError";
 import { ServiceRoom, ServiceRoomUser } from "../../../service";
-import { generateRoomInviteCode } from "./Utils";
+import { generateRoomInviteCode, generateRoomUUID } from "./Utils";
 import { rtcQueue } from "../../../queue";
 import { aliGreenText } from "../../../utils/AliGreen";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
@@ -59,7 +58,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
         roomUser: ServiceRoomUser;
     };
 
-    private readonly roomUUID: string = v4();
+    private readonly roomUUID: string = generateRoomUUID();
 
     public constructor(params: ControllerClassParams) {
         super(params);

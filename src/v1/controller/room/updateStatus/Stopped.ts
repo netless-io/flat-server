@@ -28,7 +28,6 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
             properties: {
                 roomUUID: {
                     type: "string",
-                    format: "uuid-v4",
                 },
             },
         },
