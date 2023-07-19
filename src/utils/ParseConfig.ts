@@ -30,6 +30,8 @@ type Config = {
     server: {
         port: number;
         env: string;
+        region: string | null;
+        region_code: number | null;
     };
     redis: {
         host: string;

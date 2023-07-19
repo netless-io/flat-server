@@ -21,7 +21,6 @@ export class UserInfo extends AbstractController<RequestType, ResponseType> {
             properties: {
                 roomUUID: {
                     type: "string",
-                    format: "uuid-v4",
                 },
                 usersUUID: {
                     type: "array",

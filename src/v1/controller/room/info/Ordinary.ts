@@ -20,7 +20,6 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
             properties: {
                 roomUUID: {
                     type: "string",
-                    format: "uuid-v4",
                 },
             },
         },

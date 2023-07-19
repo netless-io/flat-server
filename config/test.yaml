@@ -1,6 +1,8 @@
 server:
   port: 8761
   env: dev
+  region: CN
+  region_code: 1
 
 redis:
   host: 127.0.0.1
