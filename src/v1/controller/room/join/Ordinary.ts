@@ -43,30 +43,34 @@ export const joinOrdinary = async (
     }
 
     const { whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
-    let rtcUID: string;
+
+    // Either user is joinning a new room or rejoinning a (maybe deleted) room.
+    await RoomUserDAO().insert(
+        {
+            room_uuid: roomUUID,
+            user_uuid: userUUID,
+            rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
+        },
+        {
+            orUpdate: {
+                is_delete: false,
+            },
+        },
+    );
 
     const roomUserInfo = await RoomUserDAO().findOne(["rtc_uid"], {
         room_uuid: roomUUID,
         user_uuid: userUUID,
     });
 
+    let rtcUID: string;
     if (roomUserInfo !== undefined) {
         rtcUID = roomUserInfo.rtc_uid;
     } else {
-        rtcUID = cryptoRandomString({ length: 6, type: "numeric" });
-
-        await RoomUserDAO().insert(
-            {
-                room_uuid: roomUUID,
-                user_uuid: userUUID,
-                rtc_uid: rtcUID,
-            },
-            {
-                orUpdate: {
-                    is_delete: false,
-                },
-            },
-        );
+        return {
+            status: Status.Failed,
+            code: ErrorCode.CurrentProcessFailed,
+        };
     }
 
     return {
