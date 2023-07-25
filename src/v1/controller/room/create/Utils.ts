@@ -20,7 +20,7 @@ export const generateRoomInviteCode = async (
     }
 
     if (inviteCode !== roomUUID) {
-        const fiftyDays = 60 * 60 * 24 * 50;
+        const fiftyDays = 60 * 60 * 24 * 100;
 
         await RedisService.client
             .multi()
