@@ -78,7 +78,7 @@ export class JoinRoom extends AbstractController<RequestType, ResponseType> {
     }
 
     private isInviteCode(): boolean {
-        return /^\d{10}$/.test(this.body.uuid);
+        return /^\d{10,11}$/.test(this.body.uuid);
     }
 }
 
