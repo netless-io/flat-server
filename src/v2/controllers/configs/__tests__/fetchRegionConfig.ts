@@ -1,6 +1,6 @@
 import test from "ava";
 import { HelperAPI } from "../../../__tests__/helpers/api";
-import { regionConfigs, regionConfigsRoute } from "../regionConfigs";
+import { regionConfigs, regionConfigsRouters } from "../regionConfigs";
 import { initializeDataSource } from "../../../__tests__/helpers/db/test-hooks";
 
 const namespace = "v2.controllers.region.configs";
@@ -9,7 +9,7 @@ initializeDataSource(test, namespace);
 test(`${namespace} - fetch region configs`, async ava => {
 
     const helperAPI = new HelperAPI();
-    await helperAPI.import(regionConfigsRoute, regionConfigs);
+    await helperAPI.import(regionConfigsRouters, regionConfigs);
 
     {
         const resp = await helperAPI.inject({

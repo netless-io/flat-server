@@ -72,7 +72,7 @@ export const regionConfigs = async (): Promise<ResponseSuccess<regionConfigsResp
     });
 };
 
-export const regionConfigsRoute = (server: Server): void => {
+export const regionConfigsRouters = (server: Server): void => {
     server.get("region/configs", regionConfigs, {
         schema: Type.Object({}),
         auth: false,
