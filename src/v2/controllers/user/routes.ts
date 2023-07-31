@@ -3,6 +3,11 @@ import { userRename, userRenameSchema } from "./rename";
 import { userUploadAvatarStart, userUploadAvatarStartSchema } from "./upload-avatar/start";
 import { userUploadAvatarFinish, userUploadAvatarFinishSchema } from "./upload-avatar/finish";
 import { userSensitive, userSensitiveSchema } from "./sensitive";
+import {
+    userRebindPhoneSendMessage,
+    userRebindPhoneSendMessageSchema,
+} from "./rebind-phone/sendMessage";
+import { userRebindPhone, userRebindPhoneSchema } from "./rebind-phone";
 
 export const userRouters = (server: Server): void => {
     server.post("user/rename", userRename, {
@@ -19,5 +24,13 @@ export const userRouters = (server: Server): void => {
 
     server.post("user/sensitive", userSensitive, {
         schema: userSensitiveSchema,
+    });
+
+    server.post("user/rebind-phone/send-message", userRebindPhoneSendMessage, {
+        schema: userRebindPhoneSendMessageSchema,
+    });
+
+    server.post("user/rebind-phone", userRebindPhone, {
+        schema: userRebindPhoneSchema,
     });
 };

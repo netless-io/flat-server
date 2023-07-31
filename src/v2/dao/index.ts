@@ -25,7 +25,7 @@ import { OAuthSecretsModel } from "../../model/oauth/oauth-secrets";
 import { OAuthUsersModel } from "../../model/oauth/oauth-users";
 import { dataSource } from "../../thirdPartyService/TypeORMService";
 
-class DAO<M extends Model> {
+export class DAO<M extends Model> {
     public constructor(private readonly model: EntityTarget<M>) {}
 
     public async findOne<T extends keyof M>(
