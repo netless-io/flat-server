@@ -27,6 +27,9 @@ export const RedisKey = {
     phoneBinding: (phone: string): string => `phone:binding:${phone}`,
     phoneTryBindingCount: (phone: string): string => `phone:count:binding:${phone}`,
 
+    emailBinding: (email: string): string => `email:binding:${email}`,
+    emailTryBindingCount: (email: string): string => `email:count:binding:${email}`,
+
     userDelete: (userUUID: string): string => `user:delete:${userUUID}`,
 
     videoIllegalCount: (roomUUID: string): string => `illegal:video:${roomUUID}`,
@@ -49,4 +52,7 @@ export const RedisKey = {
 
     phoneRegisterOrReset: (phone: string): string => `phone:register:${phone}`,
     phoneTryRegisterOrResetCount: (phone: string): string => `phone:count:register:${phone}`,
+
+    emailRegisterOrReset: (email: string): string => `email:register:${email}`,
+    emailTryRegisterOrResetCount: (email: string): string => `email:count:register:${email}`,
 };

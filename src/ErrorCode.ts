@@ -52,6 +52,10 @@ export enum ErrorCode {
     SMSAlreadyExist, // phone already exist by current user
     SMSAlreadyBinding, // phone are binding by other users
 
+    EmailVerificationCodeInvalid = 115000, // verification code invalid
+    EmailAlreadyExist, // email already exist by current user
+    EmailAlreadyBinding, // email are binding by other users
+
     CensorshipFailed = 120000, // censorship failed
 
     OAuthUUIDNotFound = 130000, // oauth uuid not found

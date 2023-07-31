@@ -3,12 +3,13 @@ import { EntityManager } from "typeorm";
 import RedisService from "../../../thirdPartyService/RedisService";
 import { alreadyJoinedRoomCount } from "../../../v1/controller/user/deleteAccount/utils/AlreadyJoinedRoomCount";
 
-import { ErrorCode } from "../../../ErrorCode";
 import { LoginPlatform } from "../../../constants/Project";
 import { FError } from "../../../error/ControllerError";
+import { ErrorCode } from "../../../ErrorCode";
 import { createLoggerService, parseError } from "../../../logger";
 import { UserAgoraModel } from "../../../model/user/Agora";
 import { UserAppleModel } from "../../../model/user/Apple";
+import { UserEmailModel } from "../../../model/user/Email";
 import { UserGithubModel } from "../../../model/user/Github";
 import { UserGoogleModel } from "../../../model/user/Google";
 import { UserPhoneModel } from "../../../model/user/Phone";
@@ -21,6 +22,7 @@ import {
     userAgoraDAO,
     userAppleDAO,
     userDAO,
+    userEmailDAO,
     userGithubDAO,
     userGoogleDAO,
     userPhoneDAO,
@@ -31,6 +33,7 @@ import {
 type UserPlatform =
     | UserModel
     | UserPhoneModel
+    | UserEmailModel
     | UserWeChatModel
     | UserGithubModel
     | UserAppleModel
@@ -125,6 +128,7 @@ export class UserRebindPhoneService {
             Github: RebindStatusVal.NotChanged,
             Google: RebindStatusVal.NotChanged,
             WeChat: RebindStatusVal.NotChanged,
+            Email: RebindStatusVal.NotChanged,
         };
 
         await this.tryUpdate(userAgoraDAO, original.user_uuid, status, LoginPlatform.Agora);
@@ -132,6 +136,7 @@ export class UserRebindPhoneService {
         await this.tryUpdate(userGithubDAO, original.user_uuid, status, LoginPlatform.Github);
         await this.tryUpdate(userGoogleDAO, original.user_uuid, status, LoginPlatform.Google);
         await this.tryUpdate(userWeChatDAO, original.user_uuid, status, LoginPlatform.WeChat);
+        await this.tryUpdate(userEmailDAO, original.user_uuid, status, LoginPlatform.Email);
 
         // Delete account of this.userUUID
         await Promise.all([
@@ -142,6 +147,7 @@ export class UserRebindPhoneService {
             userGoogleDAO.deleteHard(this.DBTransaction, { user_uuid: this.userUUID }),
             userPhoneDAO.deleteHard(this.DBTransaction, { user_uuid: this.userUUID }),
             userWeChatDAO.deleteHard(this.DBTransaction, { user_uuid: this.userUUID }),
+            userEmailDAO.deleteHard(this.DBTransaction, { user_uuid: this.userUUID }),
         ]);
 
         await RedisService.set(RedisKey.userDelete(this.userUUID), "").catch(error => {
