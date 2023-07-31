@@ -6,7 +6,7 @@ import { userSensitive, userSensitiveSchema } from "./sensitive";
 import {
     userRebindPhoneSendMessage,
     userRebindPhoneSendMessageSchema,
-} from "./rebind-phone/sendMessage";
+} from "./rebind-phone/send-message";
 import { userRebindPhone, userRebindPhoneSchema } from "./rebind-phone";
 
 export const userRouters = (server: Server): void => {
