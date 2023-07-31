@@ -21,17 +21,24 @@ export class CreateUser {
         return info;
     }
 
-    public async quick() {
-        const info = {
-            userUUID: v4(),
-            userName: v4(),
-            userPassword: v4(),
-            avatarURL: v4(),
+    public async quick(
+        info: {
+            userUUID?: string;
+            userName?: string;
+            userPassword?: string;
+            avatarURL?: string;
+        } = {},
+    ) {
+        const fullInfo = {
+            userUUID: info.userUUID || v4(),
+            userName: info.userName || v4(),
+            userPassword: info.userPassword ?? v4(),
+            avatarURL: info.avatarURL || v4(),
         };
 
-        await this.full(info);
+        await this.full(fullInfo);
 
-        return info;
+        return fullInfo;
     }
 
     public async fixedName(userName: string) {

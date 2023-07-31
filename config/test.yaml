@@ -74,6 +74,7 @@ oauth:
       - jpeg
 
 login:
+  salt: test
   wechat:
     web:
       enable: true

@@ -31,6 +31,8 @@ export const MySQL = {
     db: config.mysql.db,
 };
 
+export const Salt = config.login.salt;
+
 export const Website = config.website;
 
 export const WeChat = {
