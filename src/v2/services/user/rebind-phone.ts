@@ -65,7 +65,7 @@ export class UserRebindPhoneService {
 
         const safePhone = SMSUtils.safePhone(phone);
 
-        if (await UserRebindPhoneService.canSend(phone)) {
+        if (await UserRebindPhoneService.canSend(safePhone)) {
             if (await this.exists(userPhoneDAO, this.userUUID)) {
                 throw new FError(ErrorCode.SMSAlreadyExist);
             }
@@ -111,7 +111,7 @@ export class UserRebindPhoneService {
             phone_number: safePhone,
         });
         if (!original) {
-            this.logger.info("not found user by phone", { rebindPhone: { phone } });
+            this.logger.info("not found user by phone", { rebindPhone: { phone, safePhone } });
             throw new FError(ErrorCode.UserNotFound);
         }
 
@@ -172,8 +172,8 @@ export class UserRebindPhoneService {
         }
     }
 
-    private static async canSend(phone: string): Promise<boolean> {
-        const ttl = await RedisService.ttl(RedisKey.phoneBinding(phone));
+    private static async canSend(safePhone: string): Promise<boolean> {
+        const ttl = await RedisService.ttl(RedisKey.phoneBinding(safePhone));
 
         if (ttl < 0) {
             return true;
