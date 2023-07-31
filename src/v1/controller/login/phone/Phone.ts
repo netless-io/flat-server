@@ -79,6 +79,7 @@ export class PhoneLogin extends AbstractController<RequestType, ResponseType> {
                     loginSource: LoginPlatform.Phone,
                 }),
                 hasPhone: true,
+                hasPassword: await loginPhone.svc.user.hasPassword(),
             },
         } as const;
 
@@ -145,4 +146,5 @@ interface ResponseType {
     userUUID: string;
     token: string;
     hasPhone: true;
+    hasPassword: boolean;
 }

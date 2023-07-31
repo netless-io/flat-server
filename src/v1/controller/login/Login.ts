@@ -90,6 +90,7 @@ export class Login extends AbstractController<RequestType, ResponseType> {
                 }),
                 userUUID: this.userUUID,
                 hasPhone: await this.svc.userPhone.exist(),
+                hasPassword: await this.svc.user.hasPassword(),
             },
         };
     }
@@ -138,4 +139,5 @@ interface ResponseType {
     token: string;
     userUUID: string;
     hasPhone: boolean;
+    hasPassword: boolean;
 }

@@ -172,6 +172,7 @@ export class UserRebindPhoneService {
                 userUUID: original.user_uuid,
                 token: await jwtSign(original.user_uuid),
                 hasPhone: true,
+                hasPassword: await this.hasPassword(original.user_uuid),
                 rebind: status,
             };
         } else {
@@ -192,6 +193,13 @@ export class UserRebindPhoneService {
         const elapsedTime = MessageExpirationSecond - ttl;
 
         return elapsedTime > MessageIntervalSecond;
+    }
+
+    private async hasPassword(userUUID: string): Promise<boolean> {
+        const user = await userDAO.findOne(this.DBTransaction, ["user_password"], {
+            user_uuid: userUUID,
+        });
+        return Boolean(user?.user_password);
     }
 
     private async tryUpdate(
@@ -275,5 +283,6 @@ export type UserRebindReturn = {
     token: string;
     userUUID: string;
     hasPhone: boolean;
+    hasPassword: boolean;
     rebind: RebindStatus;
 };

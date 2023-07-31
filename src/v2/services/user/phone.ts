@@ -117,12 +117,13 @@ export class UserPhoneService {
 
         await Promise.all([createUser, createUserPhone, setupGuidePPTX]);
 
-        const result = {
+        const result: PhoneRegisterReturn = {
             name: userName,
             avatarURL: "",
             userUUID,
             token: await jwtSign(userUUID),
             hasPhone: true,
+            hasPassword: true,
         };
 
         await UserPhoneService.clearVerificationCode(safePhone);
@@ -200,6 +201,7 @@ export class UserPhoneService {
             userUUID: userUUIDByPhone,
             token: await jwtSign(userUUIDByPhone),
             hasPhone: true,
+            hasPassword: true,
         };
     }
 
@@ -272,6 +274,7 @@ export type PhoneRegisterReturn = {
     userUUID: string;
     token: string;
     hasPhone: boolean;
+    hasPassword: boolean;
 };
 
 export type PhoneLoginReturn = PhoneRegisterReturn;

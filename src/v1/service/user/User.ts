@@ -8,6 +8,18 @@ import { UpdateResult } from "typeorm/query-builder/result/UpdateResult";
 export class ServiceUser {
     constructor(private readonly userUUID: string) {}
 
+    public async hasPassword(): Promise<boolean> {
+        return await ServiceUser.hasPassword(this.userUUID);
+    }
+
+    public static async hasPassword(userUUID: string): Promise<boolean> {
+        const result = await UserDAO().findOne(["user_password"], {
+            user_uuid: userUUID,
+        });
+
+        return Boolean(result && result.user_password);
+    }
+
     public async create(
         data: {
             userName: string;
