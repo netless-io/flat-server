@@ -25,7 +25,7 @@ export class CreateUserPhone {
     }
 }
 
-function randomPhoneNumber() {
+export function randomPhoneNumber() {
     const prefixArray = ["130", "131", "132", "133", "135", "137", "138", "170", "187", "189"];
     const i = parseInt(String(10 * Math.random()));
     let prefix = prefixArray[i];

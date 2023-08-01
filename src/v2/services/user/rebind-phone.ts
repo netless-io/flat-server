@@ -89,7 +89,7 @@ export class UserRebindPhoneService {
         const safePhone = SMSUtils.safePhone(phone);
         await UserRebindPhoneService.notExhaustiveAttack(safePhone);
 
-        const joinedRoomCount = await alreadyJoinedRoomCount(this.userUUID);
+        const joinedRoomCount = await alreadyJoinedRoomCount(this.userUUID, this.DBTransaction);
         if (joinedRoomCount > 0) {
             this.logger.info("user has room", { rebindPhone: { userUUID: this.userUUID } });
             throw new FError(ErrorCode.UserRoomListNotEmpty);
@@ -220,7 +220,7 @@ export class UserRebindPhoneService {
     }
 
     private async exists(dao: DAO<UserPlatform>, user_uuid: string): Promise<boolean> {
-        const result = await dao.findOne(this.DBTransaction, ["user_uuid"], { user_uuid });
+        const result = await dao.findOne(this.DBTransaction, ["id"], { user_uuid });
         return result !== null;
     }
 
