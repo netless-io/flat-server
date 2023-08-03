@@ -1,10 +1,14 @@
+import { EntityManager } from "typeorm";
 import { RoomUserModel } from "../../../../../model/room/RoomUser";
 import { RoomModel } from "../../../../../model/room/Room";
 import { RoomStatus } from "../../../../../model/room/Constants";
 import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 
-export const alreadyJoinedRoomCount = async (userUUID: string): Promise<number> => {
-    return await dataSource
+export const alreadyJoinedRoomCount = async (
+    userUUID: string,
+    t?: EntityManager,
+): Promise<number> => {
+    return await (t || dataSource)
         .createQueryBuilder(RoomUserModel, "ru")
         .innerJoin(RoomModel, "r", "ru.room_uuid = r.room_uuid")
         .andWhere("ru.user_uuid = :userUUID", {

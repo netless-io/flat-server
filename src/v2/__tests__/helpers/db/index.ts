@@ -10,6 +10,7 @@ import { CreateSecretsInfos } from "./oauth-secret";
 import { CreateRoomJoin } from "./room-join";
 import { CreateRoom } from "./room";
 import { CreateUserPhone } from "./user-phone";
+import { CreateUserWeChat } from "./user-wechat";
 
 export const testService = (t: EntityManager) => {
     return {
@@ -24,5 +25,6 @@ export const testService = (t: EntityManager) => {
         createSecretsInfos: new CreateSecretsInfos(t),
         createUser: new CreateUser(t),
         createUserPhone: new CreateUserPhone(t),
+        createUserWeChat: new CreateUserWeChat(t),
     };
 };
