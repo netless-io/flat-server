@@ -89,6 +89,7 @@ type Config = {
         };
     };
     login: {
+        salt: string;
         wechat: {
             web: {
                 enable: boolean;

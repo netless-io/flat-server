@@ -108,7 +108,7 @@ export abstract class AbstractLogin {
         ]);
     }
 
-    private static get guidePPTX(): string {
+    public static get guidePPTX(): string {
         return "guide-pptx/guide.pptx";
     }
 }

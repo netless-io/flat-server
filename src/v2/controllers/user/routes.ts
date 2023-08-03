@@ -8,6 +8,7 @@ import {
     userRebindPhoneSendMessageSchema,
 } from "./rebind-phone/send-message";
 import { userRebindPhone, userRebindPhoneSchema } from "./rebind-phone";
+import { userPassword, userPasswordSchema } from "./password";
 
 export const userRouters = (server: Server): void => {
     server.post("user/rename", userRename, {
@@ -32,5 +33,9 @@ export const userRouters = (server: Server): void => {
 
     server.post("user/rebind-phone", userRebindPhone, {
         schema: userRebindPhoneSchema,
+    });
+
+    server.post("user/password", userPassword, {
+        schema: userPasswordSchema,
     });
 };
