@@ -1,7 +1,7 @@
-import { createLoggerService } from "../../../logger";
 import { EntityManager } from "typeorm";
-import { userDAO, userSensitiveDAO } from "../../dao";
+import { createLoggerService } from "../../../logger";
 import { SensitiveType } from "../../../model/user/Constants";
+import { userDAO, userSensitiveDAO } from "../../dao";
 
 export class UserUpdateService {
     private readonly logger = createLoggerService<"userUpdate">({
