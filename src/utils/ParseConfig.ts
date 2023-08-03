@@ -132,6 +132,28 @@ type Config = {
             hmt: SMSConfig;
             global: SMSConfig;
         };
+        email: {
+            enable: boolean;
+            test_emails: Array<{
+                email: string;
+                code: number;
+            }>;
+            type: string;
+            aliCloud: {
+                access_id: string;
+                access_secret: string;
+                account_name: string;
+            };
+            smtp: {
+                host: string;
+                port: number;
+                secure: boolean;
+                auth: {
+                    user: string;
+                    pass: string;
+                };
+            };
+        };
     };
     agora: {
         app: {

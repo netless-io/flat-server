@@ -76,6 +76,19 @@ export type LoggerSMS = LoggerBase & {
     };
 };
 
+export type LoggerEmail = LoggerBase & {
+    email: {
+        accountName: string;
+        email: string;
+        verificationCode: string;
+    };
+    emailDetail?: {
+        envId: string;
+        requestId: string;
+        messageId: string;
+    };
+};
+
 export type LoggerQueue = LoggerBase & {
     queue: {
         name: string;

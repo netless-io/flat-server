@@ -11,6 +11,7 @@ import { ServiceUserGithub } from "../../../service/user/UserGithub";
 import { ServiceUserGoogle } from "../../../service/user/UserGoogle";
 import { ServiceUserWeChat } from "../../../service/user/UserWeChat";
 import { ServiceUserAgora } from "../../../service/user/UserAgora";
+import { ServiceUserEmail } from "../../../service/user/UserEmail";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import { alreadyJoinedRoomCount } from "./utils/AlreadyJoinedRoomCount";
@@ -33,6 +34,7 @@ export class DeleteAccount extends AbstractController<RequestType, ResponseType>
         userGoogle: new ServiceUserGoogle(this.userUUID),
         userPhone: new ServiceUserPhone(this.userUUID),
         userWeChat: new ServiceUserWeChat(this.userUUID),
+        userEmail: new ServiceUserEmail(this.userUUID),
     };
 
     public async execute(): Promise<Response<ResponseType>> {
@@ -51,6 +53,7 @@ export class DeleteAccount extends AbstractController<RequestType, ResponseType>
                 this.svc.userGoogle.physicalDeletion(t),
                 this.svc.userPhone.physicalDeletion(t),
                 this.svc.userWeChat.physicalDeletion(t),
+                this.svc.userEmail.physicalDeletion(t),
             );
 
             await Promise.all(commands);

@@ -7,6 +7,7 @@ import { ServiceUserAgora } from "../../../service/user/UserAgora";
 import { ServiceUserApple } from "../../../service/user/UserApple";
 import { ServiceUserGithub } from "../../../service/user/UserGithub";
 import { ServiceUserGoogle } from "../../../service/user/UserGoogle";
+import { ServiceUserEmail } from "../../../service/user/UserEmail";
 import { LoginPlatform, Status } from "../../../../constants/Project";
 import { ControllerError } from "../../../../error/ControllerError";
 import { ErrorCode } from "../../../../ErrorCode";
@@ -31,6 +32,7 @@ export class RemoveBinding extends AbstractController<RequestType, ResponseType>
                         LoginPlatform.Apple,
                         LoginPlatform.Github,
                         LoginPlatform.Google,
+                        LoginPlatform.Email,
                     ],
                 },
             },
@@ -44,6 +46,7 @@ export class RemoveBinding extends AbstractController<RequestType, ResponseType>
         [LoginPlatform.Apple]: new ServiceUserApple(this.userUUID),
         [LoginPlatform.Github]: new ServiceUserGithub(this.userUUID),
         [LoginPlatform.Google]: new ServiceUserGoogle(this.userUUID),
+        [LoginPlatform.Email]: new ServiceUserEmail(this.userUUID),
     };
 
     public async execute(): Promise<Response<ResponseType>> {

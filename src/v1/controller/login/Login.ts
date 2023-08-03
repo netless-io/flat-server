@@ -12,6 +12,7 @@ import { AgoraLogin, Github, PhoneSMS, WeChat } from "../../../constants/Config"
 import { ControllerError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
 import { ServiceUserPhone } from "../../service/user/UserPhone";
+import { ServiceUserEmail } from "../../service/user/UserEmail";
 
 @Controller<null, ResponseType>({
     method: "post",
@@ -29,6 +30,7 @@ export class Login extends AbstractController<RequestType, ResponseType> {
         userAgora: ServiceUserAgora;
         userGoogle: ServiceUserGoogle;
         userPhone: ServiceUserPhone;
+        userEmail: ServiceUserEmail;
     };
 
     public constructor(params: ControllerClassParams) {
@@ -42,6 +44,7 @@ export class Login extends AbstractController<RequestType, ResponseType> {
             userAgora: new ServiceUserAgora(this.userUUID),
             userGoogle: new ServiceUserGoogle(this.userUUID),
             userPhone: new ServiceUserPhone(this.userUUID),
+            userEmail: new ServiceUserEmail(this.userUUID),
         };
     }
 

@@ -81,7 +81,7 @@ export class SMS {
         this.client = new SMSClients(this.phone).client();
     }
 
-    public async send(): Promise<void> {
+    public async send(): Promise<boolean> {
         const { templateCode, signName } = SMS.info(this.phone);
 
         this.logger.debug("ready send message");
@@ -101,7 +101,7 @@ export class SMS {
             });
 
         if (resp === null || resp.body.code === undefined) {
-            return;
+            return false;
         }
 
         this.logger.withContext({
@@ -116,8 +116,10 @@ export class SMS {
 
         if (resp.body.code !== "OK") {
             this.logger.error("send message failed");
+            return true;
         } else {
             this.logger.debug("send message success");
+            return false;
         }
     }
 

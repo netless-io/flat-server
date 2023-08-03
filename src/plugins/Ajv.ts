@@ -108,6 +108,16 @@ const password: FormatDefinition<string> = {
     },
 };
 
+// https://github.com/ajv-validator/ajv-formats/blob/4dd65447575b35d0187c6b125383366969e6267e/src/formats.ts#L64
+const emailRegex =
+    /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
+
+const email: FormatDefinition<string> = {
+    validate: emailStr => {
+        return emailRegex.test(emailStr);
+    },
+};
+
 export const ajvSelfPlugin = (ajv: Ajv): void => {
     ajv.addFormat("unix-timestamp", unixTimestamp);
     ajv.addFormat("uuid-v4", uuidV4);
@@ -121,6 +131,7 @@ export const ajvSelfPlugin = (ajv: Ajv): void => {
     ajv.addFormat("directory-name", directoryName);
     ajv.addFormat("directory-path", directoryPath);
     ajv.addFormat("password", password);
+    ajv.addFormat("email", email);
 };
 
 export const validateDirectoryName = (str: string): void => {

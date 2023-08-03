@@ -12,6 +12,7 @@ import {
     LoggerServer,
     LoggerService,
     LoggerSMS,
+    LoggerEmail,
 } from "./LogConext";
 import { LoggerPluginFile } from "./plugins/LoggerPluginFile";
 import { LoggerPluginTerminal } from "./plugins/LoggerPluginTerminal";
@@ -101,6 +102,19 @@ export const createLoggerSMS = <R extends LoggerContext>(
             ...baseContext,
         },
         loggerPlugins as LoggerAbstractPlugin<LoggerSMS & R>[],
+    );
+};
+
+export const createLoggerEmail = <R extends LoggerContext>(
+    context: Partial<LoggerEmail & R>,
+): Logger<LoggerEmail & R> => {
+    return new Logger<LoggerEmail & R>(
+        "email",
+        {
+            ...context,
+            ...baseContext,
+        },
+        loggerPlugins as LoggerAbstractPlugin<LoggerEmail & R>[],
     );
 };
 

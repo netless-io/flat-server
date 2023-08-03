@@ -100,6 +100,31 @@ export const PhoneSMS = {
     },
 };
 
+export const EmailSMS = {
+    enable: config.login.email.enable,
+    testEmails: config.login.email.test_emails.map(user => {
+        return {
+            email: String(user.email),
+            code: user.code,
+        };
+    }),
+    type: config.login.email.type,
+    aliCloud: {
+        accessId: config.login.email.aliCloud.access_id,
+        accessSecret: config.login.email.aliCloud.access_secret,
+        accountName: config.login.email.aliCloud.account_name,
+    },
+    smtp: {
+        host: config.login.email.smtp.host,
+        port: config.login.email.smtp.port,
+        secure: config.login.email.smtp.secure,
+        auth: {
+            user: config.login.email.smtp.auth.user,
+            pass: config.login.email.smtp.auth.pass,
+        },
+    },
+};
+
 export const Agora = {
     appId: config.agora.app.id,
     appCertificate: config.agora.app.certificate,

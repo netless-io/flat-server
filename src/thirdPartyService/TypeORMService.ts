@@ -21,6 +21,7 @@ import { UserSensitiveModel } from "../model/user/Sensitive";
 import { OAuthInfosModel } from "../model/oauth/oauth-infos";
 import { OAuthSecretsModel } from "../model/oauth/oauth-secrets";
 import { OAuthUsersModel } from "../model/oauth/oauth-users";
+import { UserEmailModel } from "../model/user/Email";
 
 export const dataSource = new DataSource({
     type: "mysql",
@@ -37,6 +38,7 @@ export const dataSource = new DataSource({
         UserAgoraModel,
         UserGoogleModel,
         UserPhoneModel,
+        UserEmailModel,
         UserSensitiveModel,
         RoomModel,
         RoomUserModel,
