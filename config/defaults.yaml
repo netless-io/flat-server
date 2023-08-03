@@ -79,6 +79,7 @@ oauth:
       - jpeg
 
 login:
+  salt:
   wechat:
     web:
       enable: false
