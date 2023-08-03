@@ -9,6 +9,7 @@ export enum Status {
 }
 
 export enum LoginPlatform {
+    QQ = "QQ",
     WeChat = "WeChat",
     Github = "Github",
     Apple = "Apple",

@@ -10,6 +10,7 @@ import { RoomPeriodicUserModel } from "../model/room/RoomPeriodicUser";
 import { RoomRecordModel } from "../model/room/RoomRecord";
 import { RoomUserModel } from "../model/room/RoomUser";
 import { UserModel } from "../model/user/User";
+import { UserQQModel } from "../model/user/QQ";
 import { UserWeChatModel } from "../model/user/WeChat";
 import { UserGithubModel } from "../model/user/Github";
 import { loggerServer, parseError } from "../logger";
@@ -31,6 +32,7 @@ export const dataSource = new DataSource({
     port: MySQL.port,
     entities: [
         UserModel,
+        UserQQModel,
         UserWeChatModel,
         UserGithubModel,
         UserAppleModel,

@@ -3,6 +3,7 @@ import { RoomModel } from "../model/room/Room";
 import { DAO } from "./Type";
 import { RoomUserModel } from "../model/room/RoomUser";
 import { UserModel } from "../model/user/User";
+import { UserQQModel } from "../model/user/QQ";
 import { UserWeChatModel } from "../model/user/WeChat";
 import { RoomPeriodicConfigModel } from "../model/room/RoomPeriodicConfig";
 import { RoomPeriodicModel } from "../model/room/RoomPeriodic";
@@ -19,6 +20,8 @@ import { UserPhoneModel } from "../model/user/Phone";
 import { UserSensitiveModel } from "../model/user/Sensitive";
 
 export const UserDAO = DAOImplement(UserModel) as ReturnType<DAO<UserModel>>;
+
+export const UserQQDAO = DAOImplement(UserQQModel) as ReturnType<DAO<UserQQModel>>;
 
 export const UserWeChatDAO = DAOImplement(UserWeChatModel) as ReturnType<DAO<UserWeChatModel>>;
 

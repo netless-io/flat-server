@@ -1,3 +1,4 @@
+import { QQWebCallback } from "./qq/Callback";
 import { WechatWebCallback } from "./weChat/web/Callback";
 import { WechatMobileCallback } from "./weChat/mobile/Callback";
 import { GithubCallback } from "./github/Callback";
@@ -14,6 +15,7 @@ import { PhoneLogin } from "./phone/Phone";
 export const loginRouters: Readonly<Array<ControllerClass<any, any>>> = Object.freeze([
     SetAuthUUID,
     LoginProcess,
+    QQWebCallback,
     WechatWebCallback,
     WechatMobileCallback,
     AppleJWT,
