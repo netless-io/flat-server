@@ -42,7 +42,7 @@ export class UserPhoneService {
 
         if (await UserPhoneService.canSend(safePhone)) {
             const exist = await userPhoneDAO.findOne(this.DBTransaction, ["user_uuid"], {
-                phone_number: safePhone,
+                phone_number: phone,
             });
             if (exist) {
                 throw new FError(ErrorCode.SMSAlreadyExist);
@@ -66,7 +66,7 @@ export class UserPhoneService {
 
         if (await UserPhoneService.canSend(safePhone)) {
             const user = await userPhoneDAO.findOne(this.DBTransaction, ["user_uuid"], {
-                phone_number: safePhone,
+                phone_number: phone,
             });
             if (!user) {
                 throw new FError(ErrorCode.UserNotFound);
@@ -97,7 +97,7 @@ export class UserPhoneService {
         await UserPhoneService.assertCodeCorrect(safePhone, code);
         await UserPhoneService.clearTryRegisterCount(safePhone);
 
-        const userUUIDByPhone = await this.userUUIDByPhone(safePhone);
+        const userUUIDByPhone = await this.userUUIDByPhone(phone);
         if (userUUIDByPhone) {
             this.logger.info("register phone already exist", { userPhone: { phone } });
             throw new FError(ErrorCode.SMSAlreadyExist);
@@ -116,7 +116,7 @@ export class UserPhoneService {
         const createUserPhone = userPhoneDAO.insert(this.DBTransaction, {
             user_name: userName,
             user_uuid: userUUID,
-            phone_number: safePhone,
+            phone_number: phone,
         });
 
         const setupGuidePPTX = this.setGuidePPTX(userUUID);
@@ -145,7 +145,7 @@ export class UserPhoneService {
         await UserPhoneService.assertCodeCorrect(safePhone, code);
         await UserPhoneService.clearTryRegisterCount(safePhone);
 
-        const userUUIDByPhone = await this.userUUIDByPhone(safePhone);
+        const userUUIDByPhone = await this.userUUIDByPhone(phone);
         if (!userUUIDByPhone) {
             throw new FError(ErrorCode.UserNotFound);
         }
@@ -166,9 +166,7 @@ export class UserPhoneService {
     ): Promise<PhoneLoginReturn> {
         password = hash(password);
 
-        const safePhone = SMSUtils.safePhone(phone);
-
-        const userUUIDByPhone = await this.userUUIDByPhone(safePhone);
+        const userUUIDByPhone = await this.userUUIDByPhone(phone);
         if (!userUUIDByPhone) {
             throw new FError(ErrorCode.UserNotFound);
         }
@@ -271,9 +269,9 @@ export class UserPhoneService {
         ]);
     }
 
-    private async userUUIDByPhone(safePhone: string): Promise<string | null> {
+    private async userUUIDByPhone(phone: string): Promise<string | null> {
         const result = await userPhoneDAO.findOne(this.DBTransaction, ["user_uuid"], {
-            phone_number: safePhone,
+            phone_number: phone,
         });
 
         return result ? result.user_uuid : null;
