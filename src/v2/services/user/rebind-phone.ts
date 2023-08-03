@@ -108,7 +108,7 @@ export class UserRebindPhoneService {
         }
 
         const original = await userPhoneDAO.findOne(this.DBTransaction, ["user_uuid"], {
-            phone_number: safePhone,
+            phone_number: phone,
         });
         if (!original) {
             this.logger.info("not found user by phone", { rebindPhone: { phone, safePhone } });
