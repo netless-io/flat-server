@@ -121,6 +121,23 @@ login:
       access_secret:
       template_code:
       sign_name:
+  email:
+    enable: true
+    test_emails:
+      - email:
+        code:
+    type: smtp
+    smtp:
+      host: smtpdm.aliyun.com
+      port: 465
+      secure: true
+      auth:
+        user:
+        pass:
+    aliCloud:
+      access_id:
+      access_secret:
+      account_name: test@test.test
 
 agora:
   app:

@@ -3,4 +3,5 @@ export enum SensitiveType {
     Avatar = "avatar",
     Name = "name",
     WeChatName = "wechat_name",
+    Email = "email",
 }

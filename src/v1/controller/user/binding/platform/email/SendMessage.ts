@@ -1,62 +1,65 @@
 import { Controller } from "../../../../../../decorator/Controller";
-import { PhoneSMS } from "../../../../../../constants/Config";
+import { EmailSMS } from "../../../../../../constants/Config";
 import { AbstractController } from "../../../../../../abstract/controller";
 import { FastifySchema, Response, ResponseError } from "../../../../../../types/Server";
 import RedisService from "../../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../../utils/Redis";
-import { SMS, SMSUtils } from "../../../../../../utils/SMS";
+import { Email } from "../../../../../../utils/Email";
 import { Status } from "../../../../../../constants/Project";
 import { MessageExpirationSecond, MessageIntervalSecond } from "./Constants";
-import { ServiceUserPhone } from "../../../../../service/user/UserPhone";
+import { ServiceUserEmail } from "../../../../../service/user/UserEmail";
 import { ControllerError } from "../../../../../../error/ControllerError";
 import { ErrorCode } from "../../../../../../ErrorCode";
 
 @Controller<RequestType, any>({
     method: "post",
-    path: ["user/bindingPhone/sendMessage", "user/binding/platform/phone/sendMessage"],
+    path: ["user/bindingEmail/sendMessage", "user/binding/platform/email/sendMessage"],
     auth: true,
-    enable: PhoneSMS.enable,
+    enable: EmailSMS.enable,
 })
 export class SendMessage extends AbstractController<RequestType, ResponseType> {
     public static readonly schema: FastifySchema<RequestType> = {
         body: {
             type: "object",
-            required: ["phone"],
+            required: ["email"],
             properties: {
-                phone: {
+                email: {
                     type: "string",
-                    format: "phone",
+                    format: "email",
                 },
             },
         },
     };
 
     private svc = {
-        userPhone: new ServiceUserPhone(this.userUUID),
+        userEmail: new ServiceUserEmail(this.userUUID),
     };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const { phone } = this.body;
-        const sms = new SMS(phone);
+        const { email } = this.body;
+        const sms = new Email(email, {
+            tagName: "bind",
+            subject: "Flat Verification Code",
+            htmlBody: (email: string, code: string) =>
+                `Hello, ${email}! Please enter the verification code within 10 minutes:<br><br><h1 style="text-align:center">${code}</h1><br><br><Currently, Flat is actively under development. If you encounter any issues during usage, please feel free to contact me for feedback. It is growing day by day, and we are delighted to share this joy with you.<br><br>Thanks and Regards,<br>Leo Yang<br>Flat PM<br><a href="mailto:yangliu02@agora.io">yangliu02@agora.io</a>`,
+        });
 
-        const safePhone = SMSUtils.safePhone(phone);
-
-        if (await SendMessage.canSend(safePhone)) {
-            if (await this.svc.userPhone.exist()) {
-                throw new ControllerError(ErrorCode.SMSAlreadyExist);
+        if (await SendMessage.canSend(email)) {
+            if (await this.svc.userEmail.exist()) {
+                throw new ControllerError(ErrorCode.EmailAlreadyExist);
             }
 
-            if (await this.svc.userPhone.existPhone(phone)) {
-                throw new ControllerError(ErrorCode.SMSAlreadyBinding);
+            if (await this.svc.userEmail.existEmail(email)) {
+                throw new ControllerError(ErrorCode.EmailAlreadyBinding);
             }
 
             const success = await sms.send();
             if (!success) {
-                throw new ControllerError(ErrorCode.SMSFailedToSendCode);
+                throw new ControllerError(ErrorCode.EmailFailedToSendCode);
             }
 
             await RedisService.set(
-                RedisKey.phoneBinding(safePhone),
+                RedisKey.emailBinding(email),
                 sms.verificationCode,
                 MessageExpirationSecond,
             );
@@ -70,8 +73,8 @@ export class SendMessage extends AbstractController<RequestType, ResponseType> {
         };
     }
 
-    private static async canSend(phone: string): Promise<boolean> {
-        const ttl = await RedisService.ttl(RedisKey.phoneBinding(phone));
+    private static async canSend(email: string): Promise<boolean> {
+        const ttl = await RedisService.ttl(RedisKey.emailBinding(email));
 
         if (ttl < 0) {
             return true;
@@ -89,7 +92,7 @@ export class SendMessage extends AbstractController<RequestType, ResponseType> {
 
 interface RequestType {
     body: {
-        phone: string;
+        email: string;
     };
 }
 

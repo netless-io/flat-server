@@ -11,6 +11,7 @@ import { CreateRoomJoin } from "./room-join";
 import { CreateRoom } from "./room";
 import { CreateUserPhone } from "./user-phone";
 import { CreateUserWeChat } from "./user-wechat";
+import { CreateUserEmail } from "./user-email";
 
 export const testService = (t: EntityManager) => {
     return {
@@ -26,5 +27,6 @@ export const testService = (t: EntityManager) => {
         createUser: new CreateUser(t),
         createUserPhone: new CreateUserPhone(t),
         createUserWeChat: new CreateUserWeChat(t),
+        createUserEmail: new CreateUserEmail(t),
     };
 };

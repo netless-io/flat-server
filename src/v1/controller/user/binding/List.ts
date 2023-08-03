@@ -8,6 +8,7 @@ import { ServiceUserAgora } from "../../../service/user/UserAgora";
 import { ServiceUserApple } from "../../../service/user/UserApple";
 import { ServiceUserGithub } from "../../../service/user/UserGithub";
 import { ServiceUserGoogle } from "../../../service/user/UserGoogle";
+import { ServiceUserEmail } from "../../../service/user/UserEmail";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -24,6 +25,7 @@ export class BindingList extends AbstractController<RequestType, ResponseType> {
         [LoginPlatform.Apple]: new ServiceUserApple(this.userUUID),
         [LoginPlatform.Github]: new ServiceUserGithub(this.userUUID),
         [LoginPlatform.Google]: new ServiceUserGoogle(this.userUUID),
+        [LoginPlatform.Email]: new ServiceUserEmail(this.userUUID),
     };
 
     public async execute(): Promise<Response<ResponseType>> {
