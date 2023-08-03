@@ -37,7 +37,11 @@ export class UserEmailService {
                 throw new FError(ErrorCode.EmailAlreadyExist);
             }
 
-            await sms.send();
+            const success = await sms.send();
+            if (!success) {
+                throw new FError(ErrorCode.EmailFailedToSendCode);
+            }
+
             await RedisService.set(
                 RedisKey.emailRegisterOrReset(email),
                 sms.verificationCode,
@@ -64,7 +68,11 @@ export class UserEmailService {
                 throw new FError(ErrorCode.UserNotFound);
             }
 
-            await sms.send();
+            const success = await sms.send();
+            if (!success) {
+                throw new FError(ErrorCode.EmailFailedToSendCode);
+            }
+
             await RedisService.set(
                 RedisKey.emailRegisterOrReset(email),
                 sms.verificationCode,

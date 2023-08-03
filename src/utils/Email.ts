@@ -14,7 +14,7 @@ interface EmailClient {
         subject: string,
         body: string,
         logger: Logger<LoggerEmail>,
-    ): Promise<void>;
+    ): Promise<boolean>;
 }
 
 function createAliCloudClient(): EmailClient {
@@ -45,7 +45,7 @@ function createAliCloudClient(): EmailClient {
                 resp = await client.singleSendMailWithOptions(request, runtime);
             } catch (error) {
                 logger.error("send message error", parseError(error));
-                return;
+                return false;
             }
 
             logger.withContext({
@@ -58,8 +58,10 @@ function createAliCloudClient(): EmailClient {
 
             if (200 <= resp.statusCode && resp.statusCode < 300) {
                 logger.debug("send message success");
+                return true;
             } else {
                 logger.error("send message failed");
+                return false;
             }
         },
     };
@@ -91,7 +93,7 @@ function createSMTPTransport(): EmailClient {
                 });
             } catch (error) {
                 logger.error("send message error", parseError(error));
-                return;
+                return false;
             }
 
             logger.withContext({
@@ -103,6 +105,7 @@ function createSMTPTransport(): EmailClient {
             });
 
             logger.debug("send message success: " + resp.response);
+            return true;
         },
     };
 }
@@ -142,7 +145,7 @@ export class Email {
         } = {},
     ) {}
 
-    public async send(): Promise<void> {
+    public send(): Promise<boolean> {
         const {
             tagName = "register",
             subject = "Verification Code",
@@ -151,7 +154,7 @@ export class Email {
 
         this.logger.debug("ready send message");
 
-        await Email.client.send(
+        return Email.client.send(
             tagName,
             this.email,
             subject,

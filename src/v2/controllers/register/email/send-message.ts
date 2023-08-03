@@ -6,7 +6,9 @@ import { successJSON } from "../../internal/utils/response-json";
 export const registerEmailSendMessageSchema = {
     body: Type.Object(
         {
-            email: Type.String(),
+            email: Type.String({
+                format: "email",
+            }),
             language: Type.Optional(Type.String()),
         },
         {

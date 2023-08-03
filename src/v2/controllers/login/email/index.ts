@@ -8,7 +8,9 @@ import { successJSON } from "../../internal/utils/response-json";
 export const loginEmailSchema = {
     body: Type.Object(
         {
-            email: Type.String(),
+            email: Type.String({
+                format: "email",
+            }),
             password: Type.String({
                 format: "password",
                 minLength: 8,

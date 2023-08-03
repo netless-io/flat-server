@@ -17,7 +17,7 @@ export class UserEmailModel extends Content {
         unique: true,
     })
     @Column({
-        length: 320,
+        length: 100,
         comment: "email address",
     })
     user_email: string;

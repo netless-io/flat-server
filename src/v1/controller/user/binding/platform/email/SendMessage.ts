@@ -53,7 +53,11 @@ export class SendMessage extends AbstractController<RequestType, ResponseType> {
                 throw new ControllerError(ErrorCode.SMSAlreadyBinding);
             }
 
-            await sms.send();
+            const success = await sms.send();
+            if (!success) {
+                throw new ControllerError(ErrorCode.SMSFailedToSendCode);
+            }
+
             await RedisService.set(
                 RedisKey.emailBinding(email),
                 sms.verificationCode,

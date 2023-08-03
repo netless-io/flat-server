@@ -51,10 +51,12 @@ export enum ErrorCode {
     SMSVerificationCodeInvalid = 110000, // verification code invalid
     SMSAlreadyExist, // phone already exist by current user
     SMSAlreadyBinding, // phone are binding by other users
+    SMSFailedToSendCode, // failed to send verification code
 
     EmailVerificationCodeInvalid = 115000, // verification code invalid
     EmailAlreadyExist, // email already exist by current user
     EmailAlreadyBinding, // email are binding by other users
+    EmailFailedToSendCode, // failed to send verification code
 
     CensorshipFailed = 120000, // censorship failed
 

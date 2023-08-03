@@ -8,7 +8,9 @@ import { successJSON } from "../../internal/utils/response-json";
 export const registerEmailSchema = {
     body: Type.Object(
         {
-            email: Type.String(),
+            email: Type.String({
+                format: "email",
+            }),
             code: Type.Integer(),
             password: Type.String({
                 format: "password",
