@@ -46,16 +46,16 @@ export class SendMessage extends AbstractController<RequestType, ResponseType> {
 
         if (await SendMessage.canSend(email)) {
             if (await this.svc.userEmail.exist()) {
-                throw new ControllerError(ErrorCode.SMSAlreadyExist);
+                throw new ControllerError(ErrorCode.EmailAlreadyExist);
             }
 
             if (await this.svc.userEmail.existEmail(email)) {
-                throw new ControllerError(ErrorCode.SMSAlreadyBinding);
+                throw new ControllerError(ErrorCode.EmailAlreadyBinding);
             }
 
             const success = await sms.send();
             if (!success) {
-                throw new ControllerError(ErrorCode.SMSFailedToSendCode);
+                throw new ControllerError(ErrorCode.EmailFailedToSendCode);
             }
 
             await RedisService.set(

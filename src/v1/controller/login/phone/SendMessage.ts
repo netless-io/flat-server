@@ -7,6 +7,8 @@ import { RedisKey } from "../../../../utils/Redis";
 import { SMS, SMSUtils } from "../../../../utils/SMS";
 import { Status } from "../../../../constants/Project";
 import { MessageExpirationSecond, MessageIntervalSecond } from "./Constants";
+import { ControllerError } from "../../../../error/ControllerError";
+import { ErrorCode } from "../../../../ErrorCode";
 
 @Controller<RequestType, any>({
     method: "post",
@@ -35,7 +37,10 @@ export class SendMessage extends AbstractController<RequestType, ResponseType> {
         const safePhone = SMSUtils.safePhone(phone);
 
         if (await SendMessage.canSend(safePhone)) {
-            await sms.send();
+            const success = await sms.send();
+            if (!success) {
+                throw new ControllerError(ErrorCode.SMSFailedToSendCode);
+            }
             await RedisService.set(
                 RedisKey.phoneLogin(safePhone),
                 sms.verificationCode,
@@ -43,6 +48,7 @@ export class SendMessage extends AbstractController<RequestType, ResponseType> {
             );
         } else {
             this.logger.warn("count over limit");
+            throw new ControllerError(ErrorCode.ExhaustiveAttack);
         }
 
         return {

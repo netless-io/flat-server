@@ -73,7 +73,11 @@ export class UserRebindPhoneService {
                 throw new FError(ErrorCode.SMSAlreadyExist);
             }
 
-            await sms.send();
+            const success = await sms.send();
+            if (!success) {
+                throw new FError(ErrorCode.SMSFailedToSendCode);
+            }
+
             await RedisService.set(
                 RedisKey.phoneBinding(safePhone),
                 sms.verificationCode,
