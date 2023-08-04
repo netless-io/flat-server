@@ -164,7 +164,7 @@ export class UserPhoneService {
         const userUUIDByPhone = await this.userUUIDByPhone(phone);
         if (!userUUIDByPhone) {
             this.logger.info("login phone not found", { userPhone: { phone } });
-            throw new FError(ErrorCode.UserNotFound);
+            throw new FError(ErrorCode.UserOrPasswordIncorrect);
         }
 
         const user = await userDAO.findOne(
@@ -176,7 +176,7 @@ export class UserPhoneService {
             this.logger.info("login phone not found user", {
                 userPhone: { phone, userUUIDByPhone },
             });
-            throw new FError(ErrorCode.UserNotFound);
+            throw new FError(ErrorCode.UserOrPasswordIncorrect);
         }
 
         // User didn't set password, in this case we should not allow login with password
@@ -184,14 +184,14 @@ export class UserPhoneService {
             this.logger.info("login phone user password is null", {
                 userPhone: { phone, userUUIDByPhone },
             });
-            throw new FError(ErrorCode.UserNotFound);
+            throw new FError(ErrorCode.UserOrPasswordIncorrect);
         }
 
         if (user.user_password !== password) {
             this.logger.info("login phone user password incorrect", {
                 userPhone: { phone, userUUIDByPhone },
             });
-            throw new FError(ErrorCode.UserPasswordIncorrect);
+            throw new FError(ErrorCode.UserOrPasswordIncorrect);
         }
 
         return {
