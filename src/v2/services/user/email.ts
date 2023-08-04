@@ -120,12 +120,13 @@ export class UserEmailService {
 
         await Promise.all([createUser, createUserEmail, setupGuidePPTX]);
 
-        const result = {
+        const result: EmailRegisterReturn = {
             name: userName,
             avatarURL: "",
             userUUID,
             token: await jwtSign(userUUID),
             hasPhone: false,
+            hasPassword: true,
         };
 
         await UserEmailService.clearVerificationCode(email);
@@ -200,6 +201,7 @@ export class UserEmailService {
             userUUID: userUUIDByEmail,
             token: await jwtSign(userUUIDByEmail),
             hasPhone: await this.hasPhone(userUUIDByEmail),
+            hasPassword: true,
         };
     }
 
@@ -308,6 +310,7 @@ export type EmailRegisterReturn = {
     userUUID: string;
     token: string;
     hasPhone: boolean;
+    hasPassword: boolean;
 };
 
 export type EmailLoginReturn = EmailRegisterReturn;
