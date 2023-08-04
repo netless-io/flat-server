@@ -165,7 +165,7 @@ export class UserEmailService {
         const userUUIDByEmail = await this.userUUIDByEmail(email);
         if (!userUUIDByEmail) {
             this.logger.info("login email not found", { userEmail: { email } });
-            throw new FError(ErrorCode.UserNotFound);
+            throw new FError(ErrorCode.UserOrPasswordIncorrect);
         }
 
         const user = await userDAO.findOne(
@@ -177,21 +177,21 @@ export class UserEmailService {
             this.logger.info("login email not found user", {
                 userEmail: { email, userUUIDByEmail },
             });
-            throw new FError(ErrorCode.UserNotFound);
+            throw new FError(ErrorCode.UserOrPasswordIncorrect);
         }
 
         if (!user.user_password) {
             this.logger.info("login email user password is null", {
                 userEmail: { email, userUUIDByEmail },
             });
-            throw new FError(ErrorCode.UserNotFound);
+            throw new FError(ErrorCode.UserOrPasswordIncorrect);
         }
 
         if (user.user_password !== password) {
             this.logger.info("login email password incorrect", {
                 userEmail: { email, userUUIDByEmail },
             });
-            throw new FError(ErrorCode.UserPasswordIncorrect);
+            throw new FError(ErrorCode.UserOrPasswordIncorrect);
         }
 
         return {

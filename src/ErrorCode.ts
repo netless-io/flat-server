@@ -26,6 +26,7 @@ export enum ErrorCode {
     UserRoomListNotEmpty, // user room list is not empty.
     UserAlreadyBinding, // user already binding
     UserPasswordIncorrect, // user password (for update) incorrect
+    UserOrPasswordIncorrect, // user or password (for login) incorrect
 
     RecordNotFound = 500000, // record info not found
 
