@@ -157,7 +157,7 @@ test(`${namespace} - user phone not found in login`, async ava => {
         () => new UserPhoneService(ids(), t).login(randomPhoneNumber(), v4(), async () => ""),
         {
             instanceOf: FError,
-            message: `${Status.Failed}: ${ErrorCode.UserNotFound}`,
+            message: `${Status.Failed}: ${ErrorCode.UserOrPasswordIncorrect}`,
         },
     );
 
@@ -168,7 +168,7 @@ test(`${namespace} - user phone not found in login`, async ava => {
         () => new UserPhoneService(ids(), t).login(userPhoneInfo.phoneNumber, v4(), async () => ""),
         {
             instanceOf: FError,
-            message: `${Status.Failed}: ${ErrorCode.UserNotFound}`,
+            message: `${Status.Failed}: ${ErrorCode.UserOrPasswordIncorrect}`,
         },
     );
 
@@ -186,7 +186,7 @@ test(`${namespace} - user phone wrong password`, async ava => {
         () => new UserPhoneService(ids(), t).login(userPhoneInfo.phoneNumber, v4(), async () => ""),
         {
             instanceOf: FError,
-            message: `${Status.Failed}: ${ErrorCode.UserPasswordIncorrect}`,
+            message: `${Status.Failed}: ${ErrorCode.UserOrPasswordIncorrect}`,
         },
     );
 
