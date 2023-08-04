@@ -17,6 +17,7 @@ import { v4 } from "uuid";
 import { ServiceCloudStorageUserFiles } from "../../v1/service/cloudStorage/CloudStorageUserFiles";
 import { ServiceUserPhone } from "../../v1/service/user/UserPhone";
 import { FileConvertStep, FileResourceType } from "../../model/cloudStorage/Constants";
+import { ServiceUser } from "../../v1/service/user/User";
 
 export abstract class AbstractLogin {
     protected readonly userUUID: string;
@@ -49,6 +50,7 @@ export abstract class AbstractLogin {
                 ...userInfo,
                 userUUID: this.userUUID,
                 hasPhone: await ServiceUserPhone.exist(this.userUUID),
+                hasPassword: await ServiceUser.hasPassword(this.userUUID),
             }),
             60 * 60,
         );

@@ -8,6 +8,7 @@ import { v4 } from "uuid";
 import { LoginPlatform, Status } from "../../../../constants/Project";
 import { Apple } from "../../../../constants/Config";
 import { ServiceUserPhone } from "../../../service/user/UserPhone";
+import { ServiceUser } from "../../../service/user/User";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -78,6 +79,7 @@ export class AppleJWT extends AbstractController<RequestType, ResponseType> {
                     loginSource: LoginPlatform.Apple,
                 }),
                 hasPhone: await ServiceUserPhone.exist(this.userUUID),
+                hasPassword: await ServiceUser.hasPassword(this.userUUID),
             },
         };
     }
@@ -100,4 +102,5 @@ interface ResponseType {
     userUUID: string;
     token: string;
     hasPhone: boolean;
+    hasPassword: boolean;
 }
