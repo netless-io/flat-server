@@ -116,10 +116,10 @@ export class SMS {
 
         if (resp.body.code !== "OK") {
             this.logger.error("send message failed");
-            return true;
+            return false;
         } else {
             this.logger.debug("send message success");
-            return false;
+            return true;
         }
     }
 
