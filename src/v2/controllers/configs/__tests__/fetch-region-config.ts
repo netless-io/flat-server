@@ -1,13 +1,12 @@
 import test from "ava";
 import { HelperAPI } from "../../../__tests__/helpers/api";
-import { regionConfigs, regionConfigsRouters } from "../regionConfigs";
+import { regionConfigs, regionConfigsRouters } from "../region-configs";
 import { initializeDataSource } from "../../../__tests__/helpers/db/test-hooks";
 
 const namespace = "v2.controllers.region.configs";
 initializeDataSource(test, namespace);
 
 test(`${namespace} - fetch region configs`, async ava => {
-
     const helperAPI = new HelperAPI();
     await helperAPI.import(regionConfigsRouters, regionConfigs);
 
@@ -16,8 +15,8 @@ test(`${namespace} - fetch region configs`, async ava => {
             method: "GET",
             url: "/v2/region/configs",
         });
-        const s = resp.payload
-        console.log(s)
+        const s = resp.payload;
+        console.log(s);
         ava.is(resp.statusCode, 200);
         const data = (await resp.json()).data;
         ava.true(data.login.wechatWeb);
@@ -31,5 +30,4 @@ test(`${namespace} - fetch region configs`, async ava => {
         ava.is(data.server.region, "CN");
         ava.is(data.server.regionCode, 1);
     }
-
 });
