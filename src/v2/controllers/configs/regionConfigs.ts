@@ -5,8 +5,17 @@ import { Type } from "@sinclair/typebox";
 import { successJSON } from "../internal/utils/response-json";
 
 import {
-    Server as ServerConfig, WeChat, Github, Google, Apple, AgoraLogin,
-    PhoneSMS, Whiteboard, Agora, CloudStorage
+    Server as ServerConfig,
+    WeChat,
+    Github,
+    Google,
+    Apple,
+    AgoraLogin,
+    PhoneSMS,
+    Whiteboard,
+    Agora,
+    CloudStorage,
+    StorageService,
 } from "../../../constants/Config";
 
 type regionConfigsResponseSchema = {
@@ -19,23 +28,37 @@ type regionConfigsResponseSchema = {
         agora: boolean;
         sms: boolean;
         smsForce: boolean;
-    },
+    };
     server: {
         region: string;
         regionCode: number;
         env: string;
-    },
+    };
     whiteboard: {
+        appId: string;
         convertRegion: string;
-    },
+    };
     agora: {
+        clientId: string;
+        appId: string;
         screenshot: boolean;
         messageNotification: boolean;
-    },
+    };
+    github: {
+        clientId: string;
+    };
+    wechat: {
+        webAppId: string;
+        mobileAppId: string;
+    };
+    google: {
+        clientId: string;
+    };
     cloudStorage: {
         singleFileSize: number;
-        totleSize: number;
+        totalSize: number;
         allowFileSuffix: Array<String>;
+        accessKey: string;
     };
 };
 
@@ -58,17 +81,31 @@ export const regionConfigs = async (): Promise<ResponseSuccess<regionConfigsResp
             env: ServerConfig.env,
         },
         whiteboard: {
-            convertRegion: Whiteboard.convertRegion
+            appId: Whiteboard.appId,
+            convertRegion: Whiteboard.convertRegion,
         },
         agora: {
+            clientId: AgoraLogin.clientId,
+            appId: Agora.appId,
             screenshot: Agora.screenshot.enable,
             messageNotification: Agora.messageNotification.enable,
         },
+        github: {
+            clientId: Github.clientId,
+        },
+        wechat: {
+            webAppId: WeChat.web.appId,
+            mobileAppId: WeChat.mobile.appId,
+        },
+        google: {
+            clientId: Google.clientId,
+        },
         cloudStorage: {
             singleFileSize: CloudStorage.singleFileSize,
-            totleSize: CloudStorage.totalSize,
+            totalSize: CloudStorage.totalSize,
             allowFileSuffix: CloudStorage.allowFileSuffix,
-        }
+            accessKey: StorageService.oss.accessKey,
+        },
     });
 };
 

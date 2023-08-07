@@ -195,6 +195,7 @@ type Config = {
         };
     };
     whiteboard: {
+        app_id: string;
         access_key: string;
         secret_access_key: string;
         convert_region: "cn-hz" | "us-sv" | "sg" | "in-mum" | "gb-lon";
