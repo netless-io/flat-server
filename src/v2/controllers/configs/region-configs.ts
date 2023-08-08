@@ -16,6 +16,7 @@ import {
     Agora,
     CloudStorage,
     StorageService,
+    Censorship,
 } from "../../../constants/Config";
 
 type regionConfigsResponseSchema = {
@@ -59,6 +60,11 @@ type regionConfigsResponseSchema = {
         totalSize: number;
         allowFileSuffix: Array<String>;
         accessKey: string;
+    };
+    censorship: {
+        video: boolean;
+        voice: boolean;
+        text: boolean;
     };
 };
 
@@ -105,6 +111,11 @@ export const regionConfigs = async (): Promise<ResponseSuccess<regionConfigsResp
             totalSize: CloudStorage.totalSize,
             allowFileSuffix: CloudStorage.allowFileSuffix,
             accessKey: StorageService.oss.accessKey,
+        },
+        censorship: {
+            video: Censorship.video.enable,
+            voice: Censorship.voice.enable,
+            text: Censorship.text.enable,
         },
     });
 };
