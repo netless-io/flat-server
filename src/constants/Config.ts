@@ -161,6 +161,7 @@ export const JWT = {
 };
 
 export const Whiteboard = {
+    appId: config.whiteboard.app_id,
     accessKey: config.whiteboard.access_key,
     secretAccessKey: config.whiteboard.secret_access_key,
     convertRegion: config.whiteboard.convert_region,

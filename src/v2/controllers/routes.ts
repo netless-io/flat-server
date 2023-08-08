@@ -5,7 +5,7 @@ import { applicationRouters } from "./application/routes";
 import { roomRouters } from "./room/routes";
 import { oauthRouters } from "./auth2/routes";
 import { tempPhotoRouters } from "./temp-photo/routes";
-import { regionConfigsRouters } from "./configs/regionConfigs";
+import { regionConfigsRouters } from "./configs/region-configs";
 import { registerRouters } from "./register/routes";
 import { loginRouters } from "./login/routes";
 import { resetRouters } from "./reset/routes";
