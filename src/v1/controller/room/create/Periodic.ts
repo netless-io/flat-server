@@ -23,6 +23,7 @@ import { rtcQueue } from "../../../queue";
 import { aliGreenText } from "../../../utils/AliGreen";
 import { ControllerError } from "../../../../error/ControllerError";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
+import { Whiteboard } from "../../../../constants/Config";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -33,7 +34,7 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
     public static readonly schema: FastifySchema<RequestType> = {
         body: {
             type: "object",
-            required: ["title", "type", "beginTime", "endTime", "region", "periodic"],
+            required: ["title", "type", "beginTime", "endTime", "periodic"],
             properties: {
                 title: {
                     type: "string",
@@ -54,6 +55,7 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
                 region: {
                     type: "string",
                     enum: [Region.CN_HZ, Region.US_SV, Region.SG, Region.IN_MUM, Region.GB_LON],
+                    nullable: true,
                 },
                 periodic: {
                     type: "object",
@@ -105,7 +107,8 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
     private readonly periodicUUID = v4();
 
     public async execute(): Promise<Response<ResponseType>> {
-        const { title, type, beginTime, endTime, region, periodic } = this.body;
+        const region = Whiteboard.region as Region;
+        const { title, type, beginTime, endTime, periodic } = this.body;
         const userUUID = this.userUUID;
 
         if (await aliGreenText.textNonCompliant(title)) {
@@ -224,7 +227,7 @@ interface RequestType {
         type: RoomType;
         beginTime: number;
         endTime: number;
-        region: Region;
+        region?: Region;
         periodic: Periodic;
     };
 }

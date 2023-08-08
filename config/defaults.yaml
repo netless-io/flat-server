@@ -180,6 +180,7 @@ whiteboard:
   app_id:
   access_key:
   secret_access_key:
+  region:
   convert_region:
 
 storage_service:

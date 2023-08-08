@@ -25,7 +25,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
     public static readonly schema: FastifySchema<RequestType> = {
         body: {
             type: "object",
-            required: ["title", "type", "region"],
+            required: ["title", "type"],
             properties: {
                 title: {
                     type: "string",
@@ -48,6 +48,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
                 region: {
                     type: "string",
                     enum: [Region.CN_HZ, Region.US_SV, Region.SG, Region.IN_MUM, Region.GB_LON],
+                    nullable: true,
                 },
             },
         },
@@ -128,7 +129,7 @@ export interface RequestType {
         type: RoomType;
         beginTime?: number;
         endTime?: number;
-        region: Region;
+        region?: Region;
     };
 }
 

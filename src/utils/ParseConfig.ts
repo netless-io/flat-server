@@ -201,6 +201,7 @@ type Config = {
         app_id: string;
         access_key: string;
         secret_access_key: string;
+        region: "cn-hz" | "us-sv" | "sg" | "in-mum" | "gb-lon";
         convert_region: "cn-hz" | "us-sv" | "sg" | "in-mum" | "gb-lon";
     };
     storage_service: {
