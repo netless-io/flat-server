@@ -4,6 +4,7 @@ import { Server } from "../../../utils/registryRoutersV2";
 import { Type } from "@sinclair/typebox";
 import { successJSON } from "../internal/utils/response-json";
 
+import { configHash } from "../../../utils/ParseConfig";
 import {
     Server as ServerConfig,
     WeChat,
@@ -20,6 +21,7 @@ import {
 } from "../../../constants/Config";
 
 type regionConfigsResponseSchema = {
+    hash: string;
     login: {
         wechatWeb: boolean;
         wechatMobile: boolean;
@@ -71,6 +73,7 @@ type regionConfigsResponseSchema = {
 // export for unit test
 export const regionConfigs = async (): Promise<ResponseSuccess<regionConfigsResponseSchema>> => {
     return successJSON({
+        hash: configHash,
         login: {
             wechatWeb: WeChat.web.enable,
             wechatMobile: WeChat.mobile.enable,

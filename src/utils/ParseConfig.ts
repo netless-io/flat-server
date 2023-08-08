@@ -1,6 +1,7 @@
 import yaml from "js-yaml";
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 
 const configDirPath =
     process.env.IS_TEST === "yes"
@@ -23,6 +24,8 @@ const configPath = (() => {
 })();
 
 const yamlContent = fs.readFileSync(configPath, "utf8");
+
+export const configHash = crypto.createHash("md5").update(yamlContent).digest("hex");
 
 export const config = yaml.load(yamlContent) as Config;
 
