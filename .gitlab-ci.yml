@@ -118,6 +118,13 @@ deploy_dev_cn:
   extends: .cn
   <<: *DEV
 
+deploy_dev_sg:
+  <<: *DEPLOY
+  extends: .sg
+  variables:
+    DOCKER_TAG: dev-$CI_COMMIT_SHA
+  <<: *DEV
+
 deploy_prod_cn:
   <<: *DEPLOY
   extends: .cn
@@ -129,5 +136,5 @@ deploy_prod_sg:
   <<: *DEPLOY
   extends: .sg
   variables:
-    DOCKER_TAG: dev-$CI_COMMIT_SHA
-  <<: *DEV
+    DOCKER_TAG: $CI_COMMIT_SHA
+  <<: *PROD
