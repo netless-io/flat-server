@@ -35,6 +35,10 @@ export const Salt = config.login.salt;
 
 export const Website = config.website;
 
+/** @param index 0..17 */
+export const defaultAvatar = (index: number): string =>
+    config.default_avatar.replace("[index]", String(index));
+
 export const WeChat = {
     web: {
         enable: config.login.wechat.web.enable,

@@ -12,6 +12,7 @@ import { RedisKey } from "../../../utils/Redis";
 import { MessageExpirationSecond, MessageIntervalSecond } from "../../constants";
 import { userDAO, userEmailDAO, userPhoneDAO } from "../../dao";
 import { setGuidePPTX } from "./utils";
+import { generateAvatar } from "../../../utils/Avatar";
 
 export class UserEmailService {
     private readonly logger = createLoggerService<"userEmail">({
@@ -103,11 +104,12 @@ export class UserEmailService {
 
         const userUUID = v4();
         const userName = email.split("@")[0];
+        const avatarURL = generateAvatar(userUUID);
 
         const createUser = userDAO.insert(this.DBTransaction, {
             user_name: userName,
             user_uuid: userUUID,
-            avatar_url: "",
+            avatar_url: avatarURL,
             user_password: password,
         });
 
@@ -122,7 +124,7 @@ export class UserEmailService {
 
         const result: EmailRegisterReturn = {
             name: userName,
-            avatar: "",
+            avatarURL,
             userUUID,
             token: await jwtSign(userUUID),
             hasPhone: false,

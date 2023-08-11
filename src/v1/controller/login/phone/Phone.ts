@@ -11,6 +11,7 @@ import { ControllerError } from "../../../../error/ControllerError";
 import { ErrorCode } from "../../../../ErrorCode";
 import { LoginPhone } from "../platforms/LoginPhone";
 import { LoginPlatform, Status } from "../../../../constants/Project";
+import { generateAvatar } from "../../../../utils/Avatar";
 
 @Controller<RequestType, any>({
     method: "post",
@@ -59,10 +60,7 @@ export class PhoneLogin extends AbstractController<RequestType, ResponseType> {
         if (!userUUIDByDB) {
             await loginPhone.register({
                 phone,
-                // apple does not provide the user's avatar information, so the default avatar is used here
-                // TODO: add user change avatar image api
-                avatarURL:
-                    "https://flat-storage.oss-cn-hangzhou.aliyuncs.com/flat-resources/avatar/default-00.png",
+                avatarURL: generateAvatar(userUUID),
             });
         }
 
