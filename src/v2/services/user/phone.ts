@@ -119,7 +119,7 @@ export class UserPhoneService {
 
         const result: PhoneRegisterReturn = {
             name: userName,
-            avatarURL: "",
+            avatar: "",
             userUUID,
             token: await jwtSign(userUUID),
             hasPhone: true,
@@ -197,7 +197,7 @@ export class UserPhoneService {
 
         return {
             name: user.user_name,
-            avatarURL: user.avatar_url,
+            avatar: user.avatar_url,
             userUUID: userUUIDByPhone,
             token: await jwtSign(userUUIDByPhone),
             hasPhone: true,
@@ -270,7 +270,7 @@ export class UserPhoneService {
 
 export type PhoneRegisterReturn = {
     name: string;
-    avatarURL: string;
+    avatar: string;
     userUUID: string;
     token: string;
     hasPhone: boolean;

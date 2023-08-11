@@ -122,7 +122,7 @@ export class UserEmailService {
 
         const result: EmailRegisterReturn = {
             name: userName,
-            avatarURL: "",
+            avatar: "",
             userUUID,
             token: await jwtSign(userUUID),
             hasPhone: false,
@@ -197,7 +197,7 @@ export class UserEmailService {
 
         return {
             name: user.user_name,
-            avatarURL: user.avatar_url,
+            avatar: user.avatar_url,
             userUUID: userUUIDByEmail,
             token: await jwtSign(userUUIDByEmail),
             hasPhone: await this.hasPhone(userUUIDByEmail),
@@ -307,7 +307,7 @@ export class UserEmailService {
 
 export type EmailRegisterReturn = {
     name: string;
-    avatarURL: string;
+    avatar: string;
     userUUID: string;
     token: string;
     hasPhone: boolean;
