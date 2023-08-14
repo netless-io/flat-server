@@ -59,6 +59,8 @@ export class ServiceRoom {
         data: {
             title: string;
             type: RoomType;
+            /** unused */
+            region?: Region;
             beginTime?: number | Date;
             endTime?: number | Date;
         },
