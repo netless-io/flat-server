@@ -9,6 +9,7 @@ import { RoomStatus, RoomType } from "../../../model/room/Constants";
 import { whiteboardCreateRoom } from "../../utils/request/whiteboard/WhiteboardRequest";
 import { addHours, toDate } from "date-fns/fp";
 import { InsertResult } from "typeorm/query-builder/result/InsertResult";
+import { Whiteboard } from "../../../constants/Config";
 
 export class ServiceRoom {
     constructor(private readonly roomUUID: string, private readonly userUUID: string) {}
@@ -58,13 +59,13 @@ export class ServiceRoom {
         data: {
             title: string;
             type: RoomType;
-            region: Region;
             beginTime?: number | Date;
             endTime?: number | Date;
         },
         t?: EntityManager,
     ): Promise<InsertResult> {
-        const { title, type, region, endTime } = data;
+        const region = Whiteboard.region as Region;
+        const { title, type, endTime } = data;
         const beginTime = data.beginTime || Date.now();
 
         return await RoomDAO(t).insert({

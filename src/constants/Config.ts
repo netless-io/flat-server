@@ -168,6 +168,7 @@ export const Whiteboard = {
     appId: config.whiteboard.app_id,
     accessKey: config.whiteboard.access_key,
     secretAccessKey: config.whiteboard.secret_access_key,
+    region: config.whiteboard.region,
     convertRegion: config.whiteboard.convert_region,
 };
 
