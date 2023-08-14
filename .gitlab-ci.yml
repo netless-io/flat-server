@@ -109,7 +109,7 @@ docker_build_prod:
         helm install stakater-reloader stakater/reloader --set reloader.watchGlobally=false --namespace $KUBE_NAMESPACE
       fi
 
-    - helm upgrade --install flat-server-$CI_ENVIRONMENT_SLUG helm --namespace $KUBE_NAMESPACE --set replicaCount=$REPLICA_COUNT
+    - helm upgrade --install flat-server-$HELM_NAME helm --namespace $KUBE_NAMESPACE --set replicaCount=$REPLICA_COUNT
 
 deploy_dev_cn:
   <<: *DEPLOY
@@ -117,6 +117,7 @@ deploy_dev_cn:
     DOCKER_TAG: dev-$CI_COMMIT_SHA
     KUBE_NAMESPACE: default
     REPLICA_COUNT: 2
+    HELM_NAME: flat-server-development
   extends: .cn
   <<: *DEV
 
@@ -127,6 +128,7 @@ deploy_dev_sg:
     DOCKER_TAG: dev-$CI_COMMIT_SHA
     KUBE_NAMESPACE: sg
     REPLICA_COUNT: 2
+    HELM_NAME: flat-server-sg-development
   <<: *DEV
 
 deploy_prod_cn:
@@ -135,6 +137,7 @@ deploy_prod_cn:
   variables:
     DOCKER_TAG: $CI_COMMIT_SHA
     REPLICA_COUNT: 3
+    HELM_NAME: flat-server-production
   <<: *PROD
 
 deploy_prod_sg:
@@ -143,4 +146,5 @@ deploy_prod_sg:
   variables:
     DOCKER_TAG: $CI_COMMIT_SHA
     REPLICA_COUNT: 3
+    HELM_NAME: flat-server-production
   <<: *PROD
