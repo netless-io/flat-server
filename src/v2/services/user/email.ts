@@ -124,7 +124,7 @@ export class UserEmailService {
 
         const result: EmailRegisterReturn = {
             name: userName,
-            avatarURL,
+            avatar: avatarURL,
             userUUID,
             token: await jwtSign(userUUID),
             hasPhone: false,
