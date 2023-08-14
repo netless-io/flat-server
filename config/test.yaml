@@ -25,6 +25,8 @@ jwt:
 
 website: https://flat-web-dev.whiteboard.agora.io
 
+default_avatar: https://flat-storage.oss-cn-hangzhou.aliyuncs.com/flat-resources/avatar/[index].png
+
 log:
   pathname: "{{PROJECT_DIR}}/logs"
   filename: "{{DAY_DATE}}"

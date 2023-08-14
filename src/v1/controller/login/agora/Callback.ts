@@ -9,6 +9,7 @@ import { Controller } from "../../../../decorator/Controller";
 import { LoginAgora } from "../platforms/LoginAgora";
 import { ServiceUserAgora } from "../../../service/user/UserAgora";
 import { AgoraLogin, Website } from "../../../../constants/Config";
+import { generateAvatar } from "../../../../utils/Avatar";
 
 @Controller<RequestType, any>({
     method: "get",
@@ -54,9 +55,7 @@ export class AgoraCallback extends AbstractController<RequestType> {
                 ...userInfo,
                 userName: userInfo.userName || "Agora User",
                 // apple does not provide the user's avatar information, so the default avatar is used here
-                // TODO: add user change avatar image api
-                avatarURL:
-                    "https://flat-storage.oss-cn-hangzhou.aliyuncs.com/flat-resources/avatar/default-00.png",
+                avatarURL: generateAvatar(userUUID),
             });
         }
 

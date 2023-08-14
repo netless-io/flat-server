@@ -12,6 +12,7 @@ import { SMS, SMSUtils } from "../../../utils/SMS";
 import { MessageExpirationSecond, MessageIntervalSecond } from "../../constants";
 import { userDAO, userPhoneDAO } from "../../dao";
 import { setGuidePPTX } from "./utils";
+import { generateAvatar } from "../../../utils/Avatar";
 
 export class UserPhoneService {
     private readonly logger = createLoggerService<"userPhone">({
@@ -99,11 +100,12 @@ export class UserPhoneService {
 
         const userUUID = v4();
         const userName = safePhone.slice(-4);
+        const avatarURL = generateAvatar(userUUID);
 
         const createUser = userDAO.insert(this.DBTransaction, {
             user_name: userName,
             user_uuid: userUUID,
-            avatar_url: "",
+            avatar_url: avatarURL,
             user_password: password,
         });
 
@@ -119,7 +121,7 @@ export class UserPhoneService {
 
         const result: PhoneRegisterReturn = {
             name: userName,
-            avatar: "",
+            avatar: avatarURL,
             userUUID,
             token: await jwtSign(userUUID),
             hasPhone: true,

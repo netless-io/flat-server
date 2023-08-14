@@ -56,6 +56,7 @@ type Config = {
         algorithms: string;
     };
     website: string;
+    default_avatar: string;
     log: {
         pathname: string;
         filename: string;

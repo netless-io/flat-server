@@ -9,6 +9,7 @@ import { LoginPlatform, Status } from "../../../../constants/Project";
 import { Apple } from "../../../../constants/Config";
 import { ServiceUserPhone } from "../../../service/user/UserPhone";
 import { ServiceUser } from "../../../service/user/User";
+import { generateAvatar } from "../../../../utils/Avatar";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -56,9 +57,7 @@ export class AppleJWT extends AbstractController<RequestType, ResponseType> {
             await loginApple.register({
                 unionUUID: appleID,
                 // apple does not provide the user's avatar information, so the default avatar is used here
-                // TODO: add user change avatar image api
-                avatarURL:
-                    "https://flat-storage.oss-cn-hangzhou.aliyuncs.com/flat-resources/avatar/default-00.png",
+                avatarURL: generateAvatar(userUUID),
                 // Apple nickname will only exist at the first registration
                 // so basically there must be a nickname here
                 // also to be on the conservative side, additional judgement logic has been added here
