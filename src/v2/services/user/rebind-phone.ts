@@ -40,7 +40,7 @@ type UserPlatform =
     | UserAgoraModel
     | UserGoogleModel;
 
-type RebindStatusKey = Exclude<LoginPlatform, LoginPlatform.Phone>;
+type RebindStatusKey = Lowercase<Exclude<LoginPlatform, LoginPlatform.Phone>>;
 enum RebindStatusVal {
     NotChanged = -1,
     Success = 0,
@@ -127,12 +127,12 @@ export class UserRebindPhoneService {
 
         // Move binding data from this.userUUID to original.user_uuid
         const status: RebindStatus = {
-            Agora: RebindStatusVal.NotChanged,
-            Apple: RebindStatusVal.NotChanged,
-            Github: RebindStatusVal.NotChanged,
-            Google: RebindStatusVal.NotChanged,
-            WeChat: RebindStatusVal.NotChanged,
-            Email: RebindStatusVal.NotChanged,
+            agora: RebindStatusVal.NotChanged,
+            apple: RebindStatusVal.NotChanged,
+            github: RebindStatusVal.NotChanged,
+            google: RebindStatusVal.NotChanged,
+            wechat: RebindStatusVal.NotChanged,
+            email: RebindStatusVal.NotChanged,
         };
 
         await this.tryUpdate(userAgoraDAO, original.user_uuid, status, LoginPlatform.Agora);
@@ -206,12 +206,14 @@ export class UserRebindPhoneService {
         dao: DAO<UserPlatform>,
         user_uuid: string,
         status: RebindStatus,
-        key: RebindStatusKey,
+        platform: LoginPlatform,
     ) {
         const [original, current] = await Promise.all([
             this.exists(dao, user_uuid),
             this.exists(dao, this.userUUID),
         ]);
+        const key = platform.toLowerCase() as RebindStatusKey;
+
         // Do not update the existing value
         if (original && current) {
             status[key] = RebindStatusVal.Failed;
@@ -227,7 +229,7 @@ export class UserRebindPhoneService {
             status[key] = RebindStatusVal.Success;
 
             // Record sensitive data, currently only WeChat is affected
-            if (key === LoginPlatform.WeChat) {
+            if (platform === LoginPlatform.WeChat) {
                 await userSensitiveDAO.update(
                     this.DBTransaction,
                     { user_uuid: user_uuid },
