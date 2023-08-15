@@ -73,6 +73,14 @@ export class UserRebindPhoneService {
                 throw new FError(ErrorCode.SMSAlreadyExist);
             }
 
+            const original = await userPhoneDAO.findOne(this.DBTransaction, ["id"], {
+                phone_number: phone,
+            });
+            if (!original) {
+                this.logger.info("not found user by phone", { rebindPhone: { phone, safePhone } });
+                throw new FError(ErrorCode.UserNotFound);
+            }
+
             const success = await sms.send();
             if (!success) {
                 throw new FError(ErrorCode.SMSFailedToSendCode);
