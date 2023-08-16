@@ -29,20 +29,66 @@ export class BindingList extends AbstractController<RequestType, ResponseType> {
     };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const result = {} as Record<Lowercase<LoginPlatform>, boolean>;
+        const result = { meta: {} } as ResponseType;
 
-        await Promise.all(
-            Object.keys(this.svc).map(svc => {
-                return this.svc[svc as LoginPlatform].exist().then(exist => {
-                    result[svc.toLowerCase() as Lowercase<LoginPlatform>] = exist;
-                });
-            }),
-        );
+        this.svc[LoginPlatform.WeChat].name();
+
+        await Promise.all([
+            this.listWeChat(result),
+            this.listPhone(result),
+            this.listAgora(result),
+            this.listApple(result),
+            this.listGithub(result),
+            this.listGoogle(result),
+            this.listEmail(result),
+        ]);
 
         return {
             status: Status.Success,
             data: result,
         };
+    }
+
+    private async listWeChat(result: ResponseType): Promise<void> {
+        const name = await this.svc[LoginPlatform.WeChat].name();
+        result.wechat = name !== null;
+        result.meta.wechat = name || "";
+    }
+
+    private async listPhone(result: ResponseType): Promise<void> {
+        const phone = await this.svc[LoginPlatform.Phone].phoneNumber();
+        result.phone = phone !== null;
+        result.meta.phone = phone || "";
+    }
+
+    private async listAgora(result: ResponseType): Promise<void> {
+        const agora = await this.svc[LoginPlatform.Agora].name();
+        result.agora = agora !== null;
+        result.meta.agora = agora || "";
+    }
+
+    private async listApple(result: ResponseType): Promise<void> {
+        const agora = await this.svc[LoginPlatform.Apple].name();
+        result.agora = agora !== null;
+        result.meta.agora = agora || "";
+    }
+
+    private async listGithub(result: ResponseType): Promise<void> {
+        const github = await this.svc[LoginPlatform.Github].name();
+        result.github = github !== null;
+        result.meta.github = github || "";
+    }
+
+    private async listGoogle(result: ResponseType): Promise<void> {
+        const google = await this.svc[LoginPlatform.Google].name();
+        result.google = google !== null;
+        result.meta.google = google || "";
+    }
+
+    private async listEmail(result: ResponseType): Promise<void> {
+        const email = await this.svc[LoginPlatform.Email].email();
+        result.email = email !== null;
+        result.meta.email = email || "";
     }
 
     public errorHandler(error: Error): ResponseError {
@@ -52,4 +98,6 @@ export class BindingList extends AbstractController<RequestType, ResponseType> {
 
 interface RequestType {}
 
-type ResponseType = Record<Lowercase<LoginPlatform>, boolean>;
+type ResponseType = Record<Lowercase<LoginPlatform>, boolean> & {
+    meta: Record<Lowercase<LoginPlatform>, string>;
+};
