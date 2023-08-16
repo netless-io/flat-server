@@ -37,6 +37,23 @@ export class ServiceUserEmail {
         return !!result;
     }
 
+    public async email(): Promise<string | null> {
+        const result = await UserEmailDAO().findOne(["user_email"], {
+            user_uuid: this.userUUID,
+        });
+
+        return result ? this.desensitiveEmail(result.user_email) : null;
+    }
+
+    private desensitiveEmail(email: string): string {
+        const at = email.indexOf("@");
+        if (at < 0) return email.slice(0, -3) + "***";
+
+        const name = email.slice(0, at);
+        const suffix = email.slice(at);
+        return name.slice(0, -3) + "***" + suffix;
+    }
+
     public async existEmail(email: string): Promise<boolean> {
         return await ServiceUserEmail.existEmail(email);
     }

@@ -39,6 +39,18 @@ export class ServiceUserPhone {
         return !!result;
     }
 
+    public async phoneNumber(): Promise<string | null> {
+        const result = await UserPhoneDAO().findOne(["phone_number"], {
+            user_uuid: this.userUUID,
+        });
+
+        return result ? this.desensitivePhone(result.phone_number) : null;
+    }
+
+    private desensitivePhone(phone: string): string {
+        return phone.slice(0, -8) + "****" + phone.slice(-4);
+    }
+
     public async existPhone(phone: string): Promise<boolean> {
         return await ServiceUserPhone.existPhone(phone);
     }
