@@ -18,6 +18,7 @@ import { ServiceCloudStorageUserFiles } from "../../v1/service/cloudStorage/Clou
 import { ServiceUserPhone } from "../../v1/service/user/UserPhone";
 import { FileConvertStep, FileResourceType } from "../../model/cloudStorage/Constants";
 import { ServiceUser } from "../../v1/service/user/User";
+import { Whiteboard } from "../../constants/Config";
 
 export abstract class AbstractLogin {
     protected readonly userUUID: string;
@@ -64,49 +65,31 @@ export abstract class AbstractLogin {
         },
         t: EntityManager,
     ): Promise<any> {
-        const [cnFileUUID, enFileUUID] = [v4(), v4()];
-        const [cnName, enName] = ["开始使用 Flat.pptx", "Get Started with Flat.pptx"];
-        const [cnPPTXPath, enPPTXPath] = [
-            getFilePath(cnName, cnFileUUID),
-            getFilePath(enName, enFileUUID),
-        ];
-        const [cnFileSize, enFileSize] = [5027927, 5141265];
+        const CN = Whiteboard.convertRegion === "cn-hz";
 
-        await Promise.all([
-            ossClient.copy(cnPPTXPath, AbstractLogin.guidePPTX, {
-                headers: { "Content-Disposition": getDisposition(cnName) },
-            }),
-            ossClient.copy(enPPTXPath, AbstractLogin.guidePPTX, {
-                headers: { "Content-Disposition": getDisposition(enName) },
-            }),
-        ]);
+        const fileUUID = v4();
+        const name = CN ? "开始使用 Flat.pptx" : "Get Started with Flat.pptx";
+        const pptxPath = getFilePath(name, fileUUID);
+        const fileSize = CN ? 5027927 : 5141265;
+
+        await ossClient.copy(pptxPath, AbstractLogin.guidePPTX, {
+            headers: { "Content-Disposition": getDisposition(name) },
+        });
 
         return Promise.all([
-            svc.cloudStorageConfigs.createOrUpdate(cnFileSize + enFileSize, t),
+            svc.cloudStorageConfigs.createOrUpdate(fileSize, t),
             svc.cloudStorageFiles.create({
                 payload: {
                     region: Region.CN_HZ,
                     convertStep: FileConvertStep.None,
                 },
-                fileURL: getOSSFileURLPath(cnPPTXPath),
-                fileSize: cnFileSize,
-                fileUUID: cnFileUUID,
-                fileName: cnName,
+                fileURL: getOSSFileURLPath(pptxPath),
+                fileSize: fileSize,
+                fileUUID: fileUUID,
+                fileName: name,
                 resourceType: FileResourceType.WhiteboardProjector,
             }),
-            svc.cloudStorageFiles.create({
-                payload: {
-                    region: Region.US_SV,
-                    convertStep: FileConvertStep.None,
-                },
-                fileURL: getOSSFileURLPath(enPPTXPath),
-                fileSize: enFileSize,
-                fileUUID: enFileUUID,
-                fileName: enName,
-                resourceType: FileResourceType.WhiteboardProjector,
-            }),
-            svc.cloudStorageUserFiles.create(cnFileUUID),
-            svc.cloudStorageUserFiles.create(enFileUUID),
+            svc.cloudStorageUserFiles.create(fileUUID),
         ]);
     }
 
