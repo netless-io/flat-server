@@ -4,7 +4,7 @@ import { AbstractController } from "../../../../../../abstract/controller";
 import { FastifySchema, Response, ResponseError } from "../../../../../../types/Server";
 import RedisService from "../../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../../utils/Redis";
-import { Email } from "../../../../../../utils/Email";
+import { Email, EmailUtils } from "../../../../../../utils/Email";
 import { Status } from "../../../../../../constants/Project";
 import { MessageExpirationSecond, MessageIntervalSecond } from "./Constants";
 import { ServiceUserEmail } from "../../../../../service/user/UserEmail";
@@ -27,6 +27,10 @@ export class SendMessage extends AbstractController<RequestType, ResponseType> {
                     type: "string",
                     format: "email",
                 },
+                language: {
+                    type: "string",
+                    nullable: true,
+                },
             },
         },
     };
@@ -36,12 +40,13 @@ export class SendMessage extends AbstractController<RequestType, ResponseType> {
     };
 
     public async execute(): Promise<Response<ResponseType>> {
-        const { email } = this.body;
+        const { email, language } = this.body;
+
         const sms = new Email(email, {
             tagName: "bind",
-            subject: "Flat Verification Code",
+            subject: EmailUtils.getSubject("bind", language),
             htmlBody: (email: string, code: string) =>
-                `Hello, ${email}! Please enter the verification code within 10 minutes:<br><br><h1 style="text-align:center">${code}</h1><br><br><Currently, Flat is actively under development. If you encounter any issues during usage, please feel free to contact me for feedback. It is growing day by day, and we are delighted to share this joy with you.<br><br>Thanks and Regards,<br>Leo Yang<br>Flat PM<br><a href="mailto:yangliu02@agora.io">yangliu02@agora.io</a>`,
+                EmailUtils.getMessage("bind", email, code, language),
         });
 
         if (await SendMessage.canSend(email)) {
@@ -93,6 +98,7 @@ export class SendMessage extends AbstractController<RequestType, ResponseType> {
 interface RequestType {
     body: {
         email: string;
+        language?: string;
     };
 }
 
