@@ -5,7 +5,6 @@ import { ErrorCode } from "../../ErrorCode";
 import { ControllerError } from "../../error/ControllerError";
 import { Logger, LoggerAPI } from "../../logger";
 import { getDisposition, ossClient } from "../../v1/controller/cloudStorage/alibabaCloud/Utils";
-import { Region } from "../../constants/Project";
 import {
     getFilePath,
     getOSSFileURLPath,
@@ -80,7 +79,7 @@ export abstract class AbstractLogin {
             svc.cloudStorageConfigs.createOrUpdate(fileSize, t),
             svc.cloudStorageFiles.create({
                 payload: {
-                    region: Region.CN_HZ,
+                    region: Whiteboard.convertRegion,
                     convertStep: FileConvertStep.None,
                 },
                 fileURL: getOSSFileURLPath(pptxPath),

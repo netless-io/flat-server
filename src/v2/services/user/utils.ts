@@ -2,7 +2,6 @@ import { EntityManager } from "typeorm";
 import { v4 } from "uuid";
 import { AbstractLogin } from "../../../abstract/login";
 import { Whiteboard } from "../../../constants/Config";
-import { Region } from "../../../constants/Project";
 import { FileConvertStep, FileResourceType } from "../../../model/cloudStorage/Constants";
 import {
     getFilePath,
@@ -36,7 +35,7 @@ export async function setGuidePPTX(t: EntityManager, userUUID: string): Promise<
         ),
         cloudStorageFilesDAO.insert(t, {
             payload: {
-                region: Region.CN_HZ,
+                region: Whiteboard.convertRegion,
                 convertStep: FileConvertStep.None,
             },
             file_url: getOSSFileURLPath(pptxPath),
