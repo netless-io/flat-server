@@ -9,6 +9,8 @@
     "test:sync:orm": "ts-node -r dotenv-flow/config scripts/sync-orm.ts -- --default-node-env=test --dotenv-flow-path=config",
     "test:local": "./scripts/prepare-test-env.sh && yarn run test:sync:orm && yarn run test",
     "test": "c8 --reporter=html ava",
+    "docker:local:up": "docker compose -f docker/docker-compose-local.yml up --detach",
+    "docker:local:down": "docker compose -f docker/docker-compose-local.yml down",
     "lint": "lint-staged"
   },
   "devDependencies": {

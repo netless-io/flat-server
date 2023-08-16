@@ -1,0 +1,29 @@
+version: '3'
+name: flat-server-local
+services:
+    redis:
+        image: redis
+        container_name: redis
+        ports:
+            - 7528:6379
+        volumes:
+            - redis_data:/data
+        environment:
+            - REDIS_PASSWORD=flat-server-test
+
+    mysql:
+        image: mysql
+        container_name: mysql
+        ports:
+            - 7519:3306
+        environment:
+            - MYSQL_ROOT_PASSWORD=flat-server-test
+            - MYSQL_DATABASE=flat_server
+        command:
+            --default-authentication-plugin=mysql_native_password
+        volumes:
+            - mysql_data:/var/lib/mysql
+
+volumes:
+    redis_data:
+    mysql_data:
