@@ -115,7 +115,10 @@ type Config = {
             enable: boolean;
             client_id: string;
             client_secret: string;
-            redirect_uri: string;
+            redirect_uri: {
+                login: string;
+                bind: string;
+            };
         };
         apple: {
             enable: boolean;

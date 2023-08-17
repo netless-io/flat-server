@@ -31,14 +31,17 @@ export class LoginGoogle extends AbstractLogin {
         });
     }
 
-    public static async getToken(code: string): Promise<string> {
+    public static async getToken(
+        route: keyof typeof Google.redirectURI,
+        code: string,
+    ): Promise<string> {
         const response = await ax.post<AccessToken>(
             "https://oauth2.googleapis.com/token",
             new URLSearchParams({
                 code,
                 client_id: Google.clientId,
                 client_secret: Google.clientSecret,
-                redirect_uri: Google.redirectURI,
+                redirect_uri: Google.redirectURI[route],
                 grant_type: "authorization_code",
             }),
         );
@@ -68,9 +71,10 @@ export class LoginGoogle extends AbstractLogin {
     }
 
     public static async getUserInfoAndToken(
+        route: keyof typeof Google.redirectURI,
         code: string,
     ): Promise<GoogleUserInfo & { accessToken: string }> {
-        const accessToken = await LoginGoogle.getToken(code);
+        const accessToken = await LoginGoogle.getToken(route, code);
         const userInfo = await LoginGoogle.getUserInfoByAPI(accessToken);
 
         return {
