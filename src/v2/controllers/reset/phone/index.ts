@@ -9,7 +9,7 @@ export const resetPhoneSchema = {
             phone: Type.String(),
             code: Type.Integer(),
             password: Type.String({
-                format: "password",
+                format: "user-password",
                 minLength: 8,
                 maxLength: 32,
             }),

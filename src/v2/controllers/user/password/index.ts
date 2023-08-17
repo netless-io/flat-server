@@ -8,13 +8,13 @@ export const userPasswordSchema = {
         {
             password: Type.Optional(
                 Type.String({
-                    format: "password",
+                    format: "user-password",
                     minLength: 8,
                     maxLength: 32,
                 }),
             ),
             newPassword: Type.String({
-                format: "password",
+                format: "user-password",
                 minLength: 8,
                 maxLength: 32,
             }),

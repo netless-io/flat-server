@@ -101,7 +101,7 @@ const directoryPath: FormatDefinition<string> = {
     },
 };
 
-const password: FormatDefinition<string> = {
+const userPassword: FormatDefinition<string> = {
     validate: str => {
         // 8..32 characters, at least one letter and one number
         return 8 <= str.length && str.length <= 32 && /[a-z]/i.test(str) && /\d/.test(str);
@@ -130,7 +130,7 @@ export const ajvSelfPlugin = (ajv: Ajv): void => {
     ajv.addFormat("phone", phone);
     ajv.addFormat("directory-name", directoryName);
     ajv.addFormat("directory-path", directoryPath);
-    ajv.addFormat("password", password);
+    ajv.addFormat("user-password", userPassword);
     ajv.addFormat("email", email);
 };
 
