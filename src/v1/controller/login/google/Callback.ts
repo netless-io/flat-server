@@ -48,7 +48,7 @@ export class GoogleCallback extends AbstractController<RequestType> {
 
         await LoginGoogle.assertHasAuthUUID(authUUID, this.logger);
 
-        const userInfo = await LoginGoogle.getUserInfoAndToken(code);
+        const userInfo = await LoginGoogle.getUserInfoAndToken("login", code);
 
         const userUUIDByDB = await ServiceUserGoogle.userUUIDByUnionUUID(userInfo.unionUUID);
 

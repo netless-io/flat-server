@@ -59,7 +59,7 @@ export class BindingGoogle extends AbstractController<RequestType, any> {
             throw new ControllerError(ErrorCode.UnsupportedOperation);
         }
 
-        const userInfo = await LoginGoogle.getUserInfoAndToken(code);
+        const userInfo = await LoginGoogle.getUserInfoAndToken("bind", code);
         const userUUIDByDB = await ServiceUserGoogle.userUUIDByUnionUUID(userInfo.unionUUID);
         if (userUUIDByDB) {
             throw new ControllerError(ErrorCode.UserAlreadyBinding);
