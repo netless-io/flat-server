@@ -31,8 +31,6 @@ export class BindingList extends AbstractController<RequestType, ResponseType> {
     public async execute(): Promise<Response<ResponseType>> {
         const result = { meta: {} } as ResponseType;
 
-        this.svc[LoginPlatform.WeChat].name();
-
         await Promise.all([
             this.listWeChat(result),
             this.listPhone(result),
@@ -68,9 +66,9 @@ export class BindingList extends AbstractController<RequestType, ResponseType> {
     }
 
     private async listApple(result: ResponseType): Promise<void> {
-        const agora = await this.svc[LoginPlatform.Apple].name();
-        result.agora = agora !== null;
-        result.meta.agora = agora || "";
+        const apple = await this.svc[LoginPlatform.Apple].name();
+        result.apple = apple !== null;
+        result.meta.apple = apple || "";
     }
 
     private async listGithub(result: ResponseType): Promise<void> {
