@@ -7,6 +7,9 @@ import { ax } from "../../../utils/Axios";
 import { Google } from "../../../../constants/Config";
 import { URLSearchParams } from "url";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
+import { ServiceCloudStorageFiles } from "../../../service/cloudStorage/CloudStorageFiles";
+import { ServiceCloudStorageConfigs } from "../../../service/cloudStorage/CloudStorageConfigs";
+import { ServiceCloudStorageUserFiles } from "../../../service/cloudStorage/CloudStorageUserFiles";
 
 @Login()
 export class LoginGoogle extends AbstractLogin {
@@ -18,6 +21,9 @@ export class LoginGoogle extends AbstractLogin {
         this.svc = {
             user: new ServiceUser(this.userUUID),
             userGoogle: new ServiceUserGoogle(this.userUUID),
+            cloudStorageFiles: new ServiceCloudStorageFiles(),
+            cloudStorageConfigs: new ServiceCloudStorageConfigs(this.userUUID),
+            cloudStorageUserFiles: new ServiceCloudStorageUserFiles(this.userUUID),
         };
     }
 
@@ -27,7 +33,11 @@ export class LoginGoogle extends AbstractLogin {
 
             const createUserGoogle = this.svc.userGoogle.create(info, t);
 
-            return await Promise.all([createUser, createUserGoogle]);
+            return await Promise.all([
+                createUser,
+                createUserGoogle,
+                this.setGuidePPTX(this.svc, t),
+            ]);
         });
     }
 
@@ -87,6 +97,9 @@ export class LoginGoogle extends AbstractLogin {
 interface RegisterService {
     user: ServiceUser;
     userGoogle: ServiceUserGoogle;
+    cloudStorageFiles: ServiceCloudStorageFiles;
+    cloudStorageUserFiles: ServiceCloudStorageUserFiles;
+    cloudStorageConfigs: ServiceCloudStorageConfigs;
 }
 
 interface RegisterInfo {
