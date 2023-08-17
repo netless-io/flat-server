@@ -12,7 +12,7 @@ export const loginEmailSchema = {
                 format: "email",
             }),
             password: Type.String({
-                format: "password",
+                format: "user-password",
                 minLength: 8,
                 maxLength: 32,
             }),
