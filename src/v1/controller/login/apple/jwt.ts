@@ -77,8 +77,8 @@ export class AppleJWT extends AbstractController<RequestType, ResponseType> {
                     userUUID,
                     loginSource: LoginPlatform.Apple,
                 }),
-                hasPhone: await ServiceUserPhone.exist(this.userUUID),
-                hasPassword: await ServiceUser.hasPassword(this.userUUID),
+                hasPhone: await ServiceUserPhone.exist(userUUID),
+                hasPassword: await ServiceUser.hasPassword(userUUID),
             },
         };
     }
