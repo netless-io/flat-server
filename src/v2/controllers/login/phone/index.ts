@@ -11,8 +11,6 @@ export const loginPhoneSchema = {
             phone: Type.String(),
             password: Type.String({
                 format: "user-password",
-                minLength: 8,
-                maxLength: 32,
             }),
         },
         {

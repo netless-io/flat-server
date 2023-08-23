@@ -103,8 +103,7 @@ const directoryPath: FormatDefinition<string> = {
 
 const userPassword: FormatDefinition<string> = {
     validate: str => {
-        // 8..32 characters, at least one letter and one number
-        return 8 <= str.length && str.length <= 32 && /[a-z]/i.test(str) && /\d/.test(str);
+        return str.length > 0;
     },
 };
 

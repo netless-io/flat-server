@@ -14,8 +14,6 @@ export const registerEmailSchema = {
             code: Type.Integer(),
             password: Type.String({
                 format: "user-password",
-                minLength: 8,
-                maxLength: 32,
             }),
         },
         {
