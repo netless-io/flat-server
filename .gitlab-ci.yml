@@ -140,6 +140,7 @@ deploy_prod_cn:
     REPLICA_COUNT: 3
     HELM_NAME: flat-server-production
   <<: *PROD
+  when: manual
 
 deploy_prod_sg:
   <<: *DEPLOY
@@ -150,3 +151,4 @@ deploy_prod_sg:
     REPLICA_COUNT: 3
     HELM_NAME: flat-server-production
   <<: *PROD
+  when: manual
