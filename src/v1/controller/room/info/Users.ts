@@ -7,6 +7,7 @@ import { UserModel } from "../../../../model/user/User";
 import { Controller } from "../../../../decorator/Controller";
 import { AbstractController } from "../../../../abstract/controller";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
+import { generateAvatar } from "../../../../utils/Avatar";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -57,7 +58,7 @@ export class UserInfo extends AbstractController<RequestType, ResponseType> {
             .addSelect("ru.user_uuid", "user_uuid")
             .addSelect("u.user_name", "user_name")
             .addSelect("u.avatar_url", "avatar_url")
-            .innerJoin(UserModel, "u", "ru.user_uuid = u.user_uuid")
+            .leftJoin(UserModel, "u", "ru.user_uuid = u.user_uuid")
             .andWhere("room_uuid = :roomUUID", {
                 roomUUID,
             })
@@ -82,9 +83,9 @@ export class UserInfo extends AbstractController<RequestType, ResponseType> {
         const result: ResponseType = {};
         for (const { user_name, user_uuid, rtc_uid, avatar_url } of roomUsersInfo) {
             result[user_uuid] = {
-                name: user_name,
+                name: user_name || user_uuid.slice(-8),
                 rtcUID: Number(rtc_uid),
-                avatarURL: avatar_url,
+                avatarURL: avatar_url || generateAvatar(user_uuid),
             };
         }
 
