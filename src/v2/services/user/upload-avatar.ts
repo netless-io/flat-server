@@ -2,6 +2,7 @@ import { createLoggerService, parseError } from "../../../logger";
 import { EntityManager } from "typeorm";
 import {
     GetAvatarInfoByRedisReturn,
+    UserUploadAvatarFinishReturn,
     UserUploadAvatarStartConfig,
     UserUploadAvatarStartReturn,
 } from "./upload-avatar.type";
@@ -62,7 +63,7 @@ export class UserUploadAvatarService {
         };
     }
 
-    public async finish(fileUUID: string): Promise<void> {
+    public async finish(fileUUID: string): Promise<UserUploadAvatarFinishReturn> {
         const { fileName } = await this.getFileInfoByRedis(fileUUID);
 
         const ossFilePath = CloudStorageUploadService.generateOSSFilePath(fileName, fileUUID);
@@ -75,7 +76,8 @@ export class UserUploadAvatarService {
         const { avatarURL: oldAvatarURL } = await userInfoSVC.basicInfo();
 
         const userUpdateSVC = new UserUpdateService(this.ids, this.DBTransaction, this.userUUID);
-        await userUpdateSVC.avatarURL(`${this.oss.domain}/${ossFilePath}`);
+        const newAvatarURL = `${this.oss.domain}/${ossFilePath}`;
+        await userUpdateSVC.avatarURL(newAvatarURL);
 
         if (oldAvatarURL.startsWith(this.oss.domain)) {
             this.oss.remove(oldAvatarURL).catch(error => {
@@ -100,6 +102,8 @@ export class UserUploadAvatarService {
                 });
             },
         );
+
+        return { avatarURL: newAvatarURL };
     }
 
     public async getFileInfoByRedis(fileUUID: string): Promise<GetAvatarInfoByRedisReturn> {

@@ -14,3 +14,7 @@ export interface UserUploadAvatarStartReturn {
 export interface GetAvatarInfoByRedisReturn {
     fileName: string;
 }
+
+export interface UserUploadAvatarFinishReturn {
+    avatarURL: string;
+}
