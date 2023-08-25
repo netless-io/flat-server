@@ -13,6 +13,10 @@ export class AliGreen {
     ) {}
 
     public async imageScan(imageURL: string): Promise<ScanImage> {
+        if (!Censorship.video.enable) {
+            return { status: true, data: [] };
+        }
+
         const requestBody = {
             scenes: ["porn", "terrorism"],
             tasks: [
