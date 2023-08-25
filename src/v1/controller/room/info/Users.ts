@@ -58,12 +58,11 @@ export class UserInfo extends AbstractController<RequestType, ResponseType> {
             .addSelect("ru.user_uuid", "user_uuid")
             .addSelect("u.user_name", "user_name")
             .addSelect("u.avatar_url", "avatar_url")
-            .leftJoin(UserModel, "u", "ru.user_uuid = u.user_uuid")
+            .leftJoin(UserModel, "u", "ru.user_uuid = u.user_uuid AND u.is_delete = false")
             .andWhere("room_uuid = :roomUUID", {
                 roomUUID,
             })
-            .andWhere("ru.is_delete = false")
-            .andWhere("u.is_delete = false");
+            .andWhere("ru.is_delete = false");
 
         if (usersUUID) {
             roomUsersInfoBasic.andWhere("ru.user_uuid IN (:...usersUUID)", {
