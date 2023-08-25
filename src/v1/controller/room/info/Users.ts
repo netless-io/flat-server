@@ -73,13 +73,6 @@ export class UserInfo extends AbstractController<RequestType, ResponseType> {
 
         const roomUsersInfo = await roomUsersInfoBasic.getRawMany<RoomUsersInfo>();
 
-        if (roomUsersInfo.length === 0) {
-            return {
-                status: Status.Failed,
-                code: ErrorCode.UserNotFound,
-            };
-        }
-
         const result: ResponseType = {};
         for (const { user_name, user_uuid, rtc_uid, avatar_url } of roomUsersInfo) {
             result[user_uuid] = {
