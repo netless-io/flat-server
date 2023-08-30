@@ -1,27 +1,29 @@
 import { customAlphabet } from "nanoid";
 import RedisService from "../../../../thirdPartyService/RedisService";
+import { Server } from "../../../../constants/Config";
+import { RedisKey } from "../../../../utils/Redis";
 
 const nanoID = customAlphabet("0123456789", 10);
 
 const inviteCodeFn = (): string => {
     const value = nanoID();
 
-    // filter out the ids whose first number is 0
-    if (value[0] === "0") {
-        return inviteCodeFn();
-    }
-
-    return value;
+    // insert region code at front
+    return `${Server.regionCode}`.concat(value);
 };
 
 export const generateInviteCode = async (): Promise<string | null> => {
-    const inviteCodeList = [];
+    const keyList = [];
 
     // find the unused key
     for (let i = 0; i < 30; i++) {
-        inviteCodeList.push(inviteCodeFn());
+        keyList.push(RedisKey.roomInviteCode(inviteCodeFn()));
     }
 
-    // insert region code at front
-    return await RedisService.vacantKey(inviteCodeList);
+    const value = await RedisService.vacantKey(keyList);
+    if (value === null) {
+        return null;
+    }
+
+    return RedisKey.roomInviteCodeParse(value);
 };

@@ -13,7 +13,7 @@ export const generateRoomInviteCode = async (
     try {
         // when invite code is used up, fallback to uuid
         const code = await generateInviteCode();
-        inviteCode = code === null ? roomUUID : `${Server.regionCode}`.concat(code);
+        inviteCode = code === null ? roomUUID : code;
     } catch (error) {
         logger.warn("generate invite code failed", parseError(error));
         inviteCode = roomUUID;

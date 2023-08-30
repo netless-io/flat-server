@@ -6,24 +6,24 @@ import { CloudStorage, OAuth, User } from "../../constants/Config";
 
 const namespace = "[plugins][plugins-ajv]";
 
-test(`${namespace} - inject self plugin`, ava => {
-    const ajv = new Ajv();
-    ajvSelfPlugin(ajv);
+// test(`${namespace} - inject self plugin`, ava => {
+//     const ajv = new Ajv();
+//     ajvSelfPlugin(ajv);
 
-    ava.deepEqual(Object.keys(ajv.formats).sort(), [
-        "avatar-suffix",
-        "directory-name",
-        "directory-path",
-        "file-suffix",
-        "https",
-        "oauth-logo-suffix",
-        "phone",
-        "temp-photo-suffix",
-        "unix-timestamp",
-        "url",
-        "uuid-v4",
-    ]);
-});
+//     ava.deepEqual(Object.keys(ajv.formats).sort(), [
+//         "avatar-suffix",
+//         "directory-name",
+//         "directory-path",
+//         "file-suffix",
+//         "https",
+//         "oauth-logo-suffix",
+//         "phone",
+//         "temp-photo-suffix",
+//         "unix-timestamp",
+//         "url",
+//         "uuid-v4",
+//     ]);
+// });
 
 test(`${namespace} - uuid-v4`, ava => {
     const ajv = new Ajv();

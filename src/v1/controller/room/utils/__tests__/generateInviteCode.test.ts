@@ -1,5 +1,6 @@
 import test from "ava";
 import { generateInviteCode } from "../GenerateInviteCode";
+import { Server } from "../../../../../constants/Config";
 
 const namespace = "[utils][utils-room][utils-room-invite-code]";
 
@@ -10,11 +11,20 @@ test(`${namespace} - generate invite code`, async ava => {
         inviteCodeList.push(await generateInviteCode());
     }
 
-    const matchInviteCode = /^\d{10}$/;
+    const matchInviteCode = /^\d{11}$/;
     const result = inviteCodeList.every(code => {
-        ava.not(code![0], "0", "invite code first number is 0");
-        return matchInviteCode.test(code!);
+        if (code === null) {
+            // conflict
+            return true;
+        } else {
+            ava.is(
+                code[0],
+                `${Server.regionCode}`,
+                `invite code first number is Server.regionCode: ${Server.regionCode}`,
+            );
+            return matchInviteCode.test(code);
+        }
     });
 
-    ava.true(result, "invite code must is 10 digits");
+    ava.true(result, "invite code must is 11 digits");
 });
