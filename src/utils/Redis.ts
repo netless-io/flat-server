@@ -19,6 +19,8 @@ export const RedisKey = {
         `user:avatar:${userUUID}:${fileUUID}`,
 
     roomInviteCode: (inviteCode: string): string => `room:invite:${inviteCode}`,
+    roomInviteCodeParse: (inviteCodeKey: string): string =>
+        inviteCodeKey.slice("room:invite:".length),
     roomInviteCodeReverse: (roomUUID: string): string => `room:inviteReverse:${roomUUID}`,
 
     phoneLogin: (phone: string): string => `phone:login:${phone}`,
