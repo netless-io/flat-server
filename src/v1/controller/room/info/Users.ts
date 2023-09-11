@@ -76,6 +76,7 @@ export class UserInfo extends AbstractController<RequestType, ResponseType> {
         const result: ResponseType = {};
         for (const { user_name, user_uuid, rtc_uid, avatar_url, is_delete } of roomUsersInfo) {
             result[user_uuid] = {
+                fake: user_name === null,
                 name: user_name || user_uuid.slice(-8),
                 rtcUID: is_delete ? -1 : Number(rtc_uid),
                 avatarURL: avatar_url || generateAvatar(user_uuid),
@@ -102,11 +103,14 @@ interface RequestType {
 
 type ResponseType = {
     [key in string]: {
+        fake: boolean;
         name: string;
         rtcUID: number;
         avatarURL: string;
     };
 };
 
+type Nullable<T> = { [P in keyof T]: T[P] | null };
+
 type RoomUsersInfo = Pick<RoomUserModel, "rtc_uid" | "user_uuid"> &
-    Pick<UserModel, "user_name" | "avatar_url" | "is_delete">;
+    Nullable<Pick<UserModel, "user_name" | "avatar_url" | "is_delete">>;
