@@ -11,7 +11,7 @@ import { AbstractController, ControllerClassParams } from "../../../../abstract/
 import { Controller } from "../../../../decorator/Controller";
 import { ControllerError } from "../../../../error/ControllerError";
 import { ServiceRoom, ServiceRoomUser } from "../../../service";
-import { generateRoomInviteCode, generateRoomUUID } from "./Utils";
+import { generateRoomInviteCode, generateOrdinaryRoomUUID } from "./Utils";
 import { rtcQueue } from "../../../queue";
 import { aliGreenText } from "../../../utils/AliGreen";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
@@ -59,7 +59,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
         roomUser: ServiceRoomUser;
     };
 
-    private readonly roomUUID: string = generateRoomUUID();
+    private readonly roomUUID: string = generateOrdinaryRoomUUID();
 
     public constructor(params: ControllerClassParams) {
         super(params);
@@ -87,7 +87,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
             status: Status.Success,
             data: {
                 roomUUID: this.roomUUID,
-                inviteCode: await generateRoomInviteCode(this.roomUUID, this.logger),
+                inviteCode: await generateRoomInviteCode("ordinary", this.roomUUID, this.logger),
             },
         };
     }

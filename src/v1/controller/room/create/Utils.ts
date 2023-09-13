@@ -2,17 +2,27 @@ import { v4 } from "uuid";
 import { Logger, LoggerAPI, parseError } from "../../../../logger";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
-import { generateInviteCode } from "../utils/GenerateInviteCode";
+import {
+    generateInviteCodeOrdinary,
+    generateInviteCodePeriodic,
+} from "../utils/GenerateInviteCode";
 import { Server } from "../../../../constants/Config";
 
+type RoomType = "ordinary" | "periodic";
+const generateInviteCode: Record<RoomType, () => Promise<string | null>> = {
+    ordinary: generateInviteCodeOrdinary,
+    periodic: generateInviteCodePeriodic,
+};
+
 export const generateRoomInviteCode = async (
+    type: RoomType,
     roomUUID: string,
     logger: Logger<LoggerAPI>,
 ): Promise<string> => {
     let inviteCode = "";
     try {
         // when invite code is used up, fallback to uuid
-        const code = await generateInviteCode();
+        const code = await generateInviteCode[type]();
         inviteCode = code === null ? roomUUID : code;
     } catch (error) {
         logger.warn("generate invite code failed", parseError(error));
@@ -45,6 +55,6 @@ export const generateRoomInviteCode = async (
     return inviteCode;
 };
 
-export const generateRoomUUID = (): string => {
+export const generateOrdinaryRoomUUID = (): string => {
     return `${Server.region}-` + v4();
 };
