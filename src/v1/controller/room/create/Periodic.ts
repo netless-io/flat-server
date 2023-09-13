@@ -206,7 +206,7 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
             await Promise.all(commands);
         });
 
-        await generateRoomInviteCode(this.periodicUUID, this.logger);
+        await generateRoomInviteCode("periodic", this.periodicUUID, this.logger);
 
         rtcQueue(roomData[0].fake_room_uuid);
 

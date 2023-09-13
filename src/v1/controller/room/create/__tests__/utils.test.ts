@@ -29,7 +29,7 @@ test.serial(`${namespace} - invite code is room uuid when not vacant key`, async
 
     const stubVacantKey = stub(RedisService, "vacantKey").returns(Promise.resolve(null));
 
-    const inviteCode = await generateRoomInviteCode(roomUUID, logger);
+    const inviteCode = await generateRoomInviteCode("ordinary", roomUUID, logger);
 
     ava.is(inviteCode, roomUUID);
 
@@ -43,7 +43,7 @@ test.serial(`${namespace} - fallback room uuid when generate failed`, async ava 
 
     const stubVacantKey = stub(RedisService, "vacantKey").rejects(new Error("test error"));
 
-    const inviteCode = await generateRoomInviteCode(roomUUID, logger);
+    const inviteCode = await generateRoomInviteCode("ordinary", roomUUID, logger);
 
     ava.is(inviteCode, roomUUID);
     ava.is(testPlugin.testLogOutput.level, "warn");
@@ -56,7 +56,7 @@ test.serial(`${namespace} - normal generate`, async ava => {
     const logger = new Logger<any>("test", {}, [testPlugin]);
     const roomUUID = v4();
 
-    const inviteCode = await generateRoomInviteCode(roomUUID, logger);
+    const inviteCode = await generateRoomInviteCode("ordinary", roomUUID, logger);
 
     ava.not(inviteCode, roomUUID);
 
@@ -71,7 +71,7 @@ test.serial(`${namespace} - generate failed when already exists redis key`, asyn
 
     await RedisService.set(RedisKey.roomInviteCodeReverse(roomUUID), "test");
 
-    const inviteCode = await generateRoomInviteCode(roomUUID, logger);
+    const inviteCode = await generateRoomInviteCode("ordinary", roomUUID, logger);
 
     ava.is(inviteCode, roomUUID);
 
