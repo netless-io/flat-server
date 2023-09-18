@@ -134,13 +134,15 @@ class RTCScreenshot {
             }
             case "Stop": {
                 const stopSuccess = await this.tryStopPreviousService();
+                const within30Minutes =
+                    Math.abs(Date.now() - roomInfo.begin_time.valueOf()) < 1000 * 60 * 30;
 
                 return {
                     nextStatus: "Start",
-                    // Wait 10 minute on success
-                    // Wait 120 minute on failure
+                    // Wait 10 minutes on success or within 30 minutes
+                    // Wait 120 minutes on failure
                     // The probability of failure is that there are no streams in the room, at which point the delay should be increased. Avoid wasting resources
-                    delay: stopSuccess ? 1000 * 60 * 10 : 1000 * 60 * 60 * 2,
+                    delay: stopSuccess || within30Minutes ? 1000 * 60 * 10 : 1000 * 60 * 60 * 2,
                     data: {
                         roomUUID: this.data.roomUUID,
                     },
@@ -286,8 +288,8 @@ class RTCScreenshot {
 
     private static async roomInfo(
         roomUUID: string,
-    ): Promise<Pick<RoomModel, "room_type"> | undefined> {
-        const result = await RoomDAO().findOne(["room_type"], {
+    ): Promise<Pick<RoomModel, "room_type" | "begin_time"> | undefined> {
+        const result = await RoomDAO().findOne(["room_type", "begin_time"], {
             room_uuid: roomUUID,
             room_status: Not(RoomStatus.Stopped),
         });
