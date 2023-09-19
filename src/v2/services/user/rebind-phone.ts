@@ -29,6 +29,7 @@ import {
     userSensitiveDAO,
     userWeChatDAO,
 } from "../../dao";
+import { generateAvatar } from "../../../utils/Avatar";
 
 type UserPlatform =
     | UserModel
@@ -176,7 +177,7 @@ export class UserRebindPhoneService {
         if (result) {
             return {
                 name: result.user_name,
-                avatar: result.avatar_url,
+                avatar: result.avatar_url || generateAvatar(original.user_uuid),
                 userUUID: original.user_uuid,
                 token: await jwtSign(original.user_uuid),
                 hasPhone: true,

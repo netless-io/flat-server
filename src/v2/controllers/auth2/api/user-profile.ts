@@ -6,6 +6,7 @@ import { RedisKey } from "../../../../utils/Redis";
 import { oauthInfosDAO, userDAO } from "../../../dao";
 import { DeveloperOAuthUserService } from "../../../services/developer/oauth/oauth-user";
 import { DeveloperOAuthScope } from "../../../../model/oauth/oauth-infos";
+import { generateAvatar } from "../../../../utils/Avatar";
 
 export const OAuth2APIUserProfileSchema = {
     headers: Type.Object(
@@ -83,7 +84,7 @@ export const oauth2APIUserProfile = async (
                 ? userInfo.user_name
                 : undefined,
             avatarURL: scopes.includes(DeveloperOAuthScope.UserAvatarRead)
-                ? userInfo.avatar_url
+                ? userInfo.avatar_url || generateAvatar(userUUID)
                 : undefined,
         });
     } catch (error) {

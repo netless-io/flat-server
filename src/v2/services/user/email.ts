@@ -199,7 +199,7 @@ export class UserEmailService {
 
         return {
             name: user.user_name,
-            avatar: user.avatar_url,
+            avatar: user.avatar_url || generateAvatar(userUUIDByEmail),
             userUUID: userUUIDByEmail,
             token: await jwtSign(userUUIDByEmail),
             hasPhone: await this.hasPhone(userUUIDByEmail),

@@ -199,7 +199,7 @@ export class UserPhoneService {
 
         return {
             name: user.user_name,
-            avatar: user.avatar_url,
+            avatar: user.avatar_url || generateAvatar(userUUIDByPhone),
             userUUID: userUUIDByPhone,
             token: await jwtSign(userUUIDByPhone),
             hasPhone: true,

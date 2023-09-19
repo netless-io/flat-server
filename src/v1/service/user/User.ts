@@ -4,6 +4,7 @@ import { DeleteResult, EntityManager, InsertResult } from "typeorm";
 import { ControllerError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
 import { UpdateResult } from "typeorm/query-builder/result/UpdateResult";
+import { generateAvatar } from "../../../utils/Avatar";
 
 export class ServiceUser {
     constructor(private readonly userUUID: string) {}
@@ -50,7 +51,7 @@ export class ServiceUser {
         if (result) {
             return {
                 userName: result.user_name,
-                avatarURL: result.avatar_url,
+                avatarURL: result.avatar_url || generateAvatar(this.userUUID),
             };
         }
 
