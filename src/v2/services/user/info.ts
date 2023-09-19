@@ -4,6 +4,7 @@ import { userDAO } from "../../dao";
 import { FError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
 import { BasicUserInfoReturn } from "./info.type";
+import { generateAvatar } from "../../../utils/Avatar";
 
 export class UserInfoService {
     private readonly logger = createLoggerService<"userInfo">({
@@ -39,7 +40,7 @@ export class UserInfoService {
         return {
             userName: result.user_name,
             userPassword: result.user_password,
-            avatarURL: result.avatar_url,
+            avatarURL: result.avatar_url || generateAvatar(this.userUUID),
         };
     }
 }
