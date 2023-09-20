@@ -122,6 +122,7 @@ type Config = {
         };
         apple: {
             enable: boolean;
+            aud?: string;
         };
         agora: {
             enable: boolean;
