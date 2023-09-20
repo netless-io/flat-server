@@ -60,6 +60,7 @@ export const Github = {
 
 export const Apple = {
     enable: config.login.apple.enable,
+    aud: config.login.apple.aud || "io.agora.flat"
 };
 
 export const AgoraLogin = {
