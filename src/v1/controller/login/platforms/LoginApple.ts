@@ -10,7 +10,7 @@ import NodeRSA from "node-rsa";
 import jwt, { Algorithm } from "fast-jwt";
 import { ax } from "../../../utils/Axios";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
-import { Apple } from "constants/Config";
+import { Apple } from "../../../../constants/Config";
 
 @Login()
 export class LoginApple extends AbstractLogin {
