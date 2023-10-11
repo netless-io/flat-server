@@ -1,7 +1,7 @@
 import "source-map-support/register";
 import "reflect-metadata";
 import fastify from "fastify";
-import { MetricsConfig, Server } from "./constants/Config";
+import { Apple, MetricsConfig, Server } from "./constants/Config";
 import { Status } from "./constants/Project";
 import { ajvSelfPlugin } from "./plugins/Ajv";
 import { orm } from "./thirdPartyService/TypeORMService";
@@ -56,14 +56,14 @@ app.setErrorHandler((err, request, reply) => {
     return new Error(`request-id: ${request.reqID}. session-id: ${request.sesID}`);
 });
 
-app.get("/apple-app-site-association", (_, replay) => {
-    return replay
+app.get("/apple-app-site-association", (_, reply) => {
+    return reply
         .code(200)
         .header("Content-Type", "application/json; charset=utf-8")
         .send({
             applinks: {
                 apps: [],
-                details: [{ appID: "48TB6ZZL5S.io.agora.flat", paths: ["*"] }],
+                details: [{ appID: Apple.appId, paths: ["*"] }],
             },
         });
 });

@@ -209,6 +209,9 @@ type Config = {
         region: "cn-hz" | "us-sv" | "sg" | "in-mum" | "gb-lon";
         convert_region: "cn-hz" | "us-sv" | "sg" | "in-mum" | "gb-lon";
     };
+    apple: {
+        app_id: string;
+    };
     storage_service: {
         type: "oss";
         oss: {
