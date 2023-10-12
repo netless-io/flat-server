@@ -4,11 +4,7 @@ import { UserPmiListRoomsReturn, UserPmiService } from "../../../services/user/p
 import { successJSON } from "../../internal/utils/response-json";
 
 export const roomListPmiSchema = {
-    body: Type.Object({
-        pmi: Type.String({
-            minLength: 1,
-        }),
-    }),
+    body: Type.Object({}),
 };
 
 export const roomListPmi = async (
