@@ -53,9 +53,10 @@ export class UserPmiService {
                 user_uuid: this.userUUID,
                 pmi,
             });
+            return pmi;
+        } else {
+            throw new FError(ErrorCode.UserPmiDrained);
         }
-
-        throw new FError(ErrorCode.UserPmiDrained);
     }
 
     private async generatePmi(): Promise<string | undefined> {

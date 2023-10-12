@@ -26,9 +26,10 @@ export class ServiceUserPmi {
                 user_uuid: this.userUUID,
                 pmi,
             });
+            return pmi;
+        } else {
+            throw new ControllerError(ErrorCode.UserPmiDrained);
         }
-
-        throw new ControllerError(ErrorCode.UserPmiDrained);
     }
 
     private async generatePmi(t?: EntityManager): Promise<string | undefined> {
