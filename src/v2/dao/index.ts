@@ -12,7 +12,7 @@ import { UserGoogleModel } from "../../model/user/Google";
 import { UserPhoneModel } from "../../model/user/Phone";
 import { UserEmailModel } from "../../model/user/Email";
 import { UserSensitiveModel } from "../../model/user/Sensitive";
-import { UserPmiModel } from "../../model/user/PMI";
+import { UserPmiModel } from "../../model/user/Pmi";
 import { RoomModel } from "../../model/room/Room";
 import { RoomUserModel } from "../../model/room/RoomUser";
 import { RoomPeriodicConfigModel } from "../../model/room/RoomPeriodicConfig";

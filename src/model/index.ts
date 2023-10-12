@@ -19,7 +19,7 @@ import { OAuthSecretsModel } from "./oauth/oauth-secrets";
 import { OAuthUsersModel } from "./oauth/oauth-users";
 import { UserSensitiveModel } from "./user/Sensitive";
 import { UserEmailModel } from "./user/Email";
-import { UserPmiModel } from "./user/PMI";
+import { UserPmiModel } from "./user/Pmi";
 
 export type Model =
     | UserModel

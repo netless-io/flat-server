@@ -18,7 +18,7 @@ import { UserGoogleModel } from "../model/user/Google";
 import { UserPhoneModel } from "../model/user/Phone";
 import { UserSensitiveModel } from "../model/user/Sensitive";
 import { UserEmailModel } from "../model/user/Email";
-import { UserPmiModel } from "../model/user/PMI";
+import { UserPmiModel } from "../model/user/Pmi";
 
 export const UserDAO = DAOImplement(UserModel) as ReturnType<DAO<UserModel>>;
 

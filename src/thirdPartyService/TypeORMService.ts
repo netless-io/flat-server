@@ -22,7 +22,7 @@ import { OAuthInfosModel } from "../model/oauth/oauth-infos";
 import { OAuthSecretsModel } from "../model/oauth/oauth-secrets";
 import { OAuthUsersModel } from "../model/oauth/oauth-users";
 import { UserEmailModel } from "../model/user/Email";
-import { UserPmiModel } from "../model/user/PMI";
+import { UserPmiModel } from "../model/user/Pmi";
 
 export const dataSource = new DataSource({
     type: "mysql",
