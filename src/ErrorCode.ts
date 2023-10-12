@@ -17,6 +17,7 @@ export enum ErrorCode {
     RoomNotIsRunning, // room not is running
     RoomNotIsEnded, // room not is stopped
     RoomNotIsIdle, // room not is idle
+    RoomExists, // (pmi) room already exists, cannot create new room
 
     PeriodicNotFound = 300000, // room not found
     PeriodicIsEnded, // room has been ended
@@ -27,6 +28,7 @@ export enum ErrorCode {
     UserAlreadyBinding, // user already binding
     UserPasswordIncorrect, // user password (for update) incorrect
     UserOrPasswordIncorrect, // user or password (for login) incorrect
+    UserPmiDrained, // user pmi used up, cannot generate new pmi
 
     RecordNotFound = 500000, // record info not found
 

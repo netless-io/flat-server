@@ -19,6 +19,7 @@ import { OAuthSecretsModel } from "./oauth/oauth-secrets";
 import { OAuthUsersModel } from "./oauth/oauth-users";
 import { UserSensitiveModel } from "./user/Sensitive";
 import { UserEmailModel } from "./user/Email";
+import { UserPmiModel } from "./user/PMI";
 
 export type Model =
     | UserModel
@@ -30,6 +31,7 @@ export type Model =
     | UserPhoneModel
     | UserEmailModel
     | UserSensitiveModel
+    | UserPmiModel
     | RoomModel
     | RoomUserModel
     | RoomPeriodicConfigModel

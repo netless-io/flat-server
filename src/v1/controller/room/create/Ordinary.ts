@@ -11,10 +11,14 @@ import { AbstractController, ControllerClassParams } from "../../../../abstract/
 import { Controller } from "../../../../decorator/Controller";
 import { ControllerError } from "../../../../error/ControllerError";
 import { ServiceRoom, ServiceRoomUser } from "../../../service";
+import { ServiceUserPmi } from "../../../service/user/UserPmi";
 import { generateRoomInviteCode, generateOrdinaryRoomUUID } from "./Utils";
 import { rtcQueue } from "../../../queue";
 import { aliGreenText } from "../../../utils/AliGreen";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
+import RedisService from "../../../../thirdPartyService/RedisService";
+import { RedisKey } from "../../../../utils/Redis";
+import { parseError } from "../../../../logger";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -50,11 +54,16 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
                     enum: [Region.CN_HZ, Region.US_SV, Region.SG, Region.IN_MUM, Region.GB_LON],
                     nullable: true,
                 },
+                pmi: {
+                    type: "boolean",
+                    nullable: true,
+                },
             },
         },
     };
 
     public readonly svc: {
+        userPmi: ServiceUserPmi;
         room: ServiceRoom;
         roomUser: ServiceRoomUser;
     };
@@ -65,6 +74,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
         super(params);
 
         this.svc = {
+            userPmi: new ServiceUserPmi(this.userUUID),
             room: new ServiceRoom(this.roomUUID, this.userUUID),
             roomUser: new ServiceRoomUser(this.roomUUID, this.userUUID),
         };
@@ -73,21 +83,60 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
     public async execute(): Promise<Response<ResponseType>> {
         await this.checkParams();
 
+        // If request PMI and exist one room that uses PMI, reject.
+        if (this.body.pmi) {
+            const pmiInUse = await this.svc.userPmi.existsRoom();
+            if (pmiInUse) {
+                throw new ControllerError(ErrorCode.RoomExists);
+            }
+        }
+
+        let inviteCode: string | undefined;
+
         await dataSource.transaction(async t => {
             // prettier-ignore
             await Promise.all([
                 this.svc.room.create(this.body, t),
                 this.svc.roomUser.addSelf(t)
             ]);
+
+            if (this.body.pmi) {
+                inviteCode = await this.svc.userPmi.getOrCreate(t);
+            }
         });
 
         rtcQueue(this.roomUUID, 0);
+
+        // is PMI, save it in redis
+        if (inviteCode) {
+            await RedisService.client
+                .multi()
+                .set(RedisKey.roomInviteCode(inviteCode), this.roomUUID)
+                .set(RedisKey.roomInviteCodeReverse(this.roomUUID), inviteCode)
+                .exec()
+                .then(data => {
+                    for (let i = 0; i < data.length; ++i) {
+                        const [error, result] = data[i];
+                        if (error !== null || result === null) {
+                            throw (
+                                error || new Error(`already exists redis key, failed index: ${i}`)
+                            );
+                        }
+                    }
+                })
+                .catch(error => {
+                    inviteCode = this.roomUUID;
+                    this.logger.warn("set room invite code to redis failed", parseError(error));
+                });
+        } else {
+            inviteCode = await generateRoomInviteCode("ordinary", this.roomUUID, this.logger);
+        }
 
         return {
             status: Status.Success,
             data: {
                 roomUUID: this.roomUUID,
-                inviteCode: await generateRoomInviteCode("ordinary", this.roomUUID, this.logger),
+                inviteCode,
             },
         };
     }
@@ -130,6 +179,7 @@ export interface RequestType {
         beginTime?: number;
         endTime?: number;
         region?: Region;
+        pmi?: boolean;
     };
 }
 
