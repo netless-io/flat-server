@@ -9,6 +9,8 @@ import {
 } from "./rebind-phone/send-message";
 import { userRebindPhone, userRebindPhoneSchema } from "./rebind-phone";
 import { userPassword, userPasswordSchema } from "./password";
+import { userPmi, userPmiSchema } from "./pmi";
+import { userIsPmi, userIsPmiSchema } from "./is-pmi";
 
 export const userRouters = (server: Server): void => {
     server.post("user/rename", userRename, {
@@ -37,5 +39,13 @@ export const userRouters = (server: Server): void => {
 
     server.post("user/password", userPassword, {
         schema: userPasswordSchema,
+    });
+
+    server.post("user/pmi", userPmi, {
+        schema: userPmiSchema,
+    });
+
+    server.post("user/is-pmi", userIsPmi, {
+        schema: userIsPmiSchema,
     });
 };

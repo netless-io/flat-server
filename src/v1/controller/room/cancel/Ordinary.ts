@@ -1,3 +1,4 @@
+import { EntityManager } from "typeorm";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
@@ -11,6 +12,10 @@ import { RoomModel } from "../../../../model/room/Room";
 import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { parseError } from "../../../../logger";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
+import { getInviteCode } from "../info/Utils";
+import { UserPmiDAO } from "../../../../dao";
+import RedisService from "../../../../thirdPartyService/RedisService";
+import { RedisKey } from "../../../../utils/Redis";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -60,6 +65,8 @@ export class CancelOrdinary extends AbstractController<RequestType, ResponseType
         await dataSource.transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
+            commands.push(this.removeRedisKeyIfNeeded(t));
+
             commands.push(this.svc.roomUser.removeSelf(t));
 
             if (this.userIsRoomOwner(owner_uuid) && roomIsIdle(room_status)) {
@@ -106,6 +113,22 @@ export class CancelOrdinary extends AbstractController<RequestType, ResponseType
 
     private userIsRoomOwner(owner_uuid: string): boolean {
         return owner_uuid === this.userUUID;
+    }
+
+    private async removeRedisKeyIfNeeded(t?: EntityManager): Promise<void> {
+        const inviteCode = await getInviteCode(this.body.roomUUID, this.logger);
+        if (inviteCode === this.body.roomUUID) {
+            return;
+        }
+
+        // If the invite code is PMI, delete it from redis
+        const exist = await UserPmiDAO(t).findOne(["id"], { pmi: inviteCode });
+        if (exist) {
+            await RedisService.del([
+                RedisKey.roomInviteCode(inviteCode),
+                RedisKey.roomInviteCodeReverse(this.body.roomUUID),
+            ]);
+        }
     }
 }
 

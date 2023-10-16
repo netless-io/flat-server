@@ -3,7 +3,7 @@ import { Status } from "../../../../constants/Project";
 import { PeriodicStatus, RoomStatus } from "../../../../model/room/Constants";
 import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../../dao";
+import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO, UserPmiDAO } from "../../../../dao";
 import { roomIsRunning } from "../utils/RoomStatus";
 import { getNextPeriodicRoomInfo, updateNextPeriodicRoomInfo } from "../../../service/Periodic";
 import { RoomPeriodicModel } from "../../../../model/room/RoomPeriodic";
@@ -201,6 +201,15 @@ const readyRecycleInviteCode = async (roomUUID: string): Promise<void> => {
     const inviteCode = await RedisService.get(RedisKey.roomInviteCodeReverse(roomUUID));
 
     if (inviteCode === null) {
+        return;
+    }
+
+    const isPmi = await UserPmiDAO().findOne(["id"], { pmi: inviteCode });
+    if (isPmi) {
+        await RedisService.del([
+            RedisKey.roomInviteCode(inviteCode),
+            RedisKey.roomInviteCodeReverse(roomUUID),
+        ]);
         return;
     }
 

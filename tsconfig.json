@@ -17,6 +17,7 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noImplicitReturns": true,
+        "forceConsistentCasingInFileNames": true,
         "noFallthroughCasesInSwitch": true,
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
