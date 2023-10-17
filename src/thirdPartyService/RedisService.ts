@@ -144,6 +144,21 @@ class RedisService {
 
         return null;
     }
+
+    public async vacantKeys(keys: string[]): Promise<string[]> {
+        const result: string[] = [];
+        const valueResult = await this.mget(keys);
+
+        for (let i = 0; i < valueResult.length; i++) {
+            const value = valueResult[i];
+
+            if (value === null) {
+                result.push(keys[i]);
+            }
+        }
+
+        return result;
+    }
 }
 
 export default new RedisService();
