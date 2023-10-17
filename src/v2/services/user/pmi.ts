@@ -62,11 +62,13 @@ export class UserPmiService {
     private async generatePmi(): Promise<string | undefined> {
         const keyList = Array.from({ length: 30 }, () => `${Server.regionCode}${nanoID()}`);
 
-        const used = await userPmiDAO.find(this.DBTransaction, ["pmi"], { pmi: In(keyList) });
+        const unused = await RedisService.vacantKeys(keyList.map(RedisKey.roomInviteCode));
+        const unusedKeyList = unused.map(RedisKey.roomInviteCodeParse);
 
+        const used = await userPmiDAO.find(this.DBTransaction, ["pmi"], { pmi: In(unusedKeyList) });
         const usedSet = new Set(used.map(item => item.pmi));
 
-        for (const key of keyList) {
+        for (const key of unusedKeyList) {
             if (!usedSet.has(key)) {
                 return key;
             }
