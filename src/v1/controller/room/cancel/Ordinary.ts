@@ -122,8 +122,8 @@ export class CancelOrdinary extends AbstractController<RequestType, ResponseType
         }
 
         // If the invite code is PMI, delete it from redis
-        const exist = await UserPmiDAO(t).findOne(["id"], { pmi: inviteCode });
-        if (exist) {
+        const result = await UserPmiDAO(t).findOne(["user_uuid"], { pmi: inviteCode });
+        if (result && result.user_uuid === this.userUUID) {
             await RedisService.del([
                 RedisKey.roomInviteCode(inviteCode),
                 RedisKey.roomInviteCodeReverse(this.body.roomUUID),
