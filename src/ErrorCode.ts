@@ -18,6 +18,7 @@ export enum ErrorCode {
     RoomNotIsEnded, // room not is stopped
     RoomNotIsIdle, // room not is idle
     RoomExists, // (pmi) room already exists, cannot create new room
+    RoomNotFoundAndIsPmi, // room not found and the invite code is pmi
 
     PeriodicNotFound = 300000, // room not found
     PeriodicIsEnded, // room has been ended

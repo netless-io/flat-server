@@ -2,7 +2,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../types/Server
 import { joinOrdinary } from "./Ordinary";
 import { joinPeriodic } from "./Periodic";
 import { ResponseType } from "./Type";
-import { RoomDAO, RoomPeriodicConfigDAO } from "../../../../dao";
+import { RoomDAO, RoomPeriodicConfigDAO, UserPmiDAO } from "../../../../dao";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import RedisService from "../../../../thirdPartyService/RedisService";
@@ -49,6 +49,10 @@ export class JoinRoom extends AbstractController<RequestType, ResponseType> {
             // uuid is room uuid or periodic uuid
             // RedisService.get(RedisKey.roomInviteCode(uuid)) return null
             if (uuid === this.body.uuid) {
+                const isPmi = await UserPmiDAO().findOne(["id"], { pmi: uuid });
+                if (isPmi) {
+                    throw new ControllerError(ErrorCode.RoomNotFoundAndIsPmi);
+                }
                 throw new ControllerError(ErrorCode.RoomNotFound);
             }
         }
