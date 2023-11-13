@@ -2,7 +2,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../types/Server
 import { Region, Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
-import { RoomDAO, RoomRecordDAO, RoomUserDAO, UserDAO } from "../../../../dao";
+import { RoomDAO, RoomRecordDAO, RoomUserDAO, UserDAO, UserPmiDAO } from "../../../../dao";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { getInviteCode } from "./Utils";
@@ -90,6 +90,13 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
             room_uuid: roomUUID,
         });
 
+        const inviteCode = await getInviteCode(periodicUUID || roomUUID, this.logger);
+
+        let isPmi = false;
+        if (inviteCode.length < 32) {
+            isPmi = !!(await UserPmiDAO().findOne(["id"], { pmi: inviteCode }));
+        }
+
         return {
             status: Status.Success,
             data: {
@@ -104,7 +111,8 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
                     ownerName: userInfo.user_name,
                     hasRecord: !!recordInfo,
                     region,
-                    inviteCode: await getInviteCode(periodicUUID || roomUUID, this.logger),
+                    inviteCode,
+                    isPmi,
                 },
             },
         };
@@ -134,5 +142,6 @@ interface ResponseType {
         hasRecord: boolean;
         region: Region;
         inviteCode: string;
+        isPmi: boolean;
     };
 }
