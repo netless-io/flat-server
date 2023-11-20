@@ -27,7 +27,6 @@ export class UpdatePeriodicSubRoom extends AbstractController<RequestType, Respo
             properties: {
                 periodicUUID: {
                     type: "string",
-                    format: "uuid-v4",
                 },
                 roomUUID: {
                     type: "string",

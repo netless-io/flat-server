@@ -7,7 +7,6 @@ import { In } from "typeorm";
 import { Periodic } from "../Types";
 import { checkUpdateBeginAndEndTime } from "./Utils";
 import { compareDesc, differenceInCalendarDays, toDate } from "date-fns/fp";
-import { v4 } from "uuid";
 import { calculatePeriodicDates } from "../utils/CalculatePeriodicDates";
 import {
     whiteboardBanRoom,
@@ -19,6 +18,7 @@ import { parseError } from "../../../../logger";
 import { aliGreenText } from "../../../utils/AliGreen";
 import { ControllerError } from "../../../../error/ControllerError";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
+import { generateRoomUUID } from "../create/Utils";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -33,7 +33,6 @@ export class UpdatePeriodic extends AbstractController<RequestType, ResponseType
             properties: {
                 periodicUUID: {
                     type: "string",
-                    format: "uuid-v4",
                 },
                 beginTime: {
                     type: "number",
@@ -179,7 +178,7 @@ export class UpdatePeriodic extends AbstractController<RequestType, ResponseType
         const willAddRoom = dates.map(({ start, end }) => {
             return {
                 periodic_uuid: periodicUUID,
-                fake_room_uuid: v4(),
+                fake_room_uuid: generateRoomUUID(),
                 room_status: RoomStatus.Idle,
                 begin_time: start,
                 end_time: end,

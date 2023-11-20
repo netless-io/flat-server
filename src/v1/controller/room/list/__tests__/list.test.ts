@@ -14,7 +14,7 @@ import { createList } from "./helpers/createList";
 import { ErrorCode } from "../../../../../ErrorCode";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
-import { generateInviteCodeOrdinary } from "../../utils/GenerateInviteCode";
+import { generateInviteCode } from "../../utils/GenerateInviteCode";
 
 const namespace = "[api][api-v1][api-v1-room][api-v1-room-list]";
 
@@ -325,7 +325,7 @@ test(`${namespace} - has inviteCode`, async ava => {
             const isEven = i % 2 === 0;
 
             if (i % 3 !== 0) {
-                const inviteCode = (await generateInviteCodeOrdinary())!;
+                const inviteCode = (await generateInviteCode())!;
                 await RedisService.set(RedisKey.roomInviteCode(inviteCode), roomUUIDs[i]);
                 await RedisService.set(RedisKey.roomInviteCodeReverse(roomUUIDs[i]), inviteCode);
             }

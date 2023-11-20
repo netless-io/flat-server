@@ -1,5 +1,5 @@
 import test from "ava";
-import { generateInviteCodeOrdinary } from "../GenerateInviteCode";
+import { generateInviteCode } from "../GenerateInviteCode";
 import { Server } from "../../../../../constants/Config";
 
 const namespace = "[utils][utils-room][utils-room-invite-code]";
@@ -8,7 +8,7 @@ test(`${namespace} - generate invite code`, async ava => {
     const inviteCodeList = [];
 
     for (let i = 0; i < 100; i++) {
-        inviteCodeList.push(await generateInviteCodeOrdinary());
+        inviteCodeList.push(await generateInviteCode());
     }
 
     const matchInviteCode = /^\d{11}$/;
