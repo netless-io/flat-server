@@ -23,7 +23,6 @@ export class PeriodicInfo extends AbstractController<RequestType, ResponseType> 
             properties: {
                 periodicUUID: {
                     type: "string",
-                    format: "uuid-v4",
                 },
             },
         },

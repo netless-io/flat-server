@@ -12,7 +12,7 @@ import { Controller } from "../../../../decorator/Controller";
 import { ControllerError } from "../../../../error/ControllerError";
 import { ServiceRoom, ServiceRoomUser } from "../../../service";
 import { ServiceUserPmi } from "../../../service/user/UserPmi";
-import { generateRoomInviteCode, generateOrdinaryRoomUUID } from "./Utils";
+import { generateRoomInviteCode, generateRoomUUID } from "./Utils";
 import { rtcQueue } from "../../../queue";
 import { aliGreenText } from "../../../utils/AliGreen";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
@@ -68,7 +68,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
         roomUser: ServiceRoomUser;
     };
 
-    private readonly roomUUID: string = generateOrdinaryRoomUUID();
+    private readonly roomUUID: string = generateRoomUUID();
 
     public constructor(params: ControllerClassParams) {
         super(params);

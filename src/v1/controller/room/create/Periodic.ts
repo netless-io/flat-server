@@ -2,7 +2,6 @@ import { PeriodicStatus, RoomStatus, RoomType, Week } from "../../../../model/ro
 import { Periodic } from "../Types";
 import { Region, Status } from "../../../../constants/Project";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { v4 } from "uuid";
 import { differenceInCalendarDays, toDate } from "date-fns/fp";
 import cryptoRandomString from "crypto-random-string";
 import { whiteboardCreateRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
@@ -18,7 +17,7 @@ import { calculatePeriodicDates } from "../utils/CalculatePeriodicDates";
 import { checkBeginAndEndTime } from "../utils/CheckTime";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
-import { generateRoomInviteCode } from "./Utils";
+import { generateRoomInviteCode, generateRoomUUID } from "./Utils";
 import { rtcQueue } from "../../../queue";
 import { aliGreenText } from "../../../utils/AliGreen";
 import { ControllerError } from "../../../../error/ControllerError";
@@ -104,7 +103,7 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
         },
     };
 
-    private readonly periodicUUID = v4();
+    private readonly periodicUUID = generateRoomUUID();
 
     public async execute(): Promise<Response<ResponseType>> {
         const region = Whiteboard.region as Region;
@@ -140,7 +139,7 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
         const roomData = dates.map(({ start, end }) => {
             return {
                 periodic_uuid: this.periodicUUID,
-                fake_room_uuid: v4(),
+                fake_room_uuid: generateRoomUUID(),
                 room_status: RoomStatus.Idle,
                 begin_time: start,
                 end_time: end,
