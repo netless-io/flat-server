@@ -1,5 +1,5 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { SelectQueryBuilder } from "typeorm";
+import { In, SelectQueryBuilder } from "typeorm";
 import { RoomUserModel } from "../../../../model/room/RoomUser";
 import { RoomModel } from "../../../../model/room/Room";
 import { UserModel } from "../../../../model/user/User";
@@ -12,6 +12,7 @@ import { RoomRecordModel } from "../../../../model/room/RoomRecord";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
+import { UserPmiDAO } from "../../../../dao";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -67,7 +68,15 @@ export class List extends AbstractController<RequestType, ResponseType> {
                 region: room.region,
                 hasRecord: !!room.hasRecord,
                 inviteCode: inviteCodes[index] || room.periodicUUID || room.roomUUID,
+                isPmi: false,
             };
+        });
+
+        const ownerUUIDs = Array.from(new Set(resp.map(room => room.ownerUUID)));
+        const pmiUsers = await UserPmiDAO().find(["pmi"], { user_uuid: In(ownerUUIDs) });
+        const pmiSet = new Set(pmiUsers.map(user => user.pmi));
+        resp.forEach(room => {
+            room.isPmi = pmiSet.has(room.inviteCode);
         });
 
         return {
@@ -186,4 +195,5 @@ export type ResponseType = Array<{
     hasRecord?: boolean;
     region: Region;
     inviteCode: string;
+    isPmi: boolean;
 }>;
