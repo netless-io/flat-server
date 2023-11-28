@@ -146,10 +146,13 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
     }
 
     private async checkParams(): Promise<void> {
-        const { beginTime, endTime, title } = this.body;
+        const { beginTime: beginTime_, endTime, title } = this.body;
 
+        // If beginTime is before 1 minute ago, it is highly possible that the client's time is wrong.
+        // Set to now in that case.
+        let beginTime = beginTime_;
         if (beginTime && timeExceedRedundancyOneMinute(beginTime)) {
-            throw new ControllerError(ErrorCode.ParamsCheckFailed);
+            beginTime = Date.now();
         }
 
         if (endTime) {
