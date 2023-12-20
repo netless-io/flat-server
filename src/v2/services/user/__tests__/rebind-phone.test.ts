@@ -6,7 +6,7 @@ import { ErrorCode } from "../../../../ErrorCode";
 import { RoomStatus } from "../../../../model/room/Constants";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
-import { userDAO, userPhoneDAO, userWeChatDAO } from "../../../dao";
+import { roomDAO, roomUserDAO, userDAO, userPhoneDAO, userWeChatDAO } from "../../../dao";
 import { testService } from "../../../__tests__/helpers/db";
 import { useTransaction } from "../../../__tests__/helpers/db/query-runner";
 import { initializeDataSource } from "../../../__tests__/helpers/db/test-hooks";
@@ -43,7 +43,10 @@ test(`${namespace} - user has joined room in rebind`, async ava => {
     const { createUser, createUserPhone, createRoom, createRoomJoin } = testService(t);
 
     const userInfo = await createUser.quick();
-    const roomInfo = await createRoom.quick({ roomStatus: RoomStatus.Started });
+    const roomInfo = await createRoom.quick({
+        ownerUUID: userInfo.userUUID,
+        roomStatus: RoomStatus.Started,
+    });
     await createRoomJoin.quick({ ...roomInfo, ...userInfo });
 
     const targetUserInfo = await createUser.quick();
@@ -55,18 +58,17 @@ test(`${namespace} - user has joined room in rebind`, async ava => {
         MessageExpirationSecond,
     );
 
-    await ava.throwsAsync(
-        () =>
-            new UserRebindPhoneService(ids(), t, userInfo.userUUID).rebind(
-                targetUserPhoneInfo.phoneNumber,
-                666666,
-                async () => "",
-            ),
-        {
-            instanceOf: FError,
-            message: `${Status.Failed}: ${ErrorCode.UserRoomListNotEmpty}`,
-        },
+    await new UserRebindPhoneService(ids(), t, userInfo.userUUID).rebind(
+        targetUserPhoneInfo.phoneNumber,
+        666666,
+        async () => "",
     );
+
+    const room = await roomDAO.findOne(t, ["room_status"], { room_uuid: roomInfo.roomUUID });
+    ava.is(room?.room_status, RoomStatus.Stopped);
+
+    const join = await roomUserDAO.findOne(t, ["id"], { user_uuid: userInfo.userUUID });
+    ava.is(join, null);
 
     await releaseRunner();
 });
@@ -144,7 +146,14 @@ test(`${namespace} - user rebind success`, async ava => {
         async () => "",
     );
 
-    ava.deepEqual(result.rebind, { WeChat: 0, Github: -1, Apple: -1, Agora: -1, Google: -1 });
+    ava.deepEqual(result.rebind, {
+        wechat: 0,
+        github: -1,
+        apple: -1,
+        email: -1,
+        agora: -1,
+        google: -1,
+    });
 
     const newUserWeChatInfo = await userWeChatDAO.findOne(t, ["union_uuid", "open_uuid"], {
         user_uuid: targetUserInfo.userUUID,

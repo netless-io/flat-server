@@ -19,6 +19,8 @@ import { RedisKey } from "../../../utils/Redis";
 import { SMS, SMSUtils } from "../../../utils/SMS";
 import {
     DAO,
+    roomDAO,
+    roomUserDAO,
     userAgoraDAO,
     userAppleDAO,
     userDAO,
@@ -30,6 +32,7 @@ import {
     userWeChatDAO,
 } from "../../dao";
 import { generateAvatar } from "../../../utils/Avatar";
+import { RoomStatus } from "../../../model/room/Constants";
 
 type UserPlatform =
     | UserModel
@@ -108,7 +111,16 @@ export class UserRebindPhoneService {
         const joinedRoomCount = await alreadyJoinedRoomCount(this.userUUID, this.DBTransaction);
         if (joinedRoomCount > 0) {
             this.logger.info("user has room", { rebindPhone: { userUUID: this.userUUID } });
-            throw new FError(ErrorCode.UserRoomListNotEmpty);
+            await Promise.all([
+                roomUserDAO.delete(this.DBTransaction, {
+                    user_uuid: this.userUUID,
+                }),
+                roomDAO.update(
+                    this.DBTransaction,
+                    { room_status: RoomStatus.Stopped, end_time: new Date() },
+                    { owner_uuid: this.userUUID },
+                ),
+            ]);
         }
 
         const exist = await this.exists(userDAO, this.userUUID);
