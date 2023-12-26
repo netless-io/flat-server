@@ -15,6 +15,7 @@ const registerRouters =
                 handler: (req: FastifyRequestTypebox<S>, reply: FastifyReply) => Promise<any>,
                 config: {
                     auth?: boolean;
+                    admin?: boolean;
                     schema: S;
                     autoHandle?: boolean;
                     enable?: boolean;
@@ -22,6 +23,7 @@ const registerRouters =
             ) => {
                 const autoHandle = config.autoHandle === undefined || config.autoHandle;
                 const auth = config.auth === undefined || config.auth;
+                const admin = !!config.admin;
                 const enable = config.enable === undefined || config.enable;
 
                 if (!enable) {
@@ -31,7 +33,10 @@ const registerRouters =
                 fastifyServer[method](
                     `/${version}/${path}`,
                     {
-                        preValidation: auth ? [(fastifyServer as any).authenticate] : undefined,
+                        preValidation: [
+                            auth && (fastifyServer as any).authenticate,
+                            admin && (fastifyServer as any).authenticateAdmin,
+                        ].filter(Boolean),
                         schema: config.schema,
                     },
                     async (req, reply: FastifyReply) => {
@@ -112,6 +117,7 @@ interface R<O> {
         ) => Promise<O extends false ? void : Response>,
         config: {
             auth?: boolean;
+            admin?: boolean;
             schema: S;
             autoHandle?: O;
         },

@@ -37,7 +37,7 @@ export class MetricsSever {
             void res.type("text/plain").send(await client.metrics());
         });
         if (this.params.port !== 0) {
-            metricsServer.listen(this.params.port, "0.0.0.0", (err, address) => {
+            metricsServer.listen({ host: "0.0.0.0", port: this.params.port }, (err, address) => {
                 if (err) {
                     loggerServer.error("metrics server launch failed", parseError(err));
                     process.exit(1);

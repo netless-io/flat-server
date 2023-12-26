@@ -159,6 +159,18 @@ class RedisService {
 
         return result;
     }
+
+    public async zadd(key: string, value: string, score: number, expire?: number): Promise<void> {
+        await this.client.zadd(key, score, value);
+
+        if (expire) {
+            await this.client.expire(key, expire);
+        }
+    }
+
+    public async zcard(key: string): Promise<number> {
+        return await this.client.zcard(key);
+    }
 }
 
 export default new RedisService();

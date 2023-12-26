@@ -61,7 +61,7 @@ export const Github = {
 export const Apple = {
     enable: config.login.apple.enable,
     appId: config.apple.app_id,
-    aud: config.login.apple.aud || "io.agora.flat"
+    aud: config.login.apple.aud || "io.agora.flat",
 };
 
 export const AgoraLogin = {
@@ -248,6 +248,10 @@ export const Censorship = {
             endpoint: config.censorship.text.aliCloud.endpoint,
         },
     },
+};
+
+export const Admin = {
+    secret: config.admin?.secret || "",
 };
 
 export const MetricsConfig = {
