@@ -198,7 +198,7 @@ export class RoomAdminService {
         const ordinaryRooms = await roomDAO.find(
             this.DBTransaction,
             ["room_uuid", "periodic_uuid", "owner_uuid", "room_status"],
-            { room_uuid: In(roomUUIDs), periodic_uuid: "" },
+            { room_uuid: In(roomUUIDs), room_status: Not(In([RoomStatus.Stopped])) },
         );
 
         for (const room of ordinaryRooms) {
@@ -231,7 +231,7 @@ export class RoomAdminService {
 
         // Clean not found rooms
         for (const uuid of UUIDs) {
-            if (!result[uuid].roomUUID) {
+            if (!result[uuid].roomStatus) {
                 delete result[uuid];
             }
         }
