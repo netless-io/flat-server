@@ -86,7 +86,7 @@ test(`${namespace} - online`, async ava => {
     await releaseRunner();
 });
 
-test.only(`${namespace} - banRooms`, async ava => {
+test(`${namespace} - banRooms`, async ava => {
     const { t, commitTransaction, releaseRunner } = await useTransaction();
     const { createUser, createRoom } = testService(t);
 
