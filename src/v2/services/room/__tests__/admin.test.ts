@@ -10,6 +10,7 @@ import { initializeDataSource } from "../../../__tests__/helpers/db/test-hooks";
 import { ids } from "../../../__tests__/helpers/fastify/ids";
 import { RoomAdminService } from "../admin";
 import { pick } from "lodash";
+import { roomDAO } from "../../../dao";
 
 const namespace = "services.room.admin";
 initializeDataSource(test, namespace);
@@ -62,6 +63,46 @@ test(`${namespace} - roomsInfo`, async ava => {
         [periodic_invite]: makeResult(periodic[2]), // paused
     });
     // missing and stopped are not returned
+
+    await releaseRunner();
+});
+
+test(`${namespace} - online`, async ava => {
+    const { t, releaseRunner } = await useTransaction();
+
+    const roomUUID = v4();
+    const userUUID = v4();
+    const service = new RoomAdminService(ids(), t);
+
+    ava.is(await RedisService.zcard(RedisKey.online(roomUUID)), 0);
+
+    await service.online(roomUUID, userUUID);
+    ava.is(await RedisService.zcard(RedisKey.online(roomUUID)), 1);
+
+    // Not increase zcard when 'online' again for the same user
+    await service.online(roomUUID, userUUID);
+    ava.is(await RedisService.zcard(RedisKey.online(roomUUID)), 1);
+
+    await releaseRunner();
+});
+
+test.only(`${namespace} - banRooms`, async ava => {
+    const { t, commitTransaction, releaseRunner } = await useTransaction();
+    const { createUser, createRoom } = testService(t);
+
+    const user = await createUser.quick();
+    const ordinary = await createRoom.quick({
+        ownerUUID: user.userUUID,
+        roomStatus: RoomStatus.Started,
+    });
+
+    await commitTransaction();
+
+    const service = new RoomAdminService(ids(), t);
+    await service.banRooms([ordinary.roomUUID, v4()]); // unknown room should not throw error
+
+    const room = await roomDAO.findOne(t, ["room_status"], { room_uuid: ordinary.roomUUID });
+    ava.is(room?.room_status, RoomStatus.Stopped);
 
     await releaseRunner();
 });
