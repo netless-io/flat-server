@@ -219,7 +219,7 @@ export class RoomAdminService {
         );
 
         for (const room of periodicRooms) {
-            const key = uuidKeyMap[room.room_uuid];
+            const key = uuidKeyMap[room.periodic_uuid];
             const ret = result[key];
             if (ret) {
                 ret.roomUUID = room.room_uuid;

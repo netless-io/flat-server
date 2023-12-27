@@ -59,6 +59,7 @@ test(`${namespace} - roomsInfo`, async ava => {
 
     ava.deepEqual(roomsInfo, {
         [ordinary[0].roomUUID]: makeResult(ordinary[0]), // idle
+        [periodic[0].periodicUUID]: makeResult(periodic[0]), // idle
         [ordinary_invite]: makeResult(ordinary[1]), // started
         [periodic_invite]: makeResult(periodic[2]), // paused
     });
