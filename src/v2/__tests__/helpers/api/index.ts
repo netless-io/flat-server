@@ -106,4 +106,15 @@ export class HelperAPI {
             },
         });
     }
+
+    public async injectAdmin(secret: string, opts: InjectOptions): Promise<LightMyRequestResponse> {
+        await this.registerPlugin;
+        return await this.app.inject({
+            ...opts,
+            headers: {
+                ...opts.headers,
+                "x-flat-secret": secret,
+            },
+        });
+    }
 }

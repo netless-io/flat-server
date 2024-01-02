@@ -9,6 +9,7 @@ import { regionConfigsRouters } from "./configs/region-configs";
 import { registerRouters } from "./register/routes";
 import { loginRouters } from "./login/routes";
 import { resetRouters } from "./reset/routes";
+import { adminRouters } from "./admin/routes";
 
 export const v2Routes = [
     userRouters,
@@ -22,4 +23,5 @@ export const v2Routes = [
     registerRouters,
     loginRouters,
     resetRouters,
+    adminRouters,
 ];

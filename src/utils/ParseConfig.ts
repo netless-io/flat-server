@@ -252,6 +252,9 @@ type Config = {
             };
         };
     };
+    admin: {
+        secret: string;
+    };
 };
 
 interface SMSConfig {

@@ -223,3 +223,6 @@ censorship:
       access_id:
       access_secret:
       endpoint:
+
+admin:
+  secret:

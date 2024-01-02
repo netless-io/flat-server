@@ -7,10 +7,15 @@ import { whiteboardCreateRoom } from "../utils/request/whiteboard/WhiteboardRequ
 import cryptoRandomString from "crypto-random-string";
 import { Region } from "../../constants/Project";
 
+export type NextPeriodicRoomInfo = Pick<
+    RoomPeriodicModel,
+    "begin_time" | "end_time" | "fake_room_uuid"
+>;
+
 export const getNextPeriodicRoomInfo = async (
     periodicUUID: string,
     beginTime: Date,
-): Promise<Pick<RoomPeriodicModel, "begin_time" | "end_time" | "fake_room_uuid"> | undefined> => {
+): Promise<NextPeriodicRoomInfo | undefined> => {
     return await RoomPeriodicDAO().findOne(
         ["begin_time", "end_time", "fake_room_uuid"],
         {

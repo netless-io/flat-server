@@ -193,7 +193,7 @@ interface RequestType {
 
 interface ResponseType {}
 
-const readyRecycleInviteCode = async (roomUUID: string): Promise<void> => {
+export const readyRecycleInviteCode = async (roomUUID: string): Promise<void> => {
     // prevent access to new rooms with the previous invitation code
     // add delays and improve security.
     const tenDay = 60 * 60 * 24 * 10;

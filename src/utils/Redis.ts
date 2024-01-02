@@ -57,4 +57,6 @@ export const RedisKey = {
 
     emailRegisterOrReset: (email: string): string => `email:register:${email}`,
     emailTryRegisterOrResetCount: (email: string): string => `email:count:register:${email}`,
+
+    online: (roomUUID: string): string => `online:${roomUUID}`,
 };

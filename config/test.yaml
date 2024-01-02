@@ -218,3 +218,6 @@ censorship:
       access_id: test
       access_secret: test
       endpoint: green.cn-shanghai.aliyuncs.com
+
+admin:
+  secret:
