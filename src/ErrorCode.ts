@@ -20,6 +20,15 @@ export enum ErrorCode {
     RoomExists, // (pmi) room already exists, cannot create new room
     RoomNotFoundAndIsPmi, // room not found and the invite code is pmi
 
+    BadRequest = 210000, // bad request
+    JWTVerifyFailed, // jwt verify failed
+    RoomLimit, // join room reach max user limit
+    RoomExpired, // room expired
+    RoomNotBegin, // join room before begin_time
+
+    InternalError = 220000, // unknown error
+    ForwardFailed, // forward failed
+
     PeriodicNotFound = 300000, // room not found
     PeriodicIsEnded, // room has been ended
     PeriodicSubRoomHasRunning, // periodic sub room has running
