@@ -197,7 +197,7 @@ export class RoomAdminService {
 
         const ordinaryRooms = await roomDAO.find(
             this.DBTransaction,
-            ["room_uuid", "periodic_uuid", "owner_uuid", "room_status"],
+            ["room_uuid", "periodic_uuid", "owner_uuid", "room_status", "begin_time"],
             { room_uuid: In(roomUUIDs), room_status: Not(In([RoomStatus.Stopped])) },
         );
 
@@ -209,12 +209,13 @@ export class RoomAdminService {
                 ret.periodicUUID = room.periodic_uuid;
                 ret.ownerUUID = room.owner_uuid;
                 ret.roomStatus = room.room_status;
+                ret.beginTime = room.begin_time.valueOf();
             }
         }
 
         const periodicRooms = await roomDAO.find(
             this.DBTransaction,
-            ["room_uuid", "periodic_uuid", "owner_uuid", "room_status"],
+            ["room_uuid", "periodic_uuid", "owner_uuid", "room_status", "begin_time"],
             { periodic_uuid: In(roomUUIDs), room_status: Not(In([RoomStatus.Stopped])) },
         );
 
@@ -226,6 +227,7 @@ export class RoomAdminService {
                 ret.periodicUUID = room.periodic_uuid;
                 ret.ownerUUID = room.owner_uuid;
                 ret.roomStatus = room.room_status;
+                ret.beginTime = room.begin_time.valueOf();
             }
         }
 
@@ -276,6 +278,7 @@ export interface RoomInfo {
     periodicUUID: string;
     ownerUUID: string;
     roomStatus: RoomStatus;
+    beginTime: number;
 }
 
 export interface RoomsInfo {
