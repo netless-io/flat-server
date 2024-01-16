@@ -12,6 +12,7 @@ service:
   internalPort: 80
 
 ingress:
+  enable: false
   hostname: ${HOST_NAME}
   secretName: ${SECRET_NAME}
   annotations:

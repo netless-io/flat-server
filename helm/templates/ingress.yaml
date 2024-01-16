@@ -1,3 +1,4 @@
+{{- if .Values.ingress.enable }}
 {{- $fullName := include "flat.fullname" . -}}
 {{- $svcPort := .Values.service.externalPort -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
@@ -30,3 +31,4 @@ spec:
                 name: {{ $fullName }}
                 port:
                   number: {{ $svcPort }}
+{{- end }}
