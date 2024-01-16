@@ -43,6 +43,7 @@ export type FastifySchema<T extends Schema | null = Schema> = T extends Schema
 export type ResponseError = {
     status: Status.Failed | Status.AuthFailed;
     code: ErrorCode;
+    message?: string;
 };
 
 export type ResponseSuccess<T = any> = {
