@@ -6,7 +6,7 @@ import { createLoggerService, parseError } from "../../../logger";
 import { PeriodicStatus, RoomStatus } from "../../../model/room/Constants";
 import { RedisKey } from "../../../utils/Redis";
 import { readyRecycleInviteCode } from "../../../v1/controller/room/updateStatus/Stopped";
-import { roomIsRunning } from "../../../v1/controller/room/utils/RoomStatus";
+import { roomIsIdle, roomIsRunning } from "../../../v1/controller/room/utils/RoomStatus";
 import { rtcQueue } from "../../../v1/queue";
 import { getNextPeriodicRoomInfo, updateNextPeriodicRoomInfo } from "../../../v1/service/Periodic";
 import { whiteboardBanRoom } from "../../../v1/utils/request/whiteboard/WhiteboardRequest";
@@ -36,7 +36,9 @@ export class RoomAdminService {
             { room_uuid: In(roomUUIDs) },
         );
 
-        const runningRooms = roomInfo.filter(room => roomIsRunning(room.room_status));
+        const runningRooms = roomInfo.filter(
+            room => roomIsIdle(room.room_status) || roomIsRunning(room.room_status),
+        );
         if (runningRooms.length === 0) return;
 
         roomUUIDs = runningRooms.map(room => room.room_uuid);
