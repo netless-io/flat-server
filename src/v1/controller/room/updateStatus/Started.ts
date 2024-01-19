@@ -61,14 +61,14 @@ export class UpdateStatusStarted extends AbstractController<RequestType, Respons
         await dataSource.transaction(async t => {
             const commands: Promise<unknown>[] = [];
 
-            const beginTime =
-                roomInfo.room_status === RoomStatus.Paused ? roomInfo.begin_time : new Date();
+            // const beginTime = roomInfo.room_status === RoomStatus.Paused ? roomInfo.begin_time : new Date();
 
             commands.push(
                 RoomDAO(t).update(
                     {
                         room_status: RoomStatus.Started,
-                        begin_time: beginTime,
+                        // begin_time will always be the scheduled time
+                        // begin_time: beginTime,
                     },
                     {
                         room_uuid: roomUUID,
@@ -95,7 +95,8 @@ export class UpdateStatusStarted extends AbstractController<RequestType, Respons
                     RoomPeriodicDAO(t).update(
                         {
                             room_status: RoomStatus.Started,
-                            begin_time: beginTime,
+                            // begin_time will always be the scheduled time
+                            // begin_time: beginTime,
                         },
                         {
                             fake_room_uuid: roomUUID,
