@@ -11,6 +11,7 @@ import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicUserDAO, RoomUserDAO } from
 import { showGuide } from "./Utils";
 import { AGORA_SHARE_SCREEN_UID } from "../../../../constants/Agora";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
+import { Server } from "constants/Config";
 
 export const joinPeriodic = async (
     periodicUUID: string,
@@ -53,7 +54,7 @@ export const joinPeriodic = async (
         };
     }
 
-    if (roomInfo.begin_time.getTime() - Date.now() >= -5 * 60 * 1000) {
+    if (roomInfo.begin_time.getTime() - Date.now() >= -Server.allowEarlyEntryTime * 60 * 1000) {
         return {
             status: Status.Failed,
             code: ErrorCode.RoomNotBegin,
