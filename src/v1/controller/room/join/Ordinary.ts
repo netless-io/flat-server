@@ -9,6 +9,7 @@ import { Response } from "../../../../types/Server";
 import { RoomDAO, RoomUserDAO } from "../../../../dao";
 import { showGuide } from "./Utils";
 import { AGORA_SHARE_SCREEN_UID } from "../../../../constants/Agora";
+import { Server } from "constants/Config";
 
 export const joinOrdinary = async (
     roomUUID: string,
@@ -22,6 +23,7 @@ export const joinOrdinary = async (
             "room_type",
             "owner_uuid",
             "region",
+            "begin_time",
         ],
         {
             room_uuid: roomUUID,
@@ -39,6 +41,19 @@ export const joinOrdinary = async (
         return {
             status: Status.Failed,
             code: ErrorCode.RoomIsEnded,
+        };
+    }
+
+    if (roomInfo.begin_time.getTime() - Date.now() <= Server.joinEarly * 60 * 1000) {
+        return {
+            status: Status.Failed,
+            code: ErrorCode.RoomNotBegin,
+            message: `room(${roomUUID}) is not ready, it will start at ${roomInfo.begin_time.toISOString()}`,
+            detail: {
+                beginTime: roomInfo.begin_time.getTime(),
+                uuid: roomUUID,
+                ownerUUID: roomInfo.owner_uuid,
+            }
         };
     }
 

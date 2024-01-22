@@ -35,6 +35,7 @@ type Config = {
         env: string;
         region: string | null;
         region_code: number | null;
+        join_early: number | null;
     };
     redis: {
         host: string;

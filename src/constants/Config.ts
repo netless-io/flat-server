@@ -12,6 +12,7 @@ export const Server = {
     region: config.server.region || "CN",
     // value: 1-9
     regionCode: config.server.region_code || 1,
+    joinEarly: config.server.join_early || 5,
 };
 
 export const Redis = {
