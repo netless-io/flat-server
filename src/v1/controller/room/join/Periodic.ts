@@ -11,7 +11,7 @@ import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicUserDAO, RoomUserDAO } from
 import { showGuide } from "./Utils";
 import { AGORA_SHARE_SCREEN_UID } from "../../../../constants/Agora";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
-import { Server } from "constants/Config";
+import { Server } from "../../../../constants/Config";
 
 export const joinPeriodic = async (
     periodicUUID: string,
