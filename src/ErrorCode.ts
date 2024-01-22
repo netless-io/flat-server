@@ -76,4 +76,7 @@ export enum ErrorCode {
     OAuthUUIDNotFound = 130000, // oauth uuid not found
     OAuthClientIDNotFound, // oauth client id not found
     OAuthSecretUUIDNotFound, // oauth secret uuid not found
+
+    ErrorCodeAtRoomNotBegin = 210004 // room not begin
+
 }

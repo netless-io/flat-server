@@ -38,7 +38,7 @@ export const joinPeriodic = async (
     }
 
     const roomInfo = await RoomDAO().findOne(
-        ["room_uuid", "whiteboard_room_uuid", "owner_uuid", "room_status", "room_type"],
+        ["room_uuid", "whiteboard_room_uuid", "owner_uuid", "room_status", "room_type", "begin_time"],
         {
             periodic_uuid: periodicUUID,
             room_status: Not(In([RoomStatus.Stopped])),
@@ -50,6 +50,19 @@ export const joinPeriodic = async (
         return {
             status: Status.Failed,
             code: ErrorCode.ServerFail,
+        };
+    }
+
+    if (roomInfo.begin_time.getTime() - Date.now() >= -5 * 60 * 1000) {
+        return {
+            status: Status.Failed,
+            code: ErrorCode.RoomNotBegin,
+            message: `room(${roomInfo.room_uuid}) is not ready,it will running at ${roomInfo.begin_time.toISOString()}`,
+            detail: {
+                beginTime: roomInfo.begin_time.getTime(),
+                uuid: roomInfo.room_uuid,
+                ownerUUID: roomInfo.owner_uuid,
+            }
         };
     }
 

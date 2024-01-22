@@ -32,18 +32,19 @@ interface Schema {
 
 export type FastifySchema<T extends Schema | null = Schema> = T extends Schema
     ? {
-          body?: JSONSchemaType<T["body"]>;
-          querystring?: JSONSchemaType<T["querystring"]>;
-          params?: JSONSchemaType<T["params"]>;
-          headers?: JSONSchemaType<T["headers"]>;
-          response?: JSONSchemaType<T["response"]>;
-      }
+        body?: JSONSchemaType<T["body"]>;
+        querystring?: JSONSchemaType<T["querystring"]>;
+        params?: JSONSchemaType<T["params"]>;
+        headers?: JSONSchemaType<T["headers"]>;
+        response?: JSONSchemaType<T["response"]>;
+    }
     : null;
 
 export type ResponseError = {
     status: Status.Failed | Status.AuthFailed;
     code: ErrorCode;
     message?: string;
+    detail?: any;
 };
 
 export type ResponseSuccess<T = any> = {
@@ -55,8 +56,8 @@ export type Response<T = any> =
     | ResponseError
     | ResponseSuccess<T>
     | {
-          status: Status.Process;
-      };
+        status: Status.Process;
+    };
 
 export type FastifyInstance<S extends RawServerDefault = RawServerDefault> = FI<
     S,

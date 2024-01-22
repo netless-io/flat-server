@@ -36,6 +36,7 @@ type regionConfigsResponseSchema = {
         region: string;
         regionCode: number;
         env: string;
+        allowEarlyEntryTime: number;
     };
     whiteboard: {
         appId: string;
@@ -88,6 +89,7 @@ export const regionConfigs = async (): Promise<ResponseSuccess<regionConfigsResp
             region: ServerConfig.region,
             regionCode: ServerConfig.regionCode,
             env: ServerConfig.env,
+            allowEarlyEntryTime: ServerConfig.allowEarlyEntryTime,
         },
         whiteboard: {
             appId: Whiteboard.appId,

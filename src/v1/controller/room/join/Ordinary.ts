@@ -22,6 +22,7 @@ export const joinOrdinary = async (
             "room_type",
             "owner_uuid",
             "region",
+            "begin_time",
         ],
         {
             room_uuid: roomUUID,
@@ -39,6 +40,19 @@ export const joinOrdinary = async (
         return {
             status: Status.Failed,
             code: ErrorCode.RoomIsEnded,
+        };
+    }
+
+    if (roomInfo.begin_time.getTime() - Date.now() >= -5 * 60 * 1000) {
+        return {
+            status: Status.Failed,
+            code: ErrorCode.RoomNotBegin,
+            message: `room(${roomUUID}) is not ready,it will running at ${roomInfo.begin_time.toISOString()}`,
+            detail: {
+                beginTime: roomInfo.begin_time.getTime(),
+                uuid: roomUUID,
+                ownerUUID: roomInfo.owner_uuid,
+            }
         };
     }
 
