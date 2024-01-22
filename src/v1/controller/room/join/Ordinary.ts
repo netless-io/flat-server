@@ -44,7 +44,7 @@ export const joinOrdinary = async (
         };
     }
 
-    if (roomInfo.begin_time.getTime() - Date.now() <= Server.joinEarly * 60 * 1000) {
+    if (roomInfo.begin_time.getTime() - Date.now() > Server.joinEarly * 60 * 1000) {
         return {
             status: Status.Failed,
             code: ErrorCode.RoomNotBegin,
