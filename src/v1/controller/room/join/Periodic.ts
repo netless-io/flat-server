@@ -54,11 +54,11 @@ export const joinPeriodic = async (
         };
     }
 
-    if (roomInfo.begin_time.getTime() - Date.now() <= Server.allowEarlyEntryTime * 60 * 1000) {
+    if (roomInfo.begin_time.getTime() - Date.now() <= Server.joinEarly * 60 * 1000) {
         return {
             status: Status.Failed,
             code: ErrorCode.RoomNotBegin,
-            message: `room(${roomInfo.room_uuid}) is not ready,it will running at ${roomInfo.begin_time.toISOString()}`,
+            message: `room(${roomInfo.room_uuid}) is not ready, it will start at ${roomInfo.begin_time.toISOString()}`,
             detail: {
                 beginTime: roomInfo.begin_time.getTime(),
                 uuid: roomInfo.room_uuid,

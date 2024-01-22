@@ -44,11 +44,11 @@ export const joinOrdinary = async (
         };
     }
 
-    if (roomInfo.begin_time.getTime() - Date.now() <= Server.allowEarlyEntryTime * 60 * 1000) {
+    if (roomInfo.begin_time.getTime() - Date.now() <= Server.joinEarly * 60 * 1000) {
         return {
             status: Status.Failed,
             code: ErrorCode.RoomNotBegin,
-            message: `room(${roomUUID}) is not ready,it will running at ${roomInfo.begin_time.toISOString()}`,
+            message: `room(${roomUUID}) is not ready, it will start at ${roomInfo.begin_time.toISOString()}`,
             detail: {
                 beginTime: roomInfo.begin_time.getTime(),
                 uuid: roomUUID,
