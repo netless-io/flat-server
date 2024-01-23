@@ -22,6 +22,7 @@ import { CloudStorageInfoService } from "./info";
 import { WhiteboardConversionService } from "../whiteboard/conversion";
 import { WhiteboardTokenService } from "../whiteboard/token";
 import { WhiteboardProjectorService } from "../whiteboard/projector";
+import { parseError } from "../../../logger";
 
 export class CloudStorageConvertService {
     private readonly logger = createLoggerService<"cloudStorageConvert">({
@@ -109,7 +110,10 @@ export class CloudStorageConvertService {
 
         const whiteboardConversionSVC = new WhiteboardConversionService(this.ids);
 
-        const taskUUID = await whiteboardConversionSVC.create(fileURL);
+        const taskUUID = await whiteboardConversionSVC.create(fileURL).catch(error => {
+            this.logger.error("request failed", parseError(error));
+            return null;
+        });
         if (!taskUUID) {
             await cloudStorageFilesDAO.update(
                 // we don't want to rollback this action
@@ -122,8 +126,8 @@ export class CloudStorageConvertService {
                 },
                 {
                     file_uuid: fileUUID,
-                }
-            )
+                },
+            );
 
             throw new FError(ErrorCode.FileConvertFailed);
         }
@@ -170,7 +174,10 @@ export class CloudStorageConvertService {
 
         const whiteboardConversionSVC = new WhiteboardConversionService(this.ids);
 
-        const status = await whiteboardConversionSVC.query(payload.taskUUID!);
+        const status = await whiteboardConversionSVC.query(payload.taskUUID!).catch(error => {
+            this.logger.error("request failed", parseError(error));
+            return "Fail";
+        });
 
         if (status === "Waiting") {
             throw new FError(ErrorCode.FileIsConvertWaiting);
@@ -210,7 +217,10 @@ export class CloudStorageConvertService {
 
         const whiteboardProjectorSVC = new WhiteboardProjectorService(this.ids);
 
-        const taskUUID = await whiteboardProjectorSVC.create(fileURL);
+        const taskUUID = await whiteboardProjectorSVC.create(fileURL).catch(error => {
+            this.logger.error("request failed", parseError(error));
+            return null;
+        });
         if (!taskUUID) {
             await cloudStorageFilesDAO.update(
                 // we don't want to rollback this action
@@ -223,8 +233,8 @@ export class CloudStorageConvertService {
                 },
                 {
                     file_uuid: fileUUID,
-                }
-            )
+                },
+            );
 
             throw new FError(ErrorCode.FileConvertFailed);
         }
@@ -271,7 +281,10 @@ export class CloudStorageConvertService {
 
         const whiteboardProjectorSVC = new WhiteboardProjectorService(this.ids);
 
-        const status = await whiteboardProjectorSVC.query(payload.taskUUID!);
+        const status = await whiteboardProjectorSVC.query(payload.taskUUID!).catch(error => {
+            this.logger.error("request failed", parseError(error));
+            return "Fail";
+        });
 
         if (status === "Waiting") {
             throw new FError(ErrorCode.FileIsConvertWaiting);
