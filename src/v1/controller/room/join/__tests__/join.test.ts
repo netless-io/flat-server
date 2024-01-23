@@ -5,6 +5,8 @@ import { createRoom, createRoomUser } from "../../info/__tests__/helpers/createU
 import { createCancel } from "./helpers/createCancelOrdinary";
 import { createJoinRoom } from "./helpers/createJoinRoom";
 import { RoomStatus } from "../../../../../model/room/Constants";
+import { Status } from "../../../../../constants/Project";
+import { ErrorCode } from "../../../../../ErrorCode";
 
 const namespace = "[api][api-v1][api-v1-room][api-v1-room-join]";
 
@@ -33,4 +35,15 @@ test(`${namespace} - join after user cancel`, async ava => {
 
     ava.is(f > 0 && f1 > 0, true);
     ava.is(f == f1, true);
+});
+
+test(`${namespace} - reject join when room not begin`, async ava => {
+    const [roomUUID] = [v4()];
+    const [ownerUUID, anotherUserUUID] = await createRoomUser(roomUUID, 2);
+    await createRoom(ownerUUID, roomUUID, RoomStatus.Idle, new Date(new Date().getTime() + 24 * 3600 * 1000));
+
+    const joinRoom = createJoinRoom(roomUUID, anotherUserUUID);
+    const result = await joinRoom.execute();
+    ava.is(result.status, Status.Failed);
+    ava.is((result as any).code, ErrorCode.RoomNotBegin);
 });

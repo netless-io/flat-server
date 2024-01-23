@@ -148,8 +148,8 @@ apple:
 
 agora:
   app:
-    id:
-    certificate:
+    id: asdf
+    certificate: asfasdasf
   restful:
     id:
     secret:

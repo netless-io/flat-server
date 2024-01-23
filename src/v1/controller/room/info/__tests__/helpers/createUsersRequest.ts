@@ -32,12 +32,13 @@ export const createRoom = async (
     ownerUUID: string,
     roomUUID: string,
     roomStatus: RoomStatus = RoomStatus.Stopped,
+    beginTime?: Date
 ): Promise<void> => {
     await RoomDAO().insert({
         room_uuid: roomUUID,
         periodic_uuid: "",
         room_status: roomStatus,
-        begin_time: new Date(),
+        begin_time: beginTime || new Date(),
         end_time: new Date(),
         title: "test",
         room_type: RoomType.BigClass,

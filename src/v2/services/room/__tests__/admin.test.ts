@@ -54,8 +54,11 @@ test(`${namespace} - roomsInfo`, async ava => {
     const service = new RoomAdminService(ids(), t);
     const roomsInfo = await service.roomsInfo(UUIDs);
 
-    const makeResult = (room: typeof ordinary[0]) =>
-        pick(room, ["roomUUID", "periodicUUID", "ownerUUID", "roomStatus"]);
+    const makeResult = (room: typeof ordinary[0]) => {
+        const data = pick(room, ["roomUUID", "periodicUUID", "ownerUUID", "roomStatus", "beginTime"]);
+        data["beginTime"] = data["beginTime"].getTime() as any;
+        return data;
+    };
 
     ava.deepEqual(roomsInfo, {
         [ordinary[0].roomUUID]: makeResult(ordinary[0]), // idle
