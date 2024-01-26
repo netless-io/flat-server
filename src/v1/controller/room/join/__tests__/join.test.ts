@@ -7,6 +7,7 @@ import { createJoinRoom } from "./helpers/createJoinRoom";
 import { RoomStatus } from "../../../../../model/room/Constants";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
+import { RoomUserDAO, UserDAO } from "../../../../../dao";
 
 const namespace = "[api][api-v1][api-v1-room][api-v1-room-join]";
 
@@ -39,11 +40,24 @@ test(`${namespace} - join after user cancel`, async ava => {
 
 test(`${namespace} - reject join when room not begin`, async ava => {
     const [roomUUID] = [v4()];
-    const [ownerUUID, anotherUserUUID] = await createRoomUser(roomUUID, 2);
+    const [ownerUUID] = await createRoomUser(roomUUID, 2);
+    const joinUserId = v4();
+    await UserDAO().insert({
+        user_uuid: joinUserId,
+        user_name: "test_name",
+        avatar_url: "xxx",
+        user_password: "",
+    });
+
     await createRoom(ownerUUID, roomUUID, RoomStatus.Idle, new Date(new Date().getTime() + 24 * 3600 * 1000));
 
-    const joinRoom = createJoinRoom(roomUUID, anotherUserUUID);
+    const joinRoom = createJoinRoom(roomUUID, joinUserId);
     const result = await joinRoom.execute();
     ava.is(result.status, Status.Failed);
     ava.is((result as any).code, ErrorCode.RoomNotBegin);
+    const data = await RoomUserDAO().findOne(["id", "rtc_uid", "room_uuid", "user_uuid", "updated_at"], {
+        user_uuid: joinUserId,
+        room_uuid: roomUUID,
+    });
+    ava.not(data, undefined);
 });
