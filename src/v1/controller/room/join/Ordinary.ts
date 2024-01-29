@@ -43,6 +43,19 @@ export const joinOrdinary = async (
             code: ErrorCode.RoomIsEnded,
         };
     }
+    // Either user is joinning a new room or rejoinning a (maybe deleted) room.
+    await RoomUserDAO().insert(
+        {
+            room_uuid: roomUUID,
+            user_uuid: userUUID,
+            rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
+        },
+        {
+            orUpdate: {
+                is_delete: false,
+            },
+        },
+    );
 
     if (roomInfo.begin_time.getTime() - Date.now() > Server.joinEarly * 60 * 1000) {
         return {
@@ -58,20 +71,6 @@ export const joinOrdinary = async (
     }
 
     const { whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
-
-    // Either user is joinning a new room or rejoinning a (maybe deleted) room.
-    await RoomUserDAO().insert(
-        {
-            room_uuid: roomUUID,
-            user_uuid: userUUID,
-            rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
-        },
-        {
-            orUpdate: {
-                is_delete: false,
-            },
-        },
-    );
 
     const roomUserInfo = await RoomUserDAO().findOne(["rtc_uid"], {
         room_uuid: roomUUID,
