@@ -66,7 +66,7 @@ export const joinOrdinary = async (
                 beginTime: roomInfo.begin_time.getTime(),
                 uuid: roomUUID,
                 ownerUUID: roomInfo.owner_uuid,
-            }
+            },
         };
     }
 
