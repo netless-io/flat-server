@@ -47,7 +47,7 @@
     "fork-ts-checker-webpack-plugin": "^7.2.11",
     "husky": ">=4",
     "lint-staged": ">=10",
-    "prettier": "^2.7.1",
+    "prettier": "^3.2.5",
     "query-string": "^7.1.1",
     "sinon": "^14.0.0",
     "ts-loader": "^9.3.1",
