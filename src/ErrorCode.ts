@@ -25,6 +25,7 @@ export enum ErrorCode {
     RoomLimit, // join room reach max user limit
     RoomExpired, // room expired
     RoomNotBegin, // join room before begin_time
+    RoomCreateLimit, // failed to create room
     RoomNotBeginAndAddList, // join room before begin_time, and just added to the room list
 
     InternalError = 220000, // unknown error
