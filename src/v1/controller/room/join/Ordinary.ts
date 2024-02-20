@@ -75,7 +75,7 @@ export const joinOrdinary = async (
 
         return {
             status: Status.Failed,
-            code: local || wasOnList ? ErrorCode.RoomNotBegin : ErrorCode.RoomNotBeginAndAddList,
+            code: !local || wasOnList ? ErrorCode.RoomNotBegin : ErrorCode.RoomNotBeginAndAddList,
             message: `room(${roomUUID}) is not ready, it will start at ${roomInfo.begin_time.toISOString()}`,
             detail: {
                 title: roomInfo.title,
