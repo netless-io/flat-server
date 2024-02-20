@@ -6,7 +6,7 @@ import { ResponseType } from "./Type";
 import { getRTCToken, getRTMToken } from "../../../utils/AgoraToken";
 import { ErrorCode } from "../../../../ErrorCode";
 import { Response } from "../../../../types/Server";
-import { RoomDAO, RoomUserDAO } from "../../../../dao";
+import { RoomDAO, RoomUserDAO, UserDAO } from "../../../../dao";
 import { showGuide } from "./Utils";
 import { AGORA_SHARE_SCREEN_UID } from "../../../../constants/Agora";
 import { Server } from "../../../../constants/Config";
@@ -17,6 +17,7 @@ export const joinOrdinary = async (
 ): Promise<Response<ResponseType>> => {
     const roomInfo = await RoomDAO().findOne(
         [
+            "title",
             "room_status",
             "whiteboard_room_uuid",
             "periodic_uuid",
@@ -43,7 +44,13 @@ export const joinOrdinary = async (
             code: ErrorCode.RoomIsEnded,
         };
     }
-    // Either user is joinning a new room or rejoinning a (maybe deleted) room.
+
+    const wasOnList = await RoomUserDAO().findOne(["id"], {
+        room_uuid: roomUUID,
+        user_uuid: userUUID,
+    });
+
+    // Either user is joining a new room or rejoining a (maybe deleted) room.
     await RoomUserDAO().insert(
         {
             room_uuid: roomUUID,
@@ -58,14 +65,20 @@ export const joinOrdinary = async (
     );
 
     if (roomInfo.begin_time.getTime() - Date.now() > Server.joinEarly * 60 * 1000) {
+        const ownerInfo = await UserDAO().findOne(["user_name"], {
+            user_uuid: roomInfo.owner_uuid,
+        });
+
         return {
             status: Status.Failed,
-            code: ErrorCode.RoomNotBegin,
+            code: wasOnList ? ErrorCode.RoomNotBegin : ErrorCode.RoomNotBeginAndAddList,
             message: `room(${roomUUID}) is not ready, it will start at ${roomInfo.begin_time.toISOString()}`,
             detail: {
+                title: roomInfo.title,
                 beginTime: roomInfo.begin_time.getTime(),
                 uuid: roomUUID,
                 ownerUUID: roomInfo.owner_uuid,
+                ownerName: ownerInfo?.user_name,
             },
         };
     }
