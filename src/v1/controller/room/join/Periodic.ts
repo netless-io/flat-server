@@ -70,6 +70,10 @@ export const joinPeriodic = async (
 
     const { room_uuid: roomUUID, whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
 
+    const local = await UserDAO().findOne(["id"], {
+        user_uuid: userUUID,
+    });
+
     const wasOnList = await RoomPeriodicUserDAO().findOne(["id"], {
         periodic_uuid: periodicUUID,
         user_uuid: userUUID,
@@ -117,7 +121,7 @@ export const joinPeriodic = async (
 
         return {
             status: Status.Failed,
-            code: wasOnList ? ErrorCode.RoomNotBegin : ErrorCode.RoomNotBeginAndAddList,
+            code: !local || wasOnList ? ErrorCode.RoomNotBegin : ErrorCode.RoomNotBeginAndAddList,
             message: `room(${roomUUID}) is not ready, it will start at ${roomInfo.begin_time.toISOString()}`,
             detail: {
                 title: roomInfo.title,
