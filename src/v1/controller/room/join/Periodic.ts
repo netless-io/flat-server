@@ -7,7 +7,13 @@ import { ResponseType } from "./Type";
 import { getRTCToken, getRTMToken } from "../../../utils/AgoraToken";
 import { ErrorCode } from "../../../../ErrorCode";
 import { Response } from "../../../../types/Server";
-import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicUserDAO, RoomUserDAO } from "../../../../dao";
+import {
+    RoomDAO,
+    RoomPeriodicConfigDAO,
+    RoomPeriodicUserDAO,
+    RoomUserDAO,
+    UserDAO,
+} from "../../../../dao";
 import { showGuide } from "./Utils";
 import { AGORA_SHARE_SCREEN_UID } from "../../../../constants/Agora";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
@@ -40,6 +46,7 @@ export const joinPeriodic = async (
 
     const roomInfo = await RoomDAO().findOne(
         [
+            "title",
             "room_uuid",
             "whiteboard_room_uuid",
             "owner_uuid",
@@ -62,6 +69,15 @@ export const joinPeriodic = async (
     }
 
     const { room_uuid: roomUUID, whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
+
+    const local = await UserDAO().findOne(["id"], {
+        user_uuid: userUUID,
+    });
+
+    const wasOnList = await RoomPeriodicUserDAO().findOne(["id"], {
+        periodic_uuid: periodicUUID,
+        user_uuid: userUUID,
+    });
 
     await dataSource.transaction(async t => {
         const commands: Promise<unknown>[] = [];
@@ -99,14 +115,20 @@ export const joinPeriodic = async (
     });
 
     if (roomInfo.begin_time.getTime() - Date.now() > Server.joinEarly * 60 * 1000) {
+        const ownerInfo = await UserDAO().findOne(["user_name"], {
+            user_uuid: roomInfo.owner_uuid,
+        });
+
         return {
             status: Status.Failed,
-            code: ErrorCode.RoomNotBegin,
+            code: !local || wasOnList ? ErrorCode.RoomNotBegin : ErrorCode.RoomNotBeginAndAddList,
             message: `room(${roomUUID}) is not ready, it will start at ${roomInfo.begin_time.toISOString()}`,
             detail: {
+                title: roomInfo.title,
                 beginTime: roomInfo.begin_time.getTime(),
                 uuid: roomInfo.room_uuid,
                 ownerUUID: roomInfo.owner_uuid,
+                ownerName: ownerInfo?.user_name,
             },
         };
     }

@@ -25,6 +25,8 @@ export enum ErrorCode {
     RoomLimit, // join room reach max user limit
     RoomExpired, // room expired
     RoomNotBegin, // join room before begin_time
+    RoomCreateLimit, // failed to create room
+    RoomNotBeginAndAddList, // join room before begin_time, and just added to the room list
 
     InternalError = 220000, // unknown error
     ForwardFailed, // forward failed
@@ -76,5 +78,4 @@ export enum ErrorCode {
     OAuthUUIDNotFound = 130000, // oauth uuid not found
     OAuthClientIDNotFound, // oauth client id not found
     OAuthSecretUUIDNotFound, // oauth secret uuid not found
-
 }
