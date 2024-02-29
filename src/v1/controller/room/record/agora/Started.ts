@@ -14,6 +14,8 @@ import { getCloudRecordData } from "../../utils/Agora";
 import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
 import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
+import RedisService from "../../../../../thirdPartyService/RedisService";
+import { RedisKey } from "../../../../../utils/Redis";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -141,6 +143,17 @@ export class RecordAgoraStarted extends AbstractController<RequestType, Response
                 end_time: currentTime,
                 agora_sid: agoraResponse.sid,
             });
+
+            await RedisService.set(
+                RedisKey.record(roomUUID),
+                JSON.stringify({
+                    resourceid: agoraResponse.resourceId,
+                    sid: agoraResponse.sid,
+                    mode: agoraParams.mode,
+                }),
+                // Agora cloud recording automatically stops after 24 hours
+                60 * 60 * 24 * 2,
+            );
         });
 
         return {

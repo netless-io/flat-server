@@ -3,7 +3,13 @@ import { Status } from "../../../../constants/Project";
 import { PeriodicStatus, RoomStatus } from "../../../../model/room/Constants";
 import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO, UserPmiDAO } from "../../../../dao";
+import {
+    RoomDAO,
+    RoomPeriodicConfigDAO,
+    RoomPeriodicDAO,
+    RoomRecordDAO,
+    UserPmiDAO,
+} from "../../../../dao";
 import { roomIsRunning } from "../utils/RoomStatus";
 import { getNextPeriodicRoomInfo, updateNextPeriodicRoomInfo } from "../../../service/Periodic";
 import { RoomPeriodicModel } from "../../../../model/room/RoomPeriodic";
@@ -14,6 +20,11 @@ import { parseError } from "../../../../logger";
 import { RedisKey } from "../../../../utils/Redis";
 import { rtcQueue } from "../../../queue";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
+import {
+    agoraCloudRecordQueryRequest,
+    agoraCloudRecordStoppedRequest,
+} from "../../../utils/request/agora/Agora";
+import { getCloudRecordData } from "../utils/Agora";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -59,6 +70,39 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
                 status: Status.Failed,
                 code: ErrorCode.RoomNotIsRunning,
             };
+        }
+
+        const recordParams = await RedisService.get(RedisKey.record(roomUUID));
+        if (recordParams) {
+            const agoraParams = JSON.parse(recordParams) as {
+                resourceid: string;
+                sid: string;
+                mode: "individual" | "mix" | "web";
+            };
+            const { serverResponse } = await agoraCloudRecordQueryRequest(agoraParams).catch(
+                () => ({ serverResponse: { status: 5 } }),
+            );
+
+            const isRecording = 1 <= serverResponse.status && serverResponse.status <= 5;
+            if (isRecording) {
+                const { uid, cname } = await getCloudRecordData(roomUUID, false);
+                await agoraCloudRecordStoppedRequest(agoraParams, {
+                    uid,
+                    cname,
+                    clientRequest: {},
+                }).catch(() => null);
+
+                await RoomRecordDAO().update(
+                    {
+                        end_time: new Date(),
+                    },
+                    {
+                        room_uuid: roomUUID,
+                    },
+                    ["created_at", "DESC"],
+                    1,
+                );
+            }
         }
 
         const { periodic_uuid } = roomInfo;

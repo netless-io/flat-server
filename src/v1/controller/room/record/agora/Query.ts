@@ -10,6 +10,8 @@ import {
 import { agoraCloudRecordQueryRequest } from "../../../../utils/request/agora/Agora";
 import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
+import RedisService from "../../../../../thirdPartyService/RedisService";
+import { RedisKey } from "../../../../../utils/Redis";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -70,6 +72,23 @@ export class RecordAgoraQuery extends AbstractController<RequestType, ResponseTy
         }
 
         const agoraResponse = await agoraCloudRecordQueryRequest(agoraParams);
+
+        const { serverResponse } = agoraResponse;
+        const isRecording = 1 <= serverResponse.status && serverResponse.status <= 5;
+        if (isRecording) {
+            await RedisService.set(
+                RedisKey.record(roomUUID),
+                JSON.stringify({
+                    resourceid: agoraResponse.resourceId,
+                    sid: agoraResponse.sid,
+                    mode: agoraParams.mode,
+                }),
+                // Agora cloud recording automatically stops after 24 hours
+                60 * 60 * 24 * 2,
+            );
+        } else {
+            await RedisService.del(RedisKey.record(roomUUID));
+        }
 
         return {
             status: Status.Success,

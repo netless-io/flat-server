@@ -13,6 +13,8 @@ import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
 import { timeExceedRedundancyOneMinute } from "../../utils/CheckTime";
 import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
+import RedisService from "../../../../../thirdPartyService/RedisService";
+import { RedisKey } from "../../../../../utils/Redis";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -92,6 +94,8 @@ export class RecordAgoraStopped extends AbstractController<RequestType, Response
                 clientRequest: {},
             });
         });
+
+        await RedisService.del(RedisKey.record(roomUUID));
 
         return {
             status: Status.Success,
