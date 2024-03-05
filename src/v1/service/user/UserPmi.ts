@@ -1,11 +1,12 @@
 import RedisService from "../../../thirdPartyService/RedisService";
 import { customAlphabet } from "nanoid";
-import { EntityManager, In } from "typeorm";
+import { EntityManager, In, Not } from "typeorm";
 import { Server } from "../../../constants/Config";
 import { RoomDAO, UserPmiDAO } from "../../../dao";
 import { ControllerError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
 import { RedisKey } from "../../../utils/Redis";
+import { RoomStatus } from "../../../model/room/Constants";
 
 const nanoID = customAlphabet("0123456789", 10);
 
@@ -67,6 +68,7 @@ export class ServiceUserPmi {
         const room = await RoomDAO(t).findOne(["room_uuid"], {
             room_uuid: uuid,
             periodic_uuid: "",
+            room_status: Not(RoomStatus.Stopped),
         });
         if (!room) {
             // No room, but redis has the key, which is wrong.
