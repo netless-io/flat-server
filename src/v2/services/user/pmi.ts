@@ -1,5 +1,6 @@
 import { customAlphabet } from "nanoid";
-import { EntityManager, In } from "typeorm";
+import { EntityManager, In, Not } from "typeorm";
+import { RoomStatus } from "../../../model/room/Constants";
 import { Server } from "../../../constants/Config";
 import { FError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
@@ -100,6 +101,7 @@ export class UserPmiService {
         const room = await roomDAO.findOne(this.DBTransaction, ["room_uuid"], {
             room_uuid: uuid,
             periodic_uuid: "",
+            room_status: Not(RoomStatus.Stopped),
         });
         if (!room) {
             // No room, but redis has the key, which is wrong.
