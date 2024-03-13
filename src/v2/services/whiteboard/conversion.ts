@@ -69,7 +69,7 @@ export class WhiteboardConversionService {
     }
 
     // see: https://developer.netless.link/server-en/home/server-conversion
-    private static scaleByFileType(resource: string): number {
+    public static scaleByFileType(resource: string): number {
         const extname = path.extname(resource);
 
         switch (extname) {
