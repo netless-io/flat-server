@@ -77,14 +77,12 @@ export class CloudStorageFileService {
     public getFileResourceTypeByFileName(fileName: string): FileResourceType {
         const extname = path.extname(fileName).toLowerCase();
         switch (extname) {
-            case ".pptx": {
-                return FileResourceType.WhiteboardProjector;
-            }
+            case ".pptx":
             case ".doc":
             case ".docx":
             case ".ppt":
             case ".pdf": {
-                return FileResourceType.WhiteboardConvert;
+                return FileResourceType.WhiteboardProjector;
             }
             case ".png":
             case ".jpg":
