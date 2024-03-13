@@ -56,10 +56,12 @@ export class WhiteboardProjectorService {
             WhiteboardProject: {
                 uuid: data.uuid,
                 status: data.status,
+                type: data.type,
                 errorCode: data.errorCode,
                 errorMessage: data.errorMessage,
                 convertedPercentage: data.convertedPercentage,
                 prefix: data.prefix,
+                pageCount: data.pageCount,
             },
         });
 
@@ -79,8 +81,13 @@ interface TaskCreated {
 interface TaskStatus {
     uuid: string;
     status: "Waiting" | "Converting" | "Finished" | "Fail" | "Abort";
+    type: "dynamic" | "static";
     errorCode?: string;
     errorMessage?: string;
     convertedPercentage?: number;
     prefix?: string;
+    pageCount?: number;
+    previews?: { [page: number]: string };
+    note?: string;
+    images?: { [page: number]: { width: number; height: number; url: string } };
 }
