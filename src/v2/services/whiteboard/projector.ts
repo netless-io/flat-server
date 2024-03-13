@@ -2,6 +2,8 @@ import { createLoggerService } from "../../../logger";
 import { ax } from "../../../v1/utils/Axios";
 import { WhiteboardTokenService } from "./token";
 import { Whiteboard } from "../../../constants/Config";
+import { determineType } from "../../../v1/controller/cloudStorage/convert/Utils";
+import { WhiteboardConversionService } from "./conversion";
 
 export class WhiteboardProjectorService {
     private readonly logger = createLoggerService<"WhiteboardProject">({
@@ -16,8 +18,10 @@ export class WhiteboardProjectorService {
             "https://api.netless.link/v5/projector/tasks",
             {
                 resource,
+                type: determineType(resource),
+                scale: WhiteboardConversionService.scaleByFileType(resource),
                 preview: true,
-                pack: false,
+                imageCompressionLevel: 1,
             },
             {
                 headers: {
