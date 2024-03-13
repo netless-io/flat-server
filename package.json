@@ -79,7 +79,7 @@
     "bull": "^4.8.2",
     "crypto-random-string": "^3.3.0",
     "date-fns": "^2.16.1",
-    "eta": "^1.12.3",
+    "eta": "^3.2.0",
     "fast-jwt": "^2.1.0",
     "fastify": "^4.1.0",
     "fastify-plugin": "^3.0.1",
