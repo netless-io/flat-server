@@ -46,7 +46,7 @@ export class CloudStorageUploadService {
     public async start(
         config: CloudStorageUploadStartConfig,
     ): Promise<CloudStorageUploadStartReturn> {
-        const { fileName, fileSize, targetDirectoryPath } = config;
+        const { fileName, fileSize, targetDirectoryPath, convertType } = config;
         await this.assertConcurrentLimit();
         await this.assertConcurrentFileSize(await this.getTotalUsageByUpdated(fileSize));
         await new CloudStorageDirectoryService(
@@ -55,11 +55,15 @@ export class CloudStorageUploadService {
             this.userUUID,
         ).assertExists(targetDirectoryPath);
 
-        const fileResourceType = new CloudStorageFileService(
+        const fileService = new CloudStorageFileService(
             this.ids,
             this.DBTransaction,
             this.userUUID,
-        ).getFileResourceTypeByFileName(fileName);
+        );
+        const fileResourceType =
+            convertType === FileResourceType.WhiteboardProjector
+                ? fileService.getFileResourceTypeByFileNameUseProjector(fileName)
+                : fileService.getFileResourceTypeByFileName(fileName);
 
         const fileUUID = v4();
         await RedisService.hmset(
