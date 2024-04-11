@@ -74,7 +74,7 @@ export class CloudStorageFileService {
         }
     }
 
-    public getFileResourceTypeByFileName(fileName: string): FileResourceType {
+    public getFileResourceTypeByFileNameUseProjector(fileName: string): FileResourceType {
         const extname = path.extname(fileName).toLowerCase();
         switch (extname) {
             case ".pptx":
@@ -83,6 +83,36 @@ export class CloudStorageFileService {
             case ".ppt":
             case ".pdf": {
                 return FileResourceType.WhiteboardProjector;
+            }
+            case ".png":
+            case ".jpg":
+            case ".jpeg":
+            case ".gif":
+            case ".mp3":
+            case ".mp4": {
+                return FileResourceType.NormalResources;
+            }
+            default: {
+                this.logger.warn("fileName extname is not preset", {
+                    cloudStorageFile: {
+                        fileName,
+                    },
+                });
+                throw new FError(ErrorCode.ParamsCheckFailed);
+            }
+        }
+    }
+
+    public getFileResourceTypeByFileName(fileName: string): FileResourceType {
+        const extname = path.extname(fileName).toLowerCase();
+        switch (extname) {
+            case ".pptx":
+                return FileResourceType.WhiteboardProjector;
+            case ".doc":
+            case ".docx":
+            case ".ppt":
+            case ".pdf": {
+                return FileResourceType.WhiteboardConvert;
             }
             case ".png":
             case ".jpg":

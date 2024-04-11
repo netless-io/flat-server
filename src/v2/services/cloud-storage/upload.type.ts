@@ -4,6 +4,7 @@ export interface CloudStorageUploadStartConfig {
     fileName: string;
     fileSize: number;
     targetDirectoryPath: string;
+    convertType?: FileResourceType;
 }
 
 export interface CloudStorageUploadStartReturn {

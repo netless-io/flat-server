@@ -396,18 +396,60 @@ test.serial(`${namespace} - finish`, async ava => {
     await releaseRunner();
 });
 
-test.serial(`${namespace} - start`, async ava => {
+test.serial(`${namespace} - start use projector`, async ava => {
     const { t, releaseRunner } = await useTransaction();
 
-    const [userUUID, fileName, targetDirectoryPath, fileSize] = [v4(), `${v4()}.pptx`, "/", 20];
+    const [userUUID, fileName, targetDirectoryPath, fileSize, convertType] = [
+        v4(),
+        `${v4()}.ppt`,
+        "/",
+        20,
+        FileResourceType.WhiteboardProjector,
+    ];
 
     const result = await new CloudStorageUploadService(ids(), t, userUUID).start({
         targetDirectoryPath,
         fileName,
         fileSize,
+        convertType,
     });
 
     ava.is(Schema.check(uploadStartReturnSchema, result), null);
+
+    const resourceType = await RedisService.hmget(
+        RedisKey.cloudStorageFileInfo(userUUID, result.fileUUID),
+        "fileResourceType",
+    );
+    ava.is(resourceType, FileResourceType.WhiteboardConvert);
+
+    await releaseRunner();
+});
+
+test.serial(`${namespace} - start allowWhiteboardConvert`, async ava => {
+    const { t, releaseRunner } = await useTransaction();
+
+    const [userUUID, fileName, targetDirectoryPath, fileSize, convertType] = [
+        v4(),
+        `${v4()}.ppt`,
+        "/",
+        20,
+        undefined,
+    ];
+
+    const result = await new CloudStorageUploadService(ids(), t, userUUID).start({
+        targetDirectoryPath,
+        fileName,
+        fileSize,
+        convertType,
+    });
+
+    ava.is(Schema.check(uploadStartReturnSchema, result), null);
+
+    const resourceType = await RedisService.hmget(
+        RedisKey.cloudStorageFileInfo(userUUID, result.fileUUID),
+        "fileResourceType",
+    );
+    ava.is(resourceType, FileResourceType.WhiteboardProjector);
 
     await releaseRunner();
 });
