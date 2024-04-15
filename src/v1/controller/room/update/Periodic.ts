@@ -200,8 +200,10 @@ export class UpdatePeriodic extends AbstractController<RequestType, ResponseType
                     {
                         room_origin_begin_time: toDate(beginTime),
                         room_origin_end_time: toDate(endTime),
-                        end_time: periodic.endTime ? toDate(periodic.endTime) : end_time,
-                        rate: periodic.rate || rate,
+                        end_time: periodic.endTime
+                            ? toDate(periodic.endTime)
+                            : dates[dates.length - 1].start,
+                        rate: periodic.rate || 0,
                         title,
                         room_type: type,
                     },
