@@ -14,6 +14,15 @@ import {
     toDate,
 } from "date-fns/fp";
 
+// This value is returned by a UTC+8 client's `new Date().getTimezoneOffset()`.
+const UTC8_OFFSET = -480;
+const MILLISECONDS_TO_UTC8 = (UTC8_OFFSET - new Date().getTimezoneOffset()) * 60 * 1000;
+
+function getDayInUTC8(date: Date): number {
+    date.setTime(date.getTime() + MILLISECONDS_TO_UTC8);
+    return getDay(date);
+}
+
 /**
  * calculate all the days in two dates that meet certain days of the week
  *
@@ -87,7 +96,7 @@ export const dateIntervalByEndTime = ({
 
     for (let i = 0; i < allDays.length; i++) {
         const date = allDays[i];
-        if (weeks.includes(getDay(date))) {
+        if (weeks.includes(getDayInUTC8(date))) {
             // e.g: 2020-12-29T16:00:00.000Z -> 2020-12-29T${16 + hours}:${00 + minutes}:${00 + seconds}.${000 + milliseconds}Z
             // link: https://date-fns.org/v2.16.1/docs/fp/addMilliseconds
             // link: https://date-fns.org/v2.16.1/docs/fp/add
@@ -159,7 +168,7 @@ export const dateIntervalByRate = ({
     for (let i = 0; i < allDays.length; i++) {
         const date = allDays[i];
 
-        if (weeks.includes(getDay(date))) {
+        if (weeks.includes(getDayInUTC8(date))) {
             const start = addMilliseconds(completionTimeInfo.milliseconds)(
                 add(completionTimeInfo)(date),
             );
