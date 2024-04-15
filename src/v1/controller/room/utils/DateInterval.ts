@@ -19,8 +19,7 @@ const UTC8_OFFSET = -480;
 const MILLISECONDS_TO_UTC8 = (UTC8_OFFSET - new Date().getTimezoneOffset()) * 60 * 1000;
 
 function getDayInUTC8(date: Date): number {
-    date.setTime(date.getTime() + MILLISECONDS_TO_UTC8);
-    return getDay(date);
+    return getDay(new Date(date.getTime() + MILLISECONDS_TO_UTC8));
 }
 
 /**
