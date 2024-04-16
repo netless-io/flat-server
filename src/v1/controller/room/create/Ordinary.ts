@@ -3,7 +3,7 @@ import { Region, Status } from "../../../../constants/Project";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { ErrorCode } from "../../../../ErrorCode";
 import {
-    beginTimeLessEndTime,
+    beginTimeGreaterThanEndTime,
     timeExceedRedundancyOneMinute,
     timeIntervalLessThanFifteenMinute,
 } from "../utils/CheckTime";
@@ -160,7 +160,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
                 throw new ControllerError(ErrorCode.ParamsCheckFailed);
             }
 
-            if (beginTimeLessEndTime(beginTime, endTime)) {
+            if (beginTimeGreaterThanEndTime(beginTime, endTime)) {
                 throw new ControllerError(ErrorCode.ParamsCheckFailed);
             }
 
