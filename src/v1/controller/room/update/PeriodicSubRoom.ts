@@ -3,7 +3,7 @@ import { RoomDAO, RoomPeriodicConfigDAO, RoomPeriodicDAO } from "../../../../dao
 import { ErrorCode } from "../../../../ErrorCode";
 import { Status } from "../../../../constants/Project";
 import { RoomStatus } from "../../../../model/room/Constants";
-import { LessThan } from "typeorm";
+import { LessThan, MoreThan } from "typeorm";
 import { compareDesc, toDate } from "date-fns/fp";
 import {
     beginTimeLessEndTime,
@@ -116,12 +116,12 @@ export class UpdatePeriodicSubRoom extends AbstractController<RequestType, Respo
 
             if (previousPeriodicRoom !== undefined) {
                 // beginTime <= previousPeriodicRoom.begin_time
-                // if (compareDesc(beginTime, previousPeriodicRoom.begin_time) !== 1) {
-                //     return {
-                //         status: Status.Failed,
-                //         code: ErrorCode.ParamsCheckFailed,
-                //     };
-                // }
+                if (compareDesc(beginTime, previousPeriodicRoom.begin_time) !== 1) {
+                    return {
+                        status: Status.Failed,
+                        code: ErrorCode.ParamsCheckFailed,
+                    };
+                }
             } else {
                 // if it is the first room, it must be later than the current time
                 if (timeExceedRedundancyOneMinute(beginTime)) {
@@ -135,24 +135,25 @@ export class UpdatePeriodicSubRoom extends AbstractController<RequestType, Respo
 
         // the modified end time must be later than the end time of the next room
         if (isChangeEndTime) {
-            // const nextPeriodicRoom = await RoomPeriodicDAO().findOne(
-            //     ["end_time"],
-            //     {
-            //         periodic_uuid: periodicUUID,
-            //         begin_time: MoreThan(periodicRoomInfo.begin_time),
-            //     },
-            //     ["begin_time", "ASC"],
-            // );
-            // if (
-            //     nextPeriodicRoom !== undefined &&
-            //     // nextPeriodicRoom.end_time <= endTime
-            //     compareDesc(nextPeriodicRoom.end_time, endTime) !== 1
-            // ) {
-            //     return {
-            //         status: Status.Failed,
-            //         code: ErrorCode.ParamsCheckFailed,
-            //     };
-            // }
+            const nextPeriodicRoom = await RoomPeriodicDAO().findOne(
+                ["end_time"],
+                {
+                    periodic_uuid: periodicUUID,
+                    begin_time: MoreThan(periodicRoomInfo.begin_time),
+                },
+                ["begin_time", "ASC"],
+            );
+
+            if (
+                nextPeriodicRoom !== undefined &&
+                // nextPeriodicRoom.end_time <= endTime
+                compareDesc(nextPeriodicRoom.end_time, endTime) !== 1
+            ) {
+                return {
+                    status: Status.Failed,
+                    code: ErrorCode.ParamsCheckFailed,
+                };
+            }
         }
 
         await dataSource.transaction(async t => {

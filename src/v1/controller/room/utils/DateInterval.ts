@@ -16,10 +16,10 @@ import {
 
 // This value is returned by a UTC+8 client's `new Date().getTimezoneOffset()`.
 const UTC8_OFFSET = -480;
-const MILLISECONDS_TO_UTC8 = (UTC8_OFFSET - new Date().getTimezoneOffset()) * 60 * 1000;
+const MILLISECONDS_TO_UTC8 = (new Date().getTimezoneOffset() - UTC8_OFFSET) * 60 * 1000;
 
 function getDayInUTC8(date: Date): number {
-    return getDay(new Date(date.getTime() + MILLISECONDS_TO_UTC8));
+    return getDay(addMilliseconds(MILLISECONDS_TO_UTC8)(date));
 }
 
 /**
