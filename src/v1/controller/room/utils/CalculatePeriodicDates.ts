@@ -1,5 +1,4 @@
 import { Periodic } from "../Types";
-import { toDate } from "date-fns/fp";
 import { dateIntervalByEndTime, dateIntervalByRate, DateIntervalResult } from "./DateInterval";
 
 export const calculatePeriodicDates = (
@@ -7,21 +6,18 @@ export const calculatePeriodicDates = (
     endTime: number,
     periodic: Periodic,
 ): DateIntervalResult[] => {
-    const beginDateTime = toDate(beginTime);
-    const endDateTime = toDate(endTime);
-
-    if (typeof periodic.rate === "number") {
+    if (periodic.rate) {
         return dateIntervalByRate({
-            start: beginDateTime,
-            end: endDateTime,
+            start: beginTime,
+            end: endTime,
             rate: periodic.rate,
             weeks: periodic.weeks,
         });
     } else {
         return dateIntervalByEndTime({
-            start: beginDateTime,
-            end: endDateTime,
-            endDate: toDate(periodic.endTime as number),
+            start: beginTime,
+            end: endTime,
+            endDate: periodic.endTime!,
             weeks: periodic.weeks,
         });
     }

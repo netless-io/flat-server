@@ -1,112 +1,41 @@
 import { Week } from "../../../../model/room/Constants";
-import {
-    add,
-    addDays,
-    addMilliseconds,
-    compareDesc,
-    differenceInMilliseconds,
-    eachDayOfInterval,
-    getDay,
-    getHours,
-    getMilliseconds,
-    getMinutes,
-    getSeconds,
-    toDate,
-} from "date-fns/fp";
 
-// This value is returned by a UTC+8 client's `new Date().getTimezoneOffset()`.
-const UTC8_OFFSET = -480;
-const MILLISECONDS_TO_UTC8 = (new Date().getTimezoneOffset() - UTC8_OFFSET) * 60 * 1000;
+const MillisecondsInOneDay = 24 * 60 * 60 * 1000;
+const UTC8Offset = -480 * 60 * 1000;
+const SelfOffset = new Date().getTimezoneOffset() * 60 * 1000;
 
-function getDayInUTC8(date: Date): number {
-    return getDay(addMilliseconds(MILLISECONDS_TO_UTC8)(date));
-}
+const isInWeeks = (date: number, weeks: Week[]): boolean => {
+    const day = new Date(date + SelfOffset - UTC8Offset).getDay();
+    return weeks.includes(day as Week);
+};
 
-/**
- * calculate all the days in two dates that meet certain days of the week
- *
- * @param {Date} start - start time
- * @param {Date} end - end time
- * @param {Date} endDate - stop the time
- * @param {Week[]} weeks - array of weeks to match
- * @returns {DateIntervalResult[]} matching array
- *
- * @example
- * const start = toDate(1608195990399);
- * const end = addMinutes(45)(start);
- * const endDate = addDays(15)(start);
- * const weeks = [0, 2, 6];
- * const result = dateIntervalByWeek({
- *     start,
- *     end,
- *     endDate,
- *     weeks,
- * });
- * //=> [
- *     { start: 2020-12-19T09:06:30.399Z, end: 2020-12-19T09:51:30.399Z },
- *     { start: 2020-12-20T09:06:30.399Z, end: 2020-12-20T09:51:30.399Z },
- *     { start: 2020-12-22T09:06:30.399Z, end: 2020-12-22T09:51:30.399Z },
- *     { start: 2020-12-26T09:06:30.399Z, end: 2020-12-26T09:51:30.399Z },
- *     { start: 2020-12-27T09:06:30.399Z, end: 2020-12-27T09:51:30.399Z },
- *     { start: 2020-12-29T09:06:30.399Z, end: 2020-12-29T09:51:30.399Z }
- * ]
- */
 export const dateIntervalByEndTime = ({
     start,
     end,
     endDate,
     weeks,
 }: DateIntervalByWeekParams): DateIntervalResult[] => {
-    {
-        const result = compareDesc(endDate)(start);
-        if (result === -1) {
-            throw new Error(
-                "The periodic end time cannot be less than the creation room begin time",
-            );
-        }
-
-        if (result === 0) {
-            return [
-                {
-                    start: toDate(start),
-                    end: toDate(end),
-                },
-            ];
-        }
+    if (endDate < start) {
+        throw new Error("The periodic end time cannot be less than the creation room begin time");
     }
 
-    // because eachDayOfInterval will lose hours / minutes / seconds / ms
-    // so here first extract the relevant information
-    const completionTimeInfo = {
-        hours: getHours(start),
-        minutes: getMinutes(start),
-        seconds: getSeconds(start),
-        milliseconds: getMilliseconds(start),
-    };
+    if (endDate === start) {
+        return [{ start: new Date(start), end: new Date(end) }];
+    }
 
-    const duration = differenceInMilliseconds(start)(end);
+    const duration = end - start;
 
-    const allDays = eachDayOfInterval({
-        start,
-        end: endDate,
-    });
+    const allDays: number[] = [];
+    for (let now = start; now <= endDate; now += MillisecondsInOneDay) {
+        allDays.push(now);
+    }
 
     const result: DateIntervalResult[] = [];
-
-    for (let i = 0; i < allDays.length; i++) {
-        const date = allDays[i];
-        if (weeks.includes(getDayInUTC8(date))) {
-            // e.g: 2020-12-29T16:00:00.000Z -> 2020-12-29T${16 + hours}:${00 + minutes}:${00 + seconds}.${000 + milliseconds}Z
-            // link: https://date-fns.org/v2.16.1/docs/fp/addMilliseconds
-            // link: https://date-fns.org/v2.16.1/docs/fp/add
-            const start = addMilliseconds(completionTimeInfo.milliseconds)(
-                add(completionTimeInfo)(date),
-            );
-
+    for (const date of allDays) {
+        if (isInWeeks(date, weeks)) {
             result.push({
-                start: start,
-                // end = start + (params.end - params.start)
-                end: addMilliseconds(duration)(start),
+                start: new Date(date),
+                end: new Date(date + duration),
             });
         }
     }
@@ -114,90 +43,37 @@ export const dateIntervalByEndTime = ({
     return result;
 };
 
-/**
- * from the start time until the number of times is met, all dates during the period
- *
- * @param {Date} start - start time
- * @param {Date} end - end time
- * @param {number} rate - repeat times
- * @param {Week[]} weeks - array of weeks to match
- * @returns {DateIntervalResult[]} matching array
- *
- * @example
- * const start = toDate(1608195990399);
- * const end = addMinutes(45)(start);
- * const rate = 6;
- * const weeks = [0, 2, 6];
- * const result = dateIntervalByWeek({
- *     start,
- *     end,
- *     rate,
- *     weeks,
- * });
- * //=> [
- *     { start: 2020-12-19T09:06:30.399Z, end: 2020-12-19T09:51:30.399Z },
- *     { start: 2020-12-20T09:06:30.399Z, end: 2020-12-20T09:51:30.399Z },
- *     { start: 2020-12-22T09:06:30.399Z, end: 2020-12-22T09:51:30.399Z },
- *     { start: 2020-12-26T09:06:30.399Z, end: 2020-12-26T09:51:30.399Z },
- *     { start: 2020-12-27T09:06:30.399Z, end: 2020-12-27T09:51:30.399Z },
- *     { start: 2020-12-29T09:06:30.399Z, end: 2020-12-29T09:51:30.399Z }
- * ]
- */
 export const dateIntervalByRate = ({
     start,
     end,
     rate,
     weeks,
 }: DateIntervalByRateParams): DateIntervalResult[] => {
-    const completionTimeInfo = {
-        hours: getHours(start),
-        minutes: getMinutes(start),
-        seconds: getSeconds(start),
-        milliseconds: getMilliseconds(start),
-    };
-
-    const duration = differenceInMilliseconds(start)(end);
-
-    const allDays = eachDayOfInterval({
-        start,
-        end: addDays(rate * 7 + 6)(start),
-    });
+    const duration = end - start;
 
     const result: DateIntervalResult[] = [];
-    for (let i = 0; i < allDays.length; i++) {
-        const date = allDays[i];
-
-        if (weeks.includes(getDayInUTC8(date))) {
-            const start = addMilliseconds(completionTimeInfo.milliseconds)(
-                add(completionTimeInfo)(date),
-            );
-
+    for (let now = start; result.length < rate; now += MillisecondsInOneDay) {
+        if (isInWeeks(now, weeks)) {
             result.push({
-                start,
-                // end = start + (params.end - params.start)
-                end: addMilliseconds(duration)(start),
+                start: new Date(now),
+                end: new Date(now + duration),
             });
-
-            if (result.length === rate) {
-                return result;
-            }
         }
     }
 
-    // never come here, this return just prevents ts from reporting errors
     return result;
 };
 
 interface DateIntervalByWeekParams {
-    start: number | Date;
-    end: number | Date;
-    endDate: number | Date;
+    start: number;
+    end: number;
+    endDate: number;
     weeks: Week[];
 }
 
 interface DateIntervalByRateParams {
-    start: number | Date;
-    end: number | Date;
+    start: number;
+    end: number;
     rate: number;
     weeks: Week[];
 }
