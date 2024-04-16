@@ -91,6 +91,7 @@ export class UpdatePeriodicSubRoom extends AbstractController<RequestType, Respo
                     return {
                         status: Status.Failed,
                         code: ErrorCode.ParamsCheckFailed,
+                        message: "begin time must be earlier than end time",
                     };
                 }
 
@@ -98,6 +99,7 @@ export class UpdatePeriodicSubRoom extends AbstractController<RequestType, Respo
                     return {
                         status: Status.Failed,
                         code: ErrorCode.ParamsCheckFailed,
+                        message: "duration must be greater than 15 minutes",
                     };
                 }
             }
@@ -127,6 +129,7 @@ export class UpdatePeriodicSubRoom extends AbstractController<RequestType, Respo
                 return {
                     status: Status.Failed,
                     code: ErrorCode.ParamsCheckFailed,
+                    message: "begin time must be later than the current time",
                 };
             }
 
@@ -136,6 +139,7 @@ export class UpdatePeriodicSubRoom extends AbstractController<RequestType, Respo
                 return {
                     status: Status.Failed,
                     code: ErrorCode.ParamsCheckFailed,
+                    message: "begin time must be later than the previous room's begin time",
                 };
             }
 
@@ -143,6 +147,7 @@ export class UpdatePeriodicSubRoom extends AbstractController<RequestType, Respo
                 return {
                     status: Status.Failed,
                     code: ErrorCode.ParamsCheckFailed,
+                    message: "begin time must be earlier than the next room's begin time",
                 };
             }
         }
@@ -153,6 +158,7 @@ export class UpdatePeriodicSubRoom extends AbstractController<RequestType, Respo
                 return {
                     status: Status.Failed,
                     code: ErrorCode.ParamsCheckFailed,
+                    message: "end time must be earlier than the next room's end time",
                 };
             }
         }
