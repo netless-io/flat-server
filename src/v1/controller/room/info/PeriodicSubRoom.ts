@@ -97,45 +97,53 @@ export class PeriodicSubRoomInfo extends AbstractController<RequestType, Respons
 
         const { title, owner_uuid, room_type, region } = periodicConfigInfo;
 
-        const { previousPeriodicRoomBeginTime, nextPeriodicRoomEndTime } =
-            await (async (): Promise<{
-                previousPeriodicRoomBeginTime: number | null;
-                nextPeriodicRoomEndTime: number | null;
-            }> => {
-                if (userUUID !== periodicConfigInfo.owner_uuid || !needOtherRoomTimeInfo) {
-                    return {
-                        previousPeriodicRoomBeginTime: null,
-                        nextPeriodicRoomEndTime: null,
-                    };
-                }
-
-                const previousPeriodicRoom = await RoomPeriodicDAO().findOne(
-                    ["begin_time"],
-                    {
-                        periodic_uuid: periodicUUID,
-                        begin_time: LessThan(periodicRoomInfo.begin_time),
-                    },
-                    ["begin_time", "DESC"],
-                );
-
-                const nextPeriodicRoom = await RoomPeriodicDAO().findOne(
-                    ["end_time"],
-                    {
-                        periodic_uuid: periodicUUID,
-                        begin_time: MoreThan(periodicRoomInfo.begin_time),
-                    },
-                    ["begin_time", "ASC"],
-                );
-
+        const {
+            previousPeriodicRoomBeginTime,
+            nextPeriodicRoomBeginTime,
+            nextPeriodicRoomEndTime,
+        } = await (async (): Promise<{
+            previousPeriodicRoomBeginTime: number | null;
+            nextPeriodicRoomBeginTime: number | null;
+            nextPeriodicRoomEndTime: number | null;
+        }> => {
+            if (userUUID !== periodicConfigInfo.owner_uuid || !needOtherRoomTimeInfo) {
                 return {
-                    previousPeriodicRoomBeginTime: previousPeriodicRoom
-                        ? previousPeriodicRoom.begin_time.valueOf()
-                        : null,
-                    nextPeriodicRoomEndTime: nextPeriodicRoom
-                        ? nextPeriodicRoom.end_time.valueOf()
-                        : null,
+                    previousPeriodicRoomBeginTime: null,
+                    nextPeriodicRoomBeginTime: null,
+                    nextPeriodicRoomEndTime: null,
                 };
-            })();
+            }
+
+            const previousPeriodicRoom = await RoomPeriodicDAO().findOne(
+                ["begin_time"],
+                {
+                    periodic_uuid: periodicUUID,
+                    begin_time: LessThan(periodicRoomInfo.begin_time),
+                },
+                ["begin_time", "DESC"],
+            );
+
+            const nextPeriodicRoom = await RoomPeriodicDAO().findOne(
+                ["begin_time", "end_time"],
+                {
+                    periodic_uuid: periodicUUID,
+                    begin_time: MoreThan(periodicRoomInfo.begin_time),
+                },
+                ["begin_time", "ASC"],
+            );
+
+            return {
+                previousPeriodicRoomBeginTime: previousPeriodicRoom
+                    ? previousPeriodicRoom.begin_time.valueOf()
+                    : null,
+                nextPeriodicRoomBeginTime: nextPeriodicRoom
+                    ? nextPeriodicRoom.begin_time.valueOf()
+                    : null,
+                nextPeriodicRoomEndTime: nextPeriodicRoom
+                    ? nextPeriodicRoom.end_time.valueOf()
+                    : null,
+            };
+        })();
 
         const recordInfo = await RoomRecordDAO().findOne(["id"], {
             room_uuid: roomUUID,
@@ -156,6 +164,7 @@ export class PeriodicSubRoomInfo extends AbstractController<RequestType, Respons
                     inviteCode: await getInviteCode(periodicUUID, this.logger),
                 },
                 previousPeriodicRoomBeginTime,
+                nextPeriodicRoomBeginTime,
                 nextPeriodicRoomEndTime,
                 count: await RoomPeriodicDAO().count({
                     periodic_uuid: periodicUUID,
@@ -206,6 +215,7 @@ export class PeriodicSubRoomInfo extends AbstractController<RequestType, Respons
                     inviteCode: this.body.roomUUID,
                 },
                 nextPeriodicRoomEndTime: null,
+                nextPeriodicRoomBeginTime: null,
                 previousPeriodicRoomBeginTime: null,
                 count: 1,
             },
@@ -238,6 +248,7 @@ interface ResponseType {
         inviteCode: string;
     };
     previousPeriodicRoomBeginTime: number | null;
+    nextPeriodicRoomBeginTime: number | null;
     nextPeriodicRoomEndTime: number | null;
     count: number;
 }
