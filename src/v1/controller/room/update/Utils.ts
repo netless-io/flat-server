@@ -1,6 +1,6 @@
 import { compareDesc } from "date-fns/fp";
 import {
-    beginTimeLessEndTime,
+    beginTimeGreaterThanEndTime,
     timeExceedRedundancyOneMinute,
     timeIntervalLessThanFifteenMinute,
 } from "../utils/CheckTime";
@@ -18,7 +18,7 @@ export const checkUpdateBeginAndEndTime = (
 
     if (isChangeBeginTime || isChangeEndTime) {
         if (
-            beginTimeLessEndTime(beginTime, endTime) ||
+            beginTimeGreaterThanEndTime(beginTime, endTime) ||
             timeIntervalLessThanFifteenMinute(beginTime, endTime)
         ) {
             return false;

@@ -6,7 +6,7 @@ import { RoomStatus } from "../../../../model/room/Constants";
 import { LessThan, MoreThan } from "typeorm";
 import { compareDesc, toDate } from "date-fns/fp";
 import {
-    beginTimeLessEndTime,
+    beginTimeGreaterThanEndTime,
     timeExceedRedundancyOneMinute,
     timeIntervalLessThanFifteenMinute,
 } from "../utils/CheckTime";
@@ -87,7 +87,7 @@ export class UpdatePeriodicSubRoom extends AbstractController<RequestType, Respo
         // legality of detection time
         {
             if (isChangeBeginTime || isChangeEndTime) {
-                if (beginTimeLessEndTime(beginTime, endTime)) {
+                if (beginTimeGreaterThanEndTime(beginTime, endTime)) {
                     return {
                         status: Status.Failed,
                         code: ErrorCode.ParamsCheckFailed,
@@ -103,52 +103,53 @@ export class UpdatePeriodicSubRoom extends AbstractController<RequestType, Respo
             }
         }
 
-        // the modified begin time cannot be earlier than the begin time of the previous room
-        if (isChangeBeginTime) {
-            const previousPeriodicRoom = await RoomPeriodicDAO().findOne(
-                ["begin_time"],
-                {
-                    periodic_uuid: periodicUUID,
-                    begin_time: LessThan(periodicRoomInfo.begin_time),
-                },
-                ["begin_time", "DESC"],
-            );
+        const previousPeriodicRoom = await RoomPeriodicDAO().findOne(
+            ["begin_time"],
+            {
+                periodic_uuid: periodicUUID,
+                begin_time: LessThan(periodicRoomInfo.begin_time),
+            },
+            ["begin_time", "DESC"],
+        );
 
-            if (previousPeriodicRoom !== undefined) {
-                // beginTime <= previousPeriodicRoom.begin_time
-                if (compareDesc(beginTime, previousPeriodicRoom.begin_time) !== 1) {
-                    return {
-                        status: Status.Failed,
-                        code: ErrorCode.ParamsCheckFailed,
-                    };
-                }
-            } else {
-                // if it is the first room, it must be later than the current time
-                if (timeExceedRedundancyOneMinute(beginTime)) {
-                    return {
-                        status: Status.Failed,
-                        code: ErrorCode.ParamsCheckFailed,
-                    };
-                }
+        const nextPeriodicRoom = await RoomPeriodicDAO().findOne(
+            ["begin_time", "end_time"],
+            {
+                periodic_uuid: periodicUUID,
+                begin_time: MoreThan(periodicRoomInfo.begin_time),
+            },
+            ["begin_time", "ASC"],
+        );
+
+        if (isChangeBeginTime) {
+            // it must be later than the current time
+            if (timeExceedRedundancyOneMinute(beginTime)) {
+                return {
+                    status: Status.Failed,
+                    code: ErrorCode.ParamsCheckFailed,
+                };
+            }
+
+            // the modified begin time must between (previous room begin time, next room begin time)
+            // this is needed for correct periodic room sorting order
+            if (previousPeriodicRoom && !(+previousPeriodicRoom.begin_time < beginTime)) {
+                return {
+                    status: Status.Failed,
+                    code: ErrorCode.ParamsCheckFailed,
+                };
+            }
+
+            if (nextPeriodicRoom && !(beginTime < +nextPeriodicRoom.begin_time)) {
+                return {
+                    status: Status.Failed,
+                    code: ErrorCode.ParamsCheckFailed,
+                };
             }
         }
 
-        // the modified end time must be later than the end time of the next room
+        // the modified end time must be earlier than the end time of the next room
         if (isChangeEndTime) {
-            const nextPeriodicRoom = await RoomPeriodicDAO().findOne(
-                ["end_time"],
-                {
-                    periodic_uuid: periodicUUID,
-                    begin_time: MoreThan(periodicRoomInfo.begin_time),
-                },
-                ["begin_time", "ASC"],
-            );
-
-            if (
-                nextPeriodicRoom !== undefined &&
-                // nextPeriodicRoom.end_time <= endTime
-                compareDesc(nextPeriodicRoom.end_time, endTime) !== 1
-            ) {
+            if (nextPeriodicRoom && !(endTime <= +nextPeriodicRoom.end_time)) {
                 return {
                     status: Status.Failed,
                     code: ErrorCode.ParamsCheckFailed,

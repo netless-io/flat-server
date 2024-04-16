@@ -1,7 +1,7 @@
 import test from "ava";
 import { addMinutes, addSeconds, subMinutes } from "date-fns/fp";
 import {
-    beginTimeLessEndTime,
+    beginTimeGreaterThanEndTime,
     checkBeginAndEndTime,
     timeExceedRedundancyOneMinute,
     timeIntervalLessThanFifteenMinute,
@@ -18,7 +18,7 @@ test(`${namespace} - time less redundancy one minute`, ava => {
 
 test(`${namespace} - beginTime less endTime`, ava => {
     const beginTime = Date.now();
-    const result = beginTimeLessEndTime(+beginTime, +addMinutes(1)(beginTime));
+    const result = beginTimeGreaterThanEndTime(+beginTime, +addMinutes(1)(beginTime));
 
     ava.false(result);
 });

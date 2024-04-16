@@ -6,10 +6,8 @@ export const timeExceedRedundancyOneMinute = (time: number): boolean => {
     return compareDesc(time)(redundancyTime) === -1;
 };
 
-export const beginTimeLessEndTime = (beginTime: number, endTime: number): boolean => {
-    // must endTime > beginTime
-    // the end time cannot be less than the creation time
-    return compareDesc(endTime)(beginTime) === -1;
+export const beginTimeGreaterThanEndTime = (beginTime: number, endTime: number): boolean => {
+    return beginTime > endTime;
 };
 
 const timeIntervalLessThanOrEqualMinute = (
@@ -29,7 +27,7 @@ export const checkBeginAndEndTime = (beginTime: number, endTime: number): boolea
         return false;
     }
 
-    if (beginTimeLessEndTime(beginTime, endTime)) {
+    if (beginTimeGreaterThanEndTime(beginTime, endTime)) {
         return false;
     }
 
