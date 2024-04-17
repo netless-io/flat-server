@@ -98,7 +98,10 @@ void orm().then(async dataSource => {
         await app.register(fastifyTypeORMQueryRunner, {
             dataSource,
             transaction: true,
-            match: request => request.routerPath?.startsWith("/v2") || false,
+            match: request => {
+                const path = request.routerPath || "";
+                return path.startsWith("/v2") && !path.includes("/region/configs");
+            },
             respIsError: respStr => respStr === respErr,
         });
     }

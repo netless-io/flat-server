@@ -56,7 +56,8 @@ export const dataSource = new DataSource({
         OAuthUsersModel,
     ],
     extra: {
-        connectionLimit: isTest ? 50 : 10,
+        connectionLimit: 50,
+        queueLimit: 20,
     },
     timezone: "Z",
     logging: !isTest && isDev ? "all" : false,
