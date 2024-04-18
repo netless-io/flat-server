@@ -10,7 +10,7 @@ const registerRouters =
     (version: `v${number}`) =>
     (fastifyServer: FastifyInstance, controllers: Array<(server: Server) => void>) => {
         const routerHandle = (method: "get" | "post"): Router => {
-            return <S>(
+            return <S,>(
                 path: string,
                 handler: (req: FastifyRequestTypebox<S>, reply: FastifyReply) => Promise<any>,
                 config: {
@@ -51,7 +51,7 @@ const registerRouters =
                             userUUID: req?.user?.userUUID,
                             // @ts-ignore
                             loginSource: req?.user?.loginSource,
-                            DBTransaction: req.queryRunner.manager,
+                            DBTransaction: req.queryRunner?.manager,
                         });
 
                         try {
