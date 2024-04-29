@@ -71,17 +71,21 @@ export const developerOAuthRouters = (server: Server): void => {
 
     server.post("developer/partner/register", developerPartnerRegister, {
         schema: developerPartnerRegisterSchema,
+        auth: false,
     });
 
     server.post("developer/partner/create-room", developerPartnerCreateRoom, {
         schema: developerPartnerCreateRoomSchema,
+        auth: false,
     });
 
     server.post("developer/partner/list-rooms", developerPartnerListRooms, {
         schema: developerPartnerListRoomsSchema,
+        auth: false,
     });
 
     server.post("developer/partner/remove-room", developerPartnerRemoveRoom, {
         schema: developerPartnerRemoveRoomSchema,
+        auth: false,
     });
 };
