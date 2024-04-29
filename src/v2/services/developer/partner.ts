@@ -3,8 +3,8 @@ import { EntityManager, In } from "typeorm";
 import { FError } from "../../../error/ControllerError";
 import { ErrorCode } from "../../../ErrorCode";
 import { createLoggerService } from "../../../logger";
-import { PartnerRoomModel } from "../../../model/partner/PartnerRoom";
 import { RoomStatus, RoomType } from "../../../model/room/Constants";
+import { RoomModel } from "../../../model/room/Room";
 import { generateRoomInviteCode, generateRoomUUID } from "../../../v1/controller/room/create/Utils";
 import { rtcQueue } from "../../../v1/queue";
 import { ServiceRoom } from "../../../v1/service";
@@ -148,9 +148,8 @@ export class DeveloperPartnerService {
     async listRooms(userUUID?: string): Promise<PartnerRoomInfo[]> {
         await this.assertExists();
 
-        let query = this.DBTransaction.createQueryBuilder(PartnerRoomModel, "pr")
-            .innerJoin("rooms", "r", "r.room_uuid = pr.room_uuid")
-            .innerJoin("room_users", "ru", "ru.room_uuid = pr.room_uuid")
+        let query = this.DBTransaction.createQueryBuilder(RoomModel, "r")
+            .innerJoin("partner_rooms", "pr", "pr.room_uuid = r.room_uuid")
             .addSelect("r.room_uuid", "roomUUID")
             .addSelect("r.title", "title")
             .addSelect("r.room_type", "roomType")
@@ -158,17 +157,30 @@ export class DeveloperPartnerService {
             .addSelect("r.begin_time", "beginTime")
             .addSelect("r.end_time", "endTime")
             .where("r.is_delete = :isDelete", { isDelete: false })
-            .andWhere("ru.is_delete = :isDelete", { isDelete: false })
             .andWhere("pr.is_delete = :isDelete", { isDelete: false })
             .andWhere("pr.partner_uuid = :partnerUUID", { partnerUUID: this.partnerUUID });
 
         if (userUUID) {
-            query = query.andWhere("ru.user_uuid = :userUUID", { userUUID });
+            query = query
+                .innerJoin("room_users", "ru", "ru.room_uuid = r.room_uuid")
+                .andWhere("ru.is_delete = :isDelete", { isDelete: false })
+                .andWhere("ru.user_uuid = :userUUID", { userUUID });
         }
 
-        const result: PartnerRoomInfo[] = await query.getRawMany();
+        type ReplaceDbTime<T> = {
+            [P in keyof T]: P extends `${string}Time` ? Date : T[P];
+        };
 
-        return result;
+        const result: ReplaceDbTime<PartnerRoomInfo>[] = await query.getRawMany();
+
+        return result.map(info => ({
+            roomUUID: info.roomUUID,
+            title: info.title,
+            roomType: info.roomType,
+            roomStatus: info.roomStatus,
+            beginTime: info.beginTime.valueOf(),
+            endTime: info.endTime.valueOf(),
+        }));
     }
 }
 
