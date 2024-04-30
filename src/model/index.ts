@@ -20,6 +20,8 @@ import { OAuthUsersModel } from "./oauth/oauth-users";
 import { UserSensitiveModel } from "./user/Sensitive";
 import { UserEmailModel } from "./user/Email";
 import { UserPmiModel } from "./user/Pmi";
+import { PartnerModel } from "./partner/Partner";
+import { PartnerRoomModel } from "./partner/PartnerRoom";
 
 export type Model =
     | UserModel
@@ -43,4 +45,6 @@ export type Model =
     | CloudStorageConfigsModel
     | OAuthInfosModel
     | OAuthSecretsModel
-    | OAuthUsersModel;
+    | OAuthUsersModel
+    | PartnerModel
+    | PartnerRoomModel;

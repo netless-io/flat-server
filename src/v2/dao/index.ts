@@ -25,6 +25,8 @@ import { CloudStorageConfigsModel } from "../../model/cloudStorage/CloudStorageC
 import { OAuthInfosModel } from "../../model/oauth/oauth-infos";
 import { OAuthSecretsModel } from "../../model/oauth/oauth-secrets";
 import { OAuthUsersModel } from "../../model/oauth/oauth-users";
+import { PartnerModel } from "../../model/partner/Partner";
+import { PartnerRoomModel } from "../../model/partner/PartnerRoom";
 import { dataSource } from "../../thirdPartyService/TypeORMService";
 
 export class DAO<M extends Model> {
@@ -199,3 +201,5 @@ export const cloudStorageConfigsDAO = new DAO(CloudStorageConfigsModel);
 export const oauthInfosDAO = new DAO(OAuthInfosModel);
 export const oauthSecretsDAO = new DAO(OAuthSecretsModel);
 export const oauthUsersDAO = new DAO(OAuthUsersModel);
+export const partnerDAO = new DAO(PartnerModel);
+export const partnerRoomDAO = new DAO(PartnerRoomModel);

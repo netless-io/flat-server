@@ -23,6 +23,8 @@ import { OAuthSecretsModel } from "../model/oauth/oauth-secrets";
 import { OAuthUsersModel } from "../model/oauth/oauth-users";
 import { UserEmailModel } from "../model/user/Email";
 import { UserPmiModel } from "../model/user/Pmi";
+import { PartnerModel } from "../model/partner/Partner";
+import { PartnerRoomModel } from "../model/partner/PartnerRoom";
 
 export const dataSource = new DataSource({
     type: "mysql",
@@ -54,6 +56,8 @@ export const dataSource = new DataSource({
         OAuthInfosModel,
         OAuthSecretsModel,
         OAuthUsersModel,
+        PartnerModel,
+        PartnerRoomModel,
     ],
     extra: {
         connectionLimit: 50,

@@ -20,7 +20,10 @@ export class RoomAdminService {
         ids: this.ids,
     });
 
-    constructor(private readonly ids: IDS, private readonly DBTransaction: EntityManager) {}
+    constructor(
+        private readonly ids: IDS,
+        private readonly DBTransaction: EntityManager,
+    ) {}
 
     public async banRooms(roomUUIDs: string[]): Promise<void> {
         const roomInfo = await roomDAO.find(

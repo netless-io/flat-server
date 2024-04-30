@@ -117,4 +117,18 @@ export class HelperAPI {
             },
         });
     }
+
+    public async injectPartner(
+        partnerUUID: string,
+        opts: InjectOptions,
+    ): Promise<LightMyRequestResponse> {
+        await this.registerPlugin;
+        return await this.app.inject({
+            ...opts,
+            headers: {
+                ...opts.headers,
+                "x-flat-partner": partnerUUID,
+            },
+        });
+    }
 }

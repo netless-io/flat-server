@@ -21,6 +21,16 @@ import {
 } from "./oauth/oauth-logo";
 import { developerOAuthList, DeveloperOAuthListSchema } from "./oauth/list";
 import { developerOAuthUpdate, DeveloperOAuthUpdateSchema } from "./oauth/update";
+import { developerPartnerRegister, developerPartnerRegisterSchema } from "./partner/register";
+import {
+    developerPartnerRemoveRoom,
+    developerPartnerRemoveRoomSchema,
+} from "./partner/remove-room";
+import {
+    developerPartnerCreateRoom,
+    developerPartnerCreateRoomSchema,
+} from "./partner/create-room";
+import { developerPartnerListRooms, developerPartnerListRoomsSchema } from "./partner/list-rooms";
 
 export const developerOAuthRouters = (server: Server): void => {
     server.post("developer/oauth/list", developerOAuthList, {
@@ -57,5 +67,25 @@ export const developerOAuthRouters = (server: Server): void => {
 
     server.post("developer/oauth/logo/upload/finish", developerOAuthLogoUploadFinish, {
         schema: DeveloperOAuthLogoUploadFinishSchema,
+    });
+
+    server.post("developer/partner/register", developerPartnerRegister, {
+        schema: developerPartnerRegisterSchema,
+        auth: false,
+    });
+
+    server.post("developer/partner/create-room", developerPartnerCreateRoom, {
+        schema: developerPartnerCreateRoomSchema,
+        auth: false,
+    });
+
+    server.post("developer/partner/list-rooms", developerPartnerListRooms, {
+        schema: developerPartnerListRoomsSchema,
+        auth: false,
+    });
+
+    server.post("developer/partner/remove-room", developerPartnerRemoveRoom, {
+        schema: developerPartnerRemoveRoomSchema,
+        auth: false,
     });
 };

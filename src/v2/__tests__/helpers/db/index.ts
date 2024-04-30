@@ -12,6 +12,7 @@ import { CreateRoom } from "./room";
 import { CreateUserPhone } from "./user-phone";
 import { CreateUserWeChat } from "./user-wechat";
 import { CreateUserEmail } from "./user-email";
+import { CreatePartner } from "./partner";
 
 export const testService = (t: EntityManager) => {
     return {
@@ -28,5 +29,6 @@ export const testService = (t: EntityManager) => {
         createUserPhone: new CreateUserPhone(t),
         createUserWeChat: new CreateUserWeChat(t),
         createUserEmail: new CreateUserEmail(t),
+        createPartner: new CreatePartner(t),
     };
 };
