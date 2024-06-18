@@ -84,4 +84,9 @@ export class RoomModel extends Content {
         default: false,
     })
     is_delete: boolean;
+
+    @Column({
+        default: false,
+    })
+    has_record: boolean;
 }
