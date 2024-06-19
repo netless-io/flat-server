@@ -15,6 +15,7 @@ import { ErrorCode } from "../../../../../ErrorCode";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
 import { generateInviteCode } from "../../utils/GenerateInviteCode";
+import { RoomModel } from "../../../../../model/room/Room";
 
 const namespace = "[api][api-v1][api-v1-room][api-v1-room-list]";
 
@@ -71,6 +72,8 @@ test(`${namespace} - list history normal`, async ava => {
         RoomRecordDAO().insert(fakeRoomRecordData),
     ]);
 
+    await dataSource.createQueryBuilder().update(RoomModel).set({has_record: true}).where("room_uuid in (:ids)", {ids: fakeRoomRecordData.map(room => room.room_uuid)}).execute()
+
     const historyList = createList(ListType.History, userUUID);
 
     const result = (await historyList.execute()) as ResponseSuccess<ResponseType>;
@@ -82,6 +85,8 @@ test(`${namespace} - list history normal`, async ava => {
         .filter(room => room.hasRecord)
         .map(room => room.roomUUID)
         .sort();
+
+    ava.is(fakeRoomRecordData.length, hasRecordRooms.length)
 
     ava.deepEqual(fakeRoomRecordData.map(room => room.room_uuid).sort(), hasRecordRooms);
 
