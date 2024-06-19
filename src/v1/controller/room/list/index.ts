@@ -8,7 +8,6 @@ import { Region, Status } from "../../../../constants/Project";
 
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
-import { RoomRecordModel } from "../../../../model/room/RoomRecord";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
