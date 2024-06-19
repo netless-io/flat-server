@@ -96,7 +96,7 @@ export class RecordAgoraStarted extends AbstractController<RequestType, Response
             }
         }
 
-        const roomInfo = await RoomDAO().findOne(["room_status"], {
+        const roomInfo = await RoomDAO().findOne(["room_status", "has_record"], {
             room_uuid: roomUUID,
             owner_uuid: userUUID,
         });
@@ -143,6 +143,19 @@ export class RecordAgoraStarted extends AbstractController<RequestType, Response
                 end_time: currentTime,
                 agora_sid: agoraResponse.sid,
             });
+
+            if (!roomInfo.has_record) {
+                await RoomDAO().update(
+                    {
+                        has_record: true,
+                    },
+                    {
+                        room_uuid: roomUUID,
+                    },
+                    ["id", "ASC"],
+                    1,
+                );
+            }
 
             await RedisService.set(
                 RedisKey.record(roomUUID),

@@ -2,7 +2,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../types/Server
 import { Region, Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
-import { RoomDAO, RoomRecordDAO, RoomUserDAO, UserDAO, UserPmiDAO } from "../../../../dao";
+import { RoomDAO, RoomUserDAO, UserDAO, UserPmiDAO } from "../../../../dao";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { getInviteCode } from "./Utils";
@@ -51,6 +51,7 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
                 "owner_uuid",
                 "region",
                 "periodic_uuid",
+                "has_record",
             ],
             {
                 room_uuid: roomUUID,
@@ -73,6 +74,7 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
             owner_uuid,
             region,
             periodic_uuid: periodicUUID,
+            has_record,
         } = roomInfo;
 
         const userInfo = await UserDAO().findOne(["user_name"], {
@@ -85,11 +87,6 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
                 code: ErrorCode.UserNotFound,
             };
         }
-
-        const recordInfo = await RoomRecordDAO().findOne(["id"], {
-            room_uuid: roomUUID,
-        });
-
         const inviteCode = await getInviteCode(periodicUUID || roomUUID, this.logger);
 
         let isPmi = false;
@@ -109,7 +106,7 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
                     ownerUUID: owner_uuid,
                     ownerUserName: userInfo.user_name,
                     ownerName: userInfo.user_name,
-                    hasRecord: !!recordInfo,
+                    hasRecord: has_record,
                     region,
                     inviteCode,
                     isPmi,

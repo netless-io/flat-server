@@ -176,7 +176,16 @@ export class PeriodicSubRoomInfo extends AbstractController<RequestType, Respons
 
     private async viewAlreadyEndSubRoomAtCanceledPeriodicRoom(): Promise<Response<ResponseType>> {
         const roomInfo = await RoomDAO().findOne(
-            ["title", "begin_time", "end_time", "room_type", "room_status", "owner_uuid", "region"],
+            [
+                "title",
+                "begin_time",
+                "end_time",
+                "room_type",
+                "room_status",
+                "owner_uuid",
+                "region",
+                "has_record",
+            ],
             {
                 room_uuid: this.body.roomUUID,
             },
@@ -194,11 +203,8 @@ export class PeriodicSubRoomInfo extends AbstractController<RequestType, Respons
             room_status: roomStatus,
             owner_uuid: ownerUUID,
             region,
+            has_record,
         } = roomInfo;
-
-        const recordInfo = await RoomRecordDAO().findOne(["id"], {
-            room_uuid: this.body.roomUUID,
-        });
 
         return {
             status: Status.Success,
@@ -210,7 +216,7 @@ export class PeriodicSubRoomInfo extends AbstractController<RequestType, Respons
                     roomType,
                     roomStatus,
                     ownerUUID,
-                    hasRecord: !!recordInfo,
+                    hasRecord: has_record,
                     region,
                     inviteCode: this.body.roomUUID,
                 },

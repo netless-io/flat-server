@@ -28,7 +28,7 @@ export class RecordStarted extends AbstractController<RequestType, ResponseType>
         const { roomUUID } = this.body;
         const userUUID = this.userUUID;
 
-        const roomInfo = await RoomDAO().findOne(["room_status"], {
+        const roomInfo = await RoomDAO().findOne(["has_record", "room_status"], {
             room_uuid: roomUUID,
             owner_uuid: userUUID,
         });
@@ -53,6 +53,18 @@ export class RecordStarted extends AbstractController<RequestType, ResponseType>
             begin_time: currentTime,
             end_time: currentTime,
         });
+        if (!roomInfo.has_record) {
+            await RoomDAO().update(
+                {
+                    has_record: true,
+                },
+                {
+                    room_uuid: roomUUID,
+                },
+                ["id", "ASC"],
+                1,
+            );
+        }
 
         return {
             status: Status.Success,
