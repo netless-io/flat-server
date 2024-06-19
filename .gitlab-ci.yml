@@ -32,9 +32,9 @@ stages:
 
 .docker_build: &DOCKER_BUILD
   stage: build_image
-  image: docker:latest
+  image: docker:20.10.9
   services:
-    - docker:stable-dind
+    - docker:20.10.9-dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
