@@ -9,7 +9,7 @@ import { Response } from "../../../../types/Server";
 import { RoomDAO, RoomUserDAO, UserDAO } from "../../../../dao";
 import { showGuide } from "./Utils";
 import { AGORA_SHARE_SCREEN_UID } from "../../../../constants/Agora";
-import { Server } from "../../../../constants/Config";
+import { Agora, Server } from "../../../../constants/Config";
 
 export const joinOrdinary = async (
     roomUUID: string,
@@ -121,6 +121,7 @@ export const joinOrdinary = async (
             rtmToken: await getRTMToken(userUUID),
             region: roomInfo.region,
             showGuide: roomInfo.owner_uuid === userUUID && (await showGuide(userUUID, roomUUID)),
+            agoraAppId: Agora.appId,
         },
     };
 };
