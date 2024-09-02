@@ -88,7 +88,7 @@
     "ioredis": "^4.19.2",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
-    "mysql2": "^2.2.5",
+    "mysql2": "^3.9.8",
     "nanoid": "^3.1.31",
     "node-rsa": "^1.1.1",
     "nodemailer": "^6.9.4",
