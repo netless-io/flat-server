@@ -17,6 +17,8 @@ import { BindingGithub } from "./binding/platform/github/Binding";
 import { BindingGoogle } from "./binding/platform/google/Binding";
 import { BindingEmail } from "./binding/platform/email/Binding";
 import { BindingApple } from "./binding/platform/apple/Binding";
+import { AgreementSet } from "./agreement/Set";
+import { AgreementGet } from "./agreement/Get";
 
 export const userRouters: Readonly<Array<ControllerClass<any, any>>> = Object.freeze([
     Rename,
@@ -38,4 +40,6 @@ export const userRouters: Readonly<Array<ControllerClass<any, any>>> = Object.fr
     DeleteAccount,
     UploadAvatarStart,
     UploadAvatarFinish,
+    AgreementSet,
+    AgreementGet
 ]);
