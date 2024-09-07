@@ -83,6 +83,28 @@ test(`${namespace} - delete user agreement`, async ava => {
     ava.is(bol, false);
 
 });
+test(`${namespace} - get agree collect data`, async ava => {
+
+    const userUUID = v4();
+    await UserAgreementDAO().insert({
+        user_uuid: userUUID,
+        is_agree_collect_data: true,
+    });
+
+    const serviceUserAgreement = new ServiceUserAgreement(userUUID);
+    const result = await serviceUserAgreement.isAgreeCollectData();
+
+    ava.not(result, undefined);
+    ava.is(result, true);
+
+    const serviceUserAgreement1 = new ServiceUserAgreement(v4());
+
+    const result1 = await serviceUserAgreement1.hasCollectData();
+    ava.is(result1, false);
+
+    const result2 = await serviceUserAgreement.isAgreeCollectData();
+    ava.is(result2, true);
+});
 test(`${namespace} - get user by rtc_uuid collect agreement`, async ava => {
 
     const userUUID = v4();
@@ -103,6 +125,7 @@ test(`${namespace} - get user by rtc_uuid collect agreement`, async ava => {
 
     const result = await RoomUserDAO().findOne(["user_uuid"], {
         rtc_uid: rtcUUID,
+        room_uuid: roomUUID,
     });
 
     ava.not(result, undefined);

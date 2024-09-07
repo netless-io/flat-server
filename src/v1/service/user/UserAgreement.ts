@@ -5,7 +5,12 @@ import { UpdateResult } from "typeorm/query-builder/result/UpdateResult";
 export class ServiceUserAgreement {
     constructor(private readonly userUUID: string) {}
     public async isAgreeCollectData(): Promise<boolean> {
-        return await ServiceUserAgreement.isAgreeCollectData(this.userUUID);
+        const bol = await ServiceUserAgreement.hasCollectData(this.userUUID);
+        if (bol) {
+            const isAgree = await ServiceUserAgreement.isAgreeCollectData(this.userUUID);
+            return isAgree;
+        }
+        return true;
     }
     public async hasCollectData(): Promise<boolean> {
         return await ServiceUserAgreement.hasCollectData(this.userUUID);
