@@ -23,6 +23,7 @@ import { OAuthSecretsModel } from "../model/oauth/oauth-secrets";
 import { OAuthUsersModel } from "../model/oauth/oauth-users";
 import { UserEmailModel } from "../model/user/Email";
 import { UserPmiModel } from "../model/user/Pmi";
+import { UserAgreementModel } from "../model/user/Agreement";
 import { PartnerModel } from "../model/partner/Partner";
 import { PartnerRoomModel } from "../model/partner/PartnerRoom";
 
@@ -44,6 +45,7 @@ export const dataSource = new DataSource({
         UserEmailModel,
         UserSensitiveModel,
         UserPmiModel,
+        UserAgreementModel,
         RoomModel,
         RoomUserModel,
         RoomPeriodicConfigModel,
