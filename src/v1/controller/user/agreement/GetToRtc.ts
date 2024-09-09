@@ -1,16 +1,19 @@
-import { RoomUserDAO } from "../../../../dao";
 import { AbstractController, ControllerClassParams } from "../../../../abstract/controller";
 import { Status } from "../../../../constants/Project";
 import { Controller } from "../../../../decorator/Controller";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 
 import { ServiceUserAgreement } from "../../../service/user/UserAgreement";
+import { RoomUserModel } from "../../../../model/room/RoomUser";
+import { dataSource } from "../../../../thirdPartyService/TypeORMService";
+import { UserAgreementModel } from "./../../../../model/user/Agreement";
 
 @Controller<RequestType, ResponseType>({
     method: "get",
     path: "private-polic/get",
     auth: false,
-    skipAutoHandle: true,
+    skipAutoHandle: false,
+    enable: true
 })
 export class AgreementGetToRtc extends AbstractController<RequestType, ResponseType> {
     public static readonly schema: FastifySchema<RequestType> = {
@@ -45,24 +48,42 @@ export class AgreementGetToRtc extends AbstractController<RequestType, ResponseT
         const room_uuid = this.querystring.room_uuid;
         const rtcUids = rtcUidstr.split(",");
         const listMap:Map<string, boolean> = new Map();
-        if (rtcUids.length > 0) {
-            for (const rtc_uid of rtcUids) {
-                const roomUserInfo = await RoomUserDAO().findOne(["user_uuid"], {
-                    rtc_uid,
-                    room_uuid
-                });
-                if (roomUserInfo) {
-                    const bol = await ServiceUserAgreement.hasCollectData(roomUserInfo.user_uuid);
-                    if (bol) {
-                        const isAgree = await ServiceUserAgreement.isAgreeCollectData(roomUserInfo.user_uuid);
-                        listMap.set(rtc_uid, isAgree);
-                    } else {
-                        // 默认就是同意
-                        listMap.set(rtc_uid, true);
+        const length = rtcUids.length;
+        if (length > 0) {
+            let i = 0;
+            const batchQueryRtcUids: string[][] = [];
+            while (i < length) {
+                const j = i + 50;
+                batchQueryRtcUids.push(rtcUids.slice(i, j));
+                i = j;   
+            }
+            for (const rtc_uids of batchQueryRtcUids) {
+                const roomUsersInfos = await dataSource
+                    .createQueryBuilder(RoomUserModel, "ru")
+                    .where("ru.room_uuid = :room_uuid", {
+                        room_uuid,
+                    })
+                    .andWhere("ru.rtc_uid IN (:...rtc_uids)", { rtc_uids })
+                    .getMany();
+
+                for (const rtc_uid of rtc_uids) {
+                    listMap.set(rtc_uid, false);
+                }
+                const collectInfos = await dataSource
+                    .createQueryBuilder(UserAgreementModel, "cInfo")
+                    .where("cInfo.user_uuid IN (:...user_uuid)", { user_uuid: roomUsersInfos.map(c=> c && c.user_uuid) })
+                    .getMany();
+                    
+                for (const rInfo of roomUsersInfos) {
+                    listMap.set(rInfo.rtc_uid, true);
+                    const rtc_uid = rInfo.rtc_uid;
+                    const user_uuid = rInfo.user_uuid;
+                    if (rtc_uid && user_uuid) {
+                        const cInfo = collectInfos.find(c=> c && (c.user_uuid === user_uuid));
+                        if (cInfo) {
+                            listMap.set(rtc_uid, cInfo.is_agree_collect_data);
+                        }
                     }
-                } else {
-                    // 查不到用户则默认不同意
-                    listMap.set(rtc_uid, false);  
                 }
             }
         }

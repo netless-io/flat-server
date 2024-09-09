@@ -4,6 +4,8 @@ import { RoomUserDAO, UserAgreementDAO } from "../../../../dao";
 import { v4 } from "uuid";
 import { ServiceUserAgreement } from "../UserAgreement";
 import cryptoRandomString from "crypto-random-string";
+import { RoomUserModel } from "../../../../model/room/RoomUser";
+import { UserAgreementModel } from "../../../../model/user/Agreement";
 
 const namespace = "[service][service-user][service-user-agreement]";
 
@@ -110,6 +112,7 @@ test(`${namespace} - get user by rtc_uuid collect agreement`, async ava => {
     const userUUID = v4();
     const roomUUID = v4();
     const rtcUUID = cryptoRandomString({ length: 6, type: "numeric" });
+    const rtcUUID1 = cryptoRandomString({ length: 6, type: "numeric" });
 
     await Promise.all([
         RoomUserDAO().insert({
@@ -132,7 +135,7 @@ test(`${namespace} - get user by rtc_uuid collect agreement`, async ava => {
 
     ava.is(result?.user_uuid, userUUID);
 
-    const result1 = await UserAgreementDAO().findOne(["user_uuid"], {
+    const result1 = await UserAgreementDAO().findOne(["user_uuid", "is_agree_collect_data"], {
         user_uuid: userUUID,
     });
 
@@ -140,4 +143,50 @@ test(`${namespace} - get user by rtc_uuid collect agreement`, async ava => {
 
     ava.is(result?.user_uuid, result1?.user_uuid);
 
+    const rtcUids = [rtcUUID, rtcUUID1];
+    const length = rtcUids.length;
+    const listMap:Map<string, boolean> = new Map();
+    if (length > 0) {
+        let i = 0;
+        const batchQueryRtcUids: string[][] = [];
+        while (i < length) {
+            const j = i + 50;
+            batchQueryRtcUids.push(rtcUids.slice(i, j));
+            i = j;   
+        }
+        for (const rtc_uids of batchQueryRtcUids) {
+            const roomUsersInfos = await dataSource
+                .createQueryBuilder(RoomUserModel, "ru")
+                .where("ru.room_uuid = :room_uuid", {
+                    room_uuid:roomUUID,
+                })
+                .andWhere("ru.rtc_uid IN (:...rtc_uids)", { rtc_uids })
+                .getMany();
+
+            for (const rtc_uid of rtc_uids) {
+                listMap.set(rtc_uid, false);
+            }
+            const collectInfos = await dataSource
+                .createQueryBuilder(UserAgreementModel, "cInfo")
+                .where("cInfo.user_uuid IN (:...user_uuid)", { user_uuid: roomUsersInfos.map(c=> c && c.user_uuid) })
+                .getMany();
+
+            for (const rInfo of roomUsersInfos) {
+                listMap.set(rInfo.rtc_uid, true);
+                const rtc_uid = rInfo.rtc_uid;
+                const user_uuid = rInfo.user_uuid;
+                if (rtc_uid && user_uuid) {
+                    const cInfo = collectInfos.find(c=> c && (c.user_uuid === user_uuid));
+                    if (cInfo) {
+                        listMap.set(rtc_uid, cInfo.is_agree_collect_data);
+                    }
+                }
+            }
+        }
+    }
+    const obj = Object.fromEntries(listMap);
+
+    ava.is(result1?.is_agree_collect_data, obj?.[rtcUUID]);
+
+    ava.is(false, obj?.[rtcUUID1]);
 });
