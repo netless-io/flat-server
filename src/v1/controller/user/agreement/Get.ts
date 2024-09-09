@@ -11,8 +11,7 @@ import { ServiceUserAgreement } from "../../../service/user/UserAgreement";
     auth: true,
 })
 export class AgreementGet extends AbstractController<RequestType, ResponseType> {
-    public static readonly schema: FastifySchema<RequestType> = {
-    };
+    public static readonly schema: FastifySchema<RequestType> = {};
 
     public readonly svc: {
         userAgreement: ServiceUserAgreement;
@@ -41,11 +40,7 @@ export class AgreementGet extends AbstractController<RequestType, ResponseType> 
     }
 }
 
-interface RequestType {
-    querystring: {
-        uid: string;
-    };
-}
+interface RequestType {}
 
 interface ResponseType {
     isAgree: boolean;
