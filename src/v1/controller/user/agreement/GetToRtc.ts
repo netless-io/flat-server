@@ -47,52 +47,49 @@ export class AgreementGetToRtc extends AbstractController<RequestType, ResponseT
         const rtcUidstr = this.querystring.uid;
         const room_uuid = this.querystring.room_uuid;
         const rtcUids = rtcUidstr.split(",");
-        const listMap:Map<string, boolean> = new Map();
+        const userAgreementMap:Map<string, boolean> = new Map(rtcUids.map(rtc_uid => [rtc_uid, false]));
         const length = rtcUids.length;
         if (length > 0) {
             let i = 0;
-            const batchQueryRtcUids: string[][] = [];
             while (i < length) {
                 const j = i + 50;
-                batchQueryRtcUids.push(rtcUids.slice(i, j));
-                i = j;   
-            }
-            for (const rtc_uids of batchQueryRtcUids) {
-                const roomUsersInfos = await dataSource
-                    .createQueryBuilder(RoomUserModel, "ru")
-                    .where("ru.room_uuid = :room_uuid", {
-                        room_uuid,
-                    })
-                    .andWhere("ru.rtc_uid IN (:...rtc_uids)", { rtc_uids })
-                    .getMany();
-
-                for (const rtc_uid of rtc_uids) {
-                    listMap.set(rtc_uid, false);
-                }
-                const collectInfos = await dataSource
-                    .createQueryBuilder(UserAgreementModel, "cInfo")
-                    .where("cInfo.user_uuid IN (:...user_uuid)", { user_uuid: roomUsersInfos.map(c=> c && c.user_uuid) })
-                    .getMany();
-                    
-                for (const rInfo of roomUsersInfos) {
-                    listMap.set(rInfo.rtc_uid, true);
-                    const rtc_uid = rInfo.rtc_uid;
-                    const user_uuid = rInfo.user_uuid;
-                    if (rtc_uid && user_uuid) {
-                        const cInfo = collectInfos.find(c=> c && (c.user_uuid === user_uuid));
-                        if (cInfo) {
-                            listMap.set(rtc_uid, cInfo.is_agree_collect_data);
-                        }
+                const batchedRtcUids = rtcUids.slice(i, j);
+                const roomUserInfos = await this.getRoomUserInfos(room_uuid, batchedRtcUids);
+                const userUuids = roomUserInfos.map(user => user.user_uuid);
+                const userAgreements = await this.getUserAgreements(userUuids);
+                for (const userInfo of roomUserInfos) {
+                    const { rtc_uid, user_uuid } = userInfo;
+                    const userAgreement = userAgreements.find(ua => ua.user_uuid === user_uuid);
+                    if (userAgreement) {
+                        userAgreementMap.set(rtc_uid, userAgreement.is_agree_collect_data);
+                    } else {
+                        userAgreementMap.set(rtc_uid, true);
                     }
                 }
+                i = j;   
             }
         }
         return {
             status: Status.Success,
-            data: Object.fromEntries(listMap)
+            data: Object.fromEntries(userAgreementMap)
         } 
     }
+
     
+    private async getRoomUserInfos(room_uuid: string, rtc_uids: string[]): Promise<RoomUserModel[]> {
+        return dataSource
+            .createQueryBuilder(RoomUserModel, "ru")
+            .where("ru.room_uuid = :room_uuid", { room_uuid })
+            .andWhere("ru.rtc_uid IN (:...rtc_uids)", { rtc_uids })
+            .getMany();
+    }
+    private async getUserAgreements(userUuids: string[]): Promise<UserAgreementModel[]> {
+        return dataSource
+            .createQueryBuilder(UserAgreementModel, "ua")
+            .where("ua.user_uuid IN (:...userUuids)", { userUuids })
+            .getMany();
+    }
+
     public errorHandler(error: Error): ResponseError {
         return this.autoHandlerError(error);
     }
