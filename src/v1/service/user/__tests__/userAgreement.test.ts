@@ -157,17 +157,19 @@ test(`${namespace} - get user by rtc_uuid collect agreement`, async ava => {
                 .andWhere("ru.rtc_uid IN (:...rtc_uids)", { rtc_uids: batchedRtcUids })
                 .getMany();
             const userUuids = roomUserInfos.map(user => user.user_uuid);
-            const userAgreements = await dataSource
-                .createQueryBuilder(UserAgreementModel, "ua")
-                .where("ua.user_uuid IN (:...userUuids)", { userUuids })
-                .getMany();;
-            for (const userInfo of roomUserInfos) {
-                const { rtc_uid, user_uuid } = userInfo;
-                const userAgreement = userAgreements.find(ua => ua.user_uuid === user_uuid);
-                if (userAgreement) {
-                    userAgreementMap.set(rtc_uid, userAgreement.is_agree_collect_data);
-                } else {
-                    userAgreementMap.set(rtc_uid, true);
+            if (userUuids.length > 0) {
+                const userAgreements = await dataSource
+                    .createQueryBuilder(UserAgreementModel, "ua")
+                    .where("ua.user_uuid IN (:...userUuids)", { userUuids })
+                    .getMany();;
+                for (const userInfo of roomUserInfos) {
+                    const { rtc_uid, user_uuid } = userInfo;
+                    const userAgreement = userAgreements.find(ua => ua.user_uuid === user_uuid);
+                    if (userAgreement) {
+                        userAgreementMap.set(rtc_uid, userAgreement.is_agree_collect_data);
+                    } else {
+                        userAgreementMap.set(rtc_uid, true);
+                    }
                 }
             }
             i = j;   
