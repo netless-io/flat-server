@@ -56,14 +56,16 @@ export class AgreementGetToRtc extends AbstractController<RequestType, ResponseT
                 const batchedRtcUids = rtcUids.slice(i, j);
                 const roomUserInfos = await this.getRoomUserInfos(room_uuid, batchedRtcUids);
                 const userUuids = roomUserInfos.map(user => user.user_uuid);
-                const userAgreements = await this.getUserAgreements(userUuids);
-                for (const userInfo of roomUserInfos) {
-                    const { rtc_uid, user_uuid } = userInfo;
-                    const userAgreement = userAgreements.find(ua => ua.user_uuid === user_uuid);
-                    if (userAgreement) {
-                        userAgreementMap.set(rtc_uid, userAgreement.is_agree_collect_data);
-                    } else {
-                        userAgreementMap.set(rtc_uid, true);
+                if (userUuids.length > 0) {
+                    const userAgreements = await this.getUserAgreements(userUuids);
+                    for (const userInfo of roomUserInfos) {
+                        const { rtc_uid, user_uuid } = userInfo;
+                        const userAgreement = userAgreements.find(ua => ua.user_uuid === user_uuid);
+                        if (userAgreement) {
+                            userAgreementMap.set(rtc_uid, userAgreement.is_agree_collect_data);
+                        } else {
+                            userAgreementMap.set(rtc_uid, true);
+                        }
                     }
                 }
                 i = j;   
@@ -74,7 +76,6 @@ export class AgreementGetToRtc extends AbstractController<RequestType, ResponseT
             data: Object.fromEntries(userAgreementMap)
         } 
     }
-
     
     private async getRoomUserInfos(room_uuid: string, rtc_uids: string[]): Promise<RoomUserModel[]> {
         return dataSource
