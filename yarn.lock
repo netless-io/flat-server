@@ -425,14 +425,14 @@
   dependencies:
     fastify-plugin "^3.0.0"
 
-"@fastify/jwt@^6.5.0":
-  version "6.5.0"
-  resolved "https://registry.npmjs.org/@fastify/jwt/-/jwt-6.5.0.tgz#99fa697e7114aee5039f0c8761d0b3278f74f30a"
-  integrity sha512-5fR5bRXuWurP56gy/owng3BS/3e9vA0mON1XCGLsznvsudLZUdiPaK0R8Bl5gVwFAW75iFkNOp8qgnw26Csjrw==
+"@fastify/jwt@^8.0.1":
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/@fastify/jwt/-/jwt-8.0.1.tgz#d8f74efd8c9b59a7cfa077219392b4144fe6beb6"
+  integrity sha512-295bd7V6bDCnZOu8MAQgM6r7V1KILB+kdEq1q6nbHfXCnML569n7NSo3WzeLDG6IAqDl+Rhzi1vjxwaNHhRCBA==
   dependencies:
     "@fastify/error" "^3.0.0"
     "@lukeed/ms" "^2.0.0"
-    fast-jwt "^2.0.0"
+    fast-jwt "^4.0.0"
     fastify-plugin "^4.0.0"
     steed "^1.1.3"
 
@@ -520,6 +520,11 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@lukeed/ms/-/ms-2.0.0.tgz#cacd4fcb81b1b285f21f8c7e3650874ef9383f1b"
   integrity sha512-NOlhE40rGptwLwJhE0ZW259hcoa+nkpQRQ1FUKV4Sr2z1Eh2WfkHQ3jjBNF7YEqOrF0TOpqnyU1wClvWBrXByg==
+
+"@lukeed/ms@^2.0.1":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@lukeed/ms/-/ms-2.0.2.tgz#07f09e59a74c52f4d88c6db5c1054e819538e2a8"
+  integrity sha512-9I2Zn6+NJLfaGoz9jN3lpwDgAYvfGeNYdbAIjJOqzs4Tpc+VU3Jqq4IofSUBKajiDS8k9fZIg18/z13mpk1bsA==
 
 "@nodelib/fs.scandir@2.1.4":
   version "2.1.4"
@@ -1352,7 +1357,7 @@ arrify@^3.0.0:
   resolved "https://registry.yarnpkg.com/arrify/-/arrify-3.0.0.tgz#ccdefb8eaf2a1d2ab0da1ca2ce53118759fd46bc"
   integrity sha512-tLkvA81vQG/XqE2mjDkGQHoOINtMHtysSnemrmoGe6PydDPMRbVugqyk4A6V/WDWEfm3l+0d8anA9r8cv/5Jaw==
 
-asn1.js@^5.3.0:
+asn1.js@^5.4.1:
   version "5.4.1"
   resolved "https://registry.yarnpkg.com/asn1.js/-/asn1.js-5.4.1.tgz#11a980b84ebb91781ce35b0fdc2ee294e3783f07"
   integrity sha512-+I//4cYPccV8LdmBLiX8CYvf9Sp3vQsrqu2QNXRcrbiWvcx/UdlFiqUJJzxRQxgsZmvhXhn4cSKeSmoFjVdupA==
@@ -2698,14 +2703,15 @@ fast-json-stringify@^4.2.0:
     rfdc "^1.2.0"
     string-similarity "^4.0.1"
 
-fast-jwt@^2.0.0, fast-jwt@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.npmjs.org/fast-jwt/-/fast-jwt-2.1.0.tgz#bc508166a6860ba623da368f35e9c750cb56b807"
-  integrity sha512-NgDiaG9BacwCwSc39MfYywnDWMTAguRNDTE5bq1Vr34Qwpv0V6nNy7AeReXfa++aH8k/z4RYbqsoy2/PLNagQw==
+fast-jwt@^4.0.0, fast-jwt@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/fast-jwt/-/fast-jwt-4.0.1.tgz#42ce31589bdc2343c302ab707789801e10eba1a7"
+  integrity sha512-+mdSoH0QdOdFSbbGBctJu7L1yfXRtbmjbVJ4W/PEjyvivobDena0RKwihtBkOML1P+kUJ1QuewnH8u+mROsR1w==
   dependencies:
-    asn1.js "^5.3.0"
+    "@lukeed/ms" "^2.0.1"
+    asn1.js "^5.4.1"
     ecdsa-sig-formatter "^1.0.11"
-    mnemonist "^0.39.0"
+    mnemonist "^0.39.5"
 
 fast-levenshtein@^2.0.6, fast-levenshtein@~2.0.6:
   version "2.0.6"
@@ -4294,10 +4300,10 @@ mkdirp@^1.0.4:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-mnemonist@^0.39.0:
-  version "0.39.1"
-  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.39.1.tgz#0915e617810d1e717b2e8477a01e6c52e5fd2997"
-  integrity sha512-bY13FSvcbKLj+FaJcR2+xFZ3m2R1+BrLpavAh0BMyGSq0iPowbvYllwitlkvVyEowEYSulCMzxDaju9bC4+cow==
+mnemonist@^0.39.5:
+  version "0.39.8"
+  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.39.8.tgz#9078cd8386081afd986cca34b52b5d84ea7a4d38"
+  integrity sha512-vyWo2K3fjrUw8YeeZ1zF0fy6Mu59RHokURlld8ymdUPjMlD9EC9ov1/YPqTgqRvUN9nTr3Gqfz29LYAmu0PHPQ==
   dependencies:
     obliterator "^2.0.1"
 
