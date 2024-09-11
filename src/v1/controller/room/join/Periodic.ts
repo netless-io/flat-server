@@ -17,7 +17,7 @@ import {
 import { showGuide } from "./Utils";
 import { AGORA_SHARE_SCREEN_UID } from "../../../../constants/Agora";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
-import { Server } from "../../../../constants/Config";
+import { Agora, Server } from "../../../../constants/Config";
 
 export const joinPeriodic = async (
     periodicUUID: string,
@@ -165,6 +165,7 @@ export const joinPeriodic = async (
             rtmToken: await getRTMToken(userUUID),
             region: periodicRoomConfig.region,
             showGuide: roomInfo.owner_uuid === userUUID && (await showGuide(userUUID, roomUUID)),
+            agoraAppId: Agora.appId,
         },
     };
 };
