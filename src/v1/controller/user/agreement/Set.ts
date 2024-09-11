@@ -14,9 +14,9 @@ export class AgreementSet extends AbstractController<RequestType, ResponseType> 
     public static readonly schema: FastifySchema<RequestType> = {
         body: {
             type: "object",
-            required: ["is_agree_collect_data"],
+            required: ["isAgree"],
             properties: {
-                is_agree_collect_data: {
+                isAgree: {
                     type: "boolean"
                 },
             },
@@ -36,7 +36,7 @@ export class AgreementSet extends AbstractController<RequestType, ResponseType> 
     }
 
     public async execute(): Promise<Response<ResponseType>> {
-        await this.svc.userAgreement.set(this.body.is_agree_collect_data);
+        await this.svc.userAgreement.set(this.body.isAgree);
         return {
             status: Status.Success,
             data: {
@@ -52,7 +52,7 @@ export class AgreementSet extends AbstractController<RequestType, ResponseType> 
 
 interface RequestType {
     body: {
-        is_agree_collect_data: boolean;
+        isAgree: boolean;
     };
 }
 
