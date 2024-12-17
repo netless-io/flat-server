@@ -2,6 +2,7 @@ export enum RoomType {
     OneToOne = "OneToOne",
     SmallClass = "SmallClass",
     BigClass = "BigClass",
+    AIClass = "AIClass",
 }
 
 export enum Week {

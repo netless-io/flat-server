@@ -37,7 +37,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
                 },
                 type: {
                     type: "string",
-                    enum: [RoomType.OneToOne, RoomType.SmallClass, RoomType.BigClass],
+                    enum: [RoomType.OneToOne, RoomType.SmallClass, RoomType.BigClass, RoomType.AIClass],
                 },
                 beginTime: {
                     type: "integer",
