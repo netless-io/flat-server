@@ -47,7 +47,7 @@ export class UpdatePeriodic extends AbstractController<RequestType, ResponseType
                 },
                 type: {
                     type: "string",
-                    enum: [RoomType.SmallClass, RoomType.BigClass, RoomType.OneToOne],
+                    enum: [RoomType.SmallClass, RoomType.BigClass, RoomType.OneToOne, RoomType.AIClass],
                     maxLength: 50,
                 },
                 periodic: {
