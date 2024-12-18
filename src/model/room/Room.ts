@@ -89,4 +89,9 @@ export class RoomModel extends Content {
         default: false,
     })
     has_record: boolean;
+    
+    @Column({
+        default: false,
+    })
+    is_ai: boolean;
 }

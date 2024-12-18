@@ -63,11 +63,12 @@ export class ServiceRoom {
             region?: Region;
             beginTime?: number | Date;
             endTime?: number | Date;
+            isAI?: boolean;
         },
         t?: EntityManager,
     ): Promise<InsertResult> {
         const region = Whiteboard.region as Region;
-        const { title, type, endTime } = data;
+        const { title, type, endTime, isAI } = data;
         const beginTime = data.beginTime || Date.now();
 
         return await RoomDAO(t).insert({
@@ -81,6 +82,7 @@ export class ServiceRoom {
             begin_time: toDate(beginTime),
             end_time: endTime ? toDate(endTime) : addHours(1, beginTime),
             region,
+            is_ai: isAI,
         });
     }
 

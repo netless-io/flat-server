@@ -58,6 +58,10 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
                     type: "boolean",
                     nullable: true,
                 },
+                isAI: {
+                    type: "boolean",
+                    nullable: true,
+                },
             },
         },
     };
@@ -183,6 +187,7 @@ export interface RequestType {
         endTime?: number;
         region?: Region;
         pmi?: boolean;
+        isAI?: boolean;
     };
 }
 
