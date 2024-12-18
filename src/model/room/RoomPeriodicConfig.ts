@@ -64,7 +64,7 @@ export class RoomPeriodicConfigModel extends Content {
     @Index("room_periodic_configs_type_index")
     @Column({
         type: "enum",
-        enum: [RoomType.OneToOne, RoomType.BigClass, RoomType.SmallClass, RoomType.AIClass],
+        enum: [RoomType.OneToOne, RoomType.BigClass, RoomType.SmallClass],
         comment: "room type",
     })
     room_type: RoomType;

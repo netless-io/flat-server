@@ -37,7 +37,7 @@ export class RoomModel extends Content {
     @Index("rooms_room_type_index")
     @Column({
         type: "enum",
-        enum: [RoomType.OneToOne, RoomType.BigClass, RoomType.SmallClass, RoomType.AIClass],
+        enum: [RoomType.OneToOne, RoomType.BigClass, RoomType.SmallClass],
         comment: "room type",
     })
     room_type: RoomType;
