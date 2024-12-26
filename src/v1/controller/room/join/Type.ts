@@ -16,5 +16,5 @@ export type ResponseType = {
     rtmToken: string;
     region: Region;
     showGuide: boolean;
-    isAI: boolean;
+    isAI?: boolean;
 };
