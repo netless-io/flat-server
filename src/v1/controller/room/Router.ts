@@ -25,6 +25,8 @@ import { UpdatePeriodic } from "./update/Periodic";
 import { RecordStarted } from "./record/Started";
 import { RecordStopped } from "./record/Stopped";
 import { ControllerClass } from "../../../abstract/controller";
+import { SetGrade } from "./grade/Set";
+import { GetGrade } from "./grade/Get";
 
 export const roomRouters: Readonly<Array<ControllerClass<any, any>>> = Object.freeze([
     CreateOrdinary,
@@ -53,4 +55,6 @@ export const roomRouters: Readonly<Array<ControllerClass<any, any>>> = Object.fr
     RecordAgoraUpdateLayout,
     RecordAgoraStopped,
     RecordInfo,
+    SetGrade,
+    GetGrade
 ]);
