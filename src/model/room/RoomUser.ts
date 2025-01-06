@@ -29,12 +29,6 @@ export class RoomUserModel extends Content {
     })
     rtc_uid: string;
 
-    @Column({
-        default: -1,
-        type: "int",
-    })
-    grade: number;
-
     @Index("room_users_is_delete_index")
     @Column({
         default: false,

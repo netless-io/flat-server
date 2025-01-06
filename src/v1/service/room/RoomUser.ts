@@ -19,7 +19,6 @@ export class ServiceRoomUser {
             room_uuid: this.roomUUID,
             user_uuid: this.userUUID,
             rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
-            grade: -1,
         });
     }
 }

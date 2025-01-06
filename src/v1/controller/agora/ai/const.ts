@@ -1,1 +1,0 @@
-export const AI_SERVER_URL = "http://106.13.114.185:8081";
