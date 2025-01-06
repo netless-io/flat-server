@@ -160,6 +160,9 @@ export const Agora = {
         enable: config.agora.messageNotification.enable,
         events: config.agora.messageNotification.events,
     },
+    ai: {
+        server: config.agora.ai.server,
+    }
 };
 
 export const JWT = {
