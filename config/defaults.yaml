@@ -183,7 +183,8 @@ agora:
         eventType:
         secret:
   ai:
-    server: "http://106.13.114.185:8081"
+    server_cn: "http://43.131.39.44:8082"
+    server_en: "http://43.131.39.44:8081"
 
 whiteboard:
   app_id:

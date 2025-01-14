@@ -203,7 +203,8 @@ type Config = {
             }>;
         };
         ai: {
-            server: string;
+            server_cn: string;
+            server_en: string;
         }
     };
     whiteboard: {

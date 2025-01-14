@@ -2,7 +2,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../types/Server
 import { ax } from "../../../utils/Axios";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
-import { AI_SERVER_URL } from "./const";
+import { AI_SERVER_URL_CN, AI_SERVER_URL_EN } from "./const";
 
 @Controller<RequestType, any>({
     method: "post",
@@ -13,7 +13,7 @@ export class AgoraAIPing extends AbstractController<RequestType, any> {
     public static readonly schema: FastifySchema<RequestType> = {
         body: {
             type: "object",
-            required: ["request_id", "channel_name"],
+            required: ["request_id", "channel_name", "language"],
             properties: {
                 request_id: {
                     type: "string",
@@ -21,14 +21,17 @@ export class AgoraAIPing extends AbstractController<RequestType, any> {
                 channel_name: {
                     type: "string",
                 },
+                language: {
+                    type: "string",
+                }
             },
         },
     };
 
     public async execute(): Promise<Response<any>> {
-        const { request_id, channel_name  } = this.body;
-
-        const res = await ax.post<any>(`${AI_SERVER_URL}/ping`, {
+        const { request_id, channel_name, language } = this.body;
+        const api = language === "cn" ? AI_SERVER_URL_CN : AI_SERVER_URL_EN;
+        const res = await ax.post<any>(`${api}/ping`, {
                 request_id, 
                 channel_name
             }, 
@@ -51,5 +54,6 @@ interface RequestType {
     body: {
         request_id: string;
         channel_name: string;
+        language: string;
     };
 }

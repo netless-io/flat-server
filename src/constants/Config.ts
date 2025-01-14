@@ -161,7 +161,8 @@ export const Agora = {
         events: config.agora.messageNotification.events,
     },
     ai: {
-        server: config.agora.ai.server,
+        server_cn: config.agora.ai.server_cn,
+        server_en: config.agora.ai.server_en,
     }
 };
 
