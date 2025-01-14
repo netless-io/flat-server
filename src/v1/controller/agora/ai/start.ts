@@ -2,7 +2,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../types/Server
 import { ax } from "../../../utils/Axios";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
-import { AI_SERVER_URL } from "./const";
+import { AI_SERVER_URL_CN, AI_SERVER_URL_EN } from "./const";
 
 @Controller<RequestType, any>({
     method: "post",
@@ -38,12 +38,13 @@ export class AgoraAIStart extends AbstractController<RequestType, any> {
     };
 
     public async execute(): Promise<Response<any>> {
-        const { request_id, channel_name, user_uid  } = this.body;
-
-        const res = await ax.post<any>(`${AI_SERVER_URL}/start`, {
+        const { request_id, channel_name, user_uid, language, role  } = this.body;
+        const api = language === "cn" ? AI_SERVER_URL_CN : AI_SERVER_URL_EN;
+        const res = await ax.post<any>(`${api}/start`, {
                 request_id, 
                 channel_name,
                 user_uid,
+                timber_type: role
             }, 
             {    
                 headers: {
