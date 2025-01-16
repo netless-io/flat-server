@@ -3,6 +3,7 @@ import { ax } from "../../../utils/Axios";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { AI_SERVER_URL_CN, AI_SERVER_URL_EN } from "./const";
+import { Status } from "constants/Project";
 
 @Controller<RequestType, any>({
     method: "post",
@@ -41,7 +42,10 @@ export class AgoraAIPing extends AbstractController<RequestType, any> {
                 }
             }
         )
-        return res;
+        return {
+            status: Status.Success,
+            data: res,
+        }
 
     }
 
