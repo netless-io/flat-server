@@ -31,7 +31,7 @@ export class AgoraAIStop extends AbstractController<RequestType, any> {
 
     public async execute(): Promise<Response<any>> {
         const { request_id, channel_name, language  } = this.body;
-        const api = language === "cn" ? AI_SERVER_URL_CN : AI_SERVER_URL_EN;
+        const api = language === "zh" ? AI_SERVER_URL_CN : AI_SERVER_URL_EN;
         const res = await ax.post<any>(`${api}/start`, {
                 request_id, 
                 channel_name,
@@ -44,7 +44,7 @@ export class AgoraAIStop extends AbstractController<RequestType, any> {
         )
         return {
             status: Status.Success,
-            data: res,
+            data: res.data,
         }
     }
 

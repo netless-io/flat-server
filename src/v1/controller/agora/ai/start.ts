@@ -4,7 +4,6 @@ import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { AI_SERVER_URL_CN, AI_SERVER_URL_EN } from "./const";
 import { Status } from "../../../../constants/Project";
-
 @Controller<RequestType, any>({
     method: "post",
     path: "agora/ai/start",
@@ -14,7 +13,7 @@ export class AgoraAIStart extends AbstractController<RequestType, any> {
     public static readonly schema: FastifySchema<RequestType> = {
         body: {
             type: "object",
-            required: ["request_id", "channel_name", "user_uid", "language", "scene", "role"],
+            required: ["request_id", "channel_name", "user_uid", "language", "role"],
             properties: {
                 request_id: {
                     type: "string",
@@ -23,12 +22,9 @@ export class AgoraAIStart extends AbstractController<RequestType, any> {
                     type: "string",
                 },
                 user_uid: {
-                    type: "string",
+                    type: "number",
                 },
                 language: {
-                    type: "string",
-                },
-                scene: {
                     type: "string",
                 },
                 role: {
@@ -40,12 +36,12 @@ export class AgoraAIStart extends AbstractController<RequestType, any> {
 
     public async execute(): Promise<Response<any>> {
         const { request_id, channel_name, user_uid, language, role  } = this.body;
-        const api = language === "cn" ? AI_SERVER_URL_CN : AI_SERVER_URL_EN;
+        const api = language === "zh" ? AI_SERVER_URL_CN : AI_SERVER_URL_EN;
         const res = await ax.post<any>(`${api}/start`, {
                 request_id, 
                 channel_name,
                 user_uid,
-                timber_type: role
+                timbre_type: role
             }, 
             {    
                 headers: {
@@ -56,7 +52,7 @@ export class AgoraAIStart extends AbstractController<RequestType, any> {
         
         return {
             status: Status.Success,
-            data: res,
+            data: res.data,
         }
     }
 
@@ -69,9 +65,8 @@ interface RequestType {
     body: {
         request_id: string;
         channel_name: string;
-        user_uid: string;
+        user_uid: number;
         language: string;
-        scene: string;
         role: string;
     };
 }
