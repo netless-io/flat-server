@@ -32,6 +32,7 @@ const loggerPlugins = [
     new LoggerPluginFile(LogConfig.pathname, LogConfig.filename),
 ];
 
+
 export const createLoggerAPIv1 = <R extends LoggerContext>(
     context: Partial<LoggerAPI & R>,
 ): Logger<LoggerAPI & R> => {
@@ -57,6 +58,20 @@ export const createLoggerAPIv2 = <R extends LoggerContext>(
         loggerPlugins as LoggerAbstractPlugin<LoggerAPIv2 & R>[],
     );
 };
+
+const createLoggerForRuntime = <R extends LoggerContext>(
+    context: Partial<R>,
+): Logger<R> => {
+    return new Logger<R>(
+        "api",
+        {
+            ...context,
+            ...baseContext,
+        },
+        loggerPlugins as LoggerAbstractPlugin<R>[],
+    );
+};
+
 
 export const createLoggerService = <T extends string>(
     context: Partial<
@@ -156,3 +171,5 @@ export const createLoggerContentCensorship = <R extends LoggerContext>(
         loggerPlugins as LoggerAbstractPlugin<LoggerContentCensorship & R>[],
     );
 };
+
+export const runTimeLogger = createLoggerForRuntime({})
