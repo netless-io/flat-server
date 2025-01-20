@@ -3,6 +3,7 @@ import { createWhiteboardSDKToken } from "../../../../utils/NetlessToken";
 import { AxiosResponse } from "axios";
 import { Region } from "../../../../constants/Project";
 import { Whiteboard } from "../../../../constants/Config";
+import { runTimeLogger } from "../../../../logger";
 
 /**
  * whiteboard create room api
@@ -10,106 +11,149 @@ import { Whiteboard } from "../../../../constants/Config";
  * @param {number} limit - (default: 0 = no limit)
  * @return {string} whiteboard room uuid, not room model's room_uuid
  */
-export const whiteboardCreateRoom = async (region: Region, limit = 0): Promise<string> => {
-    const {
-        data: { uuid },
-    } = await ax.post<Room>(
-        "https://api.netless.link/v5/rooms",
-        {
-            isRecord: true,
-            limit,
-        },
-        {
-            headers: {
-                token: createWhiteboardSDKToken(),
-                region,
-            },
-        },
-    );
 
-    return uuid;
+const wrapWhiteboardRequest = function <R>(methodDescription: string, execute: (...args: any) => Promise<R>): (...args: any) => Promise<R> {
+    return (...args: any[]): Promise<R> => {
+        try {
+            return execute(args);
+        } catch (error) {
+            runTimeLogger.error(`request whiteboard ${methodDescription} failed, error: ${error}`);
+            if (error.isAxiosError) {
+                runTimeLogger.error(`get netless error, status: ${error.response.status}, response: ${JSON.stringify(error.response.data)}`);
+            }
+            throw error;
+        }
+
+    };
 };
 
-export const whiteboardBanRoom = async (
-    region: Region,
-    uuid: string,
-): Promise<AxiosResponse<Room>> => {
-    return await ax.patch<Room>(
-        `https://api.netless.link/v5/rooms/${uuid}`,
-        {
-            isBan: true,
-        },
-        {
-            headers: {
-                token: createWhiteboardSDKToken(),
-                region,
-            },
-        },
-    );
-};
+export const whiteboardCreateRoom = wrapWhiteboardRequest(
+    "whiteboardCreateRoom",
+    async (region: Region, limit = 0): Promise<string> => {
+        try {
+            const {
+                data: { uuid },
+            } = await ax.post<Room>(
+                "https://api.netless.link/v5/rooms",
+                {
+                    isRecord: true,
+                    limit,
+                },
+                {
+                    headers: {
+                        token: createWhiteboardSDKToken(),
+                        region,
+                    },
+                },
+            );
 
-export const whiteboardCreateConversionTask = async (
-    body: CreateConversionTaskParams,
-): Promise<AxiosResponse<TaskCreated>> => {
-    return await ax.post<TaskCreated>(
-        "https://api.netless.link/v5/services/conversion/tasks",
-        body,
-        {
-            headers: {
-                token: createWhiteboardSDKToken(),
-                region: Whiteboard.convertRegion,
-            },
-        },
-    );
-};
+            return uuid;
+        } catch (error) {
+            runTimeLogger.error(`request whiteboard create room failed, error: ${error}`);
+            if (error.isAxiosError) {
+                runTimeLogger.error(`get netless error, status: ${error.response.status}, response: ${JSON.stringify(error.response.data)}`);
+            }
+            throw error;
+        }
+    }
+);
 
-export const whiteboardQueryConversionTask = async (
-    uuid: string,
-    type: "static" | "dynamic",
-): Promise<AxiosResponse<TaskStatus>> => {
-    return await ax.get<TaskStatus>(
-        `https://api.netless.link/v5/services/conversion/tasks/${uuid}?type=${type}`,
-        {
-            headers: {
-                token: createWhiteboardSDKToken(),
-                region: Whiteboard.convertRegion,
-            },
-        },
-    );
-};
+export const whiteboardBanRoom =
+    wrapWhiteboardRequest(
+        "whiteboardBanRoom",
+        async (
+            region: Region,
+            uuid: string,
+        ): Promise<AxiosResponse<Room>> => {
+            return await ax.patch<Room>(
+                `https://api.netless.link/v5/rooms/${uuid}`,
+                {
+                    isBan: true,
+                },
+                {
+                    headers: {
+                        token: createWhiteboardSDKToken(),
+                        region,
+                    },
+                },
+            );
+        });
 
-export const whiteboardCreateProjectorTask = async (
-    body: CreateProjectorTaskParams,
-): Promise<AxiosResponse<ProjectorTaskCreated>> => {
-    return await ax.post<ProjectorTaskCreated>(
-        "https://api.netless.link/v5/projector/tasks",
-        {
-            ...body,
-            preview: true,
-            pack: false,
-        },
-        {
-            headers: {
-                token: createWhiteboardSDKToken(),
-                region: Whiteboard.convertRegion,
-            },
-        },
-    );
-};
+export const whiteboardCreateConversionTask =
+    wrapWhiteboardRequest(
+        "whiteboardCreateConversionTask",
 
-export const whiteboardQueryProjectorTask = async (
-    uuid: string,
-): Promise<AxiosResponse<ProjectorTaskStatus>> => {
-    return await ax.get<ProjectorTaskStatus>(
-        `https://api.netless.link/v5/projector/tasks/${uuid}`,
-        {
-            headers: {
-                token: createWhiteboardSDKToken(),
-                region: Whiteboard.convertRegion,
-            },
-        },
-    );
-};
+        async (
+            body: CreateConversionTaskParams,
+        ): Promise<AxiosResponse<TaskCreated>> => {
+            return await ax.post<TaskCreated>(
+                "https://api.netless.link/v5/services/conversion/tasks",
+                body,
+                {
+                    headers: {
+                        token: createWhiteboardSDKToken(),
+                        region: Whiteboard.convertRegion,
+                    },
+                },
+            );
+        });
+
+export const whiteboardQueryConversionTask =
+    wrapWhiteboardRequest(
+        "whiteboardQueryConversionTask",
+        async (
+            uuid: string,
+            type: "static" | "dynamic",
+        ): Promise<AxiosResponse<TaskStatus>> => {
+            return await ax.get<TaskStatus>(
+                `https://api.netless.link/v5/services/conversion/tasks/${uuid}?type=${type}`,
+                {
+                    headers: {
+                        token: createWhiteboardSDKToken(),
+                        region: Whiteboard.convertRegion,
+                    },
+                },
+            );
+        });
+
+export const whiteboardCreateProjectorTask =
+    wrapWhiteboardRequest(
+        "whiteboardCreateProjectorTask",
+        async (
+            body: CreateProjectorTaskParams,
+        ): Promise<AxiosResponse<ProjectorTaskCreated>> => {
+            return await ax.post<ProjectorTaskCreated>(
+                "https://api.netless.link/v5/projector/tasks",
+                {
+                    ...body,
+                    preview: true,
+                    pack: false,
+                },
+                {
+                    headers: {
+                        token: createWhiteboardSDKToken(),
+                        region: Whiteboard.convertRegion,
+                    },
+                },
+            );
+        });
+
+export const whiteboardQueryProjectorTask =
+    wrapWhiteboardRequest(
+        "whiteboardQueryProjectorTask",
+        async (
+            uuid: string,
+        ): Promise<AxiosResponse<ProjectorTaskStatus>> => {
+            return await ax.get<ProjectorTaskStatus>(
+                `https://api.netless.link/v5/projector/tasks/${uuid}`,
+                {
+                    headers: {
+                        token: createWhiteboardSDKToken(),
+                        region: Whiteboard.convertRegion,
+                    },
+                },
+            );
+        });
 
 interface CreateProjectorTaskParams {
     resource: string;
