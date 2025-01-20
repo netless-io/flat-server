@@ -202,6 +202,10 @@ type Config = {
                 secret: string;
             }>;
         };
+        ai: {
+            server_cn: string;
+            server_en: string;
+        }
     };
     whiteboard: {
         app_id: string;

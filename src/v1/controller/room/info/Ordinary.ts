@@ -52,6 +52,7 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
                 "region",
                 "periodic_uuid",
                 "has_record",
+                "is_ai"
             ],
             {
                 room_uuid: roomUUID,
@@ -75,6 +76,7 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
             region,
             periodic_uuid: periodicUUID,
             has_record,
+            is_ai
         } = roomInfo;
 
         const userInfo = await UserDAO().findOne(["user_name"], {
@@ -110,6 +112,7 @@ export class OrdinaryInfo extends AbstractController<RequestType, ResponseType> 
                     region,
                     inviteCode,
                     isPmi,
+                    isAI: is_ai
                 },
             },
         };
@@ -140,5 +143,6 @@ interface ResponseType {
         region: Region;
         inviteCode: string;
         isPmi: boolean;
+        isAI?: boolean;
     };
 }

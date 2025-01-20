@@ -25,6 +25,7 @@ export const joinOrdinary = async (
             "owner_uuid",
             "region",
             "begin_time",
+            "is_ai"
         ],
         {
             room_uuid: roomUUID,
@@ -121,6 +122,7 @@ export const joinOrdinary = async (
             rtmToken: await getRTMToken(userUUID),
             region: roomInfo.region,
             showGuide: roomInfo.owner_uuid === userUUID && (await showGuide(userUUID, roomUUID)),
+            isAI: roomInfo.is_ai,
         },
     };
 };

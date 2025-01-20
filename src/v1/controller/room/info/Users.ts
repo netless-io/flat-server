@@ -74,12 +74,13 @@ export class UserInfo extends AbstractController<RequestType, ResponseType> {
         const roomUsersInfo = await roomUsersInfoBasic.getRawMany<RoomUsersInfo>();
 
         const result: ResponseType = {};
-        for (const { user_name, user_uuid, rtc_uid, avatar_url, is_delete } of roomUsersInfo) {
+        for (const { user_name, user_uuid, rtc_uid, avatar_url, is_delete, grade } of roomUsersInfo) {
             result[user_uuid] = {
                 fake: user_name === null,
                 name: user_name || user_uuid.slice(-8),
                 rtcUID: is_delete ? -1 : Number(rtc_uid),
                 avatarURL: avatar_url || generateAvatar(user_uuid),
+                grade
             };
         }
 
@@ -107,10 +108,10 @@ type ResponseType = {
         name: string;
         rtcUID: number;
         avatarURL: string;
+        grade: number;
     };
 };
 
 type Nullable<T> = { [P in keyof T]: T[P] | null };
 
-type RoomUsersInfo = Pick<RoomUserModel, "rtc_uid" | "user_uuid"> &
-    Nullable<Pick<UserModel, "user_name" | "avatar_url" | "is_delete">>;
+type RoomUsersInfo = Pick<RoomUserModel, "rtc_uid" | "user_uuid" | "grade"> & Nullable<Pick<UserModel, "user_name" | "avatar_url" | "is_delete">>;

@@ -68,6 +68,7 @@ export class List extends AbstractController<RequestType, ResponseType> {
                 hasRecord: !!room.hasRecord,
                 inviteCode: inviteCodes[index] || room.periodicUUID || room.roomUUID,
                 isPmi: false,
+                isAI: room.isAI
             };
         });
 
@@ -102,6 +103,7 @@ export class List extends AbstractController<RequestType, ResponseType> {
             .addSelect("r.owner_uuid", "ownerUUID")
             .addSelect("r.room_status", "roomStatus")
             .addSelect("r.region", "region")
+            .addSelect("r.is_ai", "isAI")
             .addSelect("u.user_name", "ownerName")
             .addSelect("u.avatar_url", "ownerAvatarURL")
             .andWhere("ru.user_uuid = :userUUID", {
@@ -182,4 +184,5 @@ export type ResponseType = Array<{
     region: Region;
     inviteCode: string;
     isPmi: boolean;
+    isAI: boolean;
 }>;
