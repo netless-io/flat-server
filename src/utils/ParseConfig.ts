@@ -205,6 +205,8 @@ type Config = {
         ai: {
             server_cn: string;
             server_en: string;
+            server_cn_new: string;
+            server_en_new: string;
         }
     };
     whiteboard: {

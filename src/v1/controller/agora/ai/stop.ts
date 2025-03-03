@@ -2,7 +2,7 @@ import { FastifySchema, Response, ResponseError } from "../../../../types/Server
 import { ax } from "../../../utils/Axios";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
-import { AI_SERVER_URL_CN, AI_SERVER_URL_EN } from "./const";
+import { AI_SERVER_URL_CN, AI_SERVER_URL_CN_NEW, AI_SERVER_URL_EN, AI_SERVER_URL_EN_NEW } from "./const";
 import { Status } from "../../../../constants/Project";
 
 @Controller<RequestType, any>({
@@ -24,14 +24,20 @@ export class AgoraAIStop extends AbstractController<RequestType, any> {
                 },
                 language: {
                     type: "string",
-                }
+                },
+                is_new: {
+                    type: "boolean",
+                    nullable: true,
+                },
             },
         },
     };
 
     public async execute(): Promise<Response<any>> {
-        const { request_id, channel_name, language  } = this.body;
-        const api = language === "zh" ? AI_SERVER_URL_CN : AI_SERVER_URL_EN;
+        const { request_id, channel_name, language, is_new  } = this.body;
+        const api = language === "zh" ? 
+            is_new ? AI_SERVER_URL_CN_NEW : AI_SERVER_URL_CN : 
+            is_new ? AI_SERVER_URL_EN_NEW : AI_SERVER_URL_EN ;
         const res = await ax.post<any>(`${api}/start`, {
                 request_id, 
                 channel_name,
@@ -58,5 +64,6 @@ interface RequestType {
         request_id: string;
         channel_name: string;
         language: string;
+        is_new?: boolean;
     };
 }
