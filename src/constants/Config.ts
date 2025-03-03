@@ -163,6 +163,8 @@ export const Agora = {
     ai: {
         server_cn: config.agora.ai.server_cn,
         server_en: config.agora.ai.server_en,
+        server_cn_new: config.agora.ai.server_cn_new,
+        server_en_new: config.agora.ai.server_en_new,
     }
 };
 
