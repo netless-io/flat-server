@@ -3,6 +3,10 @@ server:
   env: dev
   region: CN
   region_code: 1
+  ip_block:
+    minutes: 5
+    hours: 10
+    days: 30
 
 redis:
   host: 127.0.0.1

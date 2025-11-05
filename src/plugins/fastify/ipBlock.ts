@@ -5,30 +5,11 @@ import RedisService from "../../thirdPartyService/RedisService";
 import { Status } from "../../constants/Project";
 import { ErrorCode } from "../../ErrorCode";
 import { runTimeLogger } from "../../logger";
+import { Server } from "../../constants/Config";
 
-const BLOCK_RULE = [
-    // 1分钟内最多5次
-    {
-        time: 60 * 1000,
-        hmapKey: "minutes",
-        maxCount: 5,
-    },
-    // 1小时内最多10次
-    {
-        time: 60 * 60 * 1000,
-        hmapKey: "hours",
-        maxCount: 10,
-    },
-    // 1天内最多30次
-    {
-        time: 60 * 60 * 24 * 1000,
-        hmapKey: "days",
-        maxCount: 30,
-    },
-]
 const getKey = (ip: string, path: string) => `ipblock:${ip}:${path}`;
 
-const check = (currentTime: number, lastActive: number, currentCount: number, rule: (typeof BLOCK_RULE)[number]): {
+const check = (currentTime: number, lastActive: number, currentCount: number, rule: { time: number, maxCount: number }): {
     blocked: boolean;
     reset: boolean;
 } => {
@@ -55,6 +36,27 @@ const plugin = async (instance: FastifyInstance, _opts: any): Promise<void> => {
     instance.decorate(
         "ipblock",
         async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+            const blockRule = [
+                // 1分钟内最多5次
+                {
+                    time: 60 * 1000,
+                    hmapKey: "minutes",
+                    maxCount: Server.ipBlock.minutes,
+                },
+                // 1小时内最多10次
+                {
+                    time: 60 * 60 * 1000,
+                    hmapKey: "hours",
+                    maxCount: Server.ipBlock.hours,
+                },
+                // 1天内最多30次
+                {
+                    time: 60 * 60 * 24 * 1000,
+                    hmapKey: "days",
+                    maxCount: Server.ipBlock.days,
+                },
+            ]
+
             const ipFromHeader = request.headers["x-forwarded-for"] || request.headers["x-real-ip"];
             if (!ipFromHeader) {
                 runTimeLogger.warn(`ip not found in headers`, {
@@ -75,24 +77,24 @@ const plugin = async (instance: FastifyInstance, _opts: any): Promise<void> => {
             // - days: 天内请求次数
             const key = getKey(ip, request.url);
             const currentTime = Date.now();
-            const value = await RedisService.hmget(key, ["lastActive", ...BLOCK_RULE.map(rule => rule.hmapKey)]);
+            const value = await RedisService.hmget(key, ["lastActive", ...blockRule.map(rule => rule.hmapKey)]);
             // 第一次访问
             if (value[0] === null) {
                 runTimeLogger.debug(`first visit ip: ${ip}, path: ${request.url}`);
                 await setRedisValue(key,
                     {
                         lastActive: currentTime.toString(),
-                        ...Object.fromEntries(BLOCK_RULE.map(rule => [rule.hmapKey, "1"] as [string, string]))
+                        ...Object.fromEntries(blockRule.map(rule => [rule.hmapKey, "1"] as [string, string]))
                     });
                 return;
             }
             const updatedValue: Record<string, string> = {
                 lastActive: currentTime.toString(),
-                ...Object.fromEntries(BLOCK_RULE.map((rule, index) => [rule.hmapKey, (Number(value[index + 1]) + 1).toString()] as [string, string]))
+                ...Object.fromEntries(blockRule.map((rule, index) => [rule.hmapKey, (Number(value[index + 1]) + 1).toString()] as [string, string]))
             };
             const lastActive = Number(value[0]);
-            for (let index = 0; index < BLOCK_RULE.length; index++) {
-                const rule = BLOCK_RULE[index];
+            for (let index = 0; index < blockRule.length; index++) {
+                const rule = blockRule[index];
                 const { blocked, reset } = check(currentTime, lastActive, Number(value[index + 1]), rule);
                 // 如果被封禁则不进行更新
                 if (blocked) {
