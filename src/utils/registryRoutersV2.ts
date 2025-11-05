@@ -4,7 +4,7 @@ import { Status } from "../constants/Project";
 import { FError } from "../error/ControllerError";
 import { ErrorCode } from "../ErrorCode";
 import { kAPILogger } from "../plugins/fastify/api-logger";
-import { parseError } from "../logger";
+import { loggerServer, parseError } from "../logger";
 
 const registerRouters =
     (version: `v${number}`) =>
@@ -76,6 +76,11 @@ const registerRouters =
                             }
 
                             if (resp) {
+                                if ((resp as any).data) {
+                                    loggerServer.info(`send response, response data: ${JSON.stringify((resp as any).data)}`, request);
+                                } else if ((resp as any).status === Status.Failed) {
+                                    loggerServer.warn(`send response, response error: ${JSON.stringify(resp)}`, request);
+                                }
                                 await reply.send(resp);
                             }
 
