@@ -1,7 +1,8 @@
 import { RouterMetadata } from "../decorator/Metadata";
 import { FastifyInstance, PatchRequest } from "../types/Server";
 import { ControllerClass, ControllerStaticType } from "../abstract/controller";
-import { createLoggerAPIv1, Logger, LoggerAPI, parseError } from "../logger";
+import { createLoggerAPIv1, Logger, LoggerAPI, loggerServer, parseError } from "../logger";
+import { Status } from "../constants/Project";
 
 const registerRouters =
     (version: `v${number}`) =>
@@ -76,6 +77,12 @@ const registerRouters =
 
                             try {
                                 const result = await c.execute();
+
+                                if ((result as any).data) {
+                                    loggerServer.info(`send response, response data: ${JSON.stringify((result as any).data)}`, req);
+                                } else if ((result as any).status === Status.Failed) {
+                                    loggerServer.warn(`send response, response error: ${JSON.stringify(result)}`, req);
+                                }
 
                                 if (!skipAutoHandle) {
                                     await reply.send(result);
