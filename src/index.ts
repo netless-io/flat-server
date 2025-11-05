@@ -22,6 +22,7 @@ import fastifyTypeORMQueryRunner from "@fastify-userland/typeorm-query-runner";
 import { fastifyAPILogger } from "./plugins/fastify/api-logger";
 import { initTasks } from "./v2/tasks";
 import { fastifyAuthenticate } from "./plugins/fastify/authenticate";
+import { fastifyIpBlock } from "./plugins/fastify/ipBlock";
 
 const app = fastify({
     caseSensitive: true,
@@ -81,6 +82,7 @@ void orm().then(async dataSource => {
             },
         }),
         app.register(fastifyAuthenticate),
+        app.register(fastifyIpBlock),
         app.register(cors, {
             methods: ["GET", "POST", "OPTIONS"],
             allowedHeaders: ["Content-Type", "Authorization", "x-request-id", "x-session-id"],

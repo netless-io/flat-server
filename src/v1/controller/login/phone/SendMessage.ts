@@ -15,6 +15,7 @@ import { ErrorCode } from "../../../../ErrorCode";
     path: "login/phone/sendMessage",
     auth: false,
     enable: PhoneSMS.enable,
+    ipblock: true,
 })
 export class SendMessage extends AbstractController<RequestType, ResponseType> {
     public static readonly schema: FastifySchema<RequestType> = {
@@ -80,4 +81,4 @@ interface RequestType {
     };
 }
 
-interface ResponseType {}
+interface ResponseType { }

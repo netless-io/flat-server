@@ -8,6 +8,7 @@ export const registerRouters = (server: Server): void => {
     server.post("register/phone/send-message", registerPhoneSendMessage, {
         schema: registerPhoneSendMessageSchema,
         auth: false,
+        ipblock: true,
     });
 
     server.post("register/phone", registerPhone, {
@@ -18,6 +19,7 @@ export const registerRouters = (server: Server): void => {
     server.post("register/email/send-message", registerEmailSendMessage, {
         schema: registerEmailSendMessageSchema,
         auth: false,
+        ipblock: true,
     });
 
     server.post("register/email", registerEmail, {

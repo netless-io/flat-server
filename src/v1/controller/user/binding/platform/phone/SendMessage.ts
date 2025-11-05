@@ -15,6 +15,7 @@ import { ErrorCode } from "../../../../../../ErrorCode";
     method: "post",
     path: ["user/bindingPhone/sendMessage", "user/binding/platform/phone/sendMessage"],
     auth: true,
+    ipblock: true,
     enable: PhoneSMS.enable,
 })
 export class SendMessage extends AbstractController<RequestType, ResponseType> {
@@ -93,4 +94,4 @@ interface RequestType {
     };
 }
 
-interface ResponseType {}
+interface ResponseType { }
