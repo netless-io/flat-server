@@ -93,6 +93,7 @@ const plugin = async (instance: FastifyInstance, _opts: any): Promise<void> => {
                 ...Object.fromEntries(blockRule.map((rule, index) => [rule.hmapKey, (Number(value[index + 1]) + 1).toString()] as [string, string]))
             };
             const lastActive = Number(value[0]);
+            let resetAction = [];
             for (let index = 0; index < blockRule.length; index++) {
                 const rule = blockRule[index];
                 const { blocked, reset } = check(currentTime, lastActive, Number(value[index + 1]), rule);
@@ -106,9 +107,12 @@ const plugin = async (instance: FastifyInstance, _opts: any): Promise<void> => {
                     return;
                 }
                 if (reset) {
-                    runTimeLogger.debug(`reset ip: ${ip}, path: ${request.url}, rule: ${rule.hmapKey}`);
-                    updatedValue[rule.hmapKey] = "0";
+                    resetAction.push(rule.hmapKey);
                 }
+            }
+            for (const action of resetAction) {
+                updatedValue[action] = "0";
+                runTimeLogger.debug(`reset ip: ${ip}, path: ${request.url}, rule: ${action}`);
             }
             runTimeLogger.debug(`update ip: ${ip}, path: ${request.url}, updatedValue: ${JSON.stringify(updatedValue)}`);
             // 更新redis
