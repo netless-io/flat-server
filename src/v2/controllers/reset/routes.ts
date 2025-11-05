@@ -8,6 +8,7 @@ export const resetRouters = (server: Server): void => {
     server.post("reset/phone/send-message", resetPhoneSendMessage, {
         schema: resetPhoneSendMessageSchema,
         auth: false,
+        ipblock: true,
     });
 
     server.post("reset/phone", resetPhone, {
@@ -18,6 +19,7 @@ export const resetRouters = (server: Server): void => {
     server.post("reset/email/send-message", resetEmailSendMessage, {
         schema: resetEmailSendMessageSchema,
         auth: false,
+        ipblock: true,
     });
 
     server.post("reset/email", resetEmail, {

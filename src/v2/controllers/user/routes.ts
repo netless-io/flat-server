@@ -31,6 +31,7 @@ export const userRouters = (server: Server): void => {
 
     server.post("user/rebind-phone/send-message", userRebindPhoneSendMessage, {
         schema: userRebindPhoneSendMessageSchema,
+        ipblock: true,
     });
 
     server.post("user/rebind-phone", userRebindPhone, {

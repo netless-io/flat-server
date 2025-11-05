@@ -13,6 +13,7 @@ import { ErrorCode } from "../../../../ErrorCode";
 import fastifyTypeORMQueryRunner from "@fastify-userland/typeorm-query-runner";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 import { fastifyAPILogger } from "../../../../plugins/fastify/api-logger";
+import { fastifyIpBlock } from "../../../../plugins/fastify/ipBlock";
 
 export class HelperAPI {
     public readonly app = fastify({
@@ -25,6 +26,7 @@ export class HelperAPI {
     private readonly registerPlugin = (async () => {
         await Promise.all([
             this.app.register(fastifyAuthenticate),
+            this.app.register(fastifyIpBlock),
             this.app.register(cors, {
                 methods: ["GET", "POST", "OPTIONS"],
                 allowedHeaders: ["Content-Type", "Authorization"],

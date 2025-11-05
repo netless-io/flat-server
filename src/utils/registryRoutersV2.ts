@@ -8,89 +8,92 @@ import { parseError } from "../logger";
 
 const registerRouters =
     (version: `v${number}`) =>
-    (fastifyServer: FastifyInstance, controllers: Array<(server: Server) => void>) => {
-        const routerHandle = (method: "get" | "post"): Router => {
-            return <S,>(
-                path: string,
-                handler: (req: FastifyRequestTypebox<S>, reply: FastifyReply) => Promise<any>,
-                config: {
-                    auth?: boolean;
-                    admin?: boolean;
-                    schema: S;
-                    autoHandle?: boolean;
-                    enable?: boolean;
-                },
-            ) => {
-                const autoHandle = config.autoHandle === undefined || config.autoHandle;
-                const auth = config.auth === undefined || config.auth;
-                const admin = !!config.admin;
-                const enable = config.enable === undefined || config.enable;
-
-                if (!enable) {
-                    return;
-                }
-
-                fastifyServer[method](
-                    `/${version}/${path}`,
-                    {
-                        preValidation: [
-                            auth && (fastifyServer as any).authenticate,
-                            admin && (fastifyServer as any).authenticateAdmin,
-                        ].filter(Boolean),
-                        schema: config.schema,
+        (fastifyServer: FastifyInstance, controllers: Array<(server: Server) => void>) => {
+            const routerHandle = (method: "get" | "post"): Router => {
+                return <S,>(
+                    path: string,
+                    handler: (req: FastifyRequestTypebox<S>, reply: FastifyReply) => Promise<any>,
+                    config: {
+                        auth?: boolean;
+                        admin?: boolean;
+                        schema: S;
+                        autoHandle?: boolean;
+                        ipblock?: boolean;
+                        enable?: boolean;
                     },
-                    async (req, reply: FastifyReply) => {
-                        if (!autoHandle) {
-                            req.notAutoHandle = true;
-                        }
+                ) => {
+                    const autoHandle = config.autoHandle === undefined || config.autoHandle;
+                    const auth = config.auth === undefined || config.auth;
+                    const admin = !!config.admin;
+                    const ipblock = config.ipblock === undefined || config.ipblock;
+                    const enable = config.enable === undefined || config.enable;
 
-                        let resp: Response | null = null;
+                    if (!enable) {
+                        return;
+                    }
 
-                        const request = Object.assign(req, {
-                            // @ts-ignore
-                            userUUID: req?.user?.userUUID,
-                            // @ts-ignore
-                            loginSource: req?.user?.loginSource,
-                            DBTransaction: req.queryRunner?.manager,
-                        });
-
-                        try {
-                            const result = await handler(request, reply);
-
-                            if (autoHandle) {
-                                resp = result as Response;
+                    fastifyServer[method](
+                        `/${version}/${path}`,
+                        {
+                            preValidation: [
+                                auth && (fastifyServer as any).authenticate,
+                                admin && (fastifyServer as any).authenticateAdmin,
+                                ipblock && (fastifyServer as any).ipblock,
+                            ].filter(Boolean),
+                            schema: config.schema,
+                        },
+                        async (req, reply: FastifyReply) => {
+                            if (!autoHandle) {
+                                req.notAutoHandle = true;
                             }
-                        } catch (error) {
-                            // @ts-ignore
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                            req[kAPILogger].error("request failed", parseError(error));
 
-                            if (autoHandle) {
-                                resp = errorToResp(error as Error);
-                            } else {
-                                throw error;
+                            let resp: Response | null = null;
+
+                            const request = Object.assign(req, {
+                                // @ts-ignore
+                                userUUID: req?.user?.userUUID,
+                                // @ts-ignore
+                                loginSource: req?.user?.loginSource,
+                                DBTransaction: req.queryRunner?.manager,
+                            });
+
+                            try {
+                                const result = await handler(request, reply);
+
+                                if (autoHandle) {
+                                    resp = result as Response;
+                                }
+                            } catch (error) {
+                                // @ts-ignore
+                                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                                req[kAPILogger].error("request failed", parseError(error));
+
+                                if (autoHandle) {
+                                    resp = errorToResp(error as Error);
+                                } else {
+                                    throw error;
+                                }
                             }
-                        }
 
-                        if (resp) {
-                            await reply.send(resp);
-                        }
+                            if (resp) {
+                                await reply.send(resp);
+                            }
 
-                        return reply;
-                    },
-                );
+                            return reply;
+                        },
+                    );
+                };
             };
-        };
 
-        const server: Server = {
-            get: routerHandle("get"),
-            post: routerHandle("post"),
-        };
+            const server: Server = {
+                get: routerHandle("get"),
+                post: routerHandle("post"),
+            };
 
-        controllers.forEach(controller => {
-            controller(server);
-        });
-    };
+            controllers.forEach(controller => {
+                controller(server);
+            });
+        };
 
 const errorToResp = (error: Error): Response => {
     if (error instanceof FError) {
@@ -118,13 +121,14 @@ interface R<O> {
         config: {
             auth?: boolean;
             admin?: boolean;
+            ipblock?: boolean;
             schema: S;
             autoHandle?: O;
         },
     ): void;
 }
 
-interface Router extends R<true>, R<false> {}
+interface Router extends R<true>, R<false> { }
 
 export interface Server {
     get: Router;
