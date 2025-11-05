@@ -25,7 +25,7 @@ const registerRouters =
                     const autoHandle = config.autoHandle === undefined || config.autoHandle;
                     const auth = config.auth === undefined || config.auth;
                     const admin = !!config.admin;
-                    const ipblock = config.ipblock === undefined || config.ipblock;
+                    const ipblock = config.ipblock || false;
                     const enable = config.enable === undefined || config.enable;
 
                     if (!enable) {
