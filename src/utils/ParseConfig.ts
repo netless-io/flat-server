@@ -36,6 +36,11 @@ type Config = {
         region: string | null;
         region_code: number | null;
         join_early: number | null;
+        ip_block?: {
+            minutes: number;
+            hours: number;
+            days: number;
+        };
     };
     redis: {
         host: string;
