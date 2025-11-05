@@ -27,19 +27,7 @@ const plugin = (instance: FastifyInstance, _opts: any, done: () => void): void =
         done();
     });
 
-    instance.addHook("onResponse", (request, reply, done) => {
-        // @ts-ignore
-        const log = request[kAPILogger] as Logger<LoggerAPIv2> | undefined;
-
-        if (log) {
-            const durationMS = reply.getResponseTime();
-            log.debug("request execution time", {
-                durationMS,
-            });
-        }
-
-        done();
-    });
+    // 需要记录response的body,onResponse事件记录不了,放到handler里记录
 
     instance.addHook("onError", (request, _reply, error, done) => {
         // @ts-ignore
@@ -81,11 +69,11 @@ const apiLogger = (request: FastifyRequest): Logger<LoggerAPIv2> => {
         [request.routerPath]: {
             user: user
                 ? {
-                      userUUID: user?.userUUID,
-                      loginSource: user?.loginSource,
-                      iat: user?.iat,
-                      exp: user?.exp,
-                  }
+                    userUUID: user?.userUUID,
+                    loginSource: user?.loginSource,
+                    iat: user?.iat,
+                    exp: user?.exp,
+                }
                 : undefined,
             params: {
                 ...(request.params as any),
