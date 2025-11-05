@@ -13,6 +13,11 @@ export const Server = {
     // value: 1-9
     regionCode: config.server.region_code || 1,
     joinEarly: config.server.join_early || 5,
+    ipBlock: {
+        minutes: config.server.ip_block?.minutes || 5,
+        hours: config.server.ip_block?.hours || 10,
+        days: config.server.ip_block?.days || 30,
+    },
 };
 
 export const Redis = {
