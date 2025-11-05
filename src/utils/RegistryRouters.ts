@@ -1,7 +1,7 @@
 import { RouterMetadata } from "../decorator/Metadata";
 import { FastifyInstance, PatchRequest } from "../types/Server";
 import { ControllerClass, ControllerStaticType } from "../abstract/controller";
-import { createLoggerAPIv1, Logger, LoggerAPI, loggerServer, parseError } from "../logger";
+import { createLoggerAPIv1, Logger, LoggerAPI, parseError, runTimeLogger } from "../logger";
 import { Status } from "../constants/Project";
 
 const registerRouters =
@@ -77,11 +77,30 @@ const registerRouters =
 
                             try {
                                 const result = await c.execute();
-
-                                if ((result as any).data) {
-                                    loggerServer.info(`send response, response data: ${JSON.stringify((result as any).data)}`, req);
-                                } else if ((result as any).status === Status.Failed) {
-                                    loggerServer.warn(`send response, response error: ${JSON.stringify(result)}`, req);
+                                if (req.method === 'POST') {
+                                    if (result && (result as any).data) {
+                                        runTimeLogger.info(`send response success`, {
+                                            request: {
+                                                path: fullPath,
+                                                method: method,
+                                                params: req.params,
+                                                query: req.query,
+                                                userUUID: req.user?.userUUID,
+                                            },
+                                            response: result,
+                                        });
+                                    } else if (result && (result as any).status === Status.Failed) {
+                                        runTimeLogger.warn(`send response error`, {
+                                            request: {
+                                                path: fullPath,
+                                                method: method,
+                                                params: req.params,
+                                                query: req.query,
+                                                userUUID: req.user?.userUUID,
+                                            },
+                                            response: result,
+                                        });
+                                    }
                                 }
 
                                 if (!skipAutoHandle) {
