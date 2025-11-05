@@ -33,8 +33,8 @@ const check = (currentTime: number, lastActive: number, currentCount: number, ru
     reset: boolean;
 } => {
     if (currentTime - lastActive < rule.time) {
-        // 如果当前请求次数大于最大请求次数,则认为需要封禁
-        if (currentCount > rule.maxCount) {
+        // 如果当前请求次数大于等于最大请求次数,则认为需要封禁
+        if (currentCount >= rule.maxCount) {
             return { blocked: true, reset: false };
         }
         // 如果当前请求次数小于最大请求次数,则认为不需要封禁
@@ -43,6 +43,12 @@ const check = (currentTime: number, lastActive: number, currentCount: number, ru
         // 只有在活跃时间超过最后活跃时间后,才重置当前计数
         return { blocked: false, reset: true };
     }
+}
+
+const setRedisValue = async (key: string, value: Record<string, string>) => {
+    await RedisService.hmset(key, value);
+    // 1天过期
+    await RedisService.expire(key, 60 * 60 * 24);
 }
 
 const plugin = async (instance: FastifyInstance, _opts: any): Promise<void> => {
@@ -71,9 +77,9 @@ const plugin = async (instance: FastifyInstance, _opts: any): Promise<void> => {
             const currentTime = Date.now();
             const value = await RedisService.hmget(key, ["lastActive", ...BLOCK_RULE.map(rule => rule.hmapKey)]);
             // 第一次访问
-            if (value === null) {
+            if (value[0] === null) {
                 runTimeLogger.debug(`first visit ip: ${ip}, path: ${request.url}`);
-                await RedisService.hmset(key,
+                await setRedisValue(key,
                     {
                         lastActive: currentTime.toString(),
                         ...Object.fromEntries(BLOCK_RULE.map(rule => [rule.hmapKey, "1"] as [string, string]))
@@ -104,7 +110,7 @@ const plugin = async (instance: FastifyInstance, _opts: any): Promise<void> => {
             }
             runTimeLogger.debug(`update ip: ${ip}, path: ${request.url}, updatedValue: ${JSON.stringify(updatedValue)}`);
             // 更新redis
-            await RedisService.hmset(key, updatedValue);
+            await setRedisValue(key, updatedValue);
         },
     );
 };
