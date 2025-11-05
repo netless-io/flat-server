@@ -4,7 +4,7 @@ import { Status } from "../constants/Project";
 import { FError } from "../error/ControllerError";
 import { ErrorCode } from "../ErrorCode";
 import { kAPILogger } from "../plugins/fastify/api-logger";
-import { loggerServer, parseError } from "../logger";
+import { parseError, runTimeLogger } from "../logger";
 
 const registerRouters =
     (version: `v${number}`) =>
@@ -76,10 +76,30 @@ const registerRouters =
                             }
 
                             if (resp) {
-                                if ((resp as any).data) {
-                                    loggerServer.info(`send response, response data: ${JSON.stringify((resp as any).data)}`, request);
-                                } else if ((resp as any).status === Status.Failed) {
-                                    loggerServer.warn(`send response, response error: ${JSON.stringify(resp)}`, request);
+                                if (req.method === 'POST') {
+                                    if ((resp as any).data) {
+                                        runTimeLogger.info(`send response success`, {
+                                            request: {
+                                                path: `/${version}/${path}`,
+                                                method: method,
+                                                query: req?.query as any,
+                                                // @ts-ignore
+                                                userUUID: req?.user?.userUUID,
+                                            },
+                                            response: resp,
+                                        });
+                                    } else if ((resp as any).status === Status.Failed) {
+                                        runTimeLogger.warn(`response error`, {
+                                            request: {
+                                                path: `/${version}/${path}`,
+                                                method: method,
+                                                query: req?.query as any,
+                                                // @ts-ignore
+                                                userUUID: req?.user?.userUUID,
+                                            },
+                                            response: resp,
+                                        });
+                                    }
                                 }
                                 await reply.send(resp);
                             }
