@@ -25,7 +25,7 @@ const plugin = async (instance: FastifyInstance, _opts: any): Promise<void> => {
                 await request.jwtVerify();
             } catch (err) {
                 loggerServer.warn("jwt verify failed", parseError(err));
-                void reply.send({
+                await reply.send({
                     status: Status.Failed,
                     code: ErrorCode.JWTSignFailed,
                 });
@@ -43,10 +43,10 @@ const plugin = async (instance: FastifyInstance, _opts: any): Promise<void> => {
                 const reason = !Admin.secret
                     ? "not enabled on server"
                     : !adminSecret
-                    ? "missing secret"
-                    : "secret mismatch";
+                        ? "missing secret"
+                        : "secret mismatch";
                 loggerServer.warn("admin secret verify failed: " + reason);
-                void reply.code(401).send({
+                await reply.code(401).send({
                     status: Status.Failed,
                     code: ErrorCode.NotPermission,
                 });
