@@ -77,6 +77,10 @@ const registerRouters =
 
                             try {
                                 const result = await c.execute();
+                                let body = '';
+                                if (req.headers['content-type']?.includes('application/json')) {
+                                    body = req.body as any;
+                                }
                                 if (req.method === 'POST') {
                                     if (result && (result as any).data) {
                                         runTimeLogger.info(`send response success`, {
@@ -85,6 +89,7 @@ const registerRouters =
                                                 method: method,
                                                 params: req.params,
                                                 query: req.query,
+                                                body: body,
                                                 userUUID: req.user?.userUUID,
                                             },
                                             response: result,
@@ -96,6 +101,7 @@ const registerRouters =
                                                 method: method,
                                                 params: req.params,
                                                 query: req.query,
+                                                body: body,
                                                 userUUID: req.user?.userUUID,
                                             },
                                             response: result,
