@@ -77,8 +77,8 @@ const registerRouters =
 
                             if (resp) {
                                 let body = '';
-                                if (req.headers['Content-Type'] === 'application/json') {
-                                    body = JSON.parse(req.body as any);
+                                if (req.headers['content-type']?.includes('application/json')) {
+                                    body = req.body as any
                                 }
                                 if (req.method === 'POST') {
                                     if ((resp as any).data) {
