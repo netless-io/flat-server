@@ -78,8 +78,8 @@ const registerRouters =
                             try {
                                 const result = await c.execute();
                                 let body = '';
-                                if (req.headers['Content-Type'] === 'application/json') {
-                                    body = JSON.parse(req.body);
+                                if (req.headers['content-type']?.includes('application/json')) {
+                                    body = req.body as any;
                                 }
                                 if (req.method === 'POST') {
                                     if (result && (result as any).data) {
