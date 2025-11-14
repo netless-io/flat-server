@@ -6,12 +6,12 @@ export const loginRouters = (server: Server): void => {
     server.post("login/phone", loginPhone, {
         schema: loginPhoneSchema,
         auth: false,
-        ipblock: true,
+        ipblock: false,
     });
 
     server.post("login/email", loginEmail, {
         schema: loginEmailSchema,
         auth: false,
-        ipblock: true,
+        ipblock: false,
     });
 };
