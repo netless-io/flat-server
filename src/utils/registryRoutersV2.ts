@@ -76,6 +76,10 @@ const registerRouters =
                             }
 
                             if (resp) {
+                                let body = '';
+                                if (req.headers['Content-Type'] === 'application/json') {
+                                    body = JSON.parse(req.body as any);
+                                }
                                 if (req.method === 'POST') {
                                     if ((resp as any).data) {
                                         runTimeLogger.info(`send response success`, {
@@ -83,6 +87,7 @@ const registerRouters =
                                                 path: `/${version}/${path}`,
                                                 method: method,
                                                 query: req?.query as any,
+                                                body: body,
                                                 // @ts-ignore
                                                 userUUID: req?.user?.userUUID,
                                             },
@@ -94,6 +99,7 @@ const registerRouters =
                                                 path: `/${version}/${path}`,
                                                 method: method,
                                                 query: req?.query as any,
+                                                body: body,
                                                 // @ts-ignore
                                                 userUUID: req?.user?.userUUID,
                                             },
