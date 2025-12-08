@@ -110,6 +110,12 @@ export const PhoneSMS = {
         templateCode: config.login.sms.global.template_code,
         signName: config.login.sms.global.sign_name,
     },
+    captcha: {
+        sceneId: config.login.captcha.scene_id,
+        accessId: config.login.captcha.access_id,
+        accessSecret: config.login.captcha.access_secret,
+        endpoint: config.login.captcha.endpoint,
+    },
 };
 
 export const EmailSMS = {

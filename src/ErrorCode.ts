@@ -80,4 +80,8 @@ export enum ErrorCode {
     OAuthSecretUUIDNotFound, // oauth secret uuid not found
 
     PartnerNotFound = 140000, // partner not found
+
+    CaptchaFailed = 150000, // captcha failed
+    CaptchaInvalid = 150001, // captcha invalid
+    CaptchaRequired = 150002, // captcha required
 }
