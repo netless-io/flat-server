@@ -13,6 +13,7 @@ import { MessageExpirationSecond, MessageIntervalSecond } from "../../constants"
 import { userDAO, userPhoneDAO } from "../../dao";
 import { setGuidePPTX } from "./utils";
 import { generateAvatar } from "../../../utils/Avatar";
+import { CaptchaClient } from "../captcha/ali-captcha-client";
 
 export class UserPhoneService {
     private readonly logger = createLoggerService<"userPhone">({
@@ -22,7 +23,7 @@ export class UserPhoneService {
 
     constructor(private readonly ids: IDS, private readonly DBTransaction: EntityManager) {}
 
-    public async sendMessageForRegister(phone: string): Promise<void> {
+    public async sendMessageForRegister(phone: string, captchaVerifyParam?: string): Promise<void> {
         const sms = new SMS(phone);
 
         const safePhone = SMSUtils.safePhone(phone);
@@ -33,6 +34,17 @@ export class UserPhoneService {
             });
             if (exist) {
                 throw new FError(ErrorCode.SMSAlreadyExist);
+            }
+
+            if (captchaVerifyParam) {
+                try {
+                    const captcha = await CaptchaClient.main(captchaVerifyParam);
+                    if (!captcha) {
+                        throw new FError(ErrorCode.CaptchaInvalid);
+                    }
+                } catch (error) {
+                    throw new FError(ErrorCode.CaptchaFailed);
+                }
             }
 
             const success = await sms.send();
@@ -50,7 +62,7 @@ export class UserPhoneService {
         }
     }
 
-    public async sendMessageForReset(phone: string): Promise<void> {
+    public async sendMessageForReset(phone: string, captchaVerifyParam?: string): Promise<void> {
         const sms = new SMS(phone);
 
         const safePhone = SMSUtils.safePhone(phone);
@@ -61,6 +73,16 @@ export class UserPhoneService {
             });
             if (!user) {
                 throw new FError(ErrorCode.UserNotFound);
+            }
+            if (captchaVerifyParam) {
+                try {
+                    const captcha = await CaptchaClient.main(captchaVerifyParam);
+                    if (!captcha) {
+                        throw new FError(ErrorCode.CaptchaInvalid);
+                    }
+                } catch (error) {
+                    throw new FError(ErrorCode.CaptchaFailed);
+                }
             }
 
             const success = await sms.send();

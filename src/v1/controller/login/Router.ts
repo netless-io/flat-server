@@ -9,6 +9,7 @@ import { AppleJWT } from "./apple/jwt";
 import { AgoraCallback } from "./agora/Callback";
 import { GoogleCallback } from "./google/Callback";
 import { SendMessage } from "./phone/SendMessage";
+import { SendMessageCaptcha } from "./phone/SendMessageCaptcha";
 import { PhoneLogin } from "./phone/Phone";
 
 export const loginRouters: Readonly<Array<ControllerClass<any, any>>> = Object.freeze([
@@ -21,6 +22,7 @@ export const loginRouters: Readonly<Array<ControllerClass<any, any>>> = Object.f
     AgoraCallback,
     GoogleCallback,
     SendMessage,
+    SendMessageCaptcha,
     PhoneLogin,
     Login,
 ]);

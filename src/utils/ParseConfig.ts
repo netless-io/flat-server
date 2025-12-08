@@ -168,6 +168,12 @@ type Config = {
                 };
             };
         };
+        captcha:{
+            scene_id: string;
+            access_id: string;
+            access_secret: string;
+            endpoint: string;
+        };
     };
     agora: {
         app: {
@@ -212,7 +218,7 @@ type Config = {
             server_en: string;
             server_cn_new: string;
             server_en_new: string;
-        }
+        },
     };
     whiteboard: {
         app_id: string;
