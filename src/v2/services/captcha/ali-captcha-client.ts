@@ -36,11 +36,12 @@ export class CaptchaClient {
     });
     try {
       const response = await client.verifyIntelligentCaptchaWithOptions(verifyIntelligentCaptchaRequest, new $Util.RuntimeOptions({ }));
-      if (response.body?.code === "200") {
-        return response.body?.result?.verifyResult || false;
-      } else {
-        throw new FError(ErrorCode.CaptchaFailed);
+      if (response && response.body) {
+        if (response.body.success) {
+          return response.body?.result?.verifyResult || false;
+        }
       }
+      throw new FError(ErrorCode.CaptchaFailed);
     } catch (error) {
       throw new FError(ErrorCode.CaptchaFailed);
     }    
