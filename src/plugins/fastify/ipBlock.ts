@@ -100,7 +100,7 @@ const plugin = async (instance: FastifyInstance, _opts: any): Promise<void> => {
                 // 如果被封禁则不进行更新
                 if (blocked) {
                     runTimeLogger.warn(`block client ip ${ip} for path ${request.url}, trigger rule ${rule.hmapKey}`)
-                    await reply.code(403).send({
+                    await reply.code(200).send({
                         status: Status.Failed,
                         code: ErrorCode.ExhaustiveAttack,
                     });
