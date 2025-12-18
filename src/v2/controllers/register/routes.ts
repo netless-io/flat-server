@@ -2,7 +2,7 @@ import { Server } from "../../../utils/registryRoutersV2";
 import { registerEmail, registerEmailSchema } from "./email";
 import { registerEmailSendMessage, registerEmailSendMessageSchema } from "./email/send-message";
 import { registerPhone, registerPhoneSchema } from "./phone";
-import { registerPhoneSendMessage, registerPhoneSendMessageSchema } from "./phone/send-message";
+import { registerPhoneSendMessage, registerPhoneSendMessageCaptcha, registerPhoneSendMessageCaptchaSchema, registerPhoneSendMessageSchema } from "./phone/send-message";
 
 export const registerRouters = (server: Server): void => {
     server.post("register/phone/send-message", registerPhoneSendMessage, {
@@ -10,6 +10,13 @@ export const registerRouters = (server: Server): void => {
         auth: false,
         ipblock: true,
     });
+
+    server.post("register/phone/send-message/captcha", registerPhoneSendMessageCaptcha, {
+        schema: registerPhoneSendMessageCaptchaSchema,
+        auth: false,
+        ipblock: true,
+    });
+    
 
     server.post("register/phone", registerPhone, {
         schema: registerPhoneSchema,
