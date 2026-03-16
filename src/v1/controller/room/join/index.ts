@@ -14,7 +14,6 @@ import { ErrorCode } from "../../../../ErrorCode";
 @Controller<RequestType, ResponseType>({
     method: "post",
     path: "room/join",
-    ipblock: true,
     auth: true,
 })
 export class JoinRoom extends AbstractController<RequestType, ResponseType> {
