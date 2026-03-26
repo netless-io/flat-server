@@ -1,0 +1,12 @@
+# Append this site block to the existing gateway Caddyfile.
+# It is intentionally supplemental and does not redefine the global Caddy options block.
+
+server.openflat.tech {
+  respond /gateway-health "ok" 200
+
+  reverse_proxy 127.0.0.1:8761 {
+    health_uri /health-check
+    health_interval 10s
+    health_timeout 2s
+  }
+}

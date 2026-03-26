@@ -1,0 +1,189 @@
+name: Deploy Flat Server Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      ssh_host:
+        description: "Override SSH host. Leave empty to use secrets.SSH_HOST."
+        required: false
+        type: string
+      ssh_port:
+        description: "Override SSH port. Leave empty to use secrets.SSH_PORT."
+        required: false
+        type: string
+      bind_address:
+        description: "Bind address for host port mapping. Default is 127.0.0.1 for Caddy gateway usage."
+        required: false
+        type: string
+      port:
+        description: "Host port exposed for flat-server. Default is 8761."
+        required: false
+        type: string
+      container_port:
+        description: "Container port flat-server listens on. Default is 8761 and should match server.port in production.local.yaml."
+        required: false
+        type: string
+      docker_network:
+        description: "Optional Docker network name. Use this if billing should reach flat-server over container network."
+        required: false
+        type: string
+      skip_build:
+        description: "Skip build/push; just restart using :latest."
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  deploy-flat-server-prod:
+    environment: production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set image name to lowercase
+        id: image
+        run: |
+          echo "IMAGE_NAME=$(echo ghcr.io/${{ github.repository_owner }}/flat-server | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container Registry
+        if: ${{ github.event.inputs.skip_build != 'true' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        if: ${{ github.event.inputs.skip_build != 'true' }}
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ steps.image.outputs.IMAGE_NAME }}:latest
+            ${{ steps.image.outputs.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ github.event.inputs.ssh_host || secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ github.event.inputs.ssh_port || secrets.SSH_PORT }}
+          command_timeout: 30m
+          script: |
+            set -euo pipefail
+
+            CONTAINER_NAME="flat-server"
+            HOST_CONFIG_PATH_DEFAULT="/etc/netless/flat-server/production.local.yaml"
+            HOST_CONFIG_PATH_FALLBACK="$HOME/flat-server/production.local.yaml"
+            CONTAINER_CONFIG_PATH="/usr/src/app/config/production.local.yaml"
+            PORT_INPUT="${{ github.event.inputs.port }}"
+            PORT="${PORT_INPUT:-8761}"
+            CONTAINER_PORT_INPUT="${{ github.event.inputs.container_port }}"
+            CONTAINER_PORT="${CONTAINER_PORT_INPUT:-8761}"
+            BIND_ADDRESS_INPUT="${{ github.event.inputs.bind_address }}"
+            BIND_ADDRESS="${BIND_ADDRESS_INPUT:-127.0.0.1}"
+            DOCKER_NETWORK_INPUT="${{ github.event.inputs.docker_network }}"
+            DOCKER_NETWORK="${DOCKER_NETWORK_INPUT:-}"
+            CONFIG_B64="${{ secrets.FLAT_SERVER_CONFIG_YAML_B64 }}"
+            IMAGE_NAME="${{ steps.image.outputs.IMAGE_NAME }}:latest"
+
+            SUDO=""
+            if command -v sudo >/dev/null 2>&1 && sudo -n true >/dev/null 2>&1; then
+              SUDO="sudo -n"
+            fi
+
+            DOCKER_BIN="$(command -v docker || true)"
+            if [ -z "$DOCKER_BIN" ]; then
+              for candidate in /usr/bin/docker /usr/local/bin/docker /bin/docker; do
+                if [ -x "$candidate" ]; then
+                  DOCKER_BIN="$candidate"
+                  break
+                fi
+              done
+            fi
+            if [ -z "$DOCKER_BIN" ]; then
+              echo "docker not found on server. Please install Docker." >&2
+              exit 1
+            fi
+
+            DOCKER="$DOCKER_BIN"
+            if [ -n "$SUDO" ]; then
+              DOCKER="$SUDO $DOCKER_BIN"
+            fi
+
+            HOST_CONFIG_PATH="$HOST_CONFIG_PATH_DEFAULT"
+            if [ -z "$SUDO" ]; then
+              HOST_CONFIG_PATH="$HOST_CONFIG_PATH_FALLBACK"
+              echo "No passwordless sudo; using user-writable config path: $HOST_CONFIG_PATH"
+            fi
+
+            if [ -n "$CONFIG_B64" ]; then
+              if [ -n "$SUDO" ]; then
+                $SUDO mkdir -p "$(dirname "$HOST_CONFIG_PATH")"
+                printf '%s' "$CONFIG_B64" | base64 -d | $SUDO tee "$HOST_CONFIG_PATH" >/dev/null
+                $SUDO chmod 600 "$HOST_CONFIG_PATH"
+              else
+                mkdir -p "$(dirname "$HOST_CONFIG_PATH")"
+                printf '%s' "$CONFIG_B64" | base64 -d > "$HOST_CONFIG_PATH"
+                chmod 600 "$HOST_CONFIG_PATH"
+              fi
+              echo "Updated config: $HOST_CONFIG_PATH"
+            elif [ ! -f "$HOST_CONFIG_PATH" ]; then
+              echo "Missing flat-server config on server: $HOST_CONFIG_PATH" >&2
+              echo "Set secret FLAT_SERVER_CONFIG_YAML_B64 or create the file manually." >&2
+              exit 1
+            else
+              echo "Using existing config: $HOST_CONFIG_PATH"
+            fi
+
+            echo "Logging in to ghcr.io..."
+            for i in 1 2 3; do
+              if echo "${{ secrets.GIT_TOKEN }}" | $DOCKER login ghcr.io -u ${{ github.actor }} --password-stdin; then
+                break
+              fi
+              if [ "$i" -eq 3 ]; then
+                echo "Failed to docker login ghcr.io after retries." >&2
+                exit 1
+              fi
+              sleep 3
+            done
+
+            echo "Pulling image from ghcr.io..."
+            for i in 1 2 3 4 5; do
+              if $DOCKER pull "$IMAGE_NAME"; then
+                break
+              fi
+              if [ "$i" -eq 5 ]; then
+                echo "Failed to pull image from ghcr.io after retries." >&2
+                exit 1
+              fi
+              sleep $((i * 3))
+            done
+
+            $DOCKER rm -f "$CONTAINER_NAME" || true
+
+            DOCKER_RUN_ARGS=""
+            if [ -n "$DOCKER_NETWORK" ]; then
+              DOCKER_RUN_ARGS="--network $DOCKER_NETWORK"
+            fi
+
+            $DOCKER run -dit \
+              -p "${BIND_ADDRESS}:${PORT}:${CONTAINER_PORT}" \
+              -v "${HOST_CONFIG_PATH}:${CONTAINER_CONFIG_PATH}:ro" \
+              -e NODE_ENV=production \
+              --restart unless-stopped \
+              ${DOCKER_RUN_ARGS} \
+              --name "$CONTAINER_NAME" \
+              "$IMAGE_NAME"
+
+            $DOCKER image prune -f
