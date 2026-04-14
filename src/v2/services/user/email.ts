@@ -127,7 +127,6 @@ export class UserEmailService {
             avatar: avatarURL,
             userUUID,
             token: await jwtSign(userUUID),
-            phone: null,
             hasPhone: false,
             hasPassword: true,
         };
@@ -203,7 +202,6 @@ export class UserEmailService {
             avatar: user.avatar_url || generateAvatar(userUUIDByEmail),
             userUUID: userUUIDByEmail,
             token: await jwtSign(userUUIDByEmail),
-            phone: await this.phoneNumber(userUUIDByEmail),
             hasPhone: await this.hasPhone(userUUIDByEmail),
             hasPassword: true,
         };
@@ -214,13 +212,6 @@ export class UserEmailService {
             user_uuid: userUUID,
         });
         return Boolean(exist);
-    }
-
-    private async phoneNumber(userUUID: string): Promise<string | null> {
-        const result = await userPhoneDAO.findOne(this.DBTransaction, ["phone_number"], {
-            user_uuid: userUUID,
-        });
-        return result?.phone_number || null;
     }
 
     private async userUUIDByEmail(email: string): Promise<string | null> {
@@ -291,7 +282,6 @@ export type EmailRegisterReturn = {
     avatar: string;
     userUUID: string;
     token: string;
-    phone?: string | null;
     hasPhone: boolean;
     hasPassword: boolean;
 };

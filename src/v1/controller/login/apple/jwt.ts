@@ -77,7 +77,6 @@ export class AppleJWT extends AbstractController<RequestType, ResponseType> {
                     userUUID,
                     loginSource: LoginPlatform.Apple,
                 }),
-                phone: await new ServiceUserPhone(userUUID).phoneNumber(),
                 hasPhone: await ServiceUserPhone.exist(userUUID),
                 hasPassword: await ServiceUser.hasPassword(userUUID),
             },
@@ -101,7 +100,6 @@ interface ResponseType {
     avatar: string;
     userUUID: string;
     token: string;
-    phone?: string | null;
     hasPhone: boolean;
     hasPassword: boolean;
 }

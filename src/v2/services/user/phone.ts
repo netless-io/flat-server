@@ -146,7 +146,6 @@ export class UserPhoneService {
             avatar: avatarURL,
             userUUID,
             token: await jwtSign(userUUID),
-            phone,
             hasPhone: true,
             hasPassword: true,
         };
@@ -225,7 +224,6 @@ export class UserPhoneService {
             avatar: user.avatar_url || generateAvatar(userUUIDByPhone),
             userUUID: userUUIDByPhone,
             token: await jwtSign(userUUIDByPhone),
-            phone,
             hasPhone: true,
             hasPassword: true,
         };
@@ -299,7 +297,6 @@ export type PhoneRegisterReturn = {
     avatar: string;
     userUUID: string;
     token: string;
-    phone?: string | null;
     hasPhone: boolean;
     hasPassword: boolean;
 };

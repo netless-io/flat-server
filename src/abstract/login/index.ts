@@ -49,7 +49,6 @@ export abstract class AbstractLogin {
             JSON.stringify({
                 ...userInfo,
                 userUUID: this.userUUID,
-                phone: await new ServiceUserPhone(this.userUUID).phoneNumber(),
                 hasPhone: await ServiceUserPhone.exist(this.userUUID),
                 hasPassword: await ServiceUser.hasPassword(this.userUUID),
             }),
@@ -103,5 +102,4 @@ interface UserInfo {
     avatar: string;
     userUUID: string;
     token: string;
-    phone?: string | null;
 }
