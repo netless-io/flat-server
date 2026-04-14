@@ -192,6 +192,7 @@ export class UserRebindPhoneService {
                 avatar: result.avatar_url || generateAvatar(original.user_uuid),
                 userUUID: original.user_uuid,
                 token: await jwtSign(original.user_uuid),
+                phone,
                 hasPhone: true,
                 hasPassword: await this.hasPassword(original.user_uuid),
                 rebind: status,
@@ -305,6 +306,7 @@ export type UserRebindReturn = {
     avatar: string;
     token: string;
     userUUID: string;
+    phone?: string | null;
     hasPhone: boolean;
     hasPassword: boolean;
     rebind: RebindStatus;

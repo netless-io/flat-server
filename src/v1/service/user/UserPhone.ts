@@ -44,11 +44,7 @@ export class ServiceUserPhone {
             user_uuid: this.userUUID,
         });
 
-        return result ? this.desensitivePhone(result.phone_number) : null;
-    }
-
-    private desensitivePhone(phone: string): string {
-        return phone.slice(0, -8) + "****" + phone.slice(-4);
+        return result ? result.phone_number : null;
     }
 
     public async existPhone(phone: string): Promise<boolean> {

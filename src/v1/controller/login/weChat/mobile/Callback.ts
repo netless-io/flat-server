@@ -42,6 +42,7 @@ export class WechatMobileCallback extends AbstractController<RequestType, Respon
             status: Status.Success,
             data: {
                 ...result,
+                phone: await new ServiceUserPhone(result.userUUID).phoneNumber(),
                 hasPhone: await ServiceUserPhone.exist(result.userUUID),
                 hasPassword: await ServiceUser.hasPassword(result.userUUID),
             },
@@ -67,6 +68,7 @@ interface ResponseType {
     avatar: string;
     userUUID: string;
     token: string;
+    phone?: string | null;
     hasPhone: boolean;
     hasPassword: boolean;
 }

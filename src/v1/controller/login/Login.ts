@@ -89,6 +89,7 @@ export class Login extends AbstractController<RequestType, ResponseType> {
                     loginSource: this.loginSource,
                 }),
                 userUUID: this.userUUID,
+                phone: await this.svc.userPhone.phoneNumber(),
                 hasPhone: await this.svc.userPhone.exist(),
                 hasPassword: await this.svc.user.hasPassword(),
             },
@@ -138,6 +139,7 @@ interface ResponseType {
     avatar: string;
     token: string;
     userUUID: string;
+    phone?: string | null;
     hasPhone: boolean;
     hasPassword: boolean;
 }
