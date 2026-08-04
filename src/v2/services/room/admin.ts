@@ -10,6 +10,7 @@ import { roomIsIdle, roomIsRunning } from "../../../v1/controller/room/utils/Roo
 import { rtcQueue } from "../../../v1/queue";
 import { getNextPeriodicRoomInfo, updateNextPeriodicRoomInfo } from "../../../v1/service/Periodic";
 import { whiteboardBanRoom } from "../../../v1/utils/request/whiteboard/WhiteboardRequest";
+import { getClassroomResourceProfile } from "../../../classroomResource/Registry";
 import { roomDAO, roomPeriodicConfigDAO, roomPeriodicDAO } from "../../dao";
 import { getRTMToken } from "../../../v1/utils/AgoraToken";
 import { agoraSendChannelMessage } from "../../../v1/utils/request/agora/RTM";
@@ -35,6 +36,7 @@ export class RoomAdminService {
                 "periodic_uuid",
                 "whiteboard_room_uuid",
                 "region",
+                "classroom_resource_profile_key",
             ],
             { room_uuid: In(roomUUIDs) },
         );
@@ -101,12 +103,13 @@ export class RoomAdminService {
                     nextRoomUUIDs.push(nextPeriodicRoomInfo.fake_room_uuid);
                     const periodicRoomConfig = await roomPeriodicConfigDAO.findOne(
                         this.DBTransaction,
-                        ["title", "room_type"],
+                        ["title", "room_type", "classroom_resource_profile_key"],
                         { periodic_uuid },
                     );
                     const info = periodicRoomInfo.get(periodic_uuid);
                     if (periodicRoomConfig && info) {
-                        const { title, room_type } = periodicRoomConfig;
+                        const { title, room_type, classroom_resource_profile_key } =
+                            periodicRoomConfig;
                         // 2.2. Create next room and transfer users
                         commands.push(
                             ...(await updateNextPeriodicRoomInfo({
@@ -116,6 +119,7 @@ export class RoomAdminService {
                                 title,
                                 room_type,
                                 region: info.region,
+                                classroom_resource_profile_key,
                                 ...nextPeriodicRoomInfo,
                             })),
                         );
@@ -147,8 +151,16 @@ export class RoomAdminService {
         await Promise.all(commands);
 
         // 4. Ban whiteboard room
-        for (const { region, whiteboard_room_uuid } of runningRooms) {
-            whiteboardBanRoom(region, whiteboard_room_uuid).catch(error => {
+        for (const {
+            region,
+            whiteboard_room_uuid,
+            classroom_resource_profile_key,
+        } of runningRooms) {
+            whiteboardBanRoom(
+                region,
+                whiteboard_room_uuid,
+                getClassroomResourceProfile(classroom_resource_profile_key),
+            ).catch(error => {
                 this.logger.warn("ban room failed!", parseError(error));
             });
         }
@@ -248,14 +260,26 @@ export class RoomAdminService {
 
     public async roomMessages(messages: { roomUUID: string; message: string }[]): Promise<void> {
         const agoraUID = "flat-server";
-        const agoraToken = await getRTMToken(agoraUID);
         for (const { roomUUID, message } of messages) {
             try {
+                const room = await roomDAO.findOne(
+                    this.DBTransaction,
+                    ["classroom_resource_profile_key"],
+                    { room_uuid: roomUUID },
+                );
+                if (!room) {
+                    throw new Error(`room not found: ${roomUUID}`);
+                }
+                const profile = getClassroomResourceProfile(
+                    room.classroom_resource_profile_key,
+                );
+                const agoraToken = await getRTMToken(agoraUID, profile);
                 const response = await agoraSendChannelMessage(
                     agoraUID,
                     agoraToken,
                     roomUUID,
                     message,
+                    profile,
                 );
                 if (response.result !== "success") {
                     this.logger.warn("send rtm message " + response.result, {

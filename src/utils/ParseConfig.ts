@@ -10,24 +10,46 @@ const configDirPath =
 
 const env = process.env.IS_TEST === "yes" ? "test" : process.env.NODE_ENV;
 
-const configPath = (() => {
+const configFileContent = (): string => {
     const filenames = [`${env}.local.yaml`, `${env}.yaml`];
 
     for (const filename of filenames) {
         const fullPath = path.join(configDirPath, filename);
         if (fs.existsSync(fullPath)) {
-            return fullPath;
+            return fs.readFileSync(fullPath, "utf8");
         }
     }
 
     throw new Error("not found config file");
-})();
+};
 
-const yamlContent = fs.readFileSync(configPath, "utf8");
+const configSecretContent = (): string | null => {
+    const secretName = "FLAT_SERVER_CONFIG_YAML_B64";
+    const encoded = process.env[secretName]?.replace(/\s/g, "");
+    if (!encoded) {
+        return null;
+    }
+    delete process.env[secretName];
+
+    if (encoded.length % 4 !== 0 || !/^[A-Za-z0-9+/]+={0,2}$/.test(encoded)) {
+        throw new Error(`${secretName} is not valid base64`);
+    }
+    const decoded = Buffer.from(encoded, "base64").toString("utf8");
+    if (!decoded.trim()) {
+        throw new Error(`${secretName} decoded to an empty config`);
+    }
+    return decoded;
+};
+
+const yamlContent = configSecretContent() ?? configFileContent();
 
 export const configHash = crypto.createHash("md5").update(yamlContent).digest("hex");
 
-export const config = yaml.load(yamlContent) as Config;
+const parsedConfig = yaml.load(yamlContent);
+if (!parsedConfig || typeof parsedConfig !== "object" || Array.isArray(parsedConfig)) {
+    throw new Error("flat-server config must be a YAML object");
+}
+export const config = parsedConfig as Config;
 
 type Config = {
     server: {
@@ -168,7 +190,7 @@ type Config = {
                 };
             };
         };
-        captcha:{
+        captcha: {
             scene_id: string;
             access_id: string;
             access_secret: string;
@@ -213,12 +235,6 @@ type Config = {
                 secret: string;
             }>;
         };
-        ai: {
-            server_cn: string;
-            server_en: string;
-            server_cn_new: string;
-            server_en_new: string;
-        },
     };
     whiteboard: {
         app_id: string;
@@ -226,6 +242,37 @@ type Config = {
         secret_access_key: string;
         region: "cn-hz" | "us-sv" | "sg" | "in-mum" | "gb-lon";
         convert_region: "cn-hz" | "us-sv" | "sg" | "in-mum" | "gb-lon";
+    };
+    classroom_resources?: {
+        default_profile_key: string;
+        billing_base_url: string;
+        billing_internal_token: string;
+        profiles: Array<{
+            key: string;
+            provider?: string;
+            agora: {
+                app_id: string;
+                certificate: string;
+                restful_id: string;
+                restful_secret: string;
+            };
+            whiteboard: {
+                app_id: string;
+                access_key: string;
+                secret_access_key: string;
+                region: "cn-hz" | "us-sv" | "sg" | "in-mum" | "gb-lon";
+                convert_region?: "cn-hz" | "us-sv" | "sg" | "in-mum" | "gb-lon";
+            };
+            cloud_recording: {
+                vendor: number;
+                region: number;
+                bucket: string;
+                access_id: string;
+                access_secret: string;
+                folder: string;
+                prefix: string;
+            };
+        }>;
     };
     apple: {
         app_id: string;

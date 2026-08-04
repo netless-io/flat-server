@@ -1,7 +1,7 @@
 import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
-import { RoomDAO } from "../../../../../dao";
+import { RoomDAO, RoomRecordDAO } from "../../../../../dao";
 import { roomIsRunning } from "../../utils/RoomStatus";
 import {
     AgoraCloudRecordParamsType,
@@ -12,6 +12,7 @@ import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
+import { getClassroomResourceProfile } from "../../../../../classroomResource/Registry";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -71,7 +72,20 @@ export class RecordAgoraQuery extends AbstractController<RequestType, ResponseTy
             };
         }
 
-        const agoraResponse = await agoraCloudRecordQueryRequest(agoraParams);
+        const record = await RoomRecordDAO().findOne(
+            ["classroom_resource_profile_key", "agora_resource_id", "agora_sid"],
+            { room_uuid: roomUUID, agora_sid: agoraParams.sid },
+        );
+        if (!record || (record.agora_resource_id && record.agora_resource_id !== agoraParams.resourceid)) {
+            return { status: Status.Failed, code: ErrorCode.RecordNotFound };
+        }
+        const profile = getClassroomResourceProfile(record.classroom_resource_profile_key);
+        const serverParams = {
+            ...agoraParams,
+            resourceid: record.agora_resource_id || agoraParams.resourceid,
+            sid: record.agora_sid,
+        };
+        const agoraResponse = await agoraCloudRecordQueryRequest(serverParams, profile);
 
         const { serverResponse } = agoraResponse;
         const isRecording = 1 <= serverResponse.status && serverResponse.status <= 5;

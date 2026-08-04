@@ -6,6 +6,7 @@ import { EntityManager } from "typeorm/entity-manager/EntityManager";
 import { whiteboardCreateRoom } from "../utils/request/whiteboard/WhiteboardRequest";
 import cryptoRandomString from "crypto-random-string";
 import { Region } from "../../constants/Project";
+import { getClassroomResourceProfile } from "../../classroomResource/Registry";
 
 export type NextPeriodicRoomInfo = Pick<
     RoomPeriodicModel,
@@ -37,6 +38,7 @@ export const updateNextPeriodicRoomInfo = async ({
     fake_room_uuid,
     room_type,
     region,
+    classroom_resource_profile_key,
 }: {
     transaction: EntityManager;
     periodic_uuid: string;
@@ -47,8 +49,10 @@ export const updateNextPeriodicRoomInfo = async ({
     fake_room_uuid: RoomPeriodicModel["fake_room_uuid"];
     room_type: RoomType;
     region: Region;
+    classroom_resource_profile_key: string;
 }): Promise<Promise<unknown>[]> => {
     const commands: Promise<unknown>[] = [];
+    const profile = getClassroomResourceProfile(classroom_resource_profile_key);
 
     commands.push(
         RoomDAO(transaction).insert({
@@ -58,7 +62,10 @@ export const updateNextPeriodicRoomInfo = async ({
             room_type,
             room_status: RoomStatus.Idle,
             room_uuid: fake_room_uuid,
-            whiteboard_room_uuid: await whiteboardCreateRoom(region),
+            whiteboard_room_uuid: await whiteboardCreateRoom(region, 0, profile),
+            classroom_resource_profile_key,
+            resource_binding_source: "periodic_inherited",
+            resource_bound_at: new Date(),
             begin_time,
             end_time,
             region,

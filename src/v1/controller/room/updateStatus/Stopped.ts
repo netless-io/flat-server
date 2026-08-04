@@ -25,6 +25,7 @@ import {
     agoraCloudRecordStoppedRequest,
 } from "../../../utils/request/agora/Agora";
 import { getCloudRecordData } from "../utils/Agora";
+import { getClassroomResourceProfile } from "../../../../classroomResource/Registry";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -51,7 +52,7 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
         const userUUID = this.userUUID;
 
         const roomInfo = await RoomDAO().findOne(
-            ["room_status", "owner_uuid", "periodic_uuid", "whiteboard_room_uuid", "region"],
+            ["room_status", "owner_uuid", "periodic_uuid", "whiteboard_room_uuid", "region", "classroom_resource_profile_key"],
             {
                 room_uuid: roomUUID,
                 owner_uuid: userUUID,
@@ -74,27 +75,29 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
 
         const recordParams = await RedisService.get(RedisKey.record(roomUUID));
         if (recordParams) {
+            const profile = getClassroomResourceProfile(roomInfo.classroom_resource_profile_key);
             const agoraParams = JSON.parse(recordParams) as {
                 resourceid: string;
                 sid: string;
                 mode: "individual" | "mix" | "web";
             };
-            const { serverResponse } = await agoraCloudRecordQueryRequest(agoraParams).catch(
+            const { serverResponse } = await agoraCloudRecordQueryRequest(agoraParams, profile).catch(
                 () => ({ serverResponse: { status: 5 } }),
             );
 
             const isRecording = 1 <= serverResponse.status && serverResponse.status <= 5;
             if (isRecording) {
-                const { uid, cname } = await getCloudRecordData(roomUUID, false);
+                const { uid, cname } = await getCloudRecordData(roomUUID, false, profile);
                 await agoraCloudRecordStoppedRequest(agoraParams, {
                     uid,
                     cname,
                     clientRequest: {},
-                }).catch(() => null);
+                }, profile).catch(() => null);
 
                 await RoomRecordDAO().update(
                     {
                         end_time: new Date(),
+                        recording_status: "stopped",
                     },
                     {
                         room_uuid: roomUUID,
@@ -162,7 +165,7 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
                 if (nextRoomPeriodicInfo) {
                     nextRoomUUID = nextRoomPeriodicInfo.fake_room_uuid;
                     const periodicRoomConfig = await RoomPeriodicConfigDAO().findOne(
-                        ["title", "room_type"],
+                        ["title", "room_type", "classroom_resource_profile_key"],
                         {
                             periodic_uuid,
                         },
@@ -173,7 +176,7 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
                         throw new Error("Enter a special boundary situation");
                     }
 
-                    const { title, room_type } = periodicRoomConfig;
+                    const { title, room_type, classroom_resource_profile_key } = periodicRoomConfig;
                     commands.push(
                         ...(await updateNextPeriodicRoomInfo({
                             transaction: t,
@@ -182,6 +185,7 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
                             title,
                             room_type,
                             region: roomInfo.region,
+                            classroom_resource_profile_key,
                             ...nextRoomPeriodicInfo,
                         })),
                     );
@@ -203,7 +207,11 @@ export class UpdateStatusStopped extends AbstractController<RequestType, Respons
             }
 
             await Promise.all(commands);
-            whiteboardBanRoom(roomInfo.region, roomInfo.whiteboard_room_uuid).catch(error => {
+            whiteboardBanRoom(
+                roomInfo.region,
+                roomInfo.whiteboard_room_uuid,
+                getClassroomResourceProfile(roomInfo.classroom_resource_profile_key),
+            ).catch(error => {
                 this.logger.warn("ban room failed!", parseError(error));
             });
 

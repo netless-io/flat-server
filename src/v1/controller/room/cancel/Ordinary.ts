@@ -16,6 +16,7 @@ import { getInviteCode } from "../info/Utils";
 import { UserPmiDAO } from "../../../../dao";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
+import { getClassroomResourceProfile } from "../../../../classroomResource/Registry";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -56,9 +57,11 @@ export class CancelOrdinary extends AbstractController<RequestType, ResponseType
             "periodic_uuid",
             "whiteboard_room_uuid",
             "region",
+            "classroom_resource_profile_key",
         ]);
 
         const { owner_uuid, room_status, region, whiteboard_room_uuid } = roomInfo;
+        const profile = getClassroomResourceProfile(roomInfo.classroom_resource_profile_key);
 
         this.assertRoomValid(roomInfo);
 
@@ -77,7 +80,7 @@ export class CancelOrdinary extends AbstractController<RequestType, ResponseType
                 // after the room owner cancels the room, block the whiteboard room
                 // this operation must be placed in the last place
                 // ban whiteboard room should not block the overall process
-                whiteboardBanRoom(region, whiteboard_room_uuid).catch(err => {
+                whiteboardBanRoom(region, whiteboard_room_uuid, profile).catch(err => {
                     this.logger.warn("ban room failed", parseError(err));
                 });
 

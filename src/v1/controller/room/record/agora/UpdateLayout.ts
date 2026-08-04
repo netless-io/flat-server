@@ -1,7 +1,7 @@
 import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
-import { RoomDAO } from "../../../../../dao";
+import { RoomDAO, RoomRecordDAO } from "../../../../../dao";
 import { roomIsRunning } from "../../utils/RoomStatus";
 import { agoraCloudRecordUpdateLayoutRequest } from "../../../../utils/request/agora/Agora";
 import {
@@ -12,6 +12,7 @@ import {
 import { getCloudRecordData } from "../../utils/Agora";
 import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
+import { getClassroomResourceProfile } from "../../../../../classroomResource/Registry";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -29,7 +30,7 @@ export class RecordAgoraUpdateLayout extends AbstractController<RequestType, Res
                 },
                 agoraParams: {
                     type: "object",
-                    required: ["resourceid", "mode"],
+                    required: ["resourceid", "mode", "sid"],
                     properties: {
                         resourceid: {
                             type: "string",
@@ -74,13 +75,21 @@ export class RecordAgoraUpdateLayout extends AbstractController<RequestType, Res
             };
         }
 
-        const { uid, cname } = await getCloudRecordData(roomUUID, false);
+        const record = await RoomRecordDAO().findOne(
+            ["classroom_resource_profile_key", "agora_resource_id", "agora_sid"],
+            { room_uuid: roomUUID, agora_sid: agoraParams.sid },
+        );
+        if (!record || (record.agora_resource_id && record.agora_resource_id !== agoraParams.resourceid)) {
+            return { status: Status.Failed, code: ErrorCode.RecordNotFound };
+        }
+        const profile = getClassroomResourceProfile(record.classroom_resource_profile_key);
+        const { uid, cname } = await getCloudRecordData(roomUUID, false, profile);
 
-        const agoraResponse = await agoraCloudRecordUpdateLayoutRequest(agoraParams, {
-            uid,
-            cname,
-            clientRequest: agoraData.clientRequest,
-        });
+        const agoraResponse = await agoraCloudRecordUpdateLayoutRequest(
+            { ...agoraParams, resourceid: record.agora_resource_id || agoraParams.resourceid, sid: record.agora_sid },
+            { uid, cname, clientRequest: agoraData.clientRequest },
+            profile,
+        );
 
         return {
             status: Status.Success,

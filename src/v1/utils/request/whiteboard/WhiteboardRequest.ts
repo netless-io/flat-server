@@ -4,6 +4,7 @@ import { AxiosResponse } from "axios";
 import { Region } from "../../../../constants/Project";
 import { Whiteboard } from "../../../../constants/Config";
 import { runTimeLogger } from "../../../../logger";
+import { ClassroomResourceProfile, getDefaultClassroomResourceProfile } from "../../../../classroomResource/Registry";
 
 /**
  * whiteboard create room api
@@ -29,7 +30,7 @@ const wrapWhiteboardRequest = function <R>(methodDescription: string, execute: (
 
 export const whiteboardCreateRoom = wrapWhiteboardRequest(
     "whiteboardCreateRoom",
-    async (region: Region, limit = 0): Promise<string> => {
+    async (region: Region, limit = 0, profile: ClassroomResourceProfile = getDefaultClassroomResourceProfile()): Promise<string> => {
         try {
             const {
                 data: { uuid },
@@ -41,7 +42,7 @@ export const whiteboardCreateRoom = wrapWhiteboardRequest(
                 },
                 {
                     headers: {
-                        token: createWhiteboardSDKToken(),
+                        token: createWhiteboardSDKToken(undefined, profile),
                         region,
                     },
                 },
@@ -64,6 +65,7 @@ export const whiteboardBanRoom =
         async (
             region: Region,
             uuid: string,
+            profile: ClassroomResourceProfile = getDefaultClassroomResourceProfile(),
         ): Promise<AxiosResponse<Room>> => {
             return await ax.patch<Room>(
                 `https://api.netless.link/v5/rooms/${uuid}`,
@@ -72,7 +74,7 @@ export const whiteboardBanRoom =
                 },
                 {
                     headers: {
-                        token: createWhiteboardSDKToken(),
+                        token: createWhiteboardSDKToken(undefined, profile),
                         region,
                     },
                 },

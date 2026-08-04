@@ -19,6 +19,7 @@ import { aliGreenText } from "../../../utils/AliGreen";
 import { ControllerError } from "../../../../error/ControllerError";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 import { generateRoomUUID } from "../create/Utils";
+import { getClassroomResourceProfile } from "../../../../classroomResource/Registry";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -106,7 +107,7 @@ export class UpdatePeriodic extends AbstractController<RequestType, ResponseType
         }
 
         const periodicConfigInfo = await RoomPeriodicConfigDAO().findOne(
-            ["room_origin_begin_time", "room_origin_end_time", "end_time", "rate", "region"],
+            ["room_origin_begin_time", "room_origin_end_time", "end_time", "rate", "region", "classroom_resource_profile_key"],
             {
                 periodic_uuid: periodicUUID,
                 owner_uuid: userUUID,
@@ -120,8 +121,9 @@ export class UpdatePeriodic extends AbstractController<RequestType, ResponseType
             };
         }
 
-        const { room_origin_begin_time, room_origin_end_time, end_time, rate, region } =
+        const { room_origin_begin_time, room_origin_end_time, end_time, rate, region, classroom_resource_profile_key } =
             periodicConfigInfo;
+        const profile = getClassroomResourceProfile(classroom_resource_profile_key);
 
         if (
             !checkUpdateBeginAndEndTime(beginTime, endTime, {
@@ -231,7 +233,10 @@ export class UpdatePeriodic extends AbstractController<RequestType, ResponseType
                     room_type: type,
                     room_status: RoomStatus.Idle,
                     room_uuid: willAddRoom[0].fake_room_uuid,
-                    whiteboard_room_uuid: await whiteboardCreateRoom(region),
+                    whiteboard_room_uuid: await whiteboardCreateRoom(region, 0, profile),
+                    classroom_resource_profile_key,
+                    resource_binding_source: "periodic_inherited",
+                    resource_bound_at: new Date(),
                     begin_time: willAddRoom[0].begin_time,
                     end_time: willAddRoom[0].end_time,
                     region,
@@ -250,7 +255,7 @@ export class UpdatePeriodic extends AbstractController<RequestType, ResponseType
             );
 
             await Promise.all(commands);
-            whiteboardBanRoom(region, roomInfo.whiteboard_room_uuid).catch(error => {
+            whiteboardBanRoom(region, roomInfo.whiteboard_room_uuid, profile).catch(error => {
                 this.logger.warn("ban room failed", parseError(error));
             });
         });

@@ -1,7 +1,6 @@
-import { Agora } from "../../../../constants/Config";
 import { ax } from "../../Axios";
+import { ClassroomResourceProfile } from "../../../../classroomResource/Registry";
 
-const baseUrl = `https://api.agora.io/dev/v2/project/${Agora.appId}`;
 
 export interface SendChannelMessageResult {
     code: "message_sent";
@@ -15,6 +14,7 @@ export const agoraSendChannelMessage = async (
     token: string,
     channel: string,
     payload: string,
+    profile: ClassroomResourceProfile,
 ): Promise<SendChannelMessageResult> => {
     const headers = {
         "x-agora-uid": uid,
@@ -22,7 +22,7 @@ export const agoraSendChannelMessage = async (
     };
 
     const response = await ax.post(
-        `${baseUrl}/rtm/users/${uid}/channel_messages`,
+        `https://api.agora.io/dev/v2/project/${profile.agora.appId}/rtm/users/${uid}/channel_messages`,
         {
             channel_name: channel,
             enable_historical_messaging: false,

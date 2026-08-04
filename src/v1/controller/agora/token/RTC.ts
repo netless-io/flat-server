@@ -2,9 +2,10 @@ import { Status } from "../../../../constants/Project";
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { getRTCToken } from "../../../utils/AgoraToken";
 import { ErrorCode } from "../../../../ErrorCode";
-import { RoomUserDAO } from "../../../../dao";
+import { RoomDAO, RoomUserDAO } from "../../../../dao";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import { getClassroomResourceProfile } from "../../../../classroomResource/Registry";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -39,7 +40,17 @@ export class GenerateRTC extends AbstractController<RequestType, ResponseType> {
             };
         }
 
-        const token = await getRTCToken(roomUUID, Number(roomUserInfo.rtc_uid));
+        const room = await RoomDAO().findOne(["classroom_resource_profile_key"], {
+            room_uuid: roomUUID,
+        });
+        if (!room) {
+            return { status: Status.Failed, code: ErrorCode.RoomNotFound };
+        }
+        const token = await getRTCToken(
+            roomUUID,
+            Number(roomUserInfo.rtc_uid),
+            getClassroomResourceProfile(room.classroom_resource_profile_key),
+        );
 
         return {
             status: Status.Success,

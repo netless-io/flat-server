@@ -5,6 +5,7 @@
 import { createHmac } from "crypto";
 import { v1 as uuidv1 } from "uuid";
 import { Whiteboard } from "../constants/Config";
+import { ClassroomResourceProfile } from "../classroomResource/Registry";
 
 export enum TokenRole {
     Admin = "0",
@@ -74,17 +75,20 @@ const roomToken = createToken<RoomTokenTags>(TokenPrefix.ROOM);
 
 const taskToken = createToken<RoomTokenTags>(TokenPrefix.TASK);
 
-export const createWhiteboardSDKToken = (lifespan = 1000 * 60 * 10): string => {
-    return sdkToken(Whiteboard.accessKey, Whiteboard.secretAccessKey, lifespan, {
+export const createWhiteboardSDKToken = (
+    lifespan = 1000 * 60 * 10,
+    profile?: ClassroomResourceProfile,
+): string => {
+    return sdkToken(profile?.whiteboard.accessKey || Whiteboard.accessKey, profile?.whiteboard.secretAccessKey || Whiteboard.secretAccessKey, lifespan, {
         role: TokenRole.Admin,
     });
 };
 
 export const createWhiteboardRoomToken = (
     whiteboardRoomUUID: string,
-    { readonly = false, lifespan = 0 }: { readonly?: boolean; lifespan?: number } = {},
+    { readonly = false, lifespan = 0, profile }: { readonly?: boolean; lifespan?: number; profile?: ClassroomResourceProfile } = {},
 ): string => {
-    return roomToken(Whiteboard.accessKey, Whiteboard.secretAccessKey, lifespan, {
+    return roomToken(profile?.whiteboard.accessKey || Whiteboard.accessKey, profile?.whiteboard.secretAccessKey || Whiteboard.secretAccessKey, lifespan, {
         uuid: whiteboardRoomUUID,
         role: readonly ? TokenRole.Reader : TokenRole.Writer,
     });

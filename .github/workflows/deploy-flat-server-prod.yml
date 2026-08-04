@@ -28,10 +28,14 @@ on:
         required: false
         type: string
       skip_build:
-        description: "Skip build/push; just restart using :latest."
+        description: "Skip build/push and deploy an existing immutable image tag."
         required: false
         type: boolean
         default: false
+      image_tag:
+        description: "Required when skip_build=true. Use a commit SHA previously pushed to GHCR."
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -39,6 +43,9 @@ permissions:
 
 jobs:
   deploy-flat-server-prod:
+    concurrency:
+      group: flat-server-production
+      cancel-in-progress: false
     environment: production
     runs-on: ubuntu-latest
 
@@ -50,6 +57,19 @@ jobs:
         id: image
         run: |
           echo "IMAGE_NAME=$(echo ghcr.io/${{ github.repository_owner }}/flat-server | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve immutable image tag
+        id: deploy_tag
+        run: |
+          if [ "${{ github.event.inputs.skip_build }}" = "true" ]; then
+            if [ -z "${{ github.event.inputs.image_tag }}" ]; then
+              echo "image_tag is required when skip_build=true" >&2
+              exit 1
+            fi
+            echo "value=${{ github.event.inputs.image_tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Log in to GitHub Container Registry
         if: ${{ github.event.inputs.skip_build != 'true' }}
@@ -83,9 +103,8 @@ jobs:
             set -euo pipefail
 
             CONTAINER_NAME="flat-server"
-            HOST_CONFIG_PATH_DEFAULT="/etc/netless/flat-server/production.local.yaml"
-            HOST_CONFIG_PATH_FALLBACK="$HOME/flat-server/production.local.yaml"
-            CONTAINER_CONFIG_PATH="/usr/src/app/config/production.local.yaml"
+            PREVIOUS_CONTAINER_NAME="flat-server-previous"
+            CANDIDATE_CONTAINER_NAME="flat-server-candidate"
             PORT_INPUT="${{ github.event.inputs.port }}"
             PORT="${PORT_INPUT:-8761}"
             CONTAINER_PORT_INPUT="${{ github.event.inputs.container_port }}"
@@ -95,7 +114,12 @@ jobs:
             DOCKER_NETWORK_INPUT="${{ github.event.inputs.docker_network }}"
             DOCKER_NETWORK="${DOCKER_NETWORK_INPUT:-}"
             CONFIG_B64="${{ secrets.FLAT_SERVER_CONFIG_YAML_B64 }}"
-            IMAGE_NAME="${{ steps.image.outputs.IMAGE_NAME }}:latest"
+            IMAGE_NAME="${{ steps.image.outputs.IMAGE_NAME }}:${{ steps.deploy_tag.outputs.value }}"
+
+            if [ -z "$CONFIG_B64" ]; then
+              echo "Missing production environment secret: FLAT_SERVER_CONFIG_YAML_B64" >&2
+              exit 1
+            fi
 
             SUDO=""
             if command -v sudo >/dev/null 2>&1 && sudo -n true >/dev/null 2>&1; then
@@ -115,35 +139,9 @@ jobs:
               echo "docker not found on server. Please install Docker." >&2
               exit 1
             fi
-
             DOCKER="$DOCKER_BIN"
             if [ -n "$SUDO" ]; then
               DOCKER="$SUDO $DOCKER_BIN"
-            fi
-
-            HOST_CONFIG_PATH="$HOST_CONFIG_PATH_DEFAULT"
-            if [ -z "$SUDO" ]; then
-              HOST_CONFIG_PATH="$HOST_CONFIG_PATH_FALLBACK"
-              echo "No passwordless sudo; using user-writable config path: $HOST_CONFIG_PATH"
-            fi
-
-            if [ -n "$CONFIG_B64" ]; then
-              if [ -n "$SUDO" ]; then
-                $SUDO mkdir -p "$(dirname "$HOST_CONFIG_PATH")"
-                printf '%s' "$CONFIG_B64" | base64 -d | $SUDO tee "$HOST_CONFIG_PATH" >/dev/null
-                $SUDO chmod 600 "$HOST_CONFIG_PATH"
-              else
-                mkdir -p "$(dirname "$HOST_CONFIG_PATH")"
-                printf '%s' "$CONFIG_B64" | base64 -d > "$HOST_CONFIG_PATH"
-                chmod 600 "$HOST_CONFIG_PATH"
-              fi
-              echo "Updated config: $HOST_CONFIG_PATH"
-            elif [ ! -f "$HOST_CONFIG_PATH" ]; then
-              echo "Missing flat-server config on server: $HOST_CONFIG_PATH" >&2
-              echo "Set secret FLAT_SERVER_CONFIG_YAML_B64 or create the file manually." >&2
-              exit 1
-            else
-              echo "Using existing config: $HOST_CONFIG_PATH"
             fi
 
             echo "Logging in to ghcr.io..."
@@ -170,20 +168,87 @@ jobs:
               sleep $((i * 3))
             done
 
-            $DOCKER rm -f "$CONTAINER_NAME" || true
-
             DOCKER_RUN_ARGS=""
             if [ -n "$DOCKER_NETWORK" ]; then
               DOCKER_RUN_ARGS="--network $DOCKER_NETWORK"
             fi
 
-            $DOCKER run -dit \
-              -p "${BIND_ADDRESS}:${PORT}:${CONTAINER_PORT}" \
-              -v "${HOST_CONFIG_PATH}:${CONTAINER_CONFIG_PATH}:ro" \
+            $DOCKER rm -f "$CANDIDATE_CONTAINER_NAME" >/dev/null 2>&1 || true
+            $DOCKER run -d \
+              -p "127.0.0.1::${CONTAINER_PORT}" \
               -e NODE_ENV=production \
+              -e FLAT_SERVER_CONFIG_YAML_B64="$CONFIG_B64" \
+              ${DOCKER_RUN_ARGS} \
+              --name "$CANDIDATE_CONTAINER_NAME" \
+              "$IMAGE_NAME"
+
+            CANDIDATE_PORT="$($DOCKER port "$CANDIDATE_CONTAINER_NAME" "${CONTAINER_PORT}/tcp" | head -n1 | awk -F: '{print $NF}')"
+            if [ -z "$CANDIDATE_PORT" ]; then
+              echo "Failed to resolve candidate host port." >&2
+              $DOCKER logs "$CANDIDATE_CONTAINER_NAME" || true
+              exit 1
+            fi
+            CANDIDATE_READY="false"
+            for i in $(seq 1 30); do
+              if curl --fail --silent --show-error "http://127.0.0.1:${CANDIDATE_PORT}/health-check" >/dev/null; then
+                CANDIDATE_READY="true"
+                break
+              fi
+              sleep 2
+            done
+            if [ "$CANDIDATE_READY" != "true" ]; then
+              echo "Candidate flat-server failed health check." >&2
+              $DOCKER logs "$CANDIDATE_CONTAINER_NAME" || true
+              $DOCKER rm -f "$CANDIDATE_CONTAINER_NAME" || true
+              exit 1
+            fi
+            $DOCKER rm -f "$CANDIDATE_CONTAINER_NAME"
+
+            $DOCKER rm -f "$PREVIOUS_CONTAINER_NAME" >/dev/null 2>&1 || true
+            if $DOCKER ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+              $DOCKER rename "$CONTAINER_NAME" "$PREVIOUS_CONTAINER_NAME"
+              $DOCKER stop "$PREVIOUS_CONTAINER_NAME"
+            fi
+
+            if ! $DOCKER run -d \
+              -p "${BIND_ADDRESS}:${PORT}:${CONTAINER_PORT}" \
+              -e NODE_ENV=production \
+              -e FLAT_SERVER_CONFIG_YAML_B64="$CONFIG_B64" \
               --restart unless-stopped \
               ${DOCKER_RUN_ARGS} \
               --name "$CONTAINER_NAME" \
-              "$IMAGE_NAME"
+              "$IMAGE_NAME"; then
+              echo "New flat-server failed to start; restoring previous container." >&2
+              $DOCKER rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
+              if $DOCKER ps -a --format '{{.Names}}' | grep -q "^${PREVIOUS_CONTAINER_NAME}$"; then
+                $DOCKER rename "$PREVIOUS_CONTAINER_NAME" "$CONTAINER_NAME"
+                $DOCKER start "$CONTAINER_NAME"
+              fi
+              exit 1
+            fi
 
+            HEALTH_ADDRESS="$BIND_ADDRESS"
+            if [ "$HEALTH_ADDRESS" = "0.0.0.0" ]; then
+              HEALTH_ADDRESS="127.0.0.1"
+            fi
+            READY="false"
+            for i in $(seq 1 30); do
+              if curl --fail --silent --show-error "http://${HEALTH_ADDRESS}:${PORT}/health-check" >/dev/null; then
+                READY="true"
+                break
+              fi
+              sleep 2
+            done
+            if [ "$READY" != "true" ]; then
+              echo "New flat-server failed final health check; restoring previous container." >&2
+              $DOCKER logs "$CONTAINER_NAME" || true
+              $DOCKER rm -f "$CONTAINER_NAME" || true
+              if $DOCKER ps -a --format '{{.Names}}' | grep -q "^${PREVIOUS_CONTAINER_NAME}$"; then
+                $DOCKER rename "$PREVIOUS_CONTAINER_NAME" "$CONTAINER_NAME"
+                $DOCKER start "$CONTAINER_NAME"
+              fi
+              exit 1
+            fi
+
+            echo "Deployed immutable image: $IMAGE_NAME"
             $DOCKER image prune -f

@@ -22,7 +22,16 @@ import { rtcQueue } from "../../../queue";
 import { aliGreenText } from "../../../utils/AliGreen";
 import { ControllerError } from "../../../../error/ControllerError";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
-import { Whiteboard } from "../../../../constants/Config";
+import {
+    cancelClassroomResourceReservation,
+    normalizeClassroomResourceOperationID,
+    reserveClassroomResource,
+} from "../../../../classroomResource/BillingReservationClient";
+import {
+    deliverClassroomResourceConfirmation,
+    enqueueClassroomResourceConfirmation,
+    findClassroomCreationOperation,
+} from "../../../../classroomResource/ConfirmationOutbox";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -106,10 +115,15 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
     private readonly periodicUUID = generateRoomUUID();
 
     public async execute(): Promise<Response<ResponseType>> {
-        const region = Whiteboard.region as Region;
         const { title, type, beginTime, endTime, periodic } = this.body;
         const userUUID = this.userUUID;
-
+        const operationID = normalizeClassroomResourceOperationID(
+            this.req.headers["x-idempotency-key"] || this.req.headers["x-request-id"],
+            this.periodicUUID,
+        );
+        if (await findClassroomCreationOperation(operationID, userUUID, "periodic")) {
+            return { status: Status.Success, data: {} };
+        }
         if (await aliGreenText.textNonCompliant(title)) {
             throw new ControllerError(ErrorCode.NonCompliant);
         }
@@ -135,6 +149,12 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
         }
 
         const dates = calculatePeriodicDates(beginTime, endTime, periodic);
+        const { reservation, profile } = await reserveClassroomResource(
+            userUUID,
+            "periodic",
+            operationID,
+        );
+        const region = profile.whiteboard.region;
 
         const roomData = dates.map(({ start, end }) => {
             return {
@@ -166,6 +186,9 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
                     room_type: type,
                     periodic_uuid: this.periodicUUID,
                     region,
+                    classroom_resource_profile_key: profile.key,
+                    resource_binding_source: reservation.assignmentSource,
+                    resource_bound_at: new Date(),
                 }),
             );
 
@@ -186,7 +209,10 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
                         room_type: type,
                         room_status: RoomStatus.Idle,
                         room_uuid: roomData[0].fake_room_uuid,
-                        whiteboard_room_uuid: await whiteboardCreateRoom(region),
+                        whiteboard_room_uuid: await whiteboardCreateRoom(region, 0, profile),
+                        classroom_resource_profile_key: profile.key,
+                        resource_binding_source: "periodic_inherited",
+                        resource_bound_at: new Date(),
                         begin_time: roomData[0].begin_time,
                         end_time: roomData[0].end_time,
                         region,
@@ -203,7 +229,18 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
             }
 
             await Promise.all(commands);
+            await enqueueClassroomResourceConfirmation(
+                t,
+                operationID,
+                this.periodicUUID,
+                userUUID,
+                "periodic",
+            );
+        }).catch(async error => {
+            await cancelClassroomResourceReservation(operationID).catch(() => undefined);
+            throw error;
         });
+        await deliverClassroomResourceConfirmation(operationID);
 
         await generateRoomInviteCode("periodic", this.periodicUUID, this.logger);
 

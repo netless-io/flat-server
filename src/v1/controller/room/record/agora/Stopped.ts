@@ -15,6 +15,7 @@ import { timeExceedRedundancyOneMinute } from "../../utils/CheckTime";
 import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
+import { getClassroomResourceProfile } from "../../../../../classroomResource/Registry";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -75,24 +76,38 @@ export class RecordAgoraStopped extends AbstractController<RequestType, Response
             };
         }
 
+        const record = await RoomRecordDAO().findOne(
+            ["classroom_resource_profile_key", "agora_resource_id", "agora_sid"],
+            { room_uuid: roomUUID, agora_sid: agoraParams.sid },
+        );
+        if (!record || (record.agora_resource_id && record.agora_resource_id !== agoraParams.resourceid)) {
+            return { status: Status.Failed, code: ErrorCode.RecordNotFound };
+        }
+        const profile = getClassroomResourceProfile(record.classroom_resource_profile_key);
+        const serverParams = {
+            ...agoraParams,
+            resourceid: record.agora_resource_id || agoraParams.resourceid,
+            sid: record.agora_sid,
+        };
         let agoraResponse: ResponseType;
         await dataSource.transaction(async t => {
             await RoomRecordDAO(t).update(
                 {
                     end_time: new Date(),
+                    recording_status: "stopped",
                 },
                 {
                     agora_sid: agoraParams.sid,
                 },
             );
 
-            const { uid, cname } = await getCloudRecordData(roomUUID, false);
+            const { uid, cname } = await getCloudRecordData(roomUUID, false, profile);
 
-            agoraResponse = await agoraCloudRecordStoppedRequest(agoraParams, {
+            agoraResponse = await agoraCloudRecordStoppedRequest(serverParams, {
                 uid,
                 cname,
                 clientRequest: {},
-            });
+            }, profile);
         });
 
         await RedisService.del(RedisKey.record(roomUUID));

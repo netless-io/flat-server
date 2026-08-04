@@ -1,5 +1,4 @@
 import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
-import { Agora } from "../../../../../constants/Config";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
 import { RoomDAO, RoomRecordDAO } from "../../../../../dao";
@@ -16,6 +15,7 @@ import { Controller } from "../../../../../decorator/Controller";
 import { dataSource } from "../../../../../thirdPartyService/TypeORMService";
 import RedisService from "../../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../../utils/Redis";
+import { getClassroomResourceProfile } from "../../../../../classroomResource/Registry";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -96,7 +96,7 @@ export class RecordAgoraStarted extends AbstractController<RequestType, Response
             }
         }
 
-        const roomInfo = await RoomDAO().findOne(["room_status", "has_record"], {
+        const roomInfo = await RoomDAO().findOne(["room_status", "has_record", "classroom_resource_profile_key"], {
             room_uuid: roomUUID,
             owner_uuid: userUUID,
         });
@@ -116,8 +116,9 @@ export class RecordAgoraStarted extends AbstractController<RequestType, Response
         }
 
         let agoraResponse: ResponseType;
+        const profile = getClassroomResourceProfile(roomInfo.classroom_resource_profile_key);
         await dataSource.transaction(async t => {
-            const { uid, cname, token } = await getCloudRecordData(roomUUID, true);
+            const { uid, cname, token } = await getCloudRecordData(roomUUID, true, profile);
 
             agoraResponse = await agoraCloudRecordStartedRequest(agoraParams, {
                 uid,
@@ -126,23 +127,33 @@ export class RecordAgoraStarted extends AbstractController<RequestType, Response
                     ...agoraData.clientRequest,
                     token,
                     storageConfig: {
-                        vendor: Number(Agora.ossVendor),
-                        region: Number(Agora.ossRegion),
-                        bucket: Agora.ossBucket,
-                        accessKey: Agora.ossAccessKeyId,
-                        secretKey: Agora.ossAccessKeySecret,
-                        fileNamePrefix: [Agora.ossFolder, roomUUID.replace(/-/g, "")],
+                        vendor: profile.cloudRecording.vendor,
+                        region: profile.cloudRecording.region,
+                        bucket: profile.cloudRecording.bucket,
+                        accessKey: profile.cloudRecording.accessId,
+                        secretKey: profile.cloudRecording.accessSecret,
+                        fileNamePrefix: [profile.cloudRecording.folder, roomUUID.replace(/-/g, "")],
                     },
                 },
-            });
+            }, profile);
 
             const currentTime = new Date();
-            await RoomRecordDAO(t).insert({
-                room_uuid: roomUUID,
-                begin_time: currentTime,
-                end_time: currentTime,
-                agora_sid: agoraResponse.sid,
-            });
+            const acquired = await RoomRecordDAO(t).findOne(
+                ["id", "classroom_resource_profile_key"],
+                { room_uuid: roomUUID, agora_resource_id: agoraParams.resourceid },
+            );
+            if (!acquired || acquired.classroom_resource_profile_key !== profile.key) {
+                throw new Error("recording acquire session not found or profile mismatch");
+            }
+            await RoomRecordDAO(t).update(
+                {
+                    begin_time: currentTime,
+                    end_time: currentTime,
+                    agora_sid: agoraResponse.sid,
+                    recording_status: "recording",
+                },
+                { id: acquired.id },
+            );
 
             if (!roomInfo.has_record) {
                 await RoomDAO().update(

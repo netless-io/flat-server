@@ -16,5 +16,11 @@ export type ResponseType = {
     rtmToken: string;
     region: Region;
     showGuide: boolean;
-    isAI?: boolean;
+    classroomResource: {
+        profileKey: string;
+        provider: string;
+        agoraAppID: string;
+        whiteboardAppID: string;
+        whiteboardRegion: Region;
+    };
 };

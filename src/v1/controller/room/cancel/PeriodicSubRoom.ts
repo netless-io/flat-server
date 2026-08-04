@@ -6,6 +6,7 @@ import { roomIsRunning } from "../utils/RoomStatus";
 import { getNextPeriodicRoomInfo, updateNextPeriodicRoomInfo } from "../../../service/Periodic";
 import { PeriodicStatus } from "../../../../model/room/Constants";
 import { whiteboardBanRoom } from "../../../utils/request/whiteboard/WhiteboardRequest";
+import { getClassroomResourceProfile } from "../../../../classroomResource/Registry";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
 import { parseError } from "../../../../logger";
@@ -38,7 +39,7 @@ export class CancelPeriodicSubRoom extends AbstractController<RequestType, Respo
         const userUUID = this.userUUID;
 
         const periodicConfig = await RoomPeriodicConfigDAO().findOne(
-            ["title", "room_type", "region"],
+            ["title", "room_type", "region", "classroom_resource_profile_key"],
             {
                 periodic_uuid: periodicUUID,
                 owner_uuid: userUUID,
@@ -52,7 +53,7 @@ export class CancelPeriodicSubRoom extends AbstractController<RequestType, Respo
             };
         }
 
-        const { title, room_type, region } = periodicConfig;
+        const { title, room_type, region, classroom_resource_profile_key } = periodicConfig;
 
         const periodicRoomInfo = await RoomPeriodicDAO().findOne(["begin_time"], {
             periodic_uuid: periodicUUID,
@@ -67,7 +68,12 @@ export class CancelPeriodicSubRoom extends AbstractController<RequestType, Respo
         }
 
         const roomInfo = await RoomDAO().findOne(
-            ["room_status", "owner_uuid", "whiteboard_room_uuid"],
+            [
+                "room_status",
+                "owner_uuid",
+                "whiteboard_room_uuid",
+                "classroom_resource_profile_key",
+            ],
             {
                 periodic_uuid: periodicUUID,
                 room_uuid: roomUUID,
@@ -116,6 +122,7 @@ export class CancelPeriodicSubRoom extends AbstractController<RequestType, Respo
                             title,
                             room_type,
                             region,
+                            classroom_resource_profile_key,
                             ...nextRoomPeriodicInfo,
                         })),
                     );
@@ -135,7 +142,11 @@ export class CancelPeriodicSubRoom extends AbstractController<RequestType, Respo
 
             await Promise.all(commands);
             if (roomInfo) {
-                whiteboardBanRoom(region, roomInfo.whiteboard_room_uuid).catch(error => {
+                whiteboardBanRoom(
+                    region,
+                    roomInfo.whiteboard_room_uuid,
+                    getClassroomResourceProfile(roomInfo.classroom_resource_profile_key),
+                ).catch(error => {
                     this.logger.warn("ban room failed", parseError(error));
                 });
             }

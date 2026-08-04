@@ -181,9 +181,6 @@ agora:
       - productID:
         eventType:
         secret:
-  ai:
-    server: "http://106.13.114.185:8081"
-
 whiteboard:
   app_id: "test/flat-server"
   access_key: "test"

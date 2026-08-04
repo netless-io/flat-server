@@ -19,6 +19,16 @@ import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 import RedisService from "../../../../thirdPartyService/RedisService";
 import { RedisKey } from "../../../../utils/Redis";
 import { parseError } from "../../../../logger";
+import {
+    cancelClassroomResourceReservation,
+    normalizeClassroomResourceOperationID,
+    reserveClassroomResource,
+} from "../../../../classroomResource/BillingReservationClient";
+import {
+    deliverClassroomResourceConfirmation,
+    enqueueClassroomResourceConfirmation,
+    findClassroomCreationOperation,
+} from "../../../../classroomResource/ConfirmationOutbox";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -58,10 +68,6 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
                     type: "boolean",
                     nullable: true,
                 },
-                isAI: {
-                    type: "boolean",
-                    nullable: true,
-                },
             },
         },
     };
@@ -86,7 +92,28 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
 
     public async execute(): Promise<Response<ResponseType>> {
         await this.checkParams();
-
+        const operationID = normalizeClassroomResourceOperationID(
+            this.req.headers["x-idempotency-key"] || this.req.headers["x-request-id"],
+            this.roomUUID,
+        );
+        const existingRoomUUID = await findClassroomCreationOperation(
+            operationID,
+            this.userUUID,
+            "room",
+        );
+        if (existingRoomUUID) {
+            return {
+                status: Status.Success,
+                data: {
+                    roomUUID: existingRoomUUID,
+                    inviteCode: await generateRoomInviteCode(
+                        "ordinary",
+                        existingRoomUUID,
+                        this.logger,
+                    ),
+                },
+            };
+        }
         // If request PMI and exist one room that uses PMI, reject.
         if (this.body.pmi) {
             const pmiInUse = await this.svc.userPmi.existsRoom();
@@ -95,19 +122,38 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
             }
         }
 
+        const { reservation, profile } = await reserveClassroomResource(
+            this.userUUID,
+            "room",
+            operationID,
+        );
+
         let inviteCode: string | undefined;
 
-        await dataSource.transaction(async t => {
-            // prettier-ignore
-            await Promise.all([
-                this.svc.room.create(this.body, t),
-                this.svc.roomUser.addSelf(t)
-            ]);
+        try {
+            await dataSource.transaction(async t => {
+                // prettier-ignore
+                await Promise.all([
+                    this.svc.room.create(this.body, t, profile, reservation.assignmentSource),
+                    this.svc.roomUser.addSelf(t)
+                ]);
 
-            if (this.body.pmi) {
-                inviteCode = await this.svc.userPmi.getOrCreate(t);
-            }
-        });
+                if (this.body.pmi) {
+                    inviteCode = await this.svc.userPmi.getOrCreate(t);
+                }
+                await enqueueClassroomResourceConfirmation(
+                    t,
+                    operationID,
+                    this.roomUUID,
+                    this.userUUID,
+                    "room",
+                );
+            });
+        } catch (error) {
+            await cancelClassroomResourceReservation(operationID).catch(() => undefined);
+            throw error;
+        }
+        await deliverClassroomResourceConfirmation(operationID);
 
         rtcQueue(this.roomUUID, 0);
 
@@ -187,7 +233,6 @@ export interface RequestType {
         endTime?: number;
         region?: Region;
         pmi?: boolean;
-        isAI?: boolean;
     };
 }
 

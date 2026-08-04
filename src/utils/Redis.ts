@@ -23,9 +23,6 @@ export const RedisKey = {
         inviteCodeKey.slice("room:invite:".length),
     roomInviteCodeReverse: (roomUUID: string): string => `room:inviteReverse:${roomUUID}`,
 
-    phoneLogin: (phone: string): string => `phone:login:${phone}`,
-    phoneTryLoginCount: (phone: string): string => `phone:count:login:${phone}`,
-
     phoneBinding: (phone: string): string => `phone:binding:${phone}`,
     phoneTryBindingCount: (phone: string): string => `phone:count:binding:${phone}`,
 

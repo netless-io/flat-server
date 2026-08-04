@@ -1,7 +1,7 @@
 import { FastifySchema, Response, ResponseError } from "../../../../../types/Server";
 import { Status } from "../../../../../constants/Project";
 import { ErrorCode } from "../../../../../ErrorCode";
-import { RoomDAO } from "../../../../../dao";
+import { RoomDAO, RoomRecordDAO } from "../../../../../dao";
 import { roomIsRunning } from "../../utils/RoomStatus";
 import { agoraCloudRecordAcquireRequest } from "../../../../utils/request/agora/Agora";
 import {
@@ -11,6 +11,7 @@ import {
 import { getCloudRecordData } from "../../utils/Agora";
 import { AbstractController } from "../../../../../abstract/controller";
 import { Controller } from "../../../../../decorator/Controller";
+import { getClassroomResourceProfile } from "../../../../../classroomResource/Registry";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -39,7 +40,7 @@ export class RecordAgoraAcquire extends AbstractController<RequestType, Response
         const { roomUUID, agoraData } = this.body;
         const userUUID = this.userUUID;
 
-        const roomInfo = await RoomDAO().findOne(["room_status"], {
+        const roomInfo = await RoomDAO().findOne(["room_status", "classroom_resource_profile_key"], {
             room_uuid: roomUUID,
             owner_uuid: userUUID,
         });
@@ -58,12 +59,28 @@ export class RecordAgoraAcquire extends AbstractController<RequestType, Response
             };
         }
 
-        const { uid, cname } = await getCloudRecordData(roomUUID, false);
+        const profile = getClassroomResourceProfile(roomInfo.classroom_resource_profile_key);
+        const { uid, cname } = await getCloudRecordData(roomUUID, false, profile);
 
-        const agoraResponse = await agoraCloudRecordAcquireRequest({
-            uid,
-            cname,
-            clientRequest: agoraData.clientRequest,
+        const agoraResponse = await agoraCloudRecordAcquireRequest(
+            {
+                uid,
+                cname,
+                clientRequest: agoraData.clientRequest,
+            },
+            profile,
+        );
+        const now = new Date();
+        await RoomRecordDAO().insert({
+            room_uuid: roomUUID,
+            begin_time: now,
+            end_time: now,
+            agora_sid: "",
+            agora_resource_id: agoraResponse.resourceId,
+            classroom_resource_profile_key: profile.key,
+            recording_status: "acquired",
+            recording_storage_bucket: profile.cloudRecording.bucket,
+            recording_storage_prefix: `${profile.cloudRecording.prefix}/${profile.cloudRecording.folder}`,
         });
 
         return {

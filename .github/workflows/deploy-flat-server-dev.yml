@@ -93,9 +93,6 @@ jobs:
             set -euo pipefail
 
             CONTAINER_NAME="flat-server-dev"
-            HOST_CONFIG_PATH_DEFAULT="/etc/netless/flat-server-dev/development.local.yaml"
-            HOST_CONFIG_PATH_FALLBACK="$HOME/flat-server-dev/development.local.yaml"
-            CONTAINER_CONFIG_PATH="/usr/src/app/config/development.local.yaml"
             PORT_INPUT="${{ github.event.inputs.port }}"
             PORT="${PORT_INPUT:-18761}"
             CONTAINER_PORT_INPUT="${{ github.event.inputs.container_port }}"
@@ -106,6 +103,11 @@ jobs:
             DOCKER_NETWORK="${DOCKER_NETWORK_INPUT:-}"
             CONFIG_B64="${{ secrets.FLAT_SERVER_CONFIG_YAML_B64 }}"
             IMAGE_NAME="${{ steps.image.outputs.IMAGE_NAME }}:dev"
+
+            if [ -z "$CONFIG_B64" ]; then
+              echo "Missing flat-server-dev environment secret: FLAT_SERVER_CONFIG_YAML_B64" >&2
+              exit 1
+            fi
 
             SUDO=""
             if command -v sudo >/dev/null 2>&1 && sudo -n true >/dev/null 2>&1; then
@@ -125,35 +127,9 @@ jobs:
               echo "docker not found on server. Please install Docker." >&2
               exit 1
             fi
-
             DOCKER="$DOCKER_BIN"
             if [ -n "$SUDO" ]; then
               DOCKER="$SUDO $DOCKER_BIN"
-            fi
-
-            HOST_CONFIG_PATH="$HOST_CONFIG_PATH_DEFAULT"
-            if [ -z "$SUDO" ]; then
-              HOST_CONFIG_PATH="$HOST_CONFIG_PATH_FALLBACK"
-              echo "No passwordless sudo; using user-writable config path: $HOST_CONFIG_PATH"
-            fi
-
-            if [ -n "$CONFIG_B64" ]; then
-              if [ -n "$SUDO" ]; then
-                $SUDO mkdir -p "$(dirname "$HOST_CONFIG_PATH")"
-                printf '%s' "$CONFIG_B64" | base64 -d | $SUDO tee "$HOST_CONFIG_PATH" >/dev/null
-                $SUDO chmod 600 "$HOST_CONFIG_PATH"
-              else
-                mkdir -p "$(dirname "$HOST_CONFIG_PATH")"
-                printf '%s' "$CONFIG_B64" | base64 -d > "$HOST_CONFIG_PATH"
-                chmod 600 "$HOST_CONFIG_PATH"
-              fi
-              echo "Updated config: $HOST_CONFIG_PATH"
-            elif [ ! -f "$HOST_CONFIG_PATH" ]; then
-              echo "Missing flat-server dev config on server: $HOST_CONFIG_PATH" >&2
-              echo "Set secret FLAT_SERVER_CONFIG_YAML_B64 or create the file manually." >&2
-              exit 1
-            else
-              echo "Using existing config: $HOST_CONFIG_PATH"
             fi
 
             echo "Logging in to ghcr.io..."
@@ -189,8 +165,8 @@ jobs:
 
             $DOCKER run -dit \
               -p "${BIND_ADDRESS}:${PORT}:${CONTAINER_PORT}" \
-              -v "${HOST_CONFIG_PATH}:${CONTAINER_CONFIG_PATH}:ro" \
               -e NODE_ENV=development \
+              -e FLAT_SERVER_CONFIG_YAML_B64="$CONFIG_B64" \
               --restart unless-stopped \
               ${DOCKER_RUN_ARGS} \
               --name "$CONTAINER_NAME" \

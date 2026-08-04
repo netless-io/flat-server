@@ -33,6 +33,38 @@ export class RoomRecordModel extends Content {
     })
     agora_sid: string;
 
+    @Index("room_records_classroom_resource_profile_index")
+    @Column({
+        length: 64,
+        default: "channel_a_v1",
+    })
+    classroom_resource_profile_key: string;
+
+    @Index("room_records_agora_resource_id_index")
+    @Column({
+        length: 128,
+        default: "",
+    })
+    agora_resource_id: string;
+
+    @Column({
+        length: 32,
+        default: "legacy",
+    })
+    recording_status: string;
+
+    @Column({
+        length: 191,
+        default: "",
+    })
+    recording_storage_bucket: string;
+
+    @Column({
+        length: 191,
+        default: "",
+    })
+    recording_storage_prefix: string;
+
     @Index("room_records_is_delete_index")
     @Column({
         default: false,

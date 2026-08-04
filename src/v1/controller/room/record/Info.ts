@@ -1,5 +1,4 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
-import { Agora } from "../../../../constants/Config";
 import { Region, Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
 import { RoomDAO, RoomRecordDAO } from "../../../../dao";
@@ -8,6 +7,10 @@ import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
 import { getRTMToken } from "../../../utils/AgoraToken";
 import { AbstractController } from "../../../../abstract/controller";
 import { Controller } from "../../../../decorator/Controller";
+import {
+    getClassroomResourceProfile,
+    getClassroomResourcePublicConfig,
+} from "../../../../classroomResource/Registry";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -32,7 +35,7 @@ export class RecordInfo extends AbstractController<RequestType, ResponseType> {
         const userUUID = this.userUUID;
 
         const roomInfo = await RoomDAO().findOne(
-            ["room_status", "whiteboard_room_uuid", "room_type", "title", "owner_uuid", "region"],
+            ["room_status", "whiteboard_room_uuid", "room_type", "title", "owner_uuid", "region", "classroom_resource_profile_key"],
             {
                 room_uuid: roomUUID,
             },
@@ -52,9 +55,10 @@ export class RecordInfo extends AbstractController<RequestType, ResponseType> {
             };
         }
 
-        const roomRecordInfo = await RoomRecordDAO().find(["begin_time", "end_time", "agora_sid"], {
-            room_uuid: roomUUID,
-        });
+        const roomRecordInfo = await RoomRecordDAO().find(
+            ["begin_time", "end_time", "agora_sid", "recording_storage_prefix", "classroom_resource_profile_key"],
+            { room_uuid: roomUUID },
+        );
 
         if (roomRecordInfo.length === 0) {
             return {
@@ -70,8 +74,9 @@ export class RecordInfo extends AbstractController<RequestType, ResponseType> {
             whiteboard_room_uuid: whiteboardRoomUUID,
             region,
         } = roomInfo;
+        const profile = getClassroomResourceProfile(roomInfo.classroom_resource_profile_key);
 
-        const resourcesURLPrefix = `${Agora.ossPrefix}/${Agora.ossFolder}/${roomUUID.replace(
+        const resourcesURLPrefix = `${profile.cloudRecording.prefix}/${profile.cloudRecording.folder}/${roomUUID.replace(
             /-/g,
             "",
         )}`;
@@ -86,17 +91,26 @@ export class RecordInfo extends AbstractController<RequestType, ResponseType> {
                 whiteboardRoomUUID,
                 whiteboardRoomToken: createWhiteboardRoomToken(whiteboardRoomUUID, {
                     readonly: true,
+                    profile,
                 }),
-                rtmToken: await getRTMToken(userUUID),
-                recordInfo: roomRecordInfo.map(({ begin_time, end_time, agora_sid }) => ({
-                    beginTime: begin_time.valueOf(),
-                    endTime: end_time.valueOf(),
-                    videoURL: agora_sid
-                        ? `${resourcesURLPrefix}/${agora_sid}_${roomUUID}.m3u8`
-                        : "",
-                    resourcesURLPrefix,
-                    agoraSID: agora_sid,
-                })),
+                rtmToken: await getRTMToken(userUUID, profile),
+                classroomResource: getClassroomResourcePublicConfig(profile.key),
+                recordInfo: roomRecordInfo.map(
+                    ({ begin_time, end_time, agora_sid, recording_storage_prefix }) => {
+                        const recordPrefix = recording_storage_prefix
+                            ? `${recording_storage_prefix}/${roomUUID.replace(/-/g, "")}`
+                            : resourcesURLPrefix;
+                        return {
+                            beginTime: begin_time.valueOf(),
+                            endTime: end_time.valueOf(),
+                            videoURL: agora_sid
+                                ? `${recordPrefix}/${agora_sid}_${roomUUID}.m3u8`
+                                : "",
+                            resourcesURLPrefix: recordPrefix,
+                            agoraSID: agora_sid,
+                        };
+                    },
+                ),
             },
         };
     }
@@ -120,6 +134,13 @@ interface ResponseType {
     whiteboardRoomToken: string;
     whiteboardRoomUUID: string;
     rtmToken: string;
+    classroomResource: {
+        profileKey: string;
+        provider: string;
+        agoraAppID: string;
+        whiteboardAppID: string;
+        whiteboardRegion: Region;
+    };
     recordInfo: Array<{
         beginTime: number;
         endTime: number;

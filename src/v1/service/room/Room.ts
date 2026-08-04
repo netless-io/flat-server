@@ -9,7 +9,7 @@ import { RoomStatus, RoomType } from "../../../model/room/Constants";
 import { whiteboardCreateRoom } from "../../utils/request/whiteboard/WhiteboardRequest";
 import { addHours, toDate } from "date-fns/fp";
 import { InsertResult } from "typeorm/query-builder/result/InsertResult";
-import { Whiteboard } from "../../../constants/Config";
+import { ClassroomResourceProfile, getDefaultClassroomResourceProfile } from "../../../classroomResource/Registry";
 
 export class ServiceRoom {
     constructor(private readonly roomUUID: string, private readonly userUUID: string) {}
@@ -63,12 +63,13 @@ export class ServiceRoom {
             region?: Region;
             beginTime?: number | Date;
             endTime?: number | Date;
-            isAI?: boolean;
         },
         t?: EntityManager,
+        profile: ClassroomResourceProfile = getDefaultClassroomResourceProfile(),
+        bindingSource = "system_default",
     ): Promise<InsertResult> {
-        const region = Whiteboard.region as Region;
-        const { title, type, endTime, isAI } = data;
+        const region = profile.whiteboard.region;
+        const { title, type, endTime } = data;
         const beginTime = data.beginTime || Date.now();
 
         return await RoomDAO(t).insert({
@@ -78,11 +79,13 @@ export class ServiceRoom {
             room_type: type,
             room_status: RoomStatus.Idle,
             room_uuid: this.roomUUID,
-            whiteboard_room_uuid: await whiteboardCreateRoom(region),
+            whiteboard_room_uuid: await whiteboardCreateRoom(region, 0, profile),
+            classroom_resource_profile_key: profile.key,
+            resource_binding_source: bindingSource,
+            resource_bound_at: new Date(),
             begin_time: toDate(beginTime),
             end_time: endTime ? toDate(endTime) : addHours(1, beginTime),
             region,
-            is_ai: isAI,
         });
     }
 

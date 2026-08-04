@@ -18,6 +18,10 @@ import { showGuide } from "./Utils";
 import { AGORA_SHARE_SCREEN_UID } from "../../../../constants/Agora";
 import { dataSource } from "../../../../thirdPartyService/TypeORMService";
 import { Server } from "../../../../constants/Config";
+import {
+    getClassroomResourceProfile,
+    getClassroomResourcePublicConfig,
+} from "../../../../classroomResource/Registry";
 
 export const joinPeriodic = async (
     periodicUUID: string,
@@ -53,6 +57,7 @@ export const joinPeriodic = async (
             "room_status",
             "room_type",
             "begin_time",
+            "classroom_resource_profile_key",
         ],
         {
             periodic_uuid: periodicUUID,
@@ -69,6 +74,7 @@ export const joinPeriodic = async (
     }
 
     const { room_uuid: roomUUID, whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
+    const profile = getClassroomResourceProfile(roomInfo.classroom_resource_profile_key);
 
     const local = await UserDAO().findOne(["id"], {
         user_uuid: userUUID,
@@ -154,17 +160,18 @@ export const joinPeriodic = async (
             roomType: roomInfo.room_type,
             roomUUID: roomUUID,
             ownerUUID: roomInfo.owner_uuid,
-            whiteboardRoomToken: createWhiteboardRoomToken(whiteboardRoomUUID),
+            whiteboardRoomToken: createWhiteboardRoomToken(whiteboardRoomUUID, { profile }),
             whiteboardRoomUUID: whiteboardRoomUUID,
             rtcUID: Number(rtcUID),
-            rtcToken: await getRTCToken(roomUUID, Number(rtcUID)),
+            rtcToken: await getRTCToken(roomUUID, Number(rtcUID), profile),
             rtcShareScreen: {
                 uid: AGORA_SHARE_SCREEN_UID,
-                token: await getRTCToken(roomUUID, AGORA_SHARE_SCREEN_UID),
+                token: await getRTCToken(roomUUID, AGORA_SHARE_SCREEN_UID, profile),
             },
-            rtmToken: await getRTMToken(userUUID),
+            rtmToken: await getRTMToken(userUUID, profile),
             region: periodicRoomConfig.region,
             showGuide: roomInfo.owner_uuid === userUUID && (await showGuide(userUUID, roomUUID)),
+            classroomResource: getClassroomResourcePublicConfig(profile.key),
         },
     };
 };
