@@ -1,11 +1,7 @@
 import axios from "axios";
 import { createHash } from "crypto";
 import { ClassroomResources } from "../constants/Config";
-import {
-    ClassroomResourceProfile,
-    getClassroomResourceProfile,
-    getDefaultClassroomResourceProfile,
-} from "./Registry";
+import { ClassroomResourceProfile, getClassroomResourceProfile } from "./Registry";
 
 export type ClassroomResourceReservation = {
     operationID: string;
@@ -14,12 +10,6 @@ export type ClassroomResourceReservation = {
     assignmentSource: string;
     expiresAt: string;
 };
-
-function enabled(): boolean {
-    return Boolean(
-        ClassroomResources?.billing_base_url && ClassroomResources?.billing_internal_token,
-    );
-}
 
 export function normalizeClassroomResourceOperationID(value: unknown, fallback: string): string {
     const operationID = String(value || fallback).trim() || fallback;
@@ -30,28 +20,15 @@ export function normalizeClassroomResourceOperationID(value: unknown, fallback: 
 }
 
 export async function reserveClassroomResource(
-    teacherUUID: string,
+    ownerUUID: string,
     objectType: "room" | "periodic",
     operationID: string,
 ): Promise<{ reservation: ClassroomResourceReservation; profile: ClassroomResourceProfile }> {
-    if (!enabled()) {
-        const profile = getDefaultClassroomResourceProfile();
-        return {
-            reservation: {
-                operationID,
-                reservationStatus: "pending",
-                resourceProfileKey: profile.key,
-                assignmentSource: "legacy_default",
-                expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
-            },
-            profile,
-        };
-    }
     const response = await axios.post(
-        `${ClassroomResources!.billing_base_url.replace(/\/$/, "")}/v1/internal/classroom-resources/reservations`,
-        { teacherUUID, objectType, operationID },
+        `${ClassroomResources.billing_base_url.replace(/\/$/, "")}/v1/internal/classroom-resources/reservations`,
+        { ownerUUID, objectType, operationID },
         {
-            headers: { "X-Internal-Token": ClassroomResources!.billing_internal_token },
+            headers: { "X-Internal-Token": ClassroomResources.billing_internal_token },
             timeout: 3000,
         },
     );
@@ -66,28 +43,22 @@ export async function confirmClassroomResourceReservation(
     operationID: string,
     objectUUID: string,
 ): Promise<void> {
-    if (!enabled()) {
-        return;
-    }
     await axios.post(
-        `${ClassroomResources!.billing_base_url.replace(/\/$/, "")}/v1/internal/classroom-resources/reservations/${encodeURIComponent(operationID)}/confirm`,
+        `${ClassroomResources.billing_base_url.replace(/\/$/, "")}/v1/internal/classroom-resources/reservations/${encodeURIComponent(operationID)}/confirm`,
         { objectUUID },
         {
-            headers: { "X-Internal-Token": ClassroomResources!.billing_internal_token },
+            headers: { "X-Internal-Token": ClassroomResources.billing_internal_token },
             timeout: 3000,
         },
     );
 }
 
 export async function cancelClassroomResourceReservation(operationID: string): Promise<void> {
-    if (!enabled()) {
-        return;
-    }
     await axios.post(
-        `${ClassroomResources!.billing_base_url.replace(/\/$/, "")}/v1/internal/classroom-resources/reservations/${encodeURIComponent(operationID)}/cancel`,
+        `${ClassroomResources.billing_base_url.replace(/\/$/, "")}/v1/internal/classroom-resources/reservations/${encodeURIComponent(operationID)}/cancel`,
         {},
         {
-            headers: { "X-Internal-Token": ClassroomResources!.billing_internal_token },
+            headers: { "X-Internal-Token": ClassroomResources.billing_internal_token },
             timeout: 3000,
         },
     );

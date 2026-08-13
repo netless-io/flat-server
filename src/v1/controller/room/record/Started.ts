@@ -28,10 +28,13 @@ export class RecordStarted extends AbstractController<RequestType, ResponseType>
         const { roomUUID } = this.body;
         const userUUID = this.userUUID;
 
-        const roomInfo = await RoomDAO().findOne(["has_record", "room_status"], {
-            room_uuid: roomUUID,
-            owner_uuid: userUUID,
-        });
+        const roomInfo = await RoomDAO().findOne(
+            ["has_record", "room_status", "classroom_resource_profile_key"],
+            {
+                room_uuid: roomUUID,
+                owner_uuid: userUUID,
+            },
+        );
 
         if (roomInfo === undefined) {
             return {
@@ -52,6 +55,8 @@ export class RecordStarted extends AbstractController<RequestType, ResponseType>
             room_uuid: roomUUID,
             begin_time: currentTime,
             end_time: currentTime,
+            classroom_resource_profile_key: roomInfo.classroom_resource_profile_key,
+            recording_status: "started",
         });
         if (!roomInfo.has_record) {
             await RoomDAO().update(

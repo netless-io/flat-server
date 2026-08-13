@@ -36,7 +36,6 @@ export class RoomRecordModel extends Content {
     @Index("room_records_classroom_resource_profile_index")
     @Column({
         length: 64,
-        default: "channel_a_v1",
     })
     classroom_resource_profile_key: string;
 

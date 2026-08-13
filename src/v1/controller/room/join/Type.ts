@@ -16,9 +16,16 @@ export type ResponseType = {
     rtmToken: string;
     region: Region;
     showGuide: boolean;
+    participant: {
+        userUUID: string;
+        name: string;
+        avatarURL: string;
+    };
     classroomResource: {
         profileKey: string;
-        provider: string;
+        rtcProvider: "agora" | "openflat_rtc";
+        rtmProvider: "agora";
+        recordingProvider: "agora" | "openflat_rtc";
         agoraAppID: string;
         whiteboardAppID: string;
         whiteboardRegion: Region;

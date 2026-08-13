@@ -107,6 +107,11 @@ login:
     enable: true
     client_id:
     client_secret:
+  captcha:
+    scene_id: test
+    access_id: test
+    access_secret: test
+    endpoint: captcha.test
   sms:
     enable: true
     force: false
@@ -152,17 +157,17 @@ apple:
 
 agora:
   app:
-    id:
-    certificate:
+    id: test-agora-app-id
+    certificate: test-agora-certificate
   restful:
-    id:
-    secret:
+    id: test-agora-rest-id
+    secret: test-agora-rest-secret
   oss:
     access_id:
     access_secret:
-    vendor:
-    region:
-    bucket:
+    vendor: 2
+    region: 0
+    bucket: test-recording-bucket
     folder:
     prefix:
   screenshot:
@@ -187,6 +192,38 @@ whiteboard:
   secret_access_key: "test"
   region: "cn-hz"
   convert_region: "cn-hz"
+
+classroom_resources:
+  default_profile_key: test_agora_v1
+  billing_base_url: http://127.0.0.1:8080
+  billing_internal_token: test-internal-token
+  profiles:
+    - key: test_agora_v1
+      channel_code: test_agora
+      config_version: 1
+      rtc_provider: agora
+      rtm_provider: agora
+      media_region: CN
+      agora:
+        app_id: test-agora-app-id
+        certificate: test-agora-certificate
+        restful_id: test-agora-rest-id
+        restful_secret: test-agora-rest-secret
+      whiteboard:
+        app_id: test/flat-server
+        access_key: test
+        secret_access_key: test
+        region: cn-hz
+        convert_region: cn-hz
+      recording_provider: agora
+      cloud_recording:
+        vendor: 2
+        region: 0
+        bucket: test-recording-bucket
+        access_id: test
+        access_secret: test
+        folder: test
+        prefix: https://recording.example.test
 
 storage_service:
   type: oss

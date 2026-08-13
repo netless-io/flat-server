@@ -134,7 +134,7 @@ export class CreateOrdinary extends AbstractController<RequestType, ResponseType
             await dataSource.transaction(async t => {
                 // prettier-ignore
                 await Promise.all([
-                    this.svc.room.create(this.body, t, profile, reservation.assignmentSource),
+                    this.svc.room.create(this.body, profile, reservation.assignmentSource, t),
                     this.svc.roomUser.addSelf(t)
                 ]);
 

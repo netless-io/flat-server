@@ -13,16 +13,16 @@ import {
     AgoraCloudRecordUpdateLayoutRequestBody,
     AgoraCloudRecordUpdateLayoutResponse,
 } from "./Types";
-import {
-    ClassroomResourceProfile,
-    getDefaultClassroomResourceProfile,
-} from "../../../../classroomResource/Registry";
+import { ClassroomResourceProfile } from "../../../../classroomResource/Registry";
 
 const agoraCloudRecordingRequest = async <REQ, RESP>(
     path: string,
-    data?: REQ,
-    profile: ClassroomResourceProfile = getDefaultClassroomResourceProfile(),
+    data: REQ | undefined,
+    profile: ClassroomResourceProfile,
 ): Promise<RESP> => {
+    if (profile.rtcProvider !== "agora" || profile.recordingProvider !== "agora") {
+        throw new Error(`Agora cloud recording is unavailable for profile: ${profile.key}`);
+    }
     let response: AxiosResponse<RESP>;
     const agoraCloudRecording = `https://api.agora.io/v1/apps/${profile.agora.appId}/cloud_recording`;
     const authorization =
@@ -48,7 +48,7 @@ const agoraCloudRecordingRequest = async <REQ, RESP>(
 
 export const agoraCloudRecordAcquireRequest = async (
     data: AgoraCloudRecordAcquireRequestBody,
-    profile?: ClassroomResourceProfile,
+    profile: ClassroomResourceProfile,
 ): Promise<AgoraCloudRecordAcquireResponse> => {
     return await agoraCloudRecordingRequest("acquire", data, profile);
 };
@@ -56,7 +56,7 @@ export const agoraCloudRecordAcquireRequest = async (
 export const agoraCloudRecordStartedRequest = async (
     params: AgoraCloudRecordParamsBaseType,
     data: AgoraCloudRecordStartedRequestBody,
-    profile?: ClassroomResourceProfile,
+    profile: ClassroomResourceProfile,
 ): Promise<AgoraCloudRecordStartedResponse> => {
     return await agoraCloudRecordingRequest(
         `resourceid/${params.resourceid}/mode/${params.mode}/start`,
@@ -68,7 +68,7 @@ export const agoraCloudRecordStartedRequest = async (
 export const agoraCloudRecordUpdateLayoutRequest = async (
     params: AgoraCloudRecordParamsType,
     data: AgoraCloudRecordUpdateLayoutRequestBody,
-    profile?: ClassroomResourceProfile,
+    profile: ClassroomResourceProfile,
 ): Promise<AgoraCloudRecordUpdateLayoutResponse> => {
     return await agoraCloudRecordingRequest(
         `resourceid/${params.resourceid}/sid/${params.sid}/mode/${params.mode}/updateLayout`,
@@ -79,7 +79,7 @@ export const agoraCloudRecordUpdateLayoutRequest = async (
 
 export const agoraCloudRecordQueryRequest = async (
     params: AgoraCloudRecordParamsType,
-    profile?: ClassroomResourceProfile,
+    profile: ClassroomResourceProfile,
 ): Promise<AgoraCloudRecordQueryResponse<"string" | "json" | undefined>> => {
     return await agoraCloudRecordingRequest(
         `resourceid/${params.resourceid}/sid/${params.sid}/mode/${params.mode}/query`,
@@ -91,7 +91,7 @@ export const agoraCloudRecordQueryRequest = async (
 export const agoraCloudRecordStoppedRequest = async (
     params: AgoraCloudRecordParamsType,
     data: AgoraCloudRecordStoppedRequestBody,
-    profile?: ClassroomResourceProfile,
+    profile: ClassroomResourceProfile,
 ): Promise<AgoraCloudRecordStoppedResponse> => {
     return await agoraCloudRecordingRequest(
         `resourceid/${params.resourceid}/sid/${params.sid}/mode/${params.mode}/stop`,

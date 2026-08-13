@@ -153,9 +153,9 @@ CREATE TABLE `rooms` (
   `end_time` datetime(3) NOT NULL COMMENT 'room end time',
   `region` enum('cn-hz','us-sv','sg','in-mum','gb-lon') NOT NULL,
   `whiteboard_room_uuid` varchar(40) NOT NULL,
-  `classroom_resource_profile_key` varchar(64) NOT NULL DEFAULT 'channel_a_v1',
-  `resource_binding_source` varchar(32) NOT NULL DEFAULT 'migration_backfill',
-  `resource_bound_at` datetime(3) NULL,
+  `classroom_resource_profile_key` varchar(64) NOT NULL,
+  `resource_binding_source` varchar(32) NOT NULL,
+  `resource_bound_at` datetime(3) NOT NULL,
   `is_delete` tinyint NOT NULL DEFAULT 0,
   `has_record` tinyint NOT NULL DEFAULT 0,
   `is_ai` tinyint NOT NULL DEFAULT 0,
@@ -205,9 +205,9 @@ CREATE TABLE `room_periodic_configs` (
   `room_type` enum('OneToOne','BigClass','SmallClass') NOT NULL COMMENT 'room type',
   `periodic_status` enum('Idle','Started','Stopped') NOT NULL COMMENT 'current periodic status',
   `region` enum('cn-hz','us-sv','sg','in-mum','gb-lon') NOT NULL,
-  `classroom_resource_profile_key` varchar(64) NOT NULL DEFAULT 'channel_a_v1',
-  `resource_binding_source` varchar(32) NOT NULL DEFAULT 'migration_backfill',
-  `resource_bound_at` datetime(3) NULL,
+  `classroom_resource_profile_key` varchar(64) NOT NULL,
+  `resource_binding_source` varchar(32) NOT NULL,
+  `resource_bound_at` datetime(3) NOT NULL,
   `is_delete` tinyint NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `periodic_configs_periodic_uuid_uindex` (`periodic_uuid`),
@@ -242,7 +242,7 @@ CREATE TABLE `room_records` (
   `begin_time` datetime(3) NOT NULL COMMENT 'room record begin time',
   `end_time` datetime(3) NOT NULL COMMENT 'room record end time',
   `agora_sid` varchar(40) NOT NULL DEFAULT '' COMMENT 'agora record id',
-  `classroom_resource_profile_key` varchar(64) NOT NULL DEFAULT 'channel_a_v1',
+  `classroom_resource_profile_key` varchar(64) NOT NULL,
   `agora_resource_id` varchar(128) NOT NULL DEFAULT '',
   `recording_status` varchar(32) NOT NULL DEFAULT 'legacy',
   `recording_storage_bucket` varchar(191) NOT NULL DEFAULT '',
@@ -430,6 +430,13 @@ CREATE TABLE `user_wechat` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_wechat_user_uuid_uindex` (`user_uuid`),
   KEY `user_wechat_is_delete_index` (`is_delete`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `classroom_resource_binding_migration_state` (
+  `migration_key` VARCHAR(64) NOT NULL,
+  `legacy_profile_key` VARCHAR(64) NOT NULL,
+  `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`migration_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `classroom_resource_confirmation_outbox` (

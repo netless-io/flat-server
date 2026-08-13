@@ -156,6 +156,12 @@ const main = async (): Promise<void> => {
     if (!outbox) {
         throw new Error("Unable to find classroom_resource_confirmation_outbox migration");
     }
+    const migrationState = migration.match(
+        /CREATE TABLE IF NOT EXISTS `classroom_resource_binding_migration_state`[\s\S]*?;\n/,
+    );
+    if (!migrationState) {
+        throw new Error("Unable to find classroom_resource_binding_migration_state migration");
+    }
 
     const sql = [
         "-- Generated from the current flat-server TypeORM entities.",
@@ -163,6 +169,7 @@ const main = async (): Promise<void> => {
         "SET NAMES utf8mb4;",
         "SET FOREIGN_KEY_CHECKS = 0;",
         ...dataSource.entityMetadatas.map(createTable),
+        migrationState[0].trim(),
         outbox[0].trim(),
         "SET FOREIGN_KEY_CHECKS = 1;",
         "",

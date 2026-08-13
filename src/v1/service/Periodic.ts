@@ -62,7 +62,7 @@ export const updateNextPeriodicRoomInfo = async ({
             room_type,
             room_status: RoomStatus.Idle,
             room_uuid: fake_room_uuid,
-            whiteboard_room_uuid: await whiteboardCreateRoom(region, 0, profile),
+            whiteboard_room_uuid: await whiteboardCreateRoom(region, profile),
             classroom_resource_profile_key,
             resource_binding_source: "periodic_inherited",
             resource_bound_at: new Date(),

@@ -9,10 +9,13 @@ import { RoomStatus, RoomType } from "../../../model/room/Constants";
 import { whiteboardCreateRoom } from "../../utils/request/whiteboard/WhiteboardRequest";
 import { addHours, toDate } from "date-fns/fp";
 import { InsertResult } from "typeorm/query-builder/result/InsertResult";
-import { ClassroomResourceProfile, getDefaultClassroomResourceProfile } from "../../../classroomResource/Registry";
+import { ClassroomResourceProfile } from "../../../classroomResource/Registry";
 
 export class ServiceRoom {
-    constructor(private readonly roomUUID: string, private readonly userUUID: string) {}
+    constructor(
+        private readonly roomUUID: string,
+        private readonly userUUID: string,
+    ) {}
 
     public async assertExist(errorCode: ErrorCode = ErrorCode.RoomNotFound): Promise<void> {
         const result = await RoomDAO().findOne(["id"], {
@@ -64,9 +67,9 @@ export class ServiceRoom {
             beginTime?: number | Date;
             endTime?: number | Date;
         },
+        profile: ClassroomResourceProfile,
+        bindingSource: string,
         t?: EntityManager,
-        profile: ClassroomResourceProfile = getDefaultClassroomResourceProfile(),
-        bindingSource = "system_default",
     ): Promise<InsertResult> {
         const region = profile.whiteboard.region;
         const { title, type, endTime } = data;
@@ -79,7 +82,7 @@ export class ServiceRoom {
             room_type: type,
             room_status: RoomStatus.Idle,
             room_uuid: this.roomUUID,
-            whiteboard_room_uuid: await whiteboardCreateRoom(region, 0, profile),
+            whiteboard_room_uuid: await whiteboardCreateRoom(region, profile),
             classroom_resource_profile_key: profile.key,
             resource_binding_source: bindingSource,
             resource_bound_at: new Date(),

@@ -24,13 +24,16 @@ import { initTasks } from "./v2/tasks";
 import { fastifyAuthenticate } from "./plugins/fastify/authenticate";
 import { fastifyIpBlock } from "./plugins/fastify/ipBlock";
 import {
+    getClassroomResourceProfile,
     getClassroomResourcePublicConfig,
     listClassroomResourcePublicConfigs,
 } from "./classroomResource/Registry";
+import { probeClassroomResourceProfile } from "./classroomResource/Health";
 import { ClassroomResources } from "./constants/Config";
 import { RoomModel } from "./model/room/Room";
 import { RoomPeriodicConfigModel } from "./model/room/RoomPeriodicConfig";
 import { RoomRecordModel } from "./model/room/RoomRecord";
+import { assertClassroomResourceBindingIntegrity } from "./classroomResource/BindingIntegrity";
 
 const app = fastify({
     caseSensitive: true,
@@ -85,21 +88,26 @@ app.get<{ Params: { key: string } }>(
     "/v1/internal/classroom-resources/profiles/:key/health",
     async (request, reply) => {
         const configuredToken = ClassroomResources?.billing_internal_token;
-        if (
-            !configuredToken ||
-            request.headers["x-internal-token"] !== configuredToken
-        ) {
+        if (!configuredToken || request.headers["x-internal-token"] !== configuredToken) {
             return reply.code(401).send({ status: 1, message: "unauthorized" });
         }
         try {
+            const profile = getClassroomResourceProfile(request.params.key);
+            const activeHealth = await probeClassroomResourceProfile(profile);
             return reply.code(200).send({
                 status: 0,
-                data: getClassroomResourcePublicConfig(request.params.key),
+                data: {
+                    ...getClassroomResourcePublicConfig(request.params.key),
+                    activeHealth,
+                },
             });
-        } catch {
-            return reply.code(404).send({
+        } catch (error) {
+            return reply.code(503).send({
                 status: 1,
-                message: "classroom resource profile not found",
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : "classroom resource health check failed",
             });
         }
     },
@@ -116,18 +124,13 @@ app.get("/v1/internal/classroom-resources/profiles", async (request, reply) => {
     });
 });
 
-app.get(
-    "/v1/internal/classroom-resources/confirmation-failures",
-    async (request, reply) => {
-        const configuredToken = ClassroomResources?.billing_internal_token;
-        if (
-            !configuredToken ||
-            request.headers["x-internal-token"] !== configuredToken
-        ) {
-            return reply.code(401).send({ status: 1, message: "unauthorized" });
-        }
-        const rows = await dataSource.query(
-            `SELECT operation_id AS operationID, object_uuid AS objectUUID,
+app.get("/v1/internal/classroom-resources/confirmation-failures", async (request, reply) => {
+    const configuredToken = ClassroomResources?.billing_internal_token;
+    if (!configuredToken || request.headers["x-internal-token"] !== configuredToken) {
+        return reply.code(401).send({ status: 1, message: "unauthorized" });
+    }
+    const rows = await dataSource.query(
+        `SELECT operation_id AS operationID, object_uuid AS objectUUID,
                     owner_uuid AS ownerUUID, object_type AS objectType,
                     attempt_count AS attemptCount, next_attempt_at AS nextAttemptAt,
                     last_error AS lastError, created_at AS createdAt, updated_at AS updatedAt
@@ -136,10 +139,9 @@ app.get(
                 AND (attempt_count > 0 OR created_at < DATE_SUB(UTC_TIMESTAMP(), INTERVAL 2 MINUTE))
               ORDER BY updated_at ASC
               LIMIT 200`,
-        );
-        return reply.code(200).send({ status: 0, data: rows });
-    },
-);
+    );
+    return reply.code(200).send({ status: 0, data: rows });
+});
 
 app.get<{ Params: { uuid: string } }>(
     "/v1/internal/classroom-resources/bindings/:uuid",
@@ -227,68 +229,74 @@ app.get<{ Params: { uuid: string } }>(
     },
 );
 
-void orm().then(async dataSource => {
-    await Promise.all([
-        app.register(cookie),
-        app.register(pointOfView, {
-            engine: {
-                eta: require("eta"),
-            },
-        }),
-        app.register(fastifyAuthenticate),
-        app.register(fastifyIpBlock),
-        app.register(cors, {
-            methods: ["GET", "POST", "OPTIONS"],
-            allowedHeaders: [
-                "Content-Type",
-                "Authorization",
-                "x-request-id",
-                "x-session-id",
-                "x-openflat-platform",
-                "x-openflat-version",
-                "x-openflat-build",
-                "x-openflat-protocol-version",
-            ],
-            maxAge: 100,
-        }),
-        app.register(formBody),
-        app.register(fastifyRequestID),
-    ]);
+void orm()
+    .then(async dataSource => {
+        await assertClassroomResourceBindingIntegrity(dataSource);
+        await Promise.all([
+            app.register(cookie),
+            app.register(pointOfView, {
+                engine: {
+                    eta: require("eta"),
+                },
+            }),
+            app.register(fastifyAuthenticate),
+            app.register(fastifyIpBlock),
+            app.register(cors, {
+                methods: ["GET", "POST", "OPTIONS"],
+                allowedHeaders: [
+                    "Content-Type",
+                    "Authorization",
+                    "x-request-id",
+                    "x-session-id",
+                    "x-openflat-platform",
+                    "x-openflat-version",
+                    "x-openflat-build",
+                    "x-openflat-protocol-version",
+                ],
+                maxAge: 100,
+            }),
+            app.register(formBody),
+            app.register(fastifyRequestID),
+        ]);
 
-    {
-        const respErr = JSON.stringify({
-            status: Status.Failed,
-            code: ErrorCode.CurrentProcessFailed,
-        });
-        await app.register(fastifyTypeORMQueryRunner, {
-            dataSource,
-            transaction: true,
-            match: request => {
-                const path = request.routerPath || "";
-                return path.startsWith("/v2") && !path.includes("/region/configs");
-            },
-            respIsError: respStr => respStr === respErr,
-        });
-    }
-
-    await app.register(fastifyAPILogger);
-
-    registerV1Routers(app, httpRouters);
-    registerV2Routers(app, v2Routes);
-
-    await initTasks();
-    app.listen(
         {
-            port: Server.port,
-            host: "0.0.0.0",
-        },
-        (err, address) => {
-            if (err) {
-                loggerServer.error("server launch failed", parseError(err));
-                process.exit(1);
-            }
+            const respErr = JSON.stringify({
+                status: Status.Failed,
+                code: ErrorCode.CurrentProcessFailed,
+            });
+            await app.register(fastifyTypeORMQueryRunner, {
+                dataSource,
+                transaction: true,
+                match: request => {
+                    const path = request.routerPath || "";
+                    return path.startsWith("/v2") && !path.includes("/region/configs");
+                },
+                respIsError: respStr => respStr === respErr,
+            });
+        }
 
-            loggerServer.info(`server launch success, ${address}`);
-        },
-    );
-});
+        await app.register(fastifyAPILogger);
+
+        registerV1Routers(app, httpRouters);
+        registerV2Routers(app, v2Routes);
+
+        await initTasks();
+        app.listen(
+            {
+                port: Server.port,
+                host: "0.0.0.0",
+            },
+            (err, address) => {
+                if (err) {
+                    loggerServer.error("server launch failed", parseError(err));
+                    process.exit(1);
+                }
+
+                loggerServer.info(`server launch success, ${address}`);
+            },
+        );
+    })
+    .catch(error => {
+        loggerServer.error("server initialization failed", parseError(error));
+        process.exit(1);
+    });

@@ -76,7 +76,7 @@ export const joinPeriodic = async (
     const { room_uuid: roomUUID, whiteboard_room_uuid: whiteboardRoomUUID } = roomInfo;
     const profile = getClassroomResourceProfile(roomInfo.classroom_resource_profile_key);
 
-    const local = await UserDAO().findOne(["id"], {
+    const local = await UserDAO().findOne(["id", "user_name", "avatar_url"], {
         user_uuid: userUUID,
     });
 
@@ -154,6 +154,8 @@ export const joinPeriodic = async (
         };
     }
 
+    const usesAgoraRTC = profile.rtcProvider === "agora";
+
     return {
         status: Status.Success,
         data: {
@@ -163,14 +165,21 @@ export const joinPeriodic = async (
             whiteboardRoomToken: createWhiteboardRoomToken(whiteboardRoomUUID, { profile }),
             whiteboardRoomUUID: whiteboardRoomUUID,
             rtcUID: Number(rtcUID),
-            rtcToken: await getRTCToken(roomUUID, Number(rtcUID), profile),
+            rtcToken: usesAgoraRTC ? await getRTCToken(roomUUID, Number(rtcUID), profile) : "",
             rtcShareScreen: {
                 uid: AGORA_SHARE_SCREEN_UID,
-                token: await getRTCToken(roomUUID, AGORA_SHARE_SCREEN_UID, profile),
+                token: usesAgoraRTC
+                    ? await getRTCToken(roomUUID, AGORA_SHARE_SCREEN_UID, profile)
+                    : "",
             },
             rtmToken: await getRTMToken(userUUID, profile),
             region: periodicRoomConfig.region,
             showGuide: roomInfo.owner_uuid === userUUID && (await showGuide(userUUID, roomUUID)),
+            participant: {
+                userUUID,
+                name: local?.user_name || userUUID,
+                avatarURL: local?.avatar_url || "",
+            },
             classroomResource: getClassroomResourcePublicConfig(profile.key),
         },
     };

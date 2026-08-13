@@ -86,22 +86,19 @@ export class RoomPeriodicConfigModel extends Content {
     @Index("periodic_configs_classroom_resource_profile_index")
     @Column({
         length: 64,
-        default: "channel_a_v1",
     })
     classroom_resource_profile_key: string;
 
     @Column({
         length: 32,
-        default: "migration_backfill",
     })
     resource_binding_source: string;
 
     @Column({
         type: "datetime",
         precision: 3,
-        nullable: true,
     })
-    resource_bound_at: Date | null;
+    resource_bound_at: Date;
 
     @Index("periodic_configs_is_delete_index")
     @Column({

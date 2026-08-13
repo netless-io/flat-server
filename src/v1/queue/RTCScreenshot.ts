@@ -13,6 +13,10 @@ import { Agora } from "../../constants/Config";
 import { Not } from "typeorm";
 import { RoomModel } from "../../model/room/Room";
 import { AGORA_SCREENSHOT_UID, AGORA_VOICE_UID } from "../../constants/Agora";
+import {
+    ClassroomResourceProfile,
+    getClassroomResourceProfile,
+} from "../../classroomResource/Registry";
 
 export class RTCScreenshotQueue {
     private static readonly queueName = "RTCScreenshot";
@@ -117,10 +121,17 @@ class RTCScreenshot {
                 nextStatus: "Break",
             };
         }
+        const profile = getClassroomResourceProfile(roomInfo.classroom_resource_profile_key);
+        // Screenshot moderation is an Agora-only legacy capability. OpenFlat RTC
+        // moderation is handled by its own control plane and must never use an
+        // arbitrary default Agora account.
+        if (profile.rtcProvider !== "agora") {
+            return { nextStatus: "Break" };
+        }
 
         switch (this.data.status) {
             case "Start": {
-                const { resourceID, sid } = await this.start(roomInfo.room_type);
+                const { resourceID, sid } = await this.start(roomInfo.room_type, profile);
 
                 return {
                     nextStatus: "Stop",
@@ -133,7 +144,7 @@ class RTCScreenshot {
                 };
             }
             case "Stop": {
-                const stopSuccess = await this.tryStopPreviousService();
+                const stopSuccess = await this.tryStopPreviousService(profile);
                 const within30Minutes =
                     Math.abs(Date.now() - roomInfo.begin_time.valueOf()) < 1000 * 60 * 30;
 
@@ -151,7 +162,7 @@ class RTCScreenshot {
         }
     }
 
-    private async acquire(): Promise<string> {
+    private async acquire(profile: ClassroomResourceProfile): Promise<string> {
         this.logger.debug("get resourceID", {
             rtcDetail: {
                 roomUUID: this.data.roomUUID,
@@ -159,13 +170,16 @@ class RTCScreenshot {
         });
 
         // see: https://docs.agora.io/en/cloud-recording/cloud_recording_screen_capture?platform=RESTful#get-a-resource-id
-        const { resourceId } = await agoraCloudRecordAcquireRequest({
-            ...this.agoraBasicReqData,
-            clientRequest: {
-                resourceExpiredHour: 24,
-                scene: 0,
+        const { resourceId } = await agoraCloudRecordAcquireRequest(
+            {
+                ...this.agoraBasicReqData,
+                clientRequest: {
+                    resourceExpiredHour: 24,
+                    scene: 0,
+                },
             },
-        });
+            profile,
+        );
 
         this.logger.debug("get resourceID success", {
             rtcDetail: {
@@ -177,8 +191,11 @@ class RTCScreenshot {
         return resourceId;
     }
 
-    private async start(roomType: RoomType): Promise<{ resourceID: string; sid: string }> {
-        const resourceID = await this.acquire();
+    private async start(
+        roomType: RoomType,
+        profile: ClassroomResourceProfile,
+    ): Promise<{ resourceID: string; sid: string }> {
+        const resourceID = await this.acquire(profile);
 
         this.logger.debug("start screenshot", {
             rtcDetail: {
@@ -195,7 +212,7 @@ class RTCScreenshot {
             {
                 ...this.agoraBasicReqData,
                 clientRequest: {
-                    token: await getRTCToken(this.data.roomUUID, AGORA_SCREENSHOT_UID),
+                    token: await getRTCToken(this.data.roomUUID, AGORA_SCREENSHOT_UID, profile),
                     recordingConfig: {
                         channelType: roomType === RoomType.BigClass ? 1 : 0,
                         streamTypes: 1,
@@ -219,6 +236,7 @@ class RTCScreenshot {
                     },
                 },
             },
+            profile,
         );
 
         this.logger.debug("start screenshot success", {
@@ -232,7 +250,7 @@ class RTCScreenshot {
         return { resourceID, sid };
     }
 
-    private async tryStopPreviousService(): Promise<boolean> {
+    private async tryStopPreviousService(profile: ClassroomResourceProfile): Promise<boolean> {
         if (!this.data.sid || !this.data.resourceID) {
             this.logger.debug("skip stop screenshot", {
                 rtcDetail: {
@@ -261,6 +279,7 @@ class RTCScreenshot {
                     async_stop: false,
                 },
             },
+            profile,
         )
             .then(() => {
                 this.logger.debug("stop screenshot success", {
@@ -288,11 +307,16 @@ class RTCScreenshot {
 
     private static async roomInfo(
         roomUUID: string,
-    ): Promise<Pick<RoomModel, "room_type" | "begin_time"> | undefined> {
-        const result = await RoomDAO().findOne(["room_type", "begin_time"], {
-            room_uuid: roomUUID,
-            room_status: Not(RoomStatus.Stopped),
-        });
+    ): Promise<
+        Pick<RoomModel, "room_type" | "begin_time" | "classroom_resource_profile_key"> | undefined
+    > {
+        const result = await RoomDAO().findOne(
+            ["room_type", "begin_time", "classroom_resource_profile_key"],
+            {
+                room_uuid: roomUUID,
+                room_status: Not(RoomStatus.Stopped),
+            },
+        );
 
         return result;
     }

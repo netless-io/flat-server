@@ -4,7 +4,7 @@ import { ClassroomResourceProfile } from "../../../../classroomResource/Registry
 export const getCloudRecordData = async <T extends boolean>(
     roomUUID: string,
     hasToken: T,
-    profile?: ClassroomResourceProfile,
+    profile: ClassroomResourceProfile,
 ): Promise<T extends true ? CloudRecordDataToken : CloudRecordData> => {
     if (hasToken === true) {
         // @ts-ignore

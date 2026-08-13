@@ -166,80 +166,82 @@ export class CreatePeriodic extends AbstractController<RequestType, ResponseType
             };
         });
 
-        await dataSource.transaction(async t => {
-            const commands: Promise<unknown>[] = [];
+        await dataSource
+            .transaction(async t => {
+                const commands: Promise<unknown>[] = [];
 
-            commands.push(RoomPeriodicDAO(t).insert(roomData));
+                commands.push(RoomPeriodicDAO(t).insert(roomData));
 
-            commands.push(
-                RoomPeriodicConfigDAO(t).insert({
-                    owner_uuid: userUUID,
-                    periodic_status: PeriodicStatus.Idle,
-                    title,
-                    room_origin_begin_time: toDate(beginTime),
-                    room_origin_end_time: toDate(endTime),
-                    weeks: periodic.weeks.join(","),
-                    rate: periodic.rate || 0,
-                    end_time: periodic.endTime
-                        ? toDate(periodic.endTime)
-                        : dates[dates.length - 1].start,
-                    room_type: type,
-                    periodic_uuid: this.periodicUUID,
-                    region,
-                    classroom_resource_profile_key: profile.key,
-                    resource_binding_source: reservation.assignmentSource,
-                    resource_bound_at: new Date(),
-                }),
-            );
-
-            commands.push(
-                RoomPeriodicUserDAO(t).insert({
-                    periodic_uuid: this.periodicUUID,
-                    user_uuid: userUUID,
-                }),
-            );
-
-            // take the first lesson of the periodic room
-            {
                 commands.push(
-                    RoomDAO(t).insert({
-                        periodic_uuid: this.periodicUUID,
+                    RoomPeriodicConfigDAO(t).insert({
                         owner_uuid: userUUID,
+                        periodic_status: PeriodicStatus.Idle,
                         title,
+                        room_origin_begin_time: toDate(beginTime),
+                        room_origin_end_time: toDate(endTime),
+                        weeks: periodic.weeks.join(","),
+                        rate: periodic.rate || 0,
+                        end_time: periodic.endTime
+                            ? toDate(periodic.endTime)
+                            : dates[dates.length - 1].start,
                         room_type: type,
-                        room_status: RoomStatus.Idle,
-                        room_uuid: roomData[0].fake_room_uuid,
-                        whiteboard_room_uuid: await whiteboardCreateRoom(region, 0, profile),
-                        classroom_resource_profile_key: profile.key,
-                        resource_binding_source: "periodic_inherited",
-                        resource_bound_at: new Date(),
-                        begin_time: roomData[0].begin_time,
-                        end_time: roomData[0].end_time,
+                        periodic_uuid: this.periodicUUID,
                         region,
+                        classroom_resource_profile_key: profile.key,
+                        resource_binding_source: reservation.assignmentSource,
+                        resource_bound_at: new Date(),
                     }),
                 );
 
                 commands.push(
-                    RoomUserDAO(t).insert({
-                        room_uuid: roomData[0].fake_room_uuid,
+                    RoomPeriodicUserDAO(t).insert({
+                        periodic_uuid: this.periodicUUID,
                         user_uuid: userUUID,
-                        rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
                     }),
                 );
-            }
 
-            await Promise.all(commands);
-            await enqueueClassroomResourceConfirmation(
-                t,
-                operationID,
-                this.periodicUUID,
-                userUUID,
-                "periodic",
-            );
-        }).catch(async error => {
-            await cancelClassroomResourceReservation(operationID).catch(() => undefined);
-            throw error;
-        });
+                // take the first lesson of the periodic room
+                {
+                    commands.push(
+                        RoomDAO(t).insert({
+                            periodic_uuid: this.periodicUUID,
+                            owner_uuid: userUUID,
+                            title,
+                            room_type: type,
+                            room_status: RoomStatus.Idle,
+                            room_uuid: roomData[0].fake_room_uuid,
+                            whiteboard_room_uuid: await whiteboardCreateRoom(region, profile),
+                            classroom_resource_profile_key: profile.key,
+                            resource_binding_source: "periodic_inherited",
+                            resource_bound_at: new Date(),
+                            begin_time: roomData[0].begin_time,
+                            end_time: roomData[0].end_time,
+                            region,
+                        }),
+                    );
+
+                    commands.push(
+                        RoomUserDAO(t).insert({
+                            room_uuid: roomData[0].fake_room_uuid,
+                            user_uuid: userUUID,
+                            rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
+                        }),
+                    );
+                }
+
+                await Promise.all(commands);
+                await enqueueClassroomResourceConfirmation(
+                    t,
+                    operationID,
+                    this.periodicUUID,
+                    userUUID,
+                    "periodic",
+                );
+            })
+            .catch(async error => {
+                await cancelClassroomResourceReservation(operationID).catch(() => undefined);
+                throw error;
+            });
         await deliverClassroomResourceConfirmation(operationID);
 
         await generateRoomInviteCode("periodic", this.periodicUUID, this.logger);

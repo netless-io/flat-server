@@ -1,9 +1,13 @@
 import { RtcRole, RtcTokenBuilder, RtmRole, RtmTokenBuilder } from "agora-access-token";
-import { ClassroomResourceProfile, getDefaultClassroomResourceProfile } from "../../classroomResource/Registry";
+import { ClassroomResourceProfile } from "../../classroomResource/Registry";
 import { RedisKey } from "../../utils/Redis";
 import RedisService from "../../thirdPartyService/RedisService";
 
-const generateRTCToken = (title: string, uid: number, profile: ClassroomResourceProfile): string => {
+const generateRTCToken = (
+    title: string,
+    uid: number,
+    profile: ClassroomResourceProfile,
+): string => {
     return RtcTokenBuilder.buildTokenWithUid(
         profile.agora.appId,
         profile.agora.certificate,
@@ -15,10 +19,25 @@ const generateRTCToken = (title: string, uid: number, profile: ClassroomResource
 };
 
 const generateRTMToken = (uid: string, profile: ClassroomResourceProfile): string => {
-    return RtmTokenBuilder.buildToken(profile.agora.appId, profile.agora.certificate, uid, RtmRole.Rtm_User, 0);
+    return RtmTokenBuilder.buildToken(
+        profile.agora.appId,
+        profile.agora.certificate,
+        uid,
+        RtmRole.Rtm_User,
+        0,
+    );
 };
 
-export const getRTCToken = async (roomUUID: string, rtcUID: number, profile = getDefaultClassroomResourceProfile()): Promise<string> => {
+export const getRTCToken = async (
+    roomUUID: string,
+    rtcUID: number,
+    profile: ClassroomResourceProfile,
+): Promise<string> => {
+    if (profile.rtcProvider !== "agora") {
+        throw new Error(
+            `Agora RTC token requested for ${profile.rtcProvider} profile ${profile.key}`,
+        );
+    }
     const rtcKey = RedisKey.agoraRTCRoomUserToken(`${profile.key}:${roomUUID}`, rtcUID);
     let rtcToken = await RedisService.get(rtcKey);
 
@@ -31,7 +50,10 @@ export const getRTCToken = async (roomUUID: string, rtcUID: number, profile = ge
     return rtcToken;
 };
 
-export const getRTMToken = async (userUUID: string, profile = getDefaultClassroomResourceProfile()): Promise<string> => {
+export const getRTMToken = async (
+    userUUID: string,
+    profile: ClassroomResourceProfile,
+): Promise<string> => {
     const rtmKey = RedisKey.agoraRTMUserToken(`${profile.key}:${userUUID}`);
     let rtmToken = await RedisService.get(rtmKey);
 

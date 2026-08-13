@@ -243,18 +243,26 @@ type Config = {
         region: "cn-hz" | "us-sv" | "sg" | "in-mum" | "gb-lon";
         convert_region: "cn-hz" | "us-sv" | "sg" | "in-mum" | "gb-lon";
     };
-    classroom_resources?: {
+    classroom_resources: {
         default_profile_key: string;
         billing_base_url: string;
         billing_internal_token: string;
         profiles: Array<{
             key: string;
-            provider?: string;
+            // Profile identity and version are explicit business fields. Do not
+            // infer either one from the human-readable profile key.
+            channel_code: string;
+            config_version: number;
+            rtc_provider: "agora" | "openflat_rtc";
+            rtm_provider: "agora";
+            // Media placement is independent from the Netless whiteboard
+            // region. Never derive an SFU region from whiteboard.region.
+            media_region: string;
             agora: {
                 app_id: string;
                 certificate: string;
-                restful_id: string;
-                restful_secret: string;
+                restful_id?: string;
+                restful_secret?: string;
             };
             whiteboard: {
                 app_id: string;
@@ -263,7 +271,8 @@ type Config = {
                 region: "cn-hz" | "us-sv" | "sg" | "in-mum" | "gb-lon";
                 convert_region?: "cn-hz" | "us-sv" | "sg" | "in-mum" | "gb-lon";
             };
-            cloud_recording: {
+            recording_provider: "agora" | "openflat_rtc";
+            cloud_recording?: {
                 vendor: number;
                 region: number;
                 bucket: string;

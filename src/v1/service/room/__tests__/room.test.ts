@@ -9,8 +9,14 @@ import { ServiceRoom } from "../Room";
 import { FilterValue, removeEmptyValue } from "../../../../utils/Object";
 import sinon from "sinon";
 import { ax } from "../../../utils/Axios";
+import { getDefaultClassroomResourceProfile } from "../../../../classroomResource/Registry";
 
 const namespace = "[service][service-room]";
+const testResourceBinding = () => ({
+    classroom_resource_profile_key: getDefaultClassroomResourceProfile().key,
+    resource_binding_source: "test",
+    resource_bound_at: new Date(),
+});
 
 test.before(`${namespace} - initialize dataSource`, async () => {
     await dataSource.initialize();
@@ -24,6 +30,7 @@ test(`${namespace} - assert exist room`, async ava => {
     const [roomUUID, userUUID] = [v4(), v4()];
 
     await RoomDAO().insert({
+        ...testResourceBinding(),
         room_uuid: roomUUID,
         owner_uuid: userUUID,
         periodic_uuid: "",
@@ -53,6 +60,7 @@ test(`${namespace} - room info`, async ava => {
     const [roomUUID, userUUID, whiteboardRoomUUID] = [v4(), v4(), v4().replace("-", "")];
 
     await RoomDAO().insert({
+        ...testResourceBinding(),
         room_uuid: roomUUID,
         owner_uuid: userUUID,
         periodic_uuid: "",
@@ -96,6 +104,7 @@ test(`${namespace} - room info by owner`, async ava => {
     const [roomUUID, userUUID, whiteboardRoomUUID] = [v4(), v4(), v4().replace("-", "")];
 
     await RoomDAO().insert({
+        ...testResourceBinding(),
         room_uuid: roomUUID,
         owner_uuid: userUUID,
         periodic_uuid: "",
@@ -150,13 +159,17 @@ test(`${namespace} - create room`, async ava => {
 
         const serviceRoom = new ServiceRoom(roomUUID, userUUID);
 
-        await serviceRoom.create({
-            title: "test",
-            region: Region.SG,
-            type: RoomType.OneToOne,
-            beginTime: beginTime,
-            endTime: addMinutes(40)(beginTime),
-        });
+        await serviceRoom.create(
+            {
+                title: "test",
+                region: Region.SG,
+                type: RoomType.OneToOne,
+                beginTime: beginTime,
+                endTime: addMinutes(40)(beginTime),
+            },
+            getDefaultClassroomResourceProfile(),
+            "test",
+        );
 
         const result = removeEmptyValue(
             await serviceRoom.assertInfo(["owner_uuid", "whiteboard_room_uuid", "end_time"]),
@@ -199,12 +212,16 @@ test(`${namespace} - create room`, async ava => {
 
         const serviceRoom = new ServiceRoom(roomUUID, userUUID);
 
-        await serviceRoom.create({
-            title: "test",
-            region: Region.CN_HZ,
-            type: RoomType.OneToOne,
-            beginTime: beginTime,
-        });
+        await serviceRoom.create(
+            {
+                title: "test",
+                region: Region.CN_HZ,
+                type: RoomType.OneToOne,
+                beginTime: beginTime,
+            },
+            getDefaultClassroomResourceProfile(),
+            "test",
+        );
 
         const result = removeEmptyValue(
             await serviceRoom.assertInfo(["end_time", "owner_uuid", "whiteboard_room_uuid"]),
@@ -232,6 +249,7 @@ test(`${namespace} - remove room`, async ava => {
     const [roomUUID, userUUID] = [v4(), v4(), Date.now()];
 
     await RoomDAO().insert({
+        ...testResourceBinding(),
         title: "test",
         owner_uuid: userUUID,
         region: Region.CN_HZ,

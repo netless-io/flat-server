@@ -1,6 +1,7 @@
 import { FastifySchema, Response, ResponseError } from "../../../../types/Server";
 import { Region, Status } from "../../../../constants/Project";
 import { ErrorCode } from "../../../../ErrorCode";
+import { ControllerError } from "../../../../error/ControllerError";
 import { RoomDAO, RoomRecordDAO } from "../../../../dao";
 import { RoomStatus, RoomType } from "../../../../model/room/Constants";
 import { createWhiteboardRoomToken } from "../../../../utils/NetlessToken";
@@ -11,6 +12,7 @@ import {
     getClassroomResourceProfile,
     getClassroomResourcePublicConfig,
 } from "../../../../classroomResource/Registry";
+import { ClassroomResources } from "../../../../constants/Config";
 
 @Controller<RequestType, ResponseType>({
     method: "post",
@@ -31,11 +33,25 @@ export class RecordInfo extends AbstractController<RequestType, ResponseType> {
     };
 
     public async execute(): Promise<Response<ResponseType>> {
+        if (
+            !ClassroomResources.billing_internal_token ||
+            this.req.headers["x-internal-token"] !== ClassroomResources.billing_internal_token
+        ) {
+            throw new ControllerError(ErrorCode.NotPermission);
+        }
         const { roomUUID } = this.body;
         const userUUID = this.userUUID;
 
         const roomInfo = await RoomDAO().findOne(
-            ["room_status", "whiteboard_room_uuid", "room_type", "title", "owner_uuid", "region", "classroom_resource_profile_key"],
+            [
+                "room_status",
+                "whiteboard_room_uuid",
+                "room_type",
+                "title",
+                "owner_uuid",
+                "region",
+                "classroom_resource_profile_key",
+            ],
             {
                 room_uuid: roomUUID,
             },
@@ -55,12 +71,22 @@ export class RecordInfo extends AbstractController<RequestType, ResponseType> {
             };
         }
 
+        const profile = getClassroomResourceProfile(roomInfo.classroom_resource_profile_key);
         const roomRecordInfo = await RoomRecordDAO().find(
-            ["begin_time", "end_time", "agora_sid", "recording_storage_prefix", "classroom_resource_profile_key"],
+            [
+                "begin_time",
+                "end_time",
+                "agora_sid",
+                "recording_storage_prefix",
+                "classroom_resource_profile_key",
+            ],
             { room_uuid: roomUUID },
         );
 
-        if (roomRecordInfo.length === 0) {
+        // Agora media is indexed by room_records. OpenFlat RTC media is owned
+        // by Billing and merged into this whiteboard-context response, so it
+        // must not depend on a duplicate Flat recording lifecycle row.
+        if (profile.recordingProvider === "agora" && roomRecordInfo.length === 0) {
             return {
                 status: Status.Failed,
                 code: ErrorCode.RecordNotFound,
@@ -74,8 +100,6 @@ export class RecordInfo extends AbstractController<RequestType, ResponseType> {
             whiteboard_room_uuid: whiteboardRoomUUID,
             region,
         } = roomInfo;
-        const profile = getClassroomResourceProfile(roomInfo.classroom_resource_profile_key);
-
         const resourcesURLPrefix = `${profile.cloudRecording.prefix}/${profile.cloudRecording.folder}/${roomUUID.replace(
             /-/g,
             "",
@@ -136,7 +160,9 @@ interface ResponseType {
     rtmToken: string;
     classroomResource: {
         profileKey: string;
-        provider: string;
+        rtcProvider: "agora" | "openflat_rtc";
+        rtmProvider: "agora";
+        recordingProvider: "agora" | "openflat_rtc";
         agoraAppID: string;
         whiteboardAppID: string;
         whiteboardRegion: Region;

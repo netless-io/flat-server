@@ -17,6 +17,12 @@ import {
     userPhoneDAO,
 } from "../../dao";
 import { RoomAdminService } from "../room/admin";
+import {
+    cancelClassroomResourceReservation,
+    normalizeClassroomResourceOperationID,
+    reserveClassroomResource,
+} from "../../../classroomResource/BillingReservationClient";
+import { enqueueClassroomResourceConfirmation } from "../../../classroomResource/ConfirmationOutbox";
 
 export class DeveloperPartnerService {
     private readonly logger = createLoggerService<"developerPartner">({
@@ -92,26 +98,52 @@ export class DeveloperPartnerService {
 
         const roomUUID = generateRoomUUID();
         const roomService = new ServiceRoom(roomUUID, ownerUUID);
+        const operationID = normalizeClassroomResourceOperationID(
+            `partner:${this.partnerUUID}:${roomUUID}`,
+            roomUUID,
+        );
+        const { reservation, profile } = await reserveClassroomResource(
+            ownerUUID,
+            "room",
+            operationID,
+        );
 
-        await Promise.all([
-            roomService.create({ title, type, beginTime, endTime }, this.DBTransaction),
-            roomUserDAO.insert(this.DBTransaction, [
-                {
+        try {
+            await Promise.all([
+                roomService.create(
+                    { title, type, beginTime, endTime },
+                    profile,
+                    reservation.assignmentSource,
+                    this.DBTransaction,
+                ),
+                roomUserDAO.insert(this.DBTransaction, [
+                    {
+                        room_uuid: roomUUID,
+                        user_uuid: userUUID,
+                        rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
+                    },
+                    {
+                        room_uuid: roomUUID,
+                        user_uuid: ownerUUID,
+                        rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
+                    },
+                ]),
+                partnerRoomDAO.insert(this.DBTransaction, {
+                    partner_uuid: this.partnerUUID,
                     room_uuid: roomUUID,
-                    user_uuid: userUUID,
-                    rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
-                },
-                {
-                    room_uuid: roomUUID,
-                    user_uuid: ownerUUID,
-                    rtc_uid: cryptoRandomString({ length: 6, type: "numeric" }),
-                },
-            ]),
-            partnerRoomDAO.insert(this.DBTransaction, {
-                partner_uuid: this.partnerUUID,
-                room_uuid: roomUUID,
-            }),
-        ]);
+                }),
+            ]);
+            await enqueueClassroomResourceConfirmation(
+                this.DBTransaction,
+                operationID,
+                roomUUID,
+                ownerUUID,
+                "room",
+            );
+        } catch (error) {
+            await cancelClassroomResourceReservation(operationID).catch(() => undefined);
+            throw error;
+        }
 
         rtcQueue(roomUUID, 0);
 

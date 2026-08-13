@@ -14,6 +14,10 @@ import { Not } from "typeorm";
 import { RoomModel } from "../../model/room/Room";
 import { AGORA_SCREENSHOT_UID, AGORA_VOICE_UID } from "../../constants/Agora";
 import { createHmac } from "crypto";
+import {
+    ClassroomResourceProfile,
+    getClassroomResourceProfile,
+} from "../../classroomResource/Registry";
 
 export class RTCVoiceQueue {
     private static readonly queueName = "RTCVoice";
@@ -106,7 +110,10 @@ export class RTCVoiceQueue {
 export const rtcVoiceQueue = new RTCVoiceQueue();
 
 class RTCVoice {
-    constructor(private readonly data: JobData, private readonly logger: Logger<LoggerRTCVoice>) {}
+    constructor(
+        private readonly data: JobData,
+        private readonly logger: Logger<LoggerRTCVoice>,
+    ) {}
 
     public async handler(): Promise<RTCVoiceStatus> {
         const roomInfo = await RTCVoice.roomInfo(this.data.roomUUID);
@@ -115,10 +122,14 @@ class RTCVoice {
                 nextStatus: "Break",
             };
         }
+        const profile = getClassroomResourceProfile(roomInfo.classroom_resource_profile_key);
+        if (profile.rtcProvider !== "agora") {
+            return { nextStatus: "Break" };
+        }
 
         switch (this.data.status) {
             case "Start": {
-                const { resourceID, sid } = await this.start(roomInfo.room_type);
+                const { resourceID, sid } = await this.start(roomInfo.room_type, profile);
 
                 return {
                     nextStatus: "Stop",
@@ -131,7 +142,7 @@ class RTCVoice {
                 };
             }
             case "Stop": {
-                const stopSuccess = await this.tryStopPreviousService();
+                const stopSuccess = await this.tryStopPreviousService(profile);
 
                 return {
                     nextStatus: "Start",
@@ -147,7 +158,7 @@ class RTCVoice {
         }
     }
 
-    private async acquire(): Promise<string> {
+    private async acquire(profile: ClassroomResourceProfile): Promise<string> {
         this.logger.debug("get resourceID", {
             rtcDetail: {
                 roomUUID: this.data.roomUUID,
@@ -156,13 +167,16 @@ class RTCVoice {
 
         // see: https://docs.agora.io/cn/cloud-recording/audio_inspect_restful?platform=RESTful#获取审核资源的-api
         // NOTE: No English description available at the moment
-        const { resourceId } = await agoraCloudRecordAcquireRequest({
-            ...this.agoraBasicReqData,
-            clientRequest: {
-                resourceExpiredHour: 24,
-                scene: 0,
+        const { resourceId } = await agoraCloudRecordAcquireRequest(
+            {
+                ...this.agoraBasicReqData,
+                clientRequest: {
+                    resourceExpiredHour: 24,
+                    scene: 0,
+                },
             },
-        });
+            profile,
+        );
 
         this.logger.debug("get resourceID success", {
             rtcDetail: {
@@ -174,8 +188,11 @@ class RTCVoice {
         return resourceId;
     }
 
-    private async start(roomType: RoomType): Promise<{ resourceID: string; sid: string }> {
-        const resourceID = await this.acquire();
+    private async start(
+        roomType: RoomType,
+        profile: ClassroomResourceProfile,
+    ): Promise<{ resourceID: string; sid: string }> {
+        const resourceID = await this.acquire(profile);
 
         this.logger.debug("start voice", {
             rtcDetail: {
@@ -192,7 +209,7 @@ class RTCVoice {
             {
                 ...this.agoraBasicReqData,
                 clientRequest: {
-                    token: await getRTCToken(this.data.roomUUID, AGORA_VOICE_UID),
+                    token: await getRTCToken(this.data.roomUUID, AGORA_VOICE_UID, profile),
                     recordingConfig: {
                         channelType: roomType === RoomType.BigClass ? 1 : 0,
                         streamTypes: 0,
@@ -222,6 +239,7 @@ class RTCVoice {
                     },
                 },
             },
+            profile,
         );
 
         this.logger.debug("start voice success", {
@@ -236,7 +254,9 @@ class RTCVoice {
     }
 
     // @ts-ignore
-    private async tryStopPreviousService(): Promise<number | void> {
+    private async tryStopPreviousService(
+        profile: ClassroomResourceProfile,
+    ): Promise<number | void> {
         if (!this.data.sid || !this.data.resourceID) {
             this.logger.debug("skip stop voice", {
                 rtcDetail: {
@@ -265,6 +285,7 @@ class RTCVoice {
                     async_stop: false,
                 },
             },
+            profile,
         )
             .then(() => {
                 this.logger.debug("stop voice success", {
@@ -292,8 +313,8 @@ class RTCVoice {
 
     private static async roomInfo(
         roomUUID: string,
-    ): Promise<Pick<RoomModel, "room_type"> | undefined> {
-        const result = await RoomDAO().findOne(["room_type"], {
+    ): Promise<Pick<RoomModel, "room_type" | "classroom_resource_profile_key"> | undefined> {
+        const result = await RoomDAO().findOne(["room_type", "classroom_resource_profile_key"], {
             room_uuid: roomUUID,
             room_status: Not(RoomStatus.Stopped),
         });
