@@ -34,6 +34,7 @@ import { RoomModel } from "./model/room/Room";
 import { RoomPeriodicConfigModel } from "./model/room/RoomPeriodicConfig";
 import { RoomRecordModel } from "./model/room/RoomRecord";
 import { assertClassroomResourceBindingIntegrity } from "./classroomResource/BindingIntegrity";
+import { BindingMigrationRequest, migrateRoomBinding } from "./classroomResource/BindingMigration";
 
 const app = fastify({
     caseSensitive: true,
@@ -168,6 +169,18 @@ app.get<{ Params: { uuid: string } }>(
                 where: { room_uuid: room.room_uuid },
                 order: { created_at: "DESC" },
             });
+            const providerMigrations = await dataSource.query(
+                `SELECT operation_id AS operationID,
+				        source_profile_key AS sourceProfileKey,
+				        target_profile_key AS targetProfileKey,
+				        reason, operator_uuid AS operatorUUID, status,
+				        migrated_at AS migratedAt, created_at AS createdAt
+				   FROM classroom_resource_binding_migrations
+				  WHERE room_uuid = ?
+				  ORDER BY id DESC
+				  LIMIT 50`,
+                [room.room_uuid],
+            );
             return reply.send({
                 status: 0,
                 data: {
@@ -181,6 +194,7 @@ app.get<{ Params: { uuid: string } }>(
                         room.classroom_resource_profile_key,
                     ),
                     billingConfirmation: confirmations[0] || null,
+                    flatProviderMigrations: providerMigrations,
                     recordings: recordings.map(recording => ({
                         recordingID: recording.id,
                         resourceProfileKey: recording.classroom_resource_profile_key,
@@ -226,6 +240,29 @@ app.get<{ Params: { uuid: string } }>(
             });
         }
         return reply.code(404).send({ status: 1, message: "binding not found" });
+    },
+);
+
+app.post<{ Params: { uuid: string }; Body: BindingMigrationRequest }>(
+    "/v1/internal/classroom-resources/bindings/:uuid/migrate",
+    async (request, reply) => {
+        const configuredToken = ClassroomResources?.billing_internal_token;
+        if (!configuredToken || request.headers["x-internal-token"] !== configuredToken) {
+            return reply.code(401).send({ status: 1, message: "unauthorized" });
+        }
+        try {
+            const result = await migrateRoomBinding(dataSource, request.params.uuid, request.body);
+            return reply.send({ status: 0, data: result });
+        } catch (error) {
+            request.log.warn(
+                { error, roomUUID: request.params.uuid },
+                "binding migration rejected",
+            );
+            return reply.code(409).send({
+                status: 1,
+                message: error instanceof Error ? error.message : "binding migration failed",
+            });
+        }
     },
 );
 

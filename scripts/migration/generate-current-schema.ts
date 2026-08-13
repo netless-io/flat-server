@@ -162,6 +162,12 @@ const main = async (): Promise<void> => {
     if (!migrationState) {
         throw new Error("Unable to find classroom_resource_binding_migration_state migration");
     }
+    const providerMigrationPath = path.join(
+        __dirname,
+        "2026-08-13_classroom-resource-provider-migrations",
+        "migration.sql",
+    );
+    const providerMigration = fs.readFileSync(providerMigrationPath, "utf8").trim();
 
     const sql = [
         "-- Generated from the current flat-server TypeORM entities.",
@@ -171,6 +177,7 @@ const main = async (): Promise<void> => {
         ...dataSource.entityMetadatas.map(createTable),
         migrationState[0].trim(),
         outbox[0].trim(),
+        providerMigration,
         "SET FOREIGN_KEY_CHECKS = 1;",
         "",
     ].join("\n\n");

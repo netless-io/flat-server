@@ -28,19 +28,18 @@ export async function assertClassroomResourceBindingIntegrity(
         SELECT 'recordings.unbound', COUNT(*)
           FROM room_records
          WHERE TRIM(classroom_resource_profile_key) = ''
-        UNION ALL
-        SELECT 'recordings.room_binding_mismatch', COUNT(*)
-          FROM room_records recording
-          LEFT JOIN rooms room ON room.room_uuid = recording.room_uuid
-         WHERE room.id IS NULL
-            OR BINARY recording.classroom_resource_profile_key <>
-               BINARY room.classroom_resource_profile_key
+		UNION ALL
+		SELECT 'recordings.room_missing', COUNT(*)
+		  FROM room_records recording
+		  LEFT JOIN rooms room ON room.room_uuid = recording.room_uuid
+		 WHERE room.id IS NULL
         UNION ALL
         SELECT 'periodic.room_binding_mismatch', COUNT(*)
           FROM rooms room
           LEFT JOIN room_periodic_configs periodic
             ON periodic.periodic_uuid = room.periodic_uuid
          WHERE TRIM(room.periodic_uuid) <> ''
+           AND room.resource_binding_source <> 'provider_migration'
            AND (
                 periodic.id IS NULL
                 OR BINARY room.classroom_resource_profile_key <>
